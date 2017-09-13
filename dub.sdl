@@ -1,5 +1,5 @@
 name "compiler-benchmark"
-description "enchmarks compilation speeds of different combinations of languages and compilers, typicall C++, D and Rust."
+description "enchmarks compilation speeds of different combinations of languages and compilers, typically C++, D and Rust."
 authors "Per Nordlöw"
 copyright "Copyright © 2017, Per Nordlöw"
 license "BSL-1.0"
