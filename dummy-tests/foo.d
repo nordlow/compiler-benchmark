@@ -1,6 +1,3 @@
-
-import std.stdio : writeln;
-
 void main(string[] args)
 {
     ulong sum = 0;
@@ -1504,7 +1501,6 @@ void main(string[] args)
     sum += _hoo247(42);
     sum += _hoo248(42);
     sum += _hoo249(42);
-    writeln("sum: ", sum);
 }
 
 ulong foo0(ulong x)
