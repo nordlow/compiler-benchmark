@@ -1,4 +1,4 @@
-module Foo exposing (main)
+module Foo exposing (main_)
 
 import List
 
@@ -1505,7 +1505,7 @@ hoo249_ x = x * 249
 
 
 
-main =
+main_ =
   [ foo0 42
   , foo1 42
   , foo2 42
