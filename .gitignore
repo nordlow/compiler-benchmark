@@ -5,5 +5,4 @@ __dummy.html
 *.obj
 __test__*__
 compiler-benchmark
-*.elmi
-*.elmo
+elm-stuff/
