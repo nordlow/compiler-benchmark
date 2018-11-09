@@ -6,3 +6,4 @@ __dummy.html
 __test__*__
 compiler-benchmark
 elm-stuff/
+.mypy_cache/
