@@ -1,6 +1,6 @@
 void main(string[] args)
 {
-    ulong sum = 0;
+    long sum = 0;
     sum += foo0(42);
     sum += foo1(42);
     sum += foo2(42);
@@ -1503,7502 +1503,7502 @@ void main(string[] args)
     sum += _hoo249(42);
 }
 
-ulong foo0(ulong x)
+long foo0(long x)
 {
     return x * 0;
 }
 
-ulong foo1(ulong x)
+long foo1(long x)
 {
     return x * 1;
 }
 
-ulong foo2(ulong x)
+long foo2(long x)
 {
     return x * 2;
 }
 
-ulong foo3(ulong x)
+long foo3(long x)
 {
     return x * 3;
 }
 
-ulong foo4(ulong x)
+long foo4(long x)
 {
     return x * 4;
 }
 
-ulong foo5(ulong x)
+long foo5(long x)
 {
     return x * 5;
 }
 
-ulong foo6(ulong x)
+long foo6(long x)
 {
     return x * 6;
 }
 
-ulong foo7(ulong x)
+long foo7(long x)
 {
     return x * 7;
 }
 
-ulong foo8(ulong x)
+long foo8(long x)
 {
     return x * 8;
 }
 
-ulong foo9(ulong x)
+long foo9(long x)
 {
     return x * 9;
 }
 
-ulong foo10(ulong x)
+long foo10(long x)
 {
     return x * 10;
 }
 
-ulong foo11(ulong x)
+long foo11(long x)
 {
     return x * 11;
 }
 
-ulong foo12(ulong x)
+long foo12(long x)
 {
     return x * 12;
 }
 
-ulong foo13(ulong x)
+long foo13(long x)
 {
     return x * 13;
 }
 
-ulong foo14(ulong x)
+long foo14(long x)
 {
     return x * 14;
 }
 
-ulong foo15(ulong x)
+long foo15(long x)
 {
     return x * 15;
 }
 
-ulong foo16(ulong x)
+long foo16(long x)
 {
     return x * 16;
 }
 
-ulong foo17(ulong x)
+long foo17(long x)
 {
     return x * 17;
 }
 
-ulong foo18(ulong x)
+long foo18(long x)
 {
     return x * 18;
 }
 
-ulong foo19(ulong x)
+long foo19(long x)
 {
     return x * 19;
 }
 
-ulong foo20(ulong x)
+long foo20(long x)
 {
     return x * 20;
 }
 
-ulong foo21(ulong x)
+long foo21(long x)
 {
     return x * 21;
 }
 
-ulong foo22(ulong x)
+long foo22(long x)
 {
     return x * 22;
 }
 
-ulong foo23(ulong x)
+long foo23(long x)
 {
     return x * 23;
 }
 
-ulong foo24(ulong x)
+long foo24(long x)
 {
     return x * 24;
 }
 
-ulong foo25(ulong x)
+long foo25(long x)
 {
     return x * 25;
 }
 
-ulong foo26(ulong x)
+long foo26(long x)
 {
     return x * 26;
 }
 
-ulong foo27(ulong x)
+long foo27(long x)
 {
     return x * 27;
 }
 
-ulong foo28(ulong x)
+long foo28(long x)
 {
     return x * 28;
 }
 
-ulong foo29(ulong x)
+long foo29(long x)
 {
     return x * 29;
 }
 
-ulong foo30(ulong x)
+long foo30(long x)
 {
     return x * 30;
 }
 
-ulong foo31(ulong x)
+long foo31(long x)
 {
     return x * 31;
 }
 
-ulong foo32(ulong x)
+long foo32(long x)
 {
     return x * 32;
 }
 
-ulong foo33(ulong x)
+long foo33(long x)
 {
     return x * 33;
 }
 
-ulong foo34(ulong x)
+long foo34(long x)
 {
     return x * 34;
 }
 
-ulong foo35(ulong x)
+long foo35(long x)
 {
     return x * 35;
 }
 
-ulong foo36(ulong x)
+long foo36(long x)
 {
     return x * 36;
 }
 
-ulong foo37(ulong x)
+long foo37(long x)
 {
     return x * 37;
 }
 
-ulong foo38(ulong x)
+long foo38(long x)
 {
     return x * 38;
 }
 
-ulong foo39(ulong x)
+long foo39(long x)
 {
     return x * 39;
 }
 
-ulong foo40(ulong x)
+long foo40(long x)
 {
     return x * 40;
 }
 
-ulong foo41(ulong x)
+long foo41(long x)
 {
     return x * 41;
 }
 
-ulong foo42(ulong x)
+long foo42(long x)
 {
     return x * 42;
 }
 
-ulong foo43(ulong x)
+long foo43(long x)
 {
     return x * 43;
 }
 
-ulong foo44(ulong x)
+long foo44(long x)
 {
     return x * 44;
 }
 
-ulong foo45(ulong x)
+long foo45(long x)
 {
     return x * 45;
 }
 
-ulong foo46(ulong x)
+long foo46(long x)
 {
     return x * 46;
 }
 
-ulong foo47(ulong x)
+long foo47(long x)
 {
     return x * 47;
 }
 
-ulong foo48(ulong x)
+long foo48(long x)
 {
     return x * 48;
 }
 
-ulong foo49(ulong x)
+long foo49(long x)
 {
     return x * 49;
 }
 
-ulong foo50(ulong x)
+long foo50(long x)
 {
     return x * 50;
 }
 
-ulong foo51(ulong x)
+long foo51(long x)
 {
     return x * 51;
 }
 
-ulong foo52(ulong x)
+long foo52(long x)
 {
     return x * 52;
 }
 
-ulong foo53(ulong x)
+long foo53(long x)
 {
     return x * 53;
 }
 
-ulong foo54(ulong x)
+long foo54(long x)
 {
     return x * 54;
 }
 
-ulong foo55(ulong x)
+long foo55(long x)
 {
     return x * 55;
 }
 
-ulong foo56(ulong x)
+long foo56(long x)
 {
     return x * 56;
 }
 
-ulong foo57(ulong x)
+long foo57(long x)
 {
     return x * 57;
 }
 
-ulong foo58(ulong x)
+long foo58(long x)
 {
     return x * 58;
 }
 
-ulong foo59(ulong x)
+long foo59(long x)
 {
     return x * 59;
 }
 
-ulong foo60(ulong x)
+long foo60(long x)
 {
     return x * 60;
 }
 
-ulong foo61(ulong x)
+long foo61(long x)
 {
     return x * 61;
 }
 
-ulong foo62(ulong x)
+long foo62(long x)
 {
     return x * 62;
 }
 
-ulong foo63(ulong x)
+long foo63(long x)
 {
     return x * 63;
 }
 
-ulong foo64(ulong x)
+long foo64(long x)
 {
     return x * 64;
 }
 
-ulong foo65(ulong x)
+long foo65(long x)
 {
     return x * 65;
 }
 
-ulong foo66(ulong x)
+long foo66(long x)
 {
     return x * 66;
 }
 
-ulong foo67(ulong x)
+long foo67(long x)
 {
     return x * 67;
 }
 
-ulong foo68(ulong x)
+long foo68(long x)
 {
     return x * 68;
 }
 
-ulong foo69(ulong x)
+long foo69(long x)
 {
     return x * 69;
 }
 
-ulong foo70(ulong x)
+long foo70(long x)
 {
     return x * 70;
 }
 
-ulong foo71(ulong x)
+long foo71(long x)
 {
     return x * 71;
 }
 
-ulong foo72(ulong x)
+long foo72(long x)
 {
     return x * 72;
 }
 
-ulong foo73(ulong x)
+long foo73(long x)
 {
     return x * 73;
 }
 
-ulong foo74(ulong x)
+long foo74(long x)
 {
     return x * 74;
 }
 
-ulong foo75(ulong x)
+long foo75(long x)
 {
     return x * 75;
 }
 
-ulong foo76(ulong x)
+long foo76(long x)
 {
     return x * 76;
 }
 
-ulong foo77(ulong x)
+long foo77(long x)
 {
     return x * 77;
 }
 
-ulong foo78(ulong x)
+long foo78(long x)
 {
     return x * 78;
 }
 
-ulong foo79(ulong x)
+long foo79(long x)
 {
     return x * 79;
 }
 
-ulong foo80(ulong x)
+long foo80(long x)
 {
     return x * 80;
 }
 
-ulong foo81(ulong x)
+long foo81(long x)
 {
     return x * 81;
 }
 
-ulong foo82(ulong x)
+long foo82(long x)
 {
     return x * 82;
 }
 
-ulong foo83(ulong x)
+long foo83(long x)
 {
     return x * 83;
 }
 
-ulong foo84(ulong x)
+long foo84(long x)
 {
     return x * 84;
 }
 
-ulong foo85(ulong x)
+long foo85(long x)
 {
     return x * 85;
 }
 
-ulong foo86(ulong x)
+long foo86(long x)
 {
     return x * 86;
 }
 
-ulong foo87(ulong x)
+long foo87(long x)
 {
     return x * 87;
 }
 
-ulong foo88(ulong x)
+long foo88(long x)
 {
     return x * 88;
 }
 
-ulong foo89(ulong x)
+long foo89(long x)
 {
     return x * 89;
 }
 
-ulong foo90(ulong x)
+long foo90(long x)
 {
     return x * 90;
 }
 
-ulong foo91(ulong x)
+long foo91(long x)
 {
     return x * 91;
 }
 
-ulong foo92(ulong x)
+long foo92(long x)
 {
     return x * 92;
 }
 
-ulong foo93(ulong x)
+long foo93(long x)
 {
     return x * 93;
 }
 
-ulong foo94(ulong x)
+long foo94(long x)
 {
     return x * 94;
 }
 
-ulong foo95(ulong x)
+long foo95(long x)
 {
     return x * 95;
 }
 
-ulong foo96(ulong x)
+long foo96(long x)
 {
     return x * 96;
 }
 
-ulong foo97(ulong x)
+long foo97(long x)
 {
     return x * 97;
 }
 
-ulong foo98(ulong x)
+long foo98(long x)
 {
     return x * 98;
 }
 
-ulong foo99(ulong x)
+long foo99(long x)
 {
     return x * 99;
 }
 
-ulong foo100(ulong x)
+long foo100(long x)
 {
     return x * 100;
 }
 
-ulong foo101(ulong x)
+long foo101(long x)
 {
     return x * 101;
 }
 
-ulong foo102(ulong x)
+long foo102(long x)
 {
     return x * 102;
 }
 
-ulong foo103(ulong x)
+long foo103(long x)
 {
     return x * 103;
 }
 
-ulong foo104(ulong x)
+long foo104(long x)
 {
     return x * 104;
 }
 
-ulong foo105(ulong x)
+long foo105(long x)
 {
     return x * 105;
 }
 
-ulong foo106(ulong x)
+long foo106(long x)
 {
     return x * 106;
 }
 
-ulong foo107(ulong x)
+long foo107(long x)
 {
     return x * 107;
 }
 
-ulong foo108(ulong x)
+long foo108(long x)
 {
     return x * 108;
 }
 
-ulong foo109(ulong x)
+long foo109(long x)
 {
     return x * 109;
 }
 
-ulong foo110(ulong x)
+long foo110(long x)
 {
     return x * 110;
 }
 
-ulong foo111(ulong x)
+long foo111(long x)
 {
     return x * 111;
 }
 
-ulong foo112(ulong x)
+long foo112(long x)
 {
     return x * 112;
 }
 
-ulong foo113(ulong x)
+long foo113(long x)
 {
     return x * 113;
 }
 
-ulong foo114(ulong x)
+long foo114(long x)
 {
     return x * 114;
 }
 
-ulong foo115(ulong x)
+long foo115(long x)
 {
     return x * 115;
 }
 
-ulong foo116(ulong x)
+long foo116(long x)
 {
     return x * 116;
 }
 
-ulong foo117(ulong x)
+long foo117(long x)
 {
     return x * 117;
 }
 
-ulong foo118(ulong x)
+long foo118(long x)
 {
     return x * 118;
 }
 
-ulong foo119(ulong x)
+long foo119(long x)
 {
     return x * 119;
 }
 
-ulong foo120(ulong x)
+long foo120(long x)
 {
     return x * 120;
 }
 
-ulong foo121(ulong x)
+long foo121(long x)
 {
     return x * 121;
 }
 
-ulong foo122(ulong x)
+long foo122(long x)
 {
     return x * 122;
 }
 
-ulong foo123(ulong x)
+long foo123(long x)
 {
     return x * 123;
 }
 
-ulong foo124(ulong x)
+long foo124(long x)
 {
     return x * 124;
 }
 
-ulong foo125(ulong x)
+long foo125(long x)
 {
     return x * 125;
 }
 
-ulong foo126(ulong x)
+long foo126(long x)
 {
     return x * 126;
 }
 
-ulong foo127(ulong x)
+long foo127(long x)
 {
     return x * 127;
 }
 
-ulong foo128(ulong x)
+long foo128(long x)
 {
     return x * 128;
 }
 
-ulong foo129(ulong x)
+long foo129(long x)
 {
     return x * 129;
 }
 
-ulong foo130(ulong x)
+long foo130(long x)
 {
     return x * 130;
 }
 
-ulong foo131(ulong x)
+long foo131(long x)
 {
     return x * 131;
 }
 
-ulong foo132(ulong x)
+long foo132(long x)
 {
     return x * 132;
 }
 
-ulong foo133(ulong x)
+long foo133(long x)
 {
     return x * 133;
 }
 
-ulong foo134(ulong x)
+long foo134(long x)
 {
     return x * 134;
 }
 
-ulong foo135(ulong x)
+long foo135(long x)
 {
     return x * 135;
 }
 
-ulong foo136(ulong x)
+long foo136(long x)
 {
     return x * 136;
 }
 
-ulong foo137(ulong x)
+long foo137(long x)
 {
     return x * 137;
 }
 
-ulong foo138(ulong x)
+long foo138(long x)
 {
     return x * 138;
 }
 
-ulong foo139(ulong x)
+long foo139(long x)
 {
     return x * 139;
 }
 
-ulong foo140(ulong x)
+long foo140(long x)
 {
     return x * 140;
 }
 
-ulong foo141(ulong x)
+long foo141(long x)
 {
     return x * 141;
 }
 
-ulong foo142(ulong x)
+long foo142(long x)
 {
     return x * 142;
 }
 
-ulong foo143(ulong x)
+long foo143(long x)
 {
     return x * 143;
 }
 
-ulong foo144(ulong x)
+long foo144(long x)
 {
     return x * 144;
 }
 
-ulong foo145(ulong x)
+long foo145(long x)
 {
     return x * 145;
 }
 
-ulong foo146(ulong x)
+long foo146(long x)
 {
     return x * 146;
 }
 
-ulong foo147(ulong x)
+long foo147(long x)
 {
     return x * 147;
 }
 
-ulong foo148(ulong x)
+long foo148(long x)
 {
     return x * 148;
 }
 
-ulong foo149(ulong x)
+long foo149(long x)
 {
     return x * 149;
 }
 
-ulong foo150(ulong x)
+long foo150(long x)
 {
     return x * 150;
 }
 
-ulong foo151(ulong x)
+long foo151(long x)
 {
     return x * 151;
 }
 
-ulong foo152(ulong x)
+long foo152(long x)
 {
     return x * 152;
 }
 
-ulong foo153(ulong x)
+long foo153(long x)
 {
     return x * 153;
 }
 
-ulong foo154(ulong x)
+long foo154(long x)
 {
     return x * 154;
 }
 
-ulong foo155(ulong x)
+long foo155(long x)
 {
     return x * 155;
 }
 
-ulong foo156(ulong x)
+long foo156(long x)
 {
     return x * 156;
 }
 
-ulong foo157(ulong x)
+long foo157(long x)
 {
     return x * 157;
 }
 
-ulong foo158(ulong x)
+long foo158(long x)
 {
     return x * 158;
 }
 
-ulong foo159(ulong x)
+long foo159(long x)
 {
     return x * 159;
 }
 
-ulong foo160(ulong x)
+long foo160(long x)
 {
     return x * 160;
 }
 
-ulong foo161(ulong x)
+long foo161(long x)
 {
     return x * 161;
 }
 
-ulong foo162(ulong x)
+long foo162(long x)
 {
     return x * 162;
 }
 
-ulong foo163(ulong x)
+long foo163(long x)
 {
     return x * 163;
 }
 
-ulong foo164(ulong x)
+long foo164(long x)
 {
     return x * 164;
 }
 
-ulong foo165(ulong x)
+long foo165(long x)
 {
     return x * 165;
 }
 
-ulong foo166(ulong x)
+long foo166(long x)
 {
     return x * 166;
 }
 
-ulong foo167(ulong x)
+long foo167(long x)
 {
     return x * 167;
 }
 
-ulong foo168(ulong x)
+long foo168(long x)
 {
     return x * 168;
 }
 
-ulong foo169(ulong x)
+long foo169(long x)
 {
     return x * 169;
 }
 
-ulong foo170(ulong x)
+long foo170(long x)
 {
     return x * 170;
 }
 
-ulong foo171(ulong x)
+long foo171(long x)
 {
     return x * 171;
 }
 
-ulong foo172(ulong x)
+long foo172(long x)
 {
     return x * 172;
 }
 
-ulong foo173(ulong x)
+long foo173(long x)
 {
     return x * 173;
 }
 
-ulong foo174(ulong x)
+long foo174(long x)
 {
     return x * 174;
 }
 
-ulong foo175(ulong x)
+long foo175(long x)
 {
     return x * 175;
 }
 
-ulong foo176(ulong x)
+long foo176(long x)
 {
     return x * 176;
 }
 
-ulong foo177(ulong x)
+long foo177(long x)
 {
     return x * 177;
 }
 
-ulong foo178(ulong x)
+long foo178(long x)
 {
     return x * 178;
 }
 
-ulong foo179(ulong x)
+long foo179(long x)
 {
     return x * 179;
 }
 
-ulong foo180(ulong x)
+long foo180(long x)
 {
     return x * 180;
 }
 
-ulong foo181(ulong x)
+long foo181(long x)
 {
     return x * 181;
 }
 
-ulong foo182(ulong x)
+long foo182(long x)
 {
     return x * 182;
 }
 
-ulong foo183(ulong x)
+long foo183(long x)
 {
     return x * 183;
 }
 
-ulong foo184(ulong x)
+long foo184(long x)
 {
     return x * 184;
 }
 
-ulong foo185(ulong x)
+long foo185(long x)
 {
     return x * 185;
 }
 
-ulong foo186(ulong x)
+long foo186(long x)
 {
     return x * 186;
 }
 
-ulong foo187(ulong x)
+long foo187(long x)
 {
     return x * 187;
 }
 
-ulong foo188(ulong x)
+long foo188(long x)
 {
     return x * 188;
 }
 
-ulong foo189(ulong x)
+long foo189(long x)
 {
     return x * 189;
 }
 
-ulong foo190(ulong x)
+long foo190(long x)
 {
     return x * 190;
 }
 
-ulong foo191(ulong x)
+long foo191(long x)
 {
     return x * 191;
 }
 
-ulong foo192(ulong x)
+long foo192(long x)
 {
     return x * 192;
 }
 
-ulong foo193(ulong x)
+long foo193(long x)
 {
     return x * 193;
 }
 
-ulong foo194(ulong x)
+long foo194(long x)
 {
     return x * 194;
 }
 
-ulong foo195(ulong x)
+long foo195(long x)
 {
     return x * 195;
 }
 
-ulong foo196(ulong x)
+long foo196(long x)
 {
     return x * 196;
 }
 
-ulong foo197(ulong x)
+long foo197(long x)
 {
     return x * 197;
 }
 
-ulong foo198(ulong x)
+long foo198(long x)
 {
     return x * 198;
 }
 
-ulong foo199(ulong x)
+long foo199(long x)
 {
     return x * 199;
 }
 
-ulong foo200(ulong x)
+long foo200(long x)
 {
     return x * 200;
 }
 
-ulong foo201(ulong x)
+long foo201(long x)
 {
     return x * 201;
 }
 
-ulong foo202(ulong x)
+long foo202(long x)
 {
     return x * 202;
 }
 
-ulong foo203(ulong x)
+long foo203(long x)
 {
     return x * 203;
 }
 
-ulong foo204(ulong x)
+long foo204(long x)
 {
     return x * 204;
 }
 
-ulong foo205(ulong x)
+long foo205(long x)
 {
     return x * 205;
 }
 
-ulong foo206(ulong x)
+long foo206(long x)
 {
     return x * 206;
 }
 
-ulong foo207(ulong x)
+long foo207(long x)
 {
     return x * 207;
 }
 
-ulong foo208(ulong x)
+long foo208(long x)
 {
     return x * 208;
 }
 
-ulong foo209(ulong x)
+long foo209(long x)
 {
     return x * 209;
 }
 
-ulong foo210(ulong x)
+long foo210(long x)
 {
     return x * 210;
 }
 
-ulong foo211(ulong x)
+long foo211(long x)
 {
     return x * 211;
 }
 
-ulong foo212(ulong x)
+long foo212(long x)
 {
     return x * 212;
 }
 
-ulong foo213(ulong x)
+long foo213(long x)
 {
     return x * 213;
 }
 
-ulong foo214(ulong x)
+long foo214(long x)
 {
     return x * 214;
 }
 
-ulong foo215(ulong x)
+long foo215(long x)
 {
     return x * 215;
 }
 
-ulong foo216(ulong x)
+long foo216(long x)
 {
     return x * 216;
 }
 
-ulong foo217(ulong x)
+long foo217(long x)
 {
     return x * 217;
 }
 
-ulong foo218(ulong x)
+long foo218(long x)
 {
     return x * 218;
 }
 
-ulong foo219(ulong x)
+long foo219(long x)
 {
     return x * 219;
 }
 
-ulong foo220(ulong x)
+long foo220(long x)
 {
     return x * 220;
 }
 
-ulong foo221(ulong x)
+long foo221(long x)
 {
     return x * 221;
 }
 
-ulong foo222(ulong x)
+long foo222(long x)
 {
     return x * 222;
 }
 
-ulong foo223(ulong x)
+long foo223(long x)
 {
     return x * 223;
 }
 
-ulong foo224(ulong x)
+long foo224(long x)
 {
     return x * 224;
 }
 
-ulong foo225(ulong x)
+long foo225(long x)
 {
     return x * 225;
 }
 
-ulong foo226(ulong x)
+long foo226(long x)
 {
     return x * 226;
 }
 
-ulong foo227(ulong x)
+long foo227(long x)
 {
     return x * 227;
 }
 
-ulong foo228(ulong x)
+long foo228(long x)
 {
     return x * 228;
 }
 
-ulong foo229(ulong x)
+long foo229(long x)
 {
     return x * 229;
 }
 
-ulong foo230(ulong x)
+long foo230(long x)
 {
     return x * 230;
 }
 
-ulong foo231(ulong x)
+long foo231(long x)
 {
     return x * 231;
 }
 
-ulong foo232(ulong x)
+long foo232(long x)
 {
     return x * 232;
 }
 
-ulong foo233(ulong x)
+long foo233(long x)
 {
     return x * 233;
 }
 
-ulong foo234(ulong x)
+long foo234(long x)
 {
     return x * 234;
 }
 
-ulong foo235(ulong x)
+long foo235(long x)
 {
     return x * 235;
 }
 
-ulong foo236(ulong x)
+long foo236(long x)
 {
     return x * 236;
 }
 
-ulong foo237(ulong x)
+long foo237(long x)
 {
     return x * 237;
 }
 
-ulong foo238(ulong x)
+long foo238(long x)
 {
     return x * 238;
 }
 
-ulong foo239(ulong x)
+long foo239(long x)
 {
     return x * 239;
 }
 
-ulong foo240(ulong x)
+long foo240(long x)
 {
     return x * 240;
 }
 
-ulong foo241(ulong x)
+long foo241(long x)
 {
     return x * 241;
 }
 
-ulong foo242(ulong x)
+long foo242(long x)
 {
     return x * 242;
 }
 
-ulong foo243(ulong x)
+long foo243(long x)
 {
     return x * 243;
 }
 
-ulong foo244(ulong x)
+long foo244(long x)
 {
     return x * 244;
 }
 
-ulong foo245(ulong x)
+long foo245(long x)
 {
     return x * 245;
 }
 
-ulong foo246(ulong x)
+long foo246(long x)
 {
     return x * 246;
 }
 
-ulong foo247(ulong x)
+long foo247(long x)
 {
     return x * 247;
 }
 
-ulong foo248(ulong x)
+long foo248(long x)
 {
     return x * 248;
 }
 
-ulong foo249(ulong x)
+long foo249(long x)
 {
     return x * 249;
 }
 
-ulong goo0(ulong x)
+long goo0(long x)
 {
     return x * 0;
 }
 
-ulong goo1(ulong x)
+long goo1(long x)
 {
     return x * 1;
 }
 
-ulong goo2(ulong x)
+long goo2(long x)
 {
     return x * 2;
 }
 
-ulong goo3(ulong x)
+long goo3(long x)
 {
     return x * 3;
 }
 
-ulong goo4(ulong x)
+long goo4(long x)
 {
     return x * 4;
 }
 
-ulong goo5(ulong x)
+long goo5(long x)
 {
     return x * 5;
 }
 
-ulong goo6(ulong x)
+long goo6(long x)
 {
     return x * 6;
 }
 
-ulong goo7(ulong x)
+long goo7(long x)
 {
     return x * 7;
 }
 
-ulong goo8(ulong x)
+long goo8(long x)
 {
     return x * 8;
 }
 
-ulong goo9(ulong x)
+long goo9(long x)
 {
     return x * 9;
 }
 
-ulong goo10(ulong x)
+long goo10(long x)
 {
     return x * 10;
 }
 
-ulong goo11(ulong x)
+long goo11(long x)
 {
     return x * 11;
 }
 
-ulong goo12(ulong x)
+long goo12(long x)
 {
     return x * 12;
 }
 
-ulong goo13(ulong x)
+long goo13(long x)
 {
     return x * 13;
 }
 
-ulong goo14(ulong x)
+long goo14(long x)
 {
     return x * 14;
 }
 
-ulong goo15(ulong x)
+long goo15(long x)
 {
     return x * 15;
 }
 
-ulong goo16(ulong x)
+long goo16(long x)
 {
     return x * 16;
 }
 
-ulong goo17(ulong x)
+long goo17(long x)
 {
     return x * 17;
 }
 
-ulong goo18(ulong x)
+long goo18(long x)
 {
     return x * 18;
 }
 
-ulong goo19(ulong x)
+long goo19(long x)
 {
     return x * 19;
 }
 
-ulong goo20(ulong x)
+long goo20(long x)
 {
     return x * 20;
 }
 
-ulong goo21(ulong x)
+long goo21(long x)
 {
     return x * 21;
 }
 
-ulong goo22(ulong x)
+long goo22(long x)
 {
     return x * 22;
 }
 
-ulong goo23(ulong x)
+long goo23(long x)
 {
     return x * 23;
 }
 
-ulong goo24(ulong x)
+long goo24(long x)
 {
     return x * 24;
 }
 
-ulong goo25(ulong x)
+long goo25(long x)
 {
     return x * 25;
 }
 
-ulong goo26(ulong x)
+long goo26(long x)
 {
     return x * 26;
 }
 
-ulong goo27(ulong x)
+long goo27(long x)
 {
     return x * 27;
 }
 
-ulong goo28(ulong x)
+long goo28(long x)
 {
     return x * 28;
 }
 
-ulong goo29(ulong x)
+long goo29(long x)
 {
     return x * 29;
 }
 
-ulong goo30(ulong x)
+long goo30(long x)
 {
     return x * 30;
 }
 
-ulong goo31(ulong x)
+long goo31(long x)
 {
     return x * 31;
 }
 
-ulong goo32(ulong x)
+long goo32(long x)
 {
     return x * 32;
 }
 
-ulong goo33(ulong x)
+long goo33(long x)
 {
     return x * 33;
 }
 
-ulong goo34(ulong x)
+long goo34(long x)
 {
     return x * 34;
 }
 
-ulong goo35(ulong x)
+long goo35(long x)
 {
     return x * 35;
 }
 
-ulong goo36(ulong x)
+long goo36(long x)
 {
     return x * 36;
 }
 
-ulong goo37(ulong x)
+long goo37(long x)
 {
     return x * 37;
 }
 
-ulong goo38(ulong x)
+long goo38(long x)
 {
     return x * 38;
 }
 
-ulong goo39(ulong x)
+long goo39(long x)
 {
     return x * 39;
 }
 
-ulong goo40(ulong x)
+long goo40(long x)
 {
     return x * 40;
 }
 
-ulong goo41(ulong x)
+long goo41(long x)
 {
     return x * 41;
 }
 
-ulong goo42(ulong x)
+long goo42(long x)
 {
     return x * 42;
 }
 
-ulong goo43(ulong x)
+long goo43(long x)
 {
     return x * 43;
 }
 
-ulong goo44(ulong x)
+long goo44(long x)
 {
     return x * 44;
 }
 
-ulong goo45(ulong x)
+long goo45(long x)
 {
     return x * 45;
 }
 
-ulong goo46(ulong x)
+long goo46(long x)
 {
     return x * 46;
 }
 
-ulong goo47(ulong x)
+long goo47(long x)
 {
     return x * 47;
 }
 
-ulong goo48(ulong x)
+long goo48(long x)
 {
     return x * 48;
 }
 
-ulong goo49(ulong x)
+long goo49(long x)
 {
     return x * 49;
 }
 
-ulong goo50(ulong x)
+long goo50(long x)
 {
     return x * 50;
 }
 
-ulong goo51(ulong x)
+long goo51(long x)
 {
     return x * 51;
 }
 
-ulong goo52(ulong x)
+long goo52(long x)
 {
     return x * 52;
 }
 
-ulong goo53(ulong x)
+long goo53(long x)
 {
     return x * 53;
 }
 
-ulong goo54(ulong x)
+long goo54(long x)
 {
     return x * 54;
 }
 
-ulong goo55(ulong x)
+long goo55(long x)
 {
     return x * 55;
 }
 
-ulong goo56(ulong x)
+long goo56(long x)
 {
     return x * 56;
 }
 
-ulong goo57(ulong x)
+long goo57(long x)
 {
     return x * 57;
 }
 
-ulong goo58(ulong x)
+long goo58(long x)
 {
     return x * 58;
 }
 
-ulong goo59(ulong x)
+long goo59(long x)
 {
     return x * 59;
 }
 
-ulong goo60(ulong x)
+long goo60(long x)
 {
     return x * 60;
 }
 
-ulong goo61(ulong x)
+long goo61(long x)
 {
     return x * 61;
 }
 
-ulong goo62(ulong x)
+long goo62(long x)
 {
     return x * 62;
 }
 
-ulong goo63(ulong x)
+long goo63(long x)
 {
     return x * 63;
 }
 
-ulong goo64(ulong x)
+long goo64(long x)
 {
     return x * 64;
 }
 
-ulong goo65(ulong x)
+long goo65(long x)
 {
     return x * 65;
 }
 
-ulong goo66(ulong x)
+long goo66(long x)
 {
     return x * 66;
 }
 
-ulong goo67(ulong x)
+long goo67(long x)
 {
     return x * 67;
 }
 
-ulong goo68(ulong x)
+long goo68(long x)
 {
     return x * 68;
 }
 
-ulong goo69(ulong x)
+long goo69(long x)
 {
     return x * 69;
 }
 
-ulong goo70(ulong x)
+long goo70(long x)
 {
     return x * 70;
 }
 
-ulong goo71(ulong x)
+long goo71(long x)
 {
     return x * 71;
 }
 
-ulong goo72(ulong x)
+long goo72(long x)
 {
     return x * 72;
 }
 
-ulong goo73(ulong x)
+long goo73(long x)
 {
     return x * 73;
 }
 
-ulong goo74(ulong x)
+long goo74(long x)
 {
     return x * 74;
 }
 
-ulong goo75(ulong x)
+long goo75(long x)
 {
     return x * 75;
 }
 
-ulong goo76(ulong x)
+long goo76(long x)
 {
     return x * 76;
 }
 
-ulong goo77(ulong x)
+long goo77(long x)
 {
     return x * 77;
 }
 
-ulong goo78(ulong x)
+long goo78(long x)
 {
     return x * 78;
 }
 
-ulong goo79(ulong x)
+long goo79(long x)
 {
     return x * 79;
 }
 
-ulong goo80(ulong x)
+long goo80(long x)
 {
     return x * 80;
 }
 
-ulong goo81(ulong x)
+long goo81(long x)
 {
     return x * 81;
 }
 
-ulong goo82(ulong x)
+long goo82(long x)
 {
     return x * 82;
 }
 
-ulong goo83(ulong x)
+long goo83(long x)
 {
     return x * 83;
 }
 
-ulong goo84(ulong x)
+long goo84(long x)
 {
     return x * 84;
 }
 
-ulong goo85(ulong x)
+long goo85(long x)
 {
     return x * 85;
 }
 
-ulong goo86(ulong x)
+long goo86(long x)
 {
     return x * 86;
 }
 
-ulong goo87(ulong x)
+long goo87(long x)
 {
     return x * 87;
 }
 
-ulong goo88(ulong x)
+long goo88(long x)
 {
     return x * 88;
 }
 
-ulong goo89(ulong x)
+long goo89(long x)
 {
     return x * 89;
 }
 
-ulong goo90(ulong x)
+long goo90(long x)
 {
     return x * 90;
 }
 
-ulong goo91(ulong x)
+long goo91(long x)
 {
     return x * 91;
 }
 
-ulong goo92(ulong x)
+long goo92(long x)
 {
     return x * 92;
 }
 
-ulong goo93(ulong x)
+long goo93(long x)
 {
     return x * 93;
 }
 
-ulong goo94(ulong x)
+long goo94(long x)
 {
     return x * 94;
 }
 
-ulong goo95(ulong x)
+long goo95(long x)
 {
     return x * 95;
 }
 
-ulong goo96(ulong x)
+long goo96(long x)
 {
     return x * 96;
 }
 
-ulong goo97(ulong x)
+long goo97(long x)
 {
     return x * 97;
 }
 
-ulong goo98(ulong x)
+long goo98(long x)
 {
     return x * 98;
 }
 
-ulong goo99(ulong x)
+long goo99(long x)
 {
     return x * 99;
 }
 
-ulong goo100(ulong x)
+long goo100(long x)
 {
     return x * 100;
 }
 
-ulong goo101(ulong x)
+long goo101(long x)
 {
     return x * 101;
 }
 
-ulong goo102(ulong x)
+long goo102(long x)
 {
     return x * 102;
 }
 
-ulong goo103(ulong x)
+long goo103(long x)
 {
     return x * 103;
 }
 
-ulong goo104(ulong x)
+long goo104(long x)
 {
     return x * 104;
 }
 
-ulong goo105(ulong x)
+long goo105(long x)
 {
     return x * 105;
 }
 
-ulong goo106(ulong x)
+long goo106(long x)
 {
     return x * 106;
 }
 
-ulong goo107(ulong x)
+long goo107(long x)
 {
     return x * 107;
 }
 
-ulong goo108(ulong x)
+long goo108(long x)
 {
     return x * 108;
 }
 
-ulong goo109(ulong x)
+long goo109(long x)
 {
     return x * 109;
 }
 
-ulong goo110(ulong x)
+long goo110(long x)
 {
     return x * 110;
 }
 
-ulong goo111(ulong x)
+long goo111(long x)
 {
     return x * 111;
 }
 
-ulong goo112(ulong x)
+long goo112(long x)
 {
     return x * 112;
 }
 
-ulong goo113(ulong x)
+long goo113(long x)
 {
     return x * 113;
 }
 
-ulong goo114(ulong x)
+long goo114(long x)
 {
     return x * 114;
 }
 
-ulong goo115(ulong x)
+long goo115(long x)
 {
     return x * 115;
 }
 
-ulong goo116(ulong x)
+long goo116(long x)
 {
     return x * 116;
 }
 
-ulong goo117(ulong x)
+long goo117(long x)
 {
     return x * 117;
 }
 
-ulong goo118(ulong x)
+long goo118(long x)
 {
     return x * 118;
 }
 
-ulong goo119(ulong x)
+long goo119(long x)
 {
     return x * 119;
 }
 
-ulong goo120(ulong x)
+long goo120(long x)
 {
     return x * 120;
 }
 
-ulong goo121(ulong x)
+long goo121(long x)
 {
     return x * 121;
 }
 
-ulong goo122(ulong x)
+long goo122(long x)
 {
     return x * 122;
 }
 
-ulong goo123(ulong x)
+long goo123(long x)
 {
     return x * 123;
 }
 
-ulong goo124(ulong x)
+long goo124(long x)
 {
     return x * 124;
 }
 
-ulong goo125(ulong x)
+long goo125(long x)
 {
     return x * 125;
 }
 
-ulong goo126(ulong x)
+long goo126(long x)
 {
     return x * 126;
 }
 
-ulong goo127(ulong x)
+long goo127(long x)
 {
     return x * 127;
 }
 
-ulong goo128(ulong x)
+long goo128(long x)
 {
     return x * 128;
 }
 
-ulong goo129(ulong x)
+long goo129(long x)
 {
     return x * 129;
 }
 
-ulong goo130(ulong x)
+long goo130(long x)
 {
     return x * 130;
 }
 
-ulong goo131(ulong x)
+long goo131(long x)
 {
     return x * 131;
 }
 
-ulong goo132(ulong x)
+long goo132(long x)
 {
     return x * 132;
 }
 
-ulong goo133(ulong x)
+long goo133(long x)
 {
     return x * 133;
 }
 
-ulong goo134(ulong x)
+long goo134(long x)
 {
     return x * 134;
 }
 
-ulong goo135(ulong x)
+long goo135(long x)
 {
     return x * 135;
 }
 
-ulong goo136(ulong x)
+long goo136(long x)
 {
     return x * 136;
 }
 
-ulong goo137(ulong x)
+long goo137(long x)
 {
     return x * 137;
 }
 
-ulong goo138(ulong x)
+long goo138(long x)
 {
     return x * 138;
 }
 
-ulong goo139(ulong x)
+long goo139(long x)
 {
     return x * 139;
 }
 
-ulong goo140(ulong x)
+long goo140(long x)
 {
     return x * 140;
 }
 
-ulong goo141(ulong x)
+long goo141(long x)
 {
     return x * 141;
 }
 
-ulong goo142(ulong x)
+long goo142(long x)
 {
     return x * 142;
 }
 
-ulong goo143(ulong x)
+long goo143(long x)
 {
     return x * 143;
 }
 
-ulong goo144(ulong x)
+long goo144(long x)
 {
     return x * 144;
 }
 
-ulong goo145(ulong x)
+long goo145(long x)
 {
     return x * 145;
 }
 
-ulong goo146(ulong x)
+long goo146(long x)
 {
     return x * 146;
 }
 
-ulong goo147(ulong x)
+long goo147(long x)
 {
     return x * 147;
 }
 
-ulong goo148(ulong x)
+long goo148(long x)
 {
     return x * 148;
 }
 
-ulong goo149(ulong x)
+long goo149(long x)
 {
     return x * 149;
 }
 
-ulong goo150(ulong x)
+long goo150(long x)
 {
     return x * 150;
 }
 
-ulong goo151(ulong x)
+long goo151(long x)
 {
     return x * 151;
 }
 
-ulong goo152(ulong x)
+long goo152(long x)
 {
     return x * 152;
 }
 
-ulong goo153(ulong x)
+long goo153(long x)
 {
     return x * 153;
 }
 
-ulong goo154(ulong x)
+long goo154(long x)
 {
     return x * 154;
 }
 
-ulong goo155(ulong x)
+long goo155(long x)
 {
     return x * 155;
 }
 
-ulong goo156(ulong x)
+long goo156(long x)
 {
     return x * 156;
 }
 
-ulong goo157(ulong x)
+long goo157(long x)
 {
     return x * 157;
 }
 
-ulong goo158(ulong x)
+long goo158(long x)
 {
     return x * 158;
 }
 
-ulong goo159(ulong x)
+long goo159(long x)
 {
     return x * 159;
 }
 
-ulong goo160(ulong x)
+long goo160(long x)
 {
     return x * 160;
 }
 
-ulong goo161(ulong x)
+long goo161(long x)
 {
     return x * 161;
 }
 
-ulong goo162(ulong x)
+long goo162(long x)
 {
     return x * 162;
 }
 
-ulong goo163(ulong x)
+long goo163(long x)
 {
     return x * 163;
 }
 
-ulong goo164(ulong x)
+long goo164(long x)
 {
     return x * 164;
 }
 
-ulong goo165(ulong x)
+long goo165(long x)
 {
     return x * 165;
 }
 
-ulong goo166(ulong x)
+long goo166(long x)
 {
     return x * 166;
 }
 
-ulong goo167(ulong x)
+long goo167(long x)
 {
     return x * 167;
 }
 
-ulong goo168(ulong x)
+long goo168(long x)
 {
     return x * 168;
 }
 
-ulong goo169(ulong x)
+long goo169(long x)
 {
     return x * 169;
 }
 
-ulong goo170(ulong x)
+long goo170(long x)
 {
     return x * 170;
 }
 
-ulong goo171(ulong x)
+long goo171(long x)
 {
     return x * 171;
 }
 
-ulong goo172(ulong x)
+long goo172(long x)
 {
     return x * 172;
 }
 
-ulong goo173(ulong x)
+long goo173(long x)
 {
     return x * 173;
 }
 
-ulong goo174(ulong x)
+long goo174(long x)
 {
     return x * 174;
 }
 
-ulong goo175(ulong x)
+long goo175(long x)
 {
     return x * 175;
 }
 
-ulong goo176(ulong x)
+long goo176(long x)
 {
     return x * 176;
 }
 
-ulong goo177(ulong x)
+long goo177(long x)
 {
     return x * 177;
 }
 
-ulong goo178(ulong x)
+long goo178(long x)
 {
     return x * 178;
 }
 
-ulong goo179(ulong x)
+long goo179(long x)
 {
     return x * 179;
 }
 
-ulong goo180(ulong x)
+long goo180(long x)
 {
     return x * 180;
 }
 
-ulong goo181(ulong x)
+long goo181(long x)
 {
     return x * 181;
 }
 
-ulong goo182(ulong x)
+long goo182(long x)
 {
     return x * 182;
 }
 
-ulong goo183(ulong x)
+long goo183(long x)
 {
     return x * 183;
 }
 
-ulong goo184(ulong x)
+long goo184(long x)
 {
     return x * 184;
 }
 
-ulong goo185(ulong x)
+long goo185(long x)
 {
     return x * 185;
 }
 
-ulong goo186(ulong x)
+long goo186(long x)
 {
     return x * 186;
 }
 
-ulong goo187(ulong x)
+long goo187(long x)
 {
     return x * 187;
 }
 
-ulong goo188(ulong x)
+long goo188(long x)
 {
     return x * 188;
 }
 
-ulong goo189(ulong x)
+long goo189(long x)
 {
     return x * 189;
 }
 
-ulong goo190(ulong x)
+long goo190(long x)
 {
     return x * 190;
 }
 
-ulong goo191(ulong x)
+long goo191(long x)
 {
     return x * 191;
 }
 
-ulong goo192(ulong x)
+long goo192(long x)
 {
     return x * 192;
 }
 
-ulong goo193(ulong x)
+long goo193(long x)
 {
     return x * 193;
 }
 
-ulong goo194(ulong x)
+long goo194(long x)
 {
     return x * 194;
 }
 
-ulong goo195(ulong x)
+long goo195(long x)
 {
     return x * 195;
 }
 
-ulong goo196(ulong x)
+long goo196(long x)
 {
     return x * 196;
 }
 
-ulong goo197(ulong x)
+long goo197(long x)
 {
     return x * 197;
 }
 
-ulong goo198(ulong x)
+long goo198(long x)
 {
     return x * 198;
 }
 
-ulong goo199(ulong x)
+long goo199(long x)
 {
     return x * 199;
 }
 
-ulong goo200(ulong x)
+long goo200(long x)
 {
     return x * 200;
 }
 
-ulong goo201(ulong x)
+long goo201(long x)
 {
     return x * 201;
 }
 
-ulong goo202(ulong x)
+long goo202(long x)
 {
     return x * 202;
 }
 
-ulong goo203(ulong x)
+long goo203(long x)
 {
     return x * 203;
 }
 
-ulong goo204(ulong x)
+long goo204(long x)
 {
     return x * 204;
 }
 
-ulong goo205(ulong x)
+long goo205(long x)
 {
     return x * 205;
 }
 
-ulong goo206(ulong x)
+long goo206(long x)
 {
     return x * 206;
 }
 
-ulong goo207(ulong x)
+long goo207(long x)
 {
     return x * 207;
 }
 
-ulong goo208(ulong x)
+long goo208(long x)
 {
     return x * 208;
 }
 
-ulong goo209(ulong x)
+long goo209(long x)
 {
     return x * 209;
 }
 
-ulong goo210(ulong x)
+long goo210(long x)
 {
     return x * 210;
 }
 
-ulong goo211(ulong x)
+long goo211(long x)
 {
     return x * 211;
 }
 
-ulong goo212(ulong x)
+long goo212(long x)
 {
     return x * 212;
 }
 
-ulong goo213(ulong x)
+long goo213(long x)
 {
     return x * 213;
 }
 
-ulong goo214(ulong x)
+long goo214(long x)
 {
     return x * 214;
 }
 
-ulong goo215(ulong x)
+long goo215(long x)
 {
     return x * 215;
 }
 
-ulong goo216(ulong x)
+long goo216(long x)
 {
     return x * 216;
 }
 
-ulong goo217(ulong x)
+long goo217(long x)
 {
     return x * 217;
 }
 
-ulong goo218(ulong x)
+long goo218(long x)
 {
     return x * 218;
 }
 
-ulong goo219(ulong x)
+long goo219(long x)
 {
     return x * 219;
 }
 
-ulong goo220(ulong x)
+long goo220(long x)
 {
     return x * 220;
 }
 
-ulong goo221(ulong x)
+long goo221(long x)
 {
     return x * 221;
 }
 
-ulong goo222(ulong x)
+long goo222(long x)
 {
     return x * 222;
 }
 
-ulong goo223(ulong x)
+long goo223(long x)
 {
     return x * 223;
 }
 
-ulong goo224(ulong x)
+long goo224(long x)
 {
     return x * 224;
 }
 
-ulong goo225(ulong x)
+long goo225(long x)
 {
     return x * 225;
 }
 
-ulong goo226(ulong x)
+long goo226(long x)
 {
     return x * 226;
 }
 
-ulong goo227(ulong x)
+long goo227(long x)
 {
     return x * 227;
 }
 
-ulong goo228(ulong x)
+long goo228(long x)
 {
     return x * 228;
 }
 
-ulong goo229(ulong x)
+long goo229(long x)
 {
     return x * 229;
 }
 
-ulong goo230(ulong x)
+long goo230(long x)
 {
     return x * 230;
 }
 
-ulong goo231(ulong x)
+long goo231(long x)
 {
     return x * 231;
 }
 
-ulong goo232(ulong x)
+long goo232(long x)
 {
     return x * 232;
 }
 
-ulong goo233(ulong x)
+long goo233(long x)
 {
     return x * 233;
 }
 
-ulong goo234(ulong x)
+long goo234(long x)
 {
     return x * 234;
 }
 
-ulong goo235(ulong x)
+long goo235(long x)
 {
     return x * 235;
 }
 
-ulong goo236(ulong x)
+long goo236(long x)
 {
     return x * 236;
 }
 
-ulong goo237(ulong x)
+long goo237(long x)
 {
     return x * 237;
 }
 
-ulong goo238(ulong x)
+long goo238(long x)
 {
     return x * 238;
 }
 
-ulong goo239(ulong x)
+long goo239(long x)
 {
     return x * 239;
 }
 
-ulong goo240(ulong x)
+long goo240(long x)
 {
     return x * 240;
 }
 
-ulong goo241(ulong x)
+long goo241(long x)
 {
     return x * 241;
 }
 
-ulong goo242(ulong x)
+long goo242(long x)
 {
     return x * 242;
 }
 
-ulong goo243(ulong x)
+long goo243(long x)
 {
     return x * 243;
 }
 
-ulong goo244(ulong x)
+long goo244(long x)
 {
     return x * 244;
 }
 
-ulong goo245(ulong x)
+long goo245(long x)
 {
     return x * 245;
 }
 
-ulong goo246(ulong x)
+long goo246(long x)
 {
     return x * 246;
 }
 
-ulong goo247(ulong x)
+long goo247(long x)
 {
     return x * 247;
 }
 
-ulong goo248(ulong x)
+long goo248(long x)
 {
     return x * 248;
 }
 
-ulong goo249(ulong x)
+long goo249(long x)
 {
     return x * 249;
 }
 
-ulong hoo0(ulong x)
+long hoo0(long x)
 {
     return x * 0;
 }
 
-ulong hoo1(ulong x)
+long hoo1(long x)
 {
     return x * 1;
 }
 
-ulong hoo2(ulong x)
+long hoo2(long x)
 {
     return x * 2;
 }
 
-ulong hoo3(ulong x)
+long hoo3(long x)
 {
     return x * 3;
 }
 
-ulong hoo4(ulong x)
+long hoo4(long x)
 {
     return x * 4;
 }
 
-ulong hoo5(ulong x)
+long hoo5(long x)
 {
     return x * 5;
 }
 
-ulong hoo6(ulong x)
+long hoo6(long x)
 {
     return x * 6;
 }
 
-ulong hoo7(ulong x)
+long hoo7(long x)
 {
     return x * 7;
 }
 
-ulong hoo8(ulong x)
+long hoo8(long x)
 {
     return x * 8;
 }
 
-ulong hoo9(ulong x)
+long hoo9(long x)
 {
     return x * 9;
 }
 
-ulong hoo10(ulong x)
+long hoo10(long x)
 {
     return x * 10;
 }
 
-ulong hoo11(ulong x)
+long hoo11(long x)
 {
     return x * 11;
 }
 
-ulong hoo12(ulong x)
+long hoo12(long x)
 {
     return x * 12;
 }
 
-ulong hoo13(ulong x)
+long hoo13(long x)
 {
     return x * 13;
 }
 
-ulong hoo14(ulong x)
+long hoo14(long x)
 {
     return x * 14;
 }
 
-ulong hoo15(ulong x)
+long hoo15(long x)
 {
     return x * 15;
 }
 
-ulong hoo16(ulong x)
+long hoo16(long x)
 {
     return x * 16;
 }
 
-ulong hoo17(ulong x)
+long hoo17(long x)
 {
     return x * 17;
 }
 
-ulong hoo18(ulong x)
+long hoo18(long x)
 {
     return x * 18;
 }
 
-ulong hoo19(ulong x)
+long hoo19(long x)
 {
     return x * 19;
 }
 
-ulong hoo20(ulong x)
+long hoo20(long x)
 {
     return x * 20;
 }
 
-ulong hoo21(ulong x)
+long hoo21(long x)
 {
     return x * 21;
 }
 
-ulong hoo22(ulong x)
+long hoo22(long x)
 {
     return x * 22;
 }
 
-ulong hoo23(ulong x)
+long hoo23(long x)
 {
     return x * 23;
 }
 
-ulong hoo24(ulong x)
+long hoo24(long x)
 {
     return x * 24;
 }
 
-ulong hoo25(ulong x)
+long hoo25(long x)
 {
     return x * 25;
 }
 
-ulong hoo26(ulong x)
+long hoo26(long x)
 {
     return x * 26;
 }
 
-ulong hoo27(ulong x)
+long hoo27(long x)
 {
     return x * 27;
 }
 
-ulong hoo28(ulong x)
+long hoo28(long x)
 {
     return x * 28;
 }
 
-ulong hoo29(ulong x)
+long hoo29(long x)
 {
     return x * 29;
 }
 
-ulong hoo30(ulong x)
+long hoo30(long x)
 {
     return x * 30;
 }
 
-ulong hoo31(ulong x)
+long hoo31(long x)
 {
     return x * 31;
 }
 
-ulong hoo32(ulong x)
+long hoo32(long x)
 {
     return x * 32;
 }
 
-ulong hoo33(ulong x)
+long hoo33(long x)
 {
     return x * 33;
 }
 
-ulong hoo34(ulong x)
+long hoo34(long x)
 {
     return x * 34;
 }
 
-ulong hoo35(ulong x)
+long hoo35(long x)
 {
     return x * 35;
 }
 
-ulong hoo36(ulong x)
+long hoo36(long x)
 {
     return x * 36;
 }
 
-ulong hoo37(ulong x)
+long hoo37(long x)
 {
     return x * 37;
 }
 
-ulong hoo38(ulong x)
+long hoo38(long x)
 {
     return x * 38;
 }
 
-ulong hoo39(ulong x)
+long hoo39(long x)
 {
     return x * 39;
 }
 
-ulong hoo40(ulong x)
+long hoo40(long x)
 {
     return x * 40;
 }
 
-ulong hoo41(ulong x)
+long hoo41(long x)
 {
     return x * 41;
 }
 
-ulong hoo42(ulong x)
+long hoo42(long x)
 {
     return x * 42;
 }
 
-ulong hoo43(ulong x)
+long hoo43(long x)
 {
     return x * 43;
 }
 
-ulong hoo44(ulong x)
+long hoo44(long x)
 {
     return x * 44;
 }
 
-ulong hoo45(ulong x)
+long hoo45(long x)
 {
     return x * 45;
 }
 
-ulong hoo46(ulong x)
+long hoo46(long x)
 {
     return x * 46;
 }
 
-ulong hoo47(ulong x)
+long hoo47(long x)
 {
     return x * 47;
 }
 
-ulong hoo48(ulong x)
+long hoo48(long x)
 {
     return x * 48;
 }
 
-ulong hoo49(ulong x)
+long hoo49(long x)
 {
     return x * 49;
 }
 
-ulong hoo50(ulong x)
+long hoo50(long x)
 {
     return x * 50;
 }
 
-ulong hoo51(ulong x)
+long hoo51(long x)
 {
     return x * 51;
 }
 
-ulong hoo52(ulong x)
+long hoo52(long x)
 {
     return x * 52;
 }
 
-ulong hoo53(ulong x)
+long hoo53(long x)
 {
     return x * 53;
 }
 
-ulong hoo54(ulong x)
+long hoo54(long x)
 {
     return x * 54;
 }
 
-ulong hoo55(ulong x)
+long hoo55(long x)
 {
     return x * 55;
 }
 
-ulong hoo56(ulong x)
+long hoo56(long x)
 {
     return x * 56;
 }
 
-ulong hoo57(ulong x)
+long hoo57(long x)
 {
     return x * 57;
 }
 
-ulong hoo58(ulong x)
+long hoo58(long x)
 {
     return x * 58;
 }
 
-ulong hoo59(ulong x)
+long hoo59(long x)
 {
     return x * 59;
 }
 
-ulong hoo60(ulong x)
+long hoo60(long x)
 {
     return x * 60;
 }
 
-ulong hoo61(ulong x)
+long hoo61(long x)
 {
     return x * 61;
 }
 
-ulong hoo62(ulong x)
+long hoo62(long x)
 {
     return x * 62;
 }
 
-ulong hoo63(ulong x)
+long hoo63(long x)
 {
     return x * 63;
 }
 
-ulong hoo64(ulong x)
+long hoo64(long x)
 {
     return x * 64;
 }
 
-ulong hoo65(ulong x)
+long hoo65(long x)
 {
     return x * 65;
 }
 
-ulong hoo66(ulong x)
+long hoo66(long x)
 {
     return x * 66;
 }
 
-ulong hoo67(ulong x)
+long hoo67(long x)
 {
     return x * 67;
 }
 
-ulong hoo68(ulong x)
+long hoo68(long x)
 {
     return x * 68;
 }
 
-ulong hoo69(ulong x)
+long hoo69(long x)
 {
     return x * 69;
 }
 
-ulong hoo70(ulong x)
+long hoo70(long x)
 {
     return x * 70;
 }
 
-ulong hoo71(ulong x)
+long hoo71(long x)
 {
     return x * 71;
 }
 
-ulong hoo72(ulong x)
+long hoo72(long x)
 {
     return x * 72;
 }
 
-ulong hoo73(ulong x)
+long hoo73(long x)
 {
     return x * 73;
 }
 
-ulong hoo74(ulong x)
+long hoo74(long x)
 {
     return x * 74;
 }
 
-ulong hoo75(ulong x)
+long hoo75(long x)
 {
     return x * 75;
 }
 
-ulong hoo76(ulong x)
+long hoo76(long x)
 {
     return x * 76;
 }
 
-ulong hoo77(ulong x)
+long hoo77(long x)
 {
     return x * 77;
 }
 
-ulong hoo78(ulong x)
+long hoo78(long x)
 {
     return x * 78;
 }
 
-ulong hoo79(ulong x)
+long hoo79(long x)
 {
     return x * 79;
 }
 
-ulong hoo80(ulong x)
+long hoo80(long x)
 {
     return x * 80;
 }
 
-ulong hoo81(ulong x)
+long hoo81(long x)
 {
     return x * 81;
 }
 
-ulong hoo82(ulong x)
+long hoo82(long x)
 {
     return x * 82;
 }
 
-ulong hoo83(ulong x)
+long hoo83(long x)
 {
     return x * 83;
 }
 
-ulong hoo84(ulong x)
+long hoo84(long x)
 {
     return x * 84;
 }
 
-ulong hoo85(ulong x)
+long hoo85(long x)
 {
     return x * 85;
 }
 
-ulong hoo86(ulong x)
+long hoo86(long x)
 {
     return x * 86;
 }
 
-ulong hoo87(ulong x)
+long hoo87(long x)
 {
     return x * 87;
 }
 
-ulong hoo88(ulong x)
+long hoo88(long x)
 {
     return x * 88;
 }
 
-ulong hoo89(ulong x)
+long hoo89(long x)
 {
     return x * 89;
 }
 
-ulong hoo90(ulong x)
+long hoo90(long x)
 {
     return x * 90;
 }
 
-ulong hoo91(ulong x)
+long hoo91(long x)
 {
     return x * 91;
 }
 
-ulong hoo92(ulong x)
+long hoo92(long x)
 {
     return x * 92;
 }
 
-ulong hoo93(ulong x)
+long hoo93(long x)
 {
     return x * 93;
 }
 
-ulong hoo94(ulong x)
+long hoo94(long x)
 {
     return x * 94;
 }
 
-ulong hoo95(ulong x)
+long hoo95(long x)
 {
     return x * 95;
 }
 
-ulong hoo96(ulong x)
+long hoo96(long x)
 {
     return x * 96;
 }
 
-ulong hoo97(ulong x)
+long hoo97(long x)
 {
     return x * 97;
 }
 
-ulong hoo98(ulong x)
+long hoo98(long x)
 {
     return x * 98;
 }
 
-ulong hoo99(ulong x)
+long hoo99(long x)
 {
     return x * 99;
 }
 
-ulong hoo100(ulong x)
+long hoo100(long x)
 {
     return x * 100;
 }
 
-ulong hoo101(ulong x)
+long hoo101(long x)
 {
     return x * 101;
 }
 
-ulong hoo102(ulong x)
+long hoo102(long x)
 {
     return x * 102;
 }
 
-ulong hoo103(ulong x)
+long hoo103(long x)
 {
     return x * 103;
 }
 
-ulong hoo104(ulong x)
+long hoo104(long x)
 {
     return x * 104;
 }
 
-ulong hoo105(ulong x)
+long hoo105(long x)
 {
     return x * 105;
 }
 
-ulong hoo106(ulong x)
+long hoo106(long x)
 {
     return x * 106;
 }
 
-ulong hoo107(ulong x)
+long hoo107(long x)
 {
     return x * 107;
 }
 
-ulong hoo108(ulong x)
+long hoo108(long x)
 {
     return x * 108;
 }
 
-ulong hoo109(ulong x)
+long hoo109(long x)
 {
     return x * 109;
 }
 
-ulong hoo110(ulong x)
+long hoo110(long x)
 {
     return x * 110;
 }
 
-ulong hoo111(ulong x)
+long hoo111(long x)
 {
     return x * 111;
 }
 
-ulong hoo112(ulong x)
+long hoo112(long x)
 {
     return x * 112;
 }
 
-ulong hoo113(ulong x)
+long hoo113(long x)
 {
     return x * 113;
 }
 
-ulong hoo114(ulong x)
+long hoo114(long x)
 {
     return x * 114;
 }
 
-ulong hoo115(ulong x)
+long hoo115(long x)
 {
     return x * 115;
 }
 
-ulong hoo116(ulong x)
+long hoo116(long x)
 {
     return x * 116;
 }
 
-ulong hoo117(ulong x)
+long hoo117(long x)
 {
     return x * 117;
 }
 
-ulong hoo118(ulong x)
+long hoo118(long x)
 {
     return x * 118;
 }
 
-ulong hoo119(ulong x)
+long hoo119(long x)
 {
     return x * 119;
 }
 
-ulong hoo120(ulong x)
+long hoo120(long x)
 {
     return x * 120;
 }
 
-ulong hoo121(ulong x)
+long hoo121(long x)
 {
     return x * 121;
 }
 
-ulong hoo122(ulong x)
+long hoo122(long x)
 {
     return x * 122;
 }
 
-ulong hoo123(ulong x)
+long hoo123(long x)
 {
     return x * 123;
 }
 
-ulong hoo124(ulong x)
+long hoo124(long x)
 {
     return x * 124;
 }
 
-ulong hoo125(ulong x)
+long hoo125(long x)
 {
     return x * 125;
 }
 
-ulong hoo126(ulong x)
+long hoo126(long x)
 {
     return x * 126;
 }
 
-ulong hoo127(ulong x)
+long hoo127(long x)
 {
     return x * 127;
 }
 
-ulong hoo128(ulong x)
+long hoo128(long x)
 {
     return x * 128;
 }
 
-ulong hoo129(ulong x)
+long hoo129(long x)
 {
     return x * 129;
 }
 
-ulong hoo130(ulong x)
+long hoo130(long x)
 {
     return x * 130;
 }
 
-ulong hoo131(ulong x)
+long hoo131(long x)
 {
     return x * 131;
 }
 
-ulong hoo132(ulong x)
+long hoo132(long x)
 {
     return x * 132;
 }
 
-ulong hoo133(ulong x)
+long hoo133(long x)
 {
     return x * 133;
 }
 
-ulong hoo134(ulong x)
+long hoo134(long x)
 {
     return x * 134;
 }
 
-ulong hoo135(ulong x)
+long hoo135(long x)
 {
     return x * 135;
 }
 
-ulong hoo136(ulong x)
+long hoo136(long x)
 {
     return x * 136;
 }
 
-ulong hoo137(ulong x)
+long hoo137(long x)
 {
     return x * 137;
 }
 
-ulong hoo138(ulong x)
+long hoo138(long x)
 {
     return x * 138;
 }
 
-ulong hoo139(ulong x)
+long hoo139(long x)
 {
     return x * 139;
 }
 
-ulong hoo140(ulong x)
+long hoo140(long x)
 {
     return x * 140;
 }
 
-ulong hoo141(ulong x)
+long hoo141(long x)
 {
     return x * 141;
 }
 
-ulong hoo142(ulong x)
+long hoo142(long x)
 {
     return x * 142;
 }
 
-ulong hoo143(ulong x)
+long hoo143(long x)
 {
     return x * 143;
 }
 
-ulong hoo144(ulong x)
+long hoo144(long x)
 {
     return x * 144;
 }
 
-ulong hoo145(ulong x)
+long hoo145(long x)
 {
     return x * 145;
 }
 
-ulong hoo146(ulong x)
+long hoo146(long x)
 {
     return x * 146;
 }
 
-ulong hoo147(ulong x)
+long hoo147(long x)
 {
     return x * 147;
 }
 
-ulong hoo148(ulong x)
+long hoo148(long x)
 {
     return x * 148;
 }
 
-ulong hoo149(ulong x)
+long hoo149(long x)
 {
     return x * 149;
 }
 
-ulong hoo150(ulong x)
+long hoo150(long x)
 {
     return x * 150;
 }
 
-ulong hoo151(ulong x)
+long hoo151(long x)
 {
     return x * 151;
 }
 
-ulong hoo152(ulong x)
+long hoo152(long x)
 {
     return x * 152;
 }
 
-ulong hoo153(ulong x)
+long hoo153(long x)
 {
     return x * 153;
 }
 
-ulong hoo154(ulong x)
+long hoo154(long x)
 {
     return x * 154;
 }
 
-ulong hoo155(ulong x)
+long hoo155(long x)
 {
     return x * 155;
 }
 
-ulong hoo156(ulong x)
+long hoo156(long x)
 {
     return x * 156;
 }
 
-ulong hoo157(ulong x)
+long hoo157(long x)
 {
     return x * 157;
 }
 
-ulong hoo158(ulong x)
+long hoo158(long x)
 {
     return x * 158;
 }
 
-ulong hoo159(ulong x)
+long hoo159(long x)
 {
     return x * 159;
 }
 
-ulong hoo160(ulong x)
+long hoo160(long x)
 {
     return x * 160;
 }
 
-ulong hoo161(ulong x)
+long hoo161(long x)
 {
     return x * 161;
 }
 
-ulong hoo162(ulong x)
+long hoo162(long x)
 {
     return x * 162;
 }
 
-ulong hoo163(ulong x)
+long hoo163(long x)
 {
     return x * 163;
 }
 
-ulong hoo164(ulong x)
+long hoo164(long x)
 {
     return x * 164;
 }
 
-ulong hoo165(ulong x)
+long hoo165(long x)
 {
     return x * 165;
 }
 
-ulong hoo166(ulong x)
+long hoo166(long x)
 {
     return x * 166;
 }
 
-ulong hoo167(ulong x)
+long hoo167(long x)
 {
     return x * 167;
 }
 
-ulong hoo168(ulong x)
+long hoo168(long x)
 {
     return x * 168;
 }
 
-ulong hoo169(ulong x)
+long hoo169(long x)
 {
     return x * 169;
 }
 
-ulong hoo170(ulong x)
+long hoo170(long x)
 {
     return x * 170;
 }
 
-ulong hoo171(ulong x)
+long hoo171(long x)
 {
     return x * 171;
 }
 
-ulong hoo172(ulong x)
+long hoo172(long x)
 {
     return x * 172;
 }
 
-ulong hoo173(ulong x)
+long hoo173(long x)
 {
     return x * 173;
 }
 
-ulong hoo174(ulong x)
+long hoo174(long x)
 {
     return x * 174;
 }
 
-ulong hoo175(ulong x)
+long hoo175(long x)
 {
     return x * 175;
 }
 
-ulong hoo176(ulong x)
+long hoo176(long x)
 {
     return x * 176;
 }
 
-ulong hoo177(ulong x)
+long hoo177(long x)
 {
     return x * 177;
 }
 
-ulong hoo178(ulong x)
+long hoo178(long x)
 {
     return x * 178;
 }
 
-ulong hoo179(ulong x)
+long hoo179(long x)
 {
     return x * 179;
 }
 
-ulong hoo180(ulong x)
+long hoo180(long x)
 {
     return x * 180;
 }
 
-ulong hoo181(ulong x)
+long hoo181(long x)
 {
     return x * 181;
 }
 
-ulong hoo182(ulong x)
+long hoo182(long x)
 {
     return x * 182;
 }
 
-ulong hoo183(ulong x)
+long hoo183(long x)
 {
     return x * 183;
 }
 
-ulong hoo184(ulong x)
+long hoo184(long x)
 {
     return x * 184;
 }
 
-ulong hoo185(ulong x)
+long hoo185(long x)
 {
     return x * 185;
 }
 
-ulong hoo186(ulong x)
+long hoo186(long x)
 {
     return x * 186;
 }
 
-ulong hoo187(ulong x)
+long hoo187(long x)
 {
     return x * 187;
 }
 
-ulong hoo188(ulong x)
+long hoo188(long x)
 {
     return x * 188;
 }
 
-ulong hoo189(ulong x)
+long hoo189(long x)
 {
     return x * 189;
 }
 
-ulong hoo190(ulong x)
+long hoo190(long x)
 {
     return x * 190;
 }
 
-ulong hoo191(ulong x)
+long hoo191(long x)
 {
     return x * 191;
 }
 
-ulong hoo192(ulong x)
+long hoo192(long x)
 {
     return x * 192;
 }
 
-ulong hoo193(ulong x)
+long hoo193(long x)
 {
     return x * 193;
 }
 
-ulong hoo194(ulong x)
+long hoo194(long x)
 {
     return x * 194;
 }
 
-ulong hoo195(ulong x)
+long hoo195(long x)
 {
     return x * 195;
 }
 
-ulong hoo196(ulong x)
+long hoo196(long x)
 {
     return x * 196;
 }
 
-ulong hoo197(ulong x)
+long hoo197(long x)
 {
     return x * 197;
 }
 
-ulong hoo198(ulong x)
+long hoo198(long x)
 {
     return x * 198;
 }
 
-ulong hoo199(ulong x)
+long hoo199(long x)
 {
     return x * 199;
 }
 
-ulong hoo200(ulong x)
+long hoo200(long x)
 {
     return x * 200;
 }
 
-ulong hoo201(ulong x)
+long hoo201(long x)
 {
     return x * 201;
 }
 
-ulong hoo202(ulong x)
+long hoo202(long x)
 {
     return x * 202;
 }
 
-ulong hoo203(ulong x)
+long hoo203(long x)
 {
     return x * 203;
 }
 
-ulong hoo204(ulong x)
+long hoo204(long x)
 {
     return x * 204;
 }
 
-ulong hoo205(ulong x)
+long hoo205(long x)
 {
     return x * 205;
 }
 
-ulong hoo206(ulong x)
+long hoo206(long x)
 {
     return x * 206;
 }
 
-ulong hoo207(ulong x)
+long hoo207(long x)
 {
     return x * 207;
 }
 
-ulong hoo208(ulong x)
+long hoo208(long x)
 {
     return x * 208;
 }
 
-ulong hoo209(ulong x)
+long hoo209(long x)
 {
     return x * 209;
 }
 
-ulong hoo210(ulong x)
+long hoo210(long x)
 {
     return x * 210;
 }
 
-ulong hoo211(ulong x)
+long hoo211(long x)
 {
     return x * 211;
 }
 
-ulong hoo212(ulong x)
+long hoo212(long x)
 {
     return x * 212;
 }
 
-ulong hoo213(ulong x)
+long hoo213(long x)
 {
     return x * 213;
 }
 
-ulong hoo214(ulong x)
+long hoo214(long x)
 {
     return x * 214;
 }
 
-ulong hoo215(ulong x)
+long hoo215(long x)
 {
     return x * 215;
 }
 
-ulong hoo216(ulong x)
+long hoo216(long x)
 {
     return x * 216;
 }
 
-ulong hoo217(ulong x)
+long hoo217(long x)
 {
     return x * 217;
 }
 
-ulong hoo218(ulong x)
+long hoo218(long x)
 {
     return x * 218;
 }
 
-ulong hoo219(ulong x)
+long hoo219(long x)
 {
     return x * 219;
 }
 
-ulong hoo220(ulong x)
+long hoo220(long x)
 {
     return x * 220;
 }
 
-ulong hoo221(ulong x)
+long hoo221(long x)
 {
     return x * 221;
 }
 
-ulong hoo222(ulong x)
+long hoo222(long x)
 {
     return x * 222;
 }
 
-ulong hoo223(ulong x)
+long hoo223(long x)
 {
     return x * 223;
 }
 
-ulong hoo224(ulong x)
+long hoo224(long x)
 {
     return x * 224;
 }
 
-ulong hoo225(ulong x)
+long hoo225(long x)
 {
     return x * 225;
 }
 
-ulong hoo226(ulong x)
+long hoo226(long x)
 {
     return x * 226;
 }
 
-ulong hoo227(ulong x)
+long hoo227(long x)
 {
     return x * 227;
 }
 
-ulong hoo228(ulong x)
+long hoo228(long x)
 {
     return x * 228;
 }
 
-ulong hoo229(ulong x)
+long hoo229(long x)
 {
     return x * 229;
 }
 
-ulong hoo230(ulong x)
+long hoo230(long x)
 {
     return x * 230;
 }
 
-ulong hoo231(ulong x)
+long hoo231(long x)
 {
     return x * 231;
 }
 
-ulong hoo232(ulong x)
+long hoo232(long x)
 {
     return x * 232;
 }
 
-ulong hoo233(ulong x)
+long hoo233(long x)
 {
     return x * 233;
 }
 
-ulong hoo234(ulong x)
+long hoo234(long x)
 {
     return x * 234;
 }
 
-ulong hoo235(ulong x)
+long hoo235(long x)
 {
     return x * 235;
 }
 
-ulong hoo236(ulong x)
+long hoo236(long x)
 {
     return x * 236;
 }
 
-ulong hoo237(ulong x)
+long hoo237(long x)
 {
     return x * 237;
 }
 
-ulong hoo238(ulong x)
+long hoo238(long x)
 {
     return x * 238;
 }
 
-ulong hoo239(ulong x)
+long hoo239(long x)
 {
     return x * 239;
 }
 
-ulong hoo240(ulong x)
+long hoo240(long x)
 {
     return x * 240;
 }
 
-ulong hoo241(ulong x)
+long hoo241(long x)
 {
     return x * 241;
 }
 
-ulong hoo242(ulong x)
+long hoo242(long x)
 {
     return x * 242;
 }
 
-ulong hoo243(ulong x)
+long hoo243(long x)
 {
     return x * 243;
 }
 
-ulong hoo244(ulong x)
+long hoo244(long x)
 {
     return x * 244;
 }
 
-ulong hoo245(ulong x)
+long hoo245(long x)
 {
     return x * 245;
 }
 
-ulong hoo246(ulong x)
+long hoo246(long x)
 {
     return x * 246;
 }
 
-ulong hoo247(ulong x)
+long hoo247(long x)
 {
     return x * 247;
 }
 
-ulong hoo248(ulong x)
+long hoo248(long x)
 {
     return x * 248;
 }
 
-ulong hoo249(ulong x)
+long hoo249(long x)
 {
     return x * 249;
 }
 
-ulong _foo0(ulong x)
+long _foo0(long x)
 {
     return x * 0;
 }
 
-ulong _foo1(ulong x)
+long _foo1(long x)
 {
     return x * 1;
 }
 
-ulong _foo2(ulong x)
+long _foo2(long x)
 {
     return x * 2;
 }
 
-ulong _foo3(ulong x)
+long _foo3(long x)
 {
     return x * 3;
 }
 
-ulong _foo4(ulong x)
+long _foo4(long x)
 {
     return x * 4;
 }
 
-ulong _foo5(ulong x)
+long _foo5(long x)
 {
     return x * 5;
 }
 
-ulong _foo6(ulong x)
+long _foo6(long x)
 {
     return x * 6;
 }
 
-ulong _foo7(ulong x)
+long _foo7(long x)
 {
     return x * 7;
 }
 
-ulong _foo8(ulong x)
+long _foo8(long x)
 {
     return x * 8;
 }
 
-ulong _foo9(ulong x)
+long _foo9(long x)
 {
     return x * 9;
 }
 
-ulong _foo10(ulong x)
+long _foo10(long x)
 {
     return x * 10;
 }
 
-ulong _foo11(ulong x)
+long _foo11(long x)
 {
     return x * 11;
 }
 
-ulong _foo12(ulong x)
+long _foo12(long x)
 {
     return x * 12;
 }
 
-ulong _foo13(ulong x)
+long _foo13(long x)
 {
     return x * 13;
 }
 
-ulong _foo14(ulong x)
+long _foo14(long x)
 {
     return x * 14;
 }
 
-ulong _foo15(ulong x)
+long _foo15(long x)
 {
     return x * 15;
 }
 
-ulong _foo16(ulong x)
+long _foo16(long x)
 {
     return x * 16;
 }
 
-ulong _foo17(ulong x)
+long _foo17(long x)
 {
     return x * 17;
 }
 
-ulong _foo18(ulong x)
+long _foo18(long x)
 {
     return x * 18;
 }
 
-ulong _foo19(ulong x)
+long _foo19(long x)
 {
     return x * 19;
 }
 
-ulong _foo20(ulong x)
+long _foo20(long x)
 {
     return x * 20;
 }
 
-ulong _foo21(ulong x)
+long _foo21(long x)
 {
     return x * 21;
 }
 
-ulong _foo22(ulong x)
+long _foo22(long x)
 {
     return x * 22;
 }
 
-ulong _foo23(ulong x)
+long _foo23(long x)
 {
     return x * 23;
 }
 
-ulong _foo24(ulong x)
+long _foo24(long x)
 {
     return x * 24;
 }
 
-ulong _foo25(ulong x)
+long _foo25(long x)
 {
     return x * 25;
 }
 
-ulong _foo26(ulong x)
+long _foo26(long x)
 {
     return x * 26;
 }
 
-ulong _foo27(ulong x)
+long _foo27(long x)
 {
     return x * 27;
 }
 
-ulong _foo28(ulong x)
+long _foo28(long x)
 {
     return x * 28;
 }
 
-ulong _foo29(ulong x)
+long _foo29(long x)
 {
     return x * 29;
 }
 
-ulong _foo30(ulong x)
+long _foo30(long x)
 {
     return x * 30;
 }
 
-ulong _foo31(ulong x)
+long _foo31(long x)
 {
     return x * 31;
 }
 
-ulong _foo32(ulong x)
+long _foo32(long x)
 {
     return x * 32;
 }
 
-ulong _foo33(ulong x)
+long _foo33(long x)
 {
     return x * 33;
 }
 
-ulong _foo34(ulong x)
+long _foo34(long x)
 {
     return x * 34;
 }
 
-ulong _foo35(ulong x)
+long _foo35(long x)
 {
     return x * 35;
 }
 
-ulong _foo36(ulong x)
+long _foo36(long x)
 {
     return x * 36;
 }
 
-ulong _foo37(ulong x)
+long _foo37(long x)
 {
     return x * 37;
 }
 
-ulong _foo38(ulong x)
+long _foo38(long x)
 {
     return x * 38;
 }
 
-ulong _foo39(ulong x)
+long _foo39(long x)
 {
     return x * 39;
 }
 
-ulong _foo40(ulong x)
+long _foo40(long x)
 {
     return x * 40;
 }
 
-ulong _foo41(ulong x)
+long _foo41(long x)
 {
     return x * 41;
 }
 
-ulong _foo42(ulong x)
+long _foo42(long x)
 {
     return x * 42;
 }
 
-ulong _foo43(ulong x)
+long _foo43(long x)
 {
     return x * 43;
 }
 
-ulong _foo44(ulong x)
+long _foo44(long x)
 {
     return x * 44;
 }
 
-ulong _foo45(ulong x)
+long _foo45(long x)
 {
     return x * 45;
 }
 
-ulong _foo46(ulong x)
+long _foo46(long x)
 {
     return x * 46;
 }
 
-ulong _foo47(ulong x)
+long _foo47(long x)
 {
     return x * 47;
 }
 
-ulong _foo48(ulong x)
+long _foo48(long x)
 {
     return x * 48;
 }
 
-ulong _foo49(ulong x)
+long _foo49(long x)
 {
     return x * 49;
 }
 
-ulong _foo50(ulong x)
+long _foo50(long x)
 {
     return x * 50;
 }
 
-ulong _foo51(ulong x)
+long _foo51(long x)
 {
     return x * 51;
 }
 
-ulong _foo52(ulong x)
+long _foo52(long x)
 {
     return x * 52;
 }
 
-ulong _foo53(ulong x)
+long _foo53(long x)
 {
     return x * 53;
 }
 
-ulong _foo54(ulong x)
+long _foo54(long x)
 {
     return x * 54;
 }
 
-ulong _foo55(ulong x)
+long _foo55(long x)
 {
     return x * 55;
 }
 
-ulong _foo56(ulong x)
+long _foo56(long x)
 {
     return x * 56;
 }
 
-ulong _foo57(ulong x)
+long _foo57(long x)
 {
     return x * 57;
 }
 
-ulong _foo58(ulong x)
+long _foo58(long x)
 {
     return x * 58;
 }
 
-ulong _foo59(ulong x)
+long _foo59(long x)
 {
     return x * 59;
 }
 
-ulong _foo60(ulong x)
+long _foo60(long x)
 {
     return x * 60;
 }
 
-ulong _foo61(ulong x)
+long _foo61(long x)
 {
     return x * 61;
 }
 
-ulong _foo62(ulong x)
+long _foo62(long x)
 {
     return x * 62;
 }
 
-ulong _foo63(ulong x)
+long _foo63(long x)
 {
     return x * 63;
 }
 
-ulong _foo64(ulong x)
+long _foo64(long x)
 {
     return x * 64;
 }
 
-ulong _foo65(ulong x)
+long _foo65(long x)
 {
     return x * 65;
 }
 
-ulong _foo66(ulong x)
+long _foo66(long x)
 {
     return x * 66;
 }
 
-ulong _foo67(ulong x)
+long _foo67(long x)
 {
     return x * 67;
 }
 
-ulong _foo68(ulong x)
+long _foo68(long x)
 {
     return x * 68;
 }
 
-ulong _foo69(ulong x)
+long _foo69(long x)
 {
     return x * 69;
 }
 
-ulong _foo70(ulong x)
+long _foo70(long x)
 {
     return x * 70;
 }
 
-ulong _foo71(ulong x)
+long _foo71(long x)
 {
     return x * 71;
 }
 
-ulong _foo72(ulong x)
+long _foo72(long x)
 {
     return x * 72;
 }
 
-ulong _foo73(ulong x)
+long _foo73(long x)
 {
     return x * 73;
 }
 
-ulong _foo74(ulong x)
+long _foo74(long x)
 {
     return x * 74;
 }
 
-ulong _foo75(ulong x)
+long _foo75(long x)
 {
     return x * 75;
 }
 
-ulong _foo76(ulong x)
+long _foo76(long x)
 {
     return x * 76;
 }
 
-ulong _foo77(ulong x)
+long _foo77(long x)
 {
     return x * 77;
 }
 
-ulong _foo78(ulong x)
+long _foo78(long x)
 {
     return x * 78;
 }
 
-ulong _foo79(ulong x)
+long _foo79(long x)
 {
     return x * 79;
 }
 
-ulong _foo80(ulong x)
+long _foo80(long x)
 {
     return x * 80;
 }
 
-ulong _foo81(ulong x)
+long _foo81(long x)
 {
     return x * 81;
 }
 
-ulong _foo82(ulong x)
+long _foo82(long x)
 {
     return x * 82;
 }
 
-ulong _foo83(ulong x)
+long _foo83(long x)
 {
     return x * 83;
 }
 
-ulong _foo84(ulong x)
+long _foo84(long x)
 {
     return x * 84;
 }
 
-ulong _foo85(ulong x)
+long _foo85(long x)
 {
     return x * 85;
 }
 
-ulong _foo86(ulong x)
+long _foo86(long x)
 {
     return x * 86;
 }
 
-ulong _foo87(ulong x)
+long _foo87(long x)
 {
     return x * 87;
 }
 
-ulong _foo88(ulong x)
+long _foo88(long x)
 {
     return x * 88;
 }
 
-ulong _foo89(ulong x)
+long _foo89(long x)
 {
     return x * 89;
 }
 
-ulong _foo90(ulong x)
+long _foo90(long x)
 {
     return x * 90;
 }
 
-ulong _foo91(ulong x)
+long _foo91(long x)
 {
     return x * 91;
 }
 
-ulong _foo92(ulong x)
+long _foo92(long x)
 {
     return x * 92;
 }
 
-ulong _foo93(ulong x)
+long _foo93(long x)
 {
     return x * 93;
 }
 
-ulong _foo94(ulong x)
+long _foo94(long x)
 {
     return x * 94;
 }
 
-ulong _foo95(ulong x)
+long _foo95(long x)
 {
     return x * 95;
 }
 
-ulong _foo96(ulong x)
+long _foo96(long x)
 {
     return x * 96;
 }
 
-ulong _foo97(ulong x)
+long _foo97(long x)
 {
     return x * 97;
 }
 
-ulong _foo98(ulong x)
+long _foo98(long x)
 {
     return x * 98;
 }
 
-ulong _foo99(ulong x)
+long _foo99(long x)
 {
     return x * 99;
 }
 
-ulong _foo100(ulong x)
+long _foo100(long x)
 {
     return x * 100;
 }
 
-ulong _foo101(ulong x)
+long _foo101(long x)
 {
     return x * 101;
 }
 
-ulong _foo102(ulong x)
+long _foo102(long x)
 {
     return x * 102;
 }
 
-ulong _foo103(ulong x)
+long _foo103(long x)
 {
     return x * 103;
 }
 
-ulong _foo104(ulong x)
+long _foo104(long x)
 {
     return x * 104;
 }
 
-ulong _foo105(ulong x)
+long _foo105(long x)
 {
     return x * 105;
 }
 
-ulong _foo106(ulong x)
+long _foo106(long x)
 {
     return x * 106;
 }
 
-ulong _foo107(ulong x)
+long _foo107(long x)
 {
     return x * 107;
 }
 
-ulong _foo108(ulong x)
+long _foo108(long x)
 {
     return x * 108;
 }
 
-ulong _foo109(ulong x)
+long _foo109(long x)
 {
     return x * 109;
 }
 
-ulong _foo110(ulong x)
+long _foo110(long x)
 {
     return x * 110;
 }
 
-ulong _foo111(ulong x)
+long _foo111(long x)
 {
     return x * 111;
 }
 
-ulong _foo112(ulong x)
+long _foo112(long x)
 {
     return x * 112;
 }
 
-ulong _foo113(ulong x)
+long _foo113(long x)
 {
     return x * 113;
 }
 
-ulong _foo114(ulong x)
+long _foo114(long x)
 {
     return x * 114;
 }
 
-ulong _foo115(ulong x)
+long _foo115(long x)
 {
     return x * 115;
 }
 
-ulong _foo116(ulong x)
+long _foo116(long x)
 {
     return x * 116;
 }
 
-ulong _foo117(ulong x)
+long _foo117(long x)
 {
     return x * 117;
 }
 
-ulong _foo118(ulong x)
+long _foo118(long x)
 {
     return x * 118;
 }
 
-ulong _foo119(ulong x)
+long _foo119(long x)
 {
     return x * 119;
 }
 
-ulong _foo120(ulong x)
+long _foo120(long x)
 {
     return x * 120;
 }
 
-ulong _foo121(ulong x)
+long _foo121(long x)
 {
     return x * 121;
 }
 
-ulong _foo122(ulong x)
+long _foo122(long x)
 {
     return x * 122;
 }
 
-ulong _foo123(ulong x)
+long _foo123(long x)
 {
     return x * 123;
 }
 
-ulong _foo124(ulong x)
+long _foo124(long x)
 {
     return x * 124;
 }
 
-ulong _foo125(ulong x)
+long _foo125(long x)
 {
     return x * 125;
 }
 
-ulong _foo126(ulong x)
+long _foo126(long x)
 {
     return x * 126;
 }
 
-ulong _foo127(ulong x)
+long _foo127(long x)
 {
     return x * 127;
 }
 
-ulong _foo128(ulong x)
+long _foo128(long x)
 {
     return x * 128;
 }
 
-ulong _foo129(ulong x)
+long _foo129(long x)
 {
     return x * 129;
 }
 
-ulong _foo130(ulong x)
+long _foo130(long x)
 {
     return x * 130;
 }
 
-ulong _foo131(ulong x)
+long _foo131(long x)
 {
     return x * 131;
 }
 
-ulong _foo132(ulong x)
+long _foo132(long x)
 {
     return x * 132;
 }
 
-ulong _foo133(ulong x)
+long _foo133(long x)
 {
     return x * 133;
 }
 
-ulong _foo134(ulong x)
+long _foo134(long x)
 {
     return x * 134;
 }
 
-ulong _foo135(ulong x)
+long _foo135(long x)
 {
     return x * 135;
 }
 
-ulong _foo136(ulong x)
+long _foo136(long x)
 {
     return x * 136;
 }
 
-ulong _foo137(ulong x)
+long _foo137(long x)
 {
     return x * 137;
 }
 
-ulong _foo138(ulong x)
+long _foo138(long x)
 {
     return x * 138;
 }
 
-ulong _foo139(ulong x)
+long _foo139(long x)
 {
     return x * 139;
 }
 
-ulong _foo140(ulong x)
+long _foo140(long x)
 {
     return x * 140;
 }
 
-ulong _foo141(ulong x)
+long _foo141(long x)
 {
     return x * 141;
 }
 
-ulong _foo142(ulong x)
+long _foo142(long x)
 {
     return x * 142;
 }
 
-ulong _foo143(ulong x)
+long _foo143(long x)
 {
     return x * 143;
 }
 
-ulong _foo144(ulong x)
+long _foo144(long x)
 {
     return x * 144;
 }
 
-ulong _foo145(ulong x)
+long _foo145(long x)
 {
     return x * 145;
 }
 
-ulong _foo146(ulong x)
+long _foo146(long x)
 {
     return x * 146;
 }
 
-ulong _foo147(ulong x)
+long _foo147(long x)
 {
     return x * 147;
 }
 
-ulong _foo148(ulong x)
+long _foo148(long x)
 {
     return x * 148;
 }
 
-ulong _foo149(ulong x)
+long _foo149(long x)
 {
     return x * 149;
 }
 
-ulong _foo150(ulong x)
+long _foo150(long x)
 {
     return x * 150;
 }
 
-ulong _foo151(ulong x)
+long _foo151(long x)
 {
     return x * 151;
 }
 
-ulong _foo152(ulong x)
+long _foo152(long x)
 {
     return x * 152;
 }
 
-ulong _foo153(ulong x)
+long _foo153(long x)
 {
     return x * 153;
 }
 
-ulong _foo154(ulong x)
+long _foo154(long x)
 {
     return x * 154;
 }
 
-ulong _foo155(ulong x)
+long _foo155(long x)
 {
     return x * 155;
 }
 
-ulong _foo156(ulong x)
+long _foo156(long x)
 {
     return x * 156;
 }
 
-ulong _foo157(ulong x)
+long _foo157(long x)
 {
     return x * 157;
 }
 
-ulong _foo158(ulong x)
+long _foo158(long x)
 {
     return x * 158;
 }
 
-ulong _foo159(ulong x)
+long _foo159(long x)
 {
     return x * 159;
 }
 
-ulong _foo160(ulong x)
+long _foo160(long x)
 {
     return x * 160;
 }
 
-ulong _foo161(ulong x)
+long _foo161(long x)
 {
     return x * 161;
 }
 
-ulong _foo162(ulong x)
+long _foo162(long x)
 {
     return x * 162;
 }
 
-ulong _foo163(ulong x)
+long _foo163(long x)
 {
     return x * 163;
 }
 
-ulong _foo164(ulong x)
+long _foo164(long x)
 {
     return x * 164;
 }
 
-ulong _foo165(ulong x)
+long _foo165(long x)
 {
     return x * 165;
 }
 
-ulong _foo166(ulong x)
+long _foo166(long x)
 {
     return x * 166;
 }
 
-ulong _foo167(ulong x)
+long _foo167(long x)
 {
     return x * 167;
 }
 
-ulong _foo168(ulong x)
+long _foo168(long x)
 {
     return x * 168;
 }
 
-ulong _foo169(ulong x)
+long _foo169(long x)
 {
     return x * 169;
 }
 
-ulong _foo170(ulong x)
+long _foo170(long x)
 {
     return x * 170;
 }
 
-ulong _foo171(ulong x)
+long _foo171(long x)
 {
     return x * 171;
 }
 
-ulong _foo172(ulong x)
+long _foo172(long x)
 {
     return x * 172;
 }
 
-ulong _foo173(ulong x)
+long _foo173(long x)
 {
     return x * 173;
 }
 
-ulong _foo174(ulong x)
+long _foo174(long x)
 {
     return x * 174;
 }
 
-ulong _foo175(ulong x)
+long _foo175(long x)
 {
     return x * 175;
 }
 
-ulong _foo176(ulong x)
+long _foo176(long x)
 {
     return x * 176;
 }
 
-ulong _foo177(ulong x)
+long _foo177(long x)
 {
     return x * 177;
 }
 
-ulong _foo178(ulong x)
+long _foo178(long x)
 {
     return x * 178;
 }
 
-ulong _foo179(ulong x)
+long _foo179(long x)
 {
     return x * 179;
 }
 
-ulong _foo180(ulong x)
+long _foo180(long x)
 {
     return x * 180;
 }
 
-ulong _foo181(ulong x)
+long _foo181(long x)
 {
     return x * 181;
 }
 
-ulong _foo182(ulong x)
+long _foo182(long x)
 {
     return x * 182;
 }
 
-ulong _foo183(ulong x)
+long _foo183(long x)
 {
     return x * 183;
 }
 
-ulong _foo184(ulong x)
+long _foo184(long x)
 {
     return x * 184;
 }
 
-ulong _foo185(ulong x)
+long _foo185(long x)
 {
     return x * 185;
 }
 
-ulong _foo186(ulong x)
+long _foo186(long x)
 {
     return x * 186;
 }
 
-ulong _foo187(ulong x)
+long _foo187(long x)
 {
     return x * 187;
 }
 
-ulong _foo188(ulong x)
+long _foo188(long x)
 {
     return x * 188;
 }
 
-ulong _foo189(ulong x)
+long _foo189(long x)
 {
     return x * 189;
 }
 
-ulong _foo190(ulong x)
+long _foo190(long x)
 {
     return x * 190;
 }
 
-ulong _foo191(ulong x)
+long _foo191(long x)
 {
     return x * 191;
 }
 
-ulong _foo192(ulong x)
+long _foo192(long x)
 {
     return x * 192;
 }
 
-ulong _foo193(ulong x)
+long _foo193(long x)
 {
     return x * 193;
 }
 
-ulong _foo194(ulong x)
+long _foo194(long x)
 {
     return x * 194;
 }
 
-ulong _foo195(ulong x)
+long _foo195(long x)
 {
     return x * 195;
 }
 
-ulong _foo196(ulong x)
+long _foo196(long x)
 {
     return x * 196;
 }
 
-ulong _foo197(ulong x)
+long _foo197(long x)
 {
     return x * 197;
 }
 
-ulong _foo198(ulong x)
+long _foo198(long x)
 {
     return x * 198;
 }
 
-ulong _foo199(ulong x)
+long _foo199(long x)
 {
     return x * 199;
 }
 
-ulong _foo200(ulong x)
+long _foo200(long x)
 {
     return x * 200;
 }
 
-ulong _foo201(ulong x)
+long _foo201(long x)
 {
     return x * 201;
 }
 
-ulong _foo202(ulong x)
+long _foo202(long x)
 {
     return x * 202;
 }
 
-ulong _foo203(ulong x)
+long _foo203(long x)
 {
     return x * 203;
 }
 
-ulong _foo204(ulong x)
+long _foo204(long x)
 {
     return x * 204;
 }
 
-ulong _foo205(ulong x)
+long _foo205(long x)
 {
     return x * 205;
 }
 
-ulong _foo206(ulong x)
+long _foo206(long x)
 {
     return x * 206;
 }
 
-ulong _foo207(ulong x)
+long _foo207(long x)
 {
     return x * 207;
 }
 
-ulong _foo208(ulong x)
+long _foo208(long x)
 {
     return x * 208;
 }
 
-ulong _foo209(ulong x)
+long _foo209(long x)
 {
     return x * 209;
 }
 
-ulong _foo210(ulong x)
+long _foo210(long x)
 {
     return x * 210;
 }
 
-ulong _foo211(ulong x)
+long _foo211(long x)
 {
     return x * 211;
 }
 
-ulong _foo212(ulong x)
+long _foo212(long x)
 {
     return x * 212;
 }
 
-ulong _foo213(ulong x)
+long _foo213(long x)
 {
     return x * 213;
 }
 
-ulong _foo214(ulong x)
+long _foo214(long x)
 {
     return x * 214;
 }
 
-ulong _foo215(ulong x)
+long _foo215(long x)
 {
     return x * 215;
 }
 
-ulong _foo216(ulong x)
+long _foo216(long x)
 {
     return x * 216;
 }
 
-ulong _foo217(ulong x)
+long _foo217(long x)
 {
     return x * 217;
 }
 
-ulong _foo218(ulong x)
+long _foo218(long x)
 {
     return x * 218;
 }
 
-ulong _foo219(ulong x)
+long _foo219(long x)
 {
     return x * 219;
 }
 
-ulong _foo220(ulong x)
+long _foo220(long x)
 {
     return x * 220;
 }
 
-ulong _foo221(ulong x)
+long _foo221(long x)
 {
     return x * 221;
 }
 
-ulong _foo222(ulong x)
+long _foo222(long x)
 {
     return x * 222;
 }
 
-ulong _foo223(ulong x)
+long _foo223(long x)
 {
     return x * 223;
 }
 
-ulong _foo224(ulong x)
+long _foo224(long x)
 {
     return x * 224;
 }
 
-ulong _foo225(ulong x)
+long _foo225(long x)
 {
     return x * 225;
 }
 
-ulong _foo226(ulong x)
+long _foo226(long x)
 {
     return x * 226;
 }
 
-ulong _foo227(ulong x)
+long _foo227(long x)
 {
     return x * 227;
 }
 
-ulong _foo228(ulong x)
+long _foo228(long x)
 {
     return x * 228;
 }
 
-ulong _foo229(ulong x)
+long _foo229(long x)
 {
     return x * 229;
 }
 
-ulong _foo230(ulong x)
+long _foo230(long x)
 {
     return x * 230;
 }
 
-ulong _foo231(ulong x)
+long _foo231(long x)
 {
     return x * 231;
 }
 
-ulong _foo232(ulong x)
+long _foo232(long x)
 {
     return x * 232;
 }
 
-ulong _foo233(ulong x)
+long _foo233(long x)
 {
     return x * 233;
 }
 
-ulong _foo234(ulong x)
+long _foo234(long x)
 {
     return x * 234;
 }
 
-ulong _foo235(ulong x)
+long _foo235(long x)
 {
     return x * 235;
 }
 
-ulong _foo236(ulong x)
+long _foo236(long x)
 {
     return x * 236;
 }
 
-ulong _foo237(ulong x)
+long _foo237(long x)
 {
     return x * 237;
 }
 
-ulong _foo238(ulong x)
+long _foo238(long x)
 {
     return x * 238;
 }
 
-ulong _foo239(ulong x)
+long _foo239(long x)
 {
     return x * 239;
 }
 
-ulong _foo240(ulong x)
+long _foo240(long x)
 {
     return x * 240;
 }
 
-ulong _foo241(ulong x)
+long _foo241(long x)
 {
     return x * 241;
 }
 
-ulong _foo242(ulong x)
+long _foo242(long x)
 {
     return x * 242;
 }
 
-ulong _foo243(ulong x)
+long _foo243(long x)
 {
     return x * 243;
 }
 
-ulong _foo244(ulong x)
+long _foo244(long x)
 {
     return x * 244;
 }
 
-ulong _foo245(ulong x)
+long _foo245(long x)
 {
     return x * 245;
 }
 
-ulong _foo246(ulong x)
+long _foo246(long x)
 {
     return x * 246;
 }
 
-ulong _foo247(ulong x)
+long _foo247(long x)
 {
     return x * 247;
 }
 
-ulong _foo248(ulong x)
+long _foo248(long x)
 {
     return x * 248;
 }
 
-ulong _foo249(ulong x)
+long _foo249(long x)
 {
     return x * 249;
 }
 
-ulong _goo0(ulong x)
+long _goo0(long x)
 {
     return x * 0;
 }
 
-ulong _goo1(ulong x)
+long _goo1(long x)
 {
     return x * 1;
 }
 
-ulong _goo2(ulong x)
+long _goo2(long x)
 {
     return x * 2;
 }
 
-ulong _goo3(ulong x)
+long _goo3(long x)
 {
     return x * 3;
 }
 
-ulong _goo4(ulong x)
+long _goo4(long x)
 {
     return x * 4;
 }
 
-ulong _goo5(ulong x)
+long _goo5(long x)
 {
     return x * 5;
 }
 
-ulong _goo6(ulong x)
+long _goo6(long x)
 {
     return x * 6;
 }
 
-ulong _goo7(ulong x)
+long _goo7(long x)
 {
     return x * 7;
 }
 
-ulong _goo8(ulong x)
+long _goo8(long x)
 {
     return x * 8;
 }
 
-ulong _goo9(ulong x)
+long _goo9(long x)
 {
     return x * 9;
 }
 
-ulong _goo10(ulong x)
+long _goo10(long x)
 {
     return x * 10;
 }
 
-ulong _goo11(ulong x)
+long _goo11(long x)
 {
     return x * 11;
 }
 
-ulong _goo12(ulong x)
+long _goo12(long x)
 {
     return x * 12;
 }
 
-ulong _goo13(ulong x)
+long _goo13(long x)
 {
     return x * 13;
 }
 
-ulong _goo14(ulong x)
+long _goo14(long x)
 {
     return x * 14;
 }
 
-ulong _goo15(ulong x)
+long _goo15(long x)
 {
     return x * 15;
 }
 
-ulong _goo16(ulong x)
+long _goo16(long x)
 {
     return x * 16;
 }
 
-ulong _goo17(ulong x)
+long _goo17(long x)
 {
     return x * 17;
 }
 
-ulong _goo18(ulong x)
+long _goo18(long x)
 {
     return x * 18;
 }
 
-ulong _goo19(ulong x)
+long _goo19(long x)
 {
     return x * 19;
 }
 
-ulong _goo20(ulong x)
+long _goo20(long x)
 {
     return x * 20;
 }
 
-ulong _goo21(ulong x)
+long _goo21(long x)
 {
     return x * 21;
 }
 
-ulong _goo22(ulong x)
+long _goo22(long x)
 {
     return x * 22;
 }
 
-ulong _goo23(ulong x)
+long _goo23(long x)
 {
     return x * 23;
 }
 
-ulong _goo24(ulong x)
+long _goo24(long x)
 {
     return x * 24;
 }
 
-ulong _goo25(ulong x)
+long _goo25(long x)
 {
     return x * 25;
 }
 
-ulong _goo26(ulong x)
+long _goo26(long x)
 {
     return x * 26;
 }
 
-ulong _goo27(ulong x)
+long _goo27(long x)
 {
     return x * 27;
 }
 
-ulong _goo28(ulong x)
+long _goo28(long x)
 {
     return x * 28;
 }
 
-ulong _goo29(ulong x)
+long _goo29(long x)
 {
     return x * 29;
 }
 
-ulong _goo30(ulong x)
+long _goo30(long x)
 {
     return x * 30;
 }
 
-ulong _goo31(ulong x)
+long _goo31(long x)
 {
     return x * 31;
 }
 
-ulong _goo32(ulong x)
+long _goo32(long x)
 {
     return x * 32;
 }
 
-ulong _goo33(ulong x)
+long _goo33(long x)
 {
     return x * 33;
 }
 
-ulong _goo34(ulong x)
+long _goo34(long x)
 {
     return x * 34;
 }
 
-ulong _goo35(ulong x)
+long _goo35(long x)
 {
     return x * 35;
 }
 
-ulong _goo36(ulong x)
+long _goo36(long x)
 {
     return x * 36;
 }
 
-ulong _goo37(ulong x)
+long _goo37(long x)
 {
     return x * 37;
 }
 
-ulong _goo38(ulong x)
+long _goo38(long x)
 {
     return x * 38;
 }
 
-ulong _goo39(ulong x)
+long _goo39(long x)
 {
     return x * 39;
 }
 
-ulong _goo40(ulong x)
+long _goo40(long x)
 {
     return x * 40;
 }
 
-ulong _goo41(ulong x)
+long _goo41(long x)
 {
     return x * 41;
 }
 
-ulong _goo42(ulong x)
+long _goo42(long x)
 {
     return x * 42;
 }
 
-ulong _goo43(ulong x)
+long _goo43(long x)
 {
     return x * 43;
 }
 
-ulong _goo44(ulong x)
+long _goo44(long x)
 {
     return x * 44;
 }
 
-ulong _goo45(ulong x)
+long _goo45(long x)
 {
     return x * 45;
 }
 
-ulong _goo46(ulong x)
+long _goo46(long x)
 {
     return x * 46;
 }
 
-ulong _goo47(ulong x)
+long _goo47(long x)
 {
     return x * 47;
 }
 
-ulong _goo48(ulong x)
+long _goo48(long x)
 {
     return x * 48;
 }
 
-ulong _goo49(ulong x)
+long _goo49(long x)
 {
     return x * 49;
 }
 
-ulong _goo50(ulong x)
+long _goo50(long x)
 {
     return x * 50;
 }
 
-ulong _goo51(ulong x)
+long _goo51(long x)
 {
     return x * 51;
 }
 
-ulong _goo52(ulong x)
+long _goo52(long x)
 {
     return x * 52;
 }
 
-ulong _goo53(ulong x)
+long _goo53(long x)
 {
     return x * 53;
 }
 
-ulong _goo54(ulong x)
+long _goo54(long x)
 {
     return x * 54;
 }
 
-ulong _goo55(ulong x)
+long _goo55(long x)
 {
     return x * 55;
 }
 
-ulong _goo56(ulong x)
+long _goo56(long x)
 {
     return x * 56;
 }
 
-ulong _goo57(ulong x)
+long _goo57(long x)
 {
     return x * 57;
 }
 
-ulong _goo58(ulong x)
+long _goo58(long x)
 {
     return x * 58;
 }
 
-ulong _goo59(ulong x)
+long _goo59(long x)
 {
     return x * 59;
 }
 
-ulong _goo60(ulong x)
+long _goo60(long x)
 {
     return x * 60;
 }
 
-ulong _goo61(ulong x)
+long _goo61(long x)
 {
     return x * 61;
 }
 
-ulong _goo62(ulong x)
+long _goo62(long x)
 {
     return x * 62;
 }
 
-ulong _goo63(ulong x)
+long _goo63(long x)
 {
     return x * 63;
 }
 
-ulong _goo64(ulong x)
+long _goo64(long x)
 {
     return x * 64;
 }
 
-ulong _goo65(ulong x)
+long _goo65(long x)
 {
     return x * 65;
 }
 
-ulong _goo66(ulong x)
+long _goo66(long x)
 {
     return x * 66;
 }
 
-ulong _goo67(ulong x)
+long _goo67(long x)
 {
     return x * 67;
 }
 
-ulong _goo68(ulong x)
+long _goo68(long x)
 {
     return x * 68;
 }
 
-ulong _goo69(ulong x)
+long _goo69(long x)
 {
     return x * 69;
 }
 
-ulong _goo70(ulong x)
+long _goo70(long x)
 {
     return x * 70;
 }
 
-ulong _goo71(ulong x)
+long _goo71(long x)
 {
     return x * 71;
 }
 
-ulong _goo72(ulong x)
+long _goo72(long x)
 {
     return x * 72;
 }
 
-ulong _goo73(ulong x)
+long _goo73(long x)
 {
     return x * 73;
 }
 
-ulong _goo74(ulong x)
+long _goo74(long x)
 {
     return x * 74;
 }
 
-ulong _goo75(ulong x)
+long _goo75(long x)
 {
     return x * 75;
 }
 
-ulong _goo76(ulong x)
+long _goo76(long x)
 {
     return x * 76;
 }
 
-ulong _goo77(ulong x)
+long _goo77(long x)
 {
     return x * 77;
 }
 
-ulong _goo78(ulong x)
+long _goo78(long x)
 {
     return x * 78;
 }
 
-ulong _goo79(ulong x)
+long _goo79(long x)
 {
     return x * 79;
 }
 
-ulong _goo80(ulong x)
+long _goo80(long x)
 {
     return x * 80;
 }
 
-ulong _goo81(ulong x)
+long _goo81(long x)
 {
     return x * 81;
 }
 
-ulong _goo82(ulong x)
+long _goo82(long x)
 {
     return x * 82;
 }
 
-ulong _goo83(ulong x)
+long _goo83(long x)
 {
     return x * 83;
 }
 
-ulong _goo84(ulong x)
+long _goo84(long x)
 {
     return x * 84;
 }
 
-ulong _goo85(ulong x)
+long _goo85(long x)
 {
     return x * 85;
 }
 
-ulong _goo86(ulong x)
+long _goo86(long x)
 {
     return x * 86;
 }
 
-ulong _goo87(ulong x)
+long _goo87(long x)
 {
     return x * 87;
 }
 
-ulong _goo88(ulong x)
+long _goo88(long x)
 {
     return x * 88;
 }
 
-ulong _goo89(ulong x)
+long _goo89(long x)
 {
     return x * 89;
 }
 
-ulong _goo90(ulong x)
+long _goo90(long x)
 {
     return x * 90;
 }
 
-ulong _goo91(ulong x)
+long _goo91(long x)
 {
     return x * 91;
 }
 
-ulong _goo92(ulong x)
+long _goo92(long x)
 {
     return x * 92;
 }
 
-ulong _goo93(ulong x)
+long _goo93(long x)
 {
     return x * 93;
 }
 
-ulong _goo94(ulong x)
+long _goo94(long x)
 {
     return x * 94;
 }
 
-ulong _goo95(ulong x)
+long _goo95(long x)
 {
     return x * 95;
 }
 
-ulong _goo96(ulong x)
+long _goo96(long x)
 {
     return x * 96;
 }
 
-ulong _goo97(ulong x)
+long _goo97(long x)
 {
     return x * 97;
 }
 
-ulong _goo98(ulong x)
+long _goo98(long x)
 {
     return x * 98;
 }
 
-ulong _goo99(ulong x)
+long _goo99(long x)
 {
     return x * 99;
 }
 
-ulong _goo100(ulong x)
+long _goo100(long x)
 {
     return x * 100;
 }
 
-ulong _goo101(ulong x)
+long _goo101(long x)
 {
     return x * 101;
 }
 
-ulong _goo102(ulong x)
+long _goo102(long x)
 {
     return x * 102;
 }
 
-ulong _goo103(ulong x)
+long _goo103(long x)
 {
     return x * 103;
 }
 
-ulong _goo104(ulong x)
+long _goo104(long x)
 {
     return x * 104;
 }
 
-ulong _goo105(ulong x)
+long _goo105(long x)
 {
     return x * 105;
 }
 
-ulong _goo106(ulong x)
+long _goo106(long x)
 {
     return x * 106;
 }
 
-ulong _goo107(ulong x)
+long _goo107(long x)
 {
     return x * 107;
 }
 
-ulong _goo108(ulong x)
+long _goo108(long x)
 {
     return x * 108;
 }
 
-ulong _goo109(ulong x)
+long _goo109(long x)
 {
     return x * 109;
 }
 
-ulong _goo110(ulong x)
+long _goo110(long x)
 {
     return x * 110;
 }
 
-ulong _goo111(ulong x)
+long _goo111(long x)
 {
     return x * 111;
 }
 
-ulong _goo112(ulong x)
+long _goo112(long x)
 {
     return x * 112;
 }
 
-ulong _goo113(ulong x)
+long _goo113(long x)
 {
     return x * 113;
 }
 
-ulong _goo114(ulong x)
+long _goo114(long x)
 {
     return x * 114;
 }
 
-ulong _goo115(ulong x)
+long _goo115(long x)
 {
     return x * 115;
 }
 
-ulong _goo116(ulong x)
+long _goo116(long x)
 {
     return x * 116;
 }
 
-ulong _goo117(ulong x)
+long _goo117(long x)
 {
     return x * 117;
 }
 
-ulong _goo118(ulong x)
+long _goo118(long x)
 {
     return x * 118;
 }
 
-ulong _goo119(ulong x)
+long _goo119(long x)
 {
     return x * 119;
 }
 
-ulong _goo120(ulong x)
+long _goo120(long x)
 {
     return x * 120;
 }
 
-ulong _goo121(ulong x)
+long _goo121(long x)
 {
     return x * 121;
 }
 
-ulong _goo122(ulong x)
+long _goo122(long x)
 {
     return x * 122;
 }
 
-ulong _goo123(ulong x)
+long _goo123(long x)
 {
     return x * 123;
 }
 
-ulong _goo124(ulong x)
+long _goo124(long x)
 {
     return x * 124;
 }
 
-ulong _goo125(ulong x)
+long _goo125(long x)
 {
     return x * 125;
 }
 
-ulong _goo126(ulong x)
+long _goo126(long x)
 {
     return x * 126;
 }
 
-ulong _goo127(ulong x)
+long _goo127(long x)
 {
     return x * 127;
 }
 
-ulong _goo128(ulong x)
+long _goo128(long x)
 {
     return x * 128;
 }
 
-ulong _goo129(ulong x)
+long _goo129(long x)
 {
     return x * 129;
 }
 
-ulong _goo130(ulong x)
+long _goo130(long x)
 {
     return x * 130;
 }
 
-ulong _goo131(ulong x)
+long _goo131(long x)
 {
     return x * 131;
 }
 
-ulong _goo132(ulong x)
+long _goo132(long x)
 {
     return x * 132;
 }
 
-ulong _goo133(ulong x)
+long _goo133(long x)
 {
     return x * 133;
 }
 
-ulong _goo134(ulong x)
+long _goo134(long x)
 {
     return x * 134;
 }
 
-ulong _goo135(ulong x)
+long _goo135(long x)
 {
     return x * 135;
 }
 
-ulong _goo136(ulong x)
+long _goo136(long x)
 {
     return x * 136;
 }
 
-ulong _goo137(ulong x)
+long _goo137(long x)
 {
     return x * 137;
 }
 
-ulong _goo138(ulong x)
+long _goo138(long x)
 {
     return x * 138;
 }
 
-ulong _goo139(ulong x)
+long _goo139(long x)
 {
     return x * 139;
 }
 
-ulong _goo140(ulong x)
+long _goo140(long x)
 {
     return x * 140;
 }
 
-ulong _goo141(ulong x)
+long _goo141(long x)
 {
     return x * 141;
 }
 
-ulong _goo142(ulong x)
+long _goo142(long x)
 {
     return x * 142;
 }
 
-ulong _goo143(ulong x)
+long _goo143(long x)
 {
     return x * 143;
 }
 
-ulong _goo144(ulong x)
+long _goo144(long x)
 {
     return x * 144;
 }
 
-ulong _goo145(ulong x)
+long _goo145(long x)
 {
     return x * 145;
 }
 
-ulong _goo146(ulong x)
+long _goo146(long x)
 {
     return x * 146;
 }
 
-ulong _goo147(ulong x)
+long _goo147(long x)
 {
     return x * 147;
 }
 
-ulong _goo148(ulong x)
+long _goo148(long x)
 {
     return x * 148;
 }
 
-ulong _goo149(ulong x)
+long _goo149(long x)
 {
     return x * 149;
 }
 
-ulong _goo150(ulong x)
+long _goo150(long x)
 {
     return x * 150;
 }
 
-ulong _goo151(ulong x)
+long _goo151(long x)
 {
     return x * 151;
 }
 
-ulong _goo152(ulong x)
+long _goo152(long x)
 {
     return x * 152;
 }
 
-ulong _goo153(ulong x)
+long _goo153(long x)
 {
     return x * 153;
 }
 
-ulong _goo154(ulong x)
+long _goo154(long x)
 {
     return x * 154;
 }
 
-ulong _goo155(ulong x)
+long _goo155(long x)
 {
     return x * 155;
 }
 
-ulong _goo156(ulong x)
+long _goo156(long x)
 {
     return x * 156;
 }
 
-ulong _goo157(ulong x)
+long _goo157(long x)
 {
     return x * 157;
 }
 
-ulong _goo158(ulong x)
+long _goo158(long x)
 {
     return x * 158;
 }
 
-ulong _goo159(ulong x)
+long _goo159(long x)
 {
     return x * 159;
 }
 
-ulong _goo160(ulong x)
+long _goo160(long x)
 {
     return x * 160;
 }
 
-ulong _goo161(ulong x)
+long _goo161(long x)
 {
     return x * 161;
 }
 
-ulong _goo162(ulong x)
+long _goo162(long x)
 {
     return x * 162;
 }
 
-ulong _goo163(ulong x)
+long _goo163(long x)
 {
     return x * 163;
 }
 
-ulong _goo164(ulong x)
+long _goo164(long x)
 {
     return x * 164;
 }
 
-ulong _goo165(ulong x)
+long _goo165(long x)
 {
     return x * 165;
 }
 
-ulong _goo166(ulong x)
+long _goo166(long x)
 {
     return x * 166;
 }
 
-ulong _goo167(ulong x)
+long _goo167(long x)
 {
     return x * 167;
 }
 
-ulong _goo168(ulong x)
+long _goo168(long x)
 {
     return x * 168;
 }
 
-ulong _goo169(ulong x)
+long _goo169(long x)
 {
     return x * 169;
 }
 
-ulong _goo170(ulong x)
+long _goo170(long x)
 {
     return x * 170;
 }
 
-ulong _goo171(ulong x)
+long _goo171(long x)
 {
     return x * 171;
 }
 
-ulong _goo172(ulong x)
+long _goo172(long x)
 {
     return x * 172;
 }
 
-ulong _goo173(ulong x)
+long _goo173(long x)
 {
     return x * 173;
 }
 
-ulong _goo174(ulong x)
+long _goo174(long x)
 {
     return x * 174;
 }
 
-ulong _goo175(ulong x)
+long _goo175(long x)
 {
     return x * 175;
 }
 
-ulong _goo176(ulong x)
+long _goo176(long x)
 {
     return x * 176;
 }
 
-ulong _goo177(ulong x)
+long _goo177(long x)
 {
     return x * 177;
 }
 
-ulong _goo178(ulong x)
+long _goo178(long x)
 {
     return x * 178;
 }
 
-ulong _goo179(ulong x)
+long _goo179(long x)
 {
     return x * 179;
 }
 
-ulong _goo180(ulong x)
+long _goo180(long x)
 {
     return x * 180;
 }
 
-ulong _goo181(ulong x)
+long _goo181(long x)
 {
     return x * 181;
 }
 
-ulong _goo182(ulong x)
+long _goo182(long x)
 {
     return x * 182;
 }
 
-ulong _goo183(ulong x)
+long _goo183(long x)
 {
     return x * 183;
 }
 
-ulong _goo184(ulong x)
+long _goo184(long x)
 {
     return x * 184;
 }
 
-ulong _goo185(ulong x)
+long _goo185(long x)
 {
     return x * 185;
 }
 
-ulong _goo186(ulong x)
+long _goo186(long x)
 {
     return x * 186;
 }
 
-ulong _goo187(ulong x)
+long _goo187(long x)
 {
     return x * 187;
 }
 
-ulong _goo188(ulong x)
+long _goo188(long x)
 {
     return x * 188;
 }
 
-ulong _goo189(ulong x)
+long _goo189(long x)
 {
     return x * 189;
 }
 
-ulong _goo190(ulong x)
+long _goo190(long x)
 {
     return x * 190;
 }
 
-ulong _goo191(ulong x)
+long _goo191(long x)
 {
     return x * 191;
 }
 
-ulong _goo192(ulong x)
+long _goo192(long x)
 {
     return x * 192;
 }
 
-ulong _goo193(ulong x)
+long _goo193(long x)
 {
     return x * 193;
 }
 
-ulong _goo194(ulong x)
+long _goo194(long x)
 {
     return x * 194;
 }
 
-ulong _goo195(ulong x)
+long _goo195(long x)
 {
     return x * 195;
 }
 
-ulong _goo196(ulong x)
+long _goo196(long x)
 {
     return x * 196;
 }
 
-ulong _goo197(ulong x)
+long _goo197(long x)
 {
     return x * 197;
 }
 
-ulong _goo198(ulong x)
+long _goo198(long x)
 {
     return x * 198;
 }
 
-ulong _goo199(ulong x)
+long _goo199(long x)
 {
     return x * 199;
 }
 
-ulong _goo200(ulong x)
+long _goo200(long x)
 {
     return x * 200;
 }
 
-ulong _goo201(ulong x)
+long _goo201(long x)
 {
     return x * 201;
 }
 
-ulong _goo202(ulong x)
+long _goo202(long x)
 {
     return x * 202;
 }
 
-ulong _goo203(ulong x)
+long _goo203(long x)
 {
     return x * 203;
 }
 
-ulong _goo204(ulong x)
+long _goo204(long x)
 {
     return x * 204;
 }
 
-ulong _goo205(ulong x)
+long _goo205(long x)
 {
     return x * 205;
 }
 
-ulong _goo206(ulong x)
+long _goo206(long x)
 {
     return x * 206;
 }
 
-ulong _goo207(ulong x)
+long _goo207(long x)
 {
     return x * 207;
 }
 
-ulong _goo208(ulong x)
+long _goo208(long x)
 {
     return x * 208;
 }
 
-ulong _goo209(ulong x)
+long _goo209(long x)
 {
     return x * 209;
 }
 
-ulong _goo210(ulong x)
+long _goo210(long x)
 {
     return x * 210;
 }
 
-ulong _goo211(ulong x)
+long _goo211(long x)
 {
     return x * 211;
 }
 
-ulong _goo212(ulong x)
+long _goo212(long x)
 {
     return x * 212;
 }
 
-ulong _goo213(ulong x)
+long _goo213(long x)
 {
     return x * 213;
 }
 
-ulong _goo214(ulong x)
+long _goo214(long x)
 {
     return x * 214;
 }
 
-ulong _goo215(ulong x)
+long _goo215(long x)
 {
     return x * 215;
 }
 
-ulong _goo216(ulong x)
+long _goo216(long x)
 {
     return x * 216;
 }
 
-ulong _goo217(ulong x)
+long _goo217(long x)
 {
     return x * 217;
 }
 
-ulong _goo218(ulong x)
+long _goo218(long x)
 {
     return x * 218;
 }
 
-ulong _goo219(ulong x)
+long _goo219(long x)
 {
     return x * 219;
 }
 
-ulong _goo220(ulong x)
+long _goo220(long x)
 {
     return x * 220;
 }
 
-ulong _goo221(ulong x)
+long _goo221(long x)
 {
     return x * 221;
 }
 
-ulong _goo222(ulong x)
+long _goo222(long x)
 {
     return x * 222;
 }
 
-ulong _goo223(ulong x)
+long _goo223(long x)
 {
     return x * 223;
 }
 
-ulong _goo224(ulong x)
+long _goo224(long x)
 {
     return x * 224;
 }
 
-ulong _goo225(ulong x)
+long _goo225(long x)
 {
     return x * 225;
 }
 
-ulong _goo226(ulong x)
+long _goo226(long x)
 {
     return x * 226;
 }
 
-ulong _goo227(ulong x)
+long _goo227(long x)
 {
     return x * 227;
 }
 
-ulong _goo228(ulong x)
+long _goo228(long x)
 {
     return x * 228;
 }
 
-ulong _goo229(ulong x)
+long _goo229(long x)
 {
     return x * 229;
 }
 
-ulong _goo230(ulong x)
+long _goo230(long x)
 {
     return x * 230;
 }
 
-ulong _goo231(ulong x)
+long _goo231(long x)
 {
     return x * 231;
 }
 
-ulong _goo232(ulong x)
+long _goo232(long x)
 {
     return x * 232;
 }
 
-ulong _goo233(ulong x)
+long _goo233(long x)
 {
     return x * 233;
 }
 
-ulong _goo234(ulong x)
+long _goo234(long x)
 {
     return x * 234;
 }
 
-ulong _goo235(ulong x)
+long _goo235(long x)
 {
     return x * 235;
 }
 
-ulong _goo236(ulong x)
+long _goo236(long x)
 {
     return x * 236;
 }
 
-ulong _goo237(ulong x)
+long _goo237(long x)
 {
     return x * 237;
 }
 
-ulong _goo238(ulong x)
+long _goo238(long x)
 {
     return x * 238;
 }
 
-ulong _goo239(ulong x)
+long _goo239(long x)
 {
     return x * 239;
 }
 
-ulong _goo240(ulong x)
+long _goo240(long x)
 {
     return x * 240;
 }
 
-ulong _goo241(ulong x)
+long _goo241(long x)
 {
     return x * 241;
 }
 
-ulong _goo242(ulong x)
+long _goo242(long x)
 {
     return x * 242;
 }
 
-ulong _goo243(ulong x)
+long _goo243(long x)
 {
     return x * 243;
 }
 
-ulong _goo244(ulong x)
+long _goo244(long x)
 {
     return x * 244;
 }
 
-ulong _goo245(ulong x)
+long _goo245(long x)
 {
     return x * 245;
 }
 
-ulong _goo246(ulong x)
+long _goo246(long x)
 {
     return x * 246;
 }
 
-ulong _goo247(ulong x)
+long _goo247(long x)
 {
     return x * 247;
 }
 
-ulong _goo248(ulong x)
+long _goo248(long x)
 {
     return x * 248;
 }
 
-ulong _goo249(ulong x)
+long _goo249(long x)
 {
     return x * 249;
 }
 
-ulong _hoo0(ulong x)
+long _hoo0(long x)
 {
     return x * 0;
 }
 
-ulong _hoo1(ulong x)
+long _hoo1(long x)
 {
     return x * 1;
 }
 
-ulong _hoo2(ulong x)
+long _hoo2(long x)
 {
     return x * 2;
 }
 
-ulong _hoo3(ulong x)
+long _hoo3(long x)
 {
     return x * 3;
 }
 
-ulong _hoo4(ulong x)
+long _hoo4(long x)
 {
     return x * 4;
 }
 
-ulong _hoo5(ulong x)
+long _hoo5(long x)
 {
     return x * 5;
 }
 
-ulong _hoo6(ulong x)
+long _hoo6(long x)
 {
     return x * 6;
 }
 
-ulong _hoo7(ulong x)
+long _hoo7(long x)
 {
     return x * 7;
 }
 
-ulong _hoo8(ulong x)
+long _hoo8(long x)
 {
     return x * 8;
 }
 
-ulong _hoo9(ulong x)
+long _hoo9(long x)
 {
     return x * 9;
 }
 
-ulong _hoo10(ulong x)
+long _hoo10(long x)
 {
     return x * 10;
 }
 
-ulong _hoo11(ulong x)
+long _hoo11(long x)
 {
     return x * 11;
 }
 
-ulong _hoo12(ulong x)
+long _hoo12(long x)
 {
     return x * 12;
 }
 
-ulong _hoo13(ulong x)
+long _hoo13(long x)
 {
     return x * 13;
 }
 
-ulong _hoo14(ulong x)
+long _hoo14(long x)
 {
     return x * 14;
 }
 
-ulong _hoo15(ulong x)
+long _hoo15(long x)
 {
     return x * 15;
 }
 
-ulong _hoo16(ulong x)
+long _hoo16(long x)
 {
     return x * 16;
 }
 
-ulong _hoo17(ulong x)
+long _hoo17(long x)
 {
     return x * 17;
 }
 
-ulong _hoo18(ulong x)
+long _hoo18(long x)
 {
     return x * 18;
 }
 
-ulong _hoo19(ulong x)
+long _hoo19(long x)
 {
     return x * 19;
 }
 
-ulong _hoo20(ulong x)
+long _hoo20(long x)
 {
     return x * 20;
 }
 
-ulong _hoo21(ulong x)
+long _hoo21(long x)
 {
     return x * 21;
 }
 
-ulong _hoo22(ulong x)
+long _hoo22(long x)
 {
     return x * 22;
 }
 
-ulong _hoo23(ulong x)
+long _hoo23(long x)
 {
     return x * 23;
 }
 
-ulong _hoo24(ulong x)
+long _hoo24(long x)
 {
     return x * 24;
 }
 
-ulong _hoo25(ulong x)
+long _hoo25(long x)
 {
     return x * 25;
 }
 
-ulong _hoo26(ulong x)
+long _hoo26(long x)
 {
     return x * 26;
 }
 
-ulong _hoo27(ulong x)
+long _hoo27(long x)
 {
     return x * 27;
 }
 
-ulong _hoo28(ulong x)
+long _hoo28(long x)
 {
     return x * 28;
 }
 
-ulong _hoo29(ulong x)
+long _hoo29(long x)
 {
     return x * 29;
 }
 
-ulong _hoo30(ulong x)
+long _hoo30(long x)
 {
     return x * 30;
 }
 
-ulong _hoo31(ulong x)
+long _hoo31(long x)
 {
     return x * 31;
 }
 
-ulong _hoo32(ulong x)
+long _hoo32(long x)
 {
     return x * 32;
 }
 
-ulong _hoo33(ulong x)
+long _hoo33(long x)
 {
     return x * 33;
 }
 
-ulong _hoo34(ulong x)
+long _hoo34(long x)
 {
     return x * 34;
 }
 
-ulong _hoo35(ulong x)
+long _hoo35(long x)
 {
     return x * 35;
 }
 
-ulong _hoo36(ulong x)
+long _hoo36(long x)
 {
     return x * 36;
 }
 
-ulong _hoo37(ulong x)
+long _hoo37(long x)
 {
     return x * 37;
 }
 
-ulong _hoo38(ulong x)
+long _hoo38(long x)
 {
     return x * 38;
 }
 
-ulong _hoo39(ulong x)
+long _hoo39(long x)
 {
     return x * 39;
 }
 
-ulong _hoo40(ulong x)
+long _hoo40(long x)
 {
     return x * 40;
 }
 
-ulong _hoo41(ulong x)
+long _hoo41(long x)
 {
     return x * 41;
 }
 
-ulong _hoo42(ulong x)
+long _hoo42(long x)
 {
     return x * 42;
 }
 
-ulong _hoo43(ulong x)
+long _hoo43(long x)
 {
     return x * 43;
 }
 
-ulong _hoo44(ulong x)
+long _hoo44(long x)
 {
     return x * 44;
 }
 
-ulong _hoo45(ulong x)
+long _hoo45(long x)
 {
     return x * 45;
 }
 
-ulong _hoo46(ulong x)
+long _hoo46(long x)
 {
     return x * 46;
 }
 
-ulong _hoo47(ulong x)
+long _hoo47(long x)
 {
     return x * 47;
 }
 
-ulong _hoo48(ulong x)
+long _hoo48(long x)
 {
     return x * 48;
 }
 
-ulong _hoo49(ulong x)
+long _hoo49(long x)
 {
     return x * 49;
 }
 
-ulong _hoo50(ulong x)
+long _hoo50(long x)
 {
     return x * 50;
 }
 
-ulong _hoo51(ulong x)
+long _hoo51(long x)
 {
     return x * 51;
 }
 
-ulong _hoo52(ulong x)
+long _hoo52(long x)
 {
     return x * 52;
 }
 
-ulong _hoo53(ulong x)
+long _hoo53(long x)
 {
     return x * 53;
 }
 
-ulong _hoo54(ulong x)
+long _hoo54(long x)
 {
     return x * 54;
 }
 
-ulong _hoo55(ulong x)
+long _hoo55(long x)
 {
     return x * 55;
 }
 
-ulong _hoo56(ulong x)
+long _hoo56(long x)
 {
     return x * 56;
 }
 
-ulong _hoo57(ulong x)
+long _hoo57(long x)
 {
     return x * 57;
 }
 
-ulong _hoo58(ulong x)
+long _hoo58(long x)
 {
     return x * 58;
 }
 
-ulong _hoo59(ulong x)
+long _hoo59(long x)
 {
     return x * 59;
 }
 
-ulong _hoo60(ulong x)
+long _hoo60(long x)
 {
     return x * 60;
 }
 
-ulong _hoo61(ulong x)
+long _hoo61(long x)
 {
     return x * 61;
 }
 
-ulong _hoo62(ulong x)
+long _hoo62(long x)
 {
     return x * 62;
 }
 
-ulong _hoo63(ulong x)
+long _hoo63(long x)
 {
     return x * 63;
 }
 
-ulong _hoo64(ulong x)
+long _hoo64(long x)
 {
     return x * 64;
 }
 
-ulong _hoo65(ulong x)
+long _hoo65(long x)
 {
     return x * 65;
 }
 
-ulong _hoo66(ulong x)
+long _hoo66(long x)
 {
     return x * 66;
 }
 
-ulong _hoo67(ulong x)
+long _hoo67(long x)
 {
     return x * 67;
 }
 
-ulong _hoo68(ulong x)
+long _hoo68(long x)
 {
     return x * 68;
 }
 
-ulong _hoo69(ulong x)
+long _hoo69(long x)
 {
     return x * 69;
 }
 
-ulong _hoo70(ulong x)
+long _hoo70(long x)
 {
     return x * 70;
 }
 
-ulong _hoo71(ulong x)
+long _hoo71(long x)
 {
     return x * 71;
 }
 
-ulong _hoo72(ulong x)
+long _hoo72(long x)
 {
     return x * 72;
 }
 
-ulong _hoo73(ulong x)
+long _hoo73(long x)
 {
     return x * 73;
 }
 
-ulong _hoo74(ulong x)
+long _hoo74(long x)
 {
     return x * 74;
 }
 
-ulong _hoo75(ulong x)
+long _hoo75(long x)
 {
     return x * 75;
 }
 
-ulong _hoo76(ulong x)
+long _hoo76(long x)
 {
     return x * 76;
 }
 
-ulong _hoo77(ulong x)
+long _hoo77(long x)
 {
     return x * 77;
 }
 
-ulong _hoo78(ulong x)
+long _hoo78(long x)
 {
     return x * 78;
 }
 
-ulong _hoo79(ulong x)
+long _hoo79(long x)
 {
     return x * 79;
 }
 
-ulong _hoo80(ulong x)
+long _hoo80(long x)
 {
     return x * 80;
 }
 
-ulong _hoo81(ulong x)
+long _hoo81(long x)
 {
     return x * 81;
 }
 
-ulong _hoo82(ulong x)
+long _hoo82(long x)
 {
     return x * 82;
 }
 
-ulong _hoo83(ulong x)
+long _hoo83(long x)
 {
     return x * 83;
 }
 
-ulong _hoo84(ulong x)
+long _hoo84(long x)
 {
     return x * 84;
 }
 
-ulong _hoo85(ulong x)
+long _hoo85(long x)
 {
     return x * 85;
 }
 
-ulong _hoo86(ulong x)
+long _hoo86(long x)
 {
     return x * 86;
 }
 
-ulong _hoo87(ulong x)
+long _hoo87(long x)
 {
     return x * 87;
 }
 
-ulong _hoo88(ulong x)
+long _hoo88(long x)
 {
     return x * 88;
 }
 
-ulong _hoo89(ulong x)
+long _hoo89(long x)
 {
     return x * 89;
 }
 
-ulong _hoo90(ulong x)
+long _hoo90(long x)
 {
     return x * 90;
 }
 
-ulong _hoo91(ulong x)
+long _hoo91(long x)
 {
     return x * 91;
 }
 
-ulong _hoo92(ulong x)
+long _hoo92(long x)
 {
     return x * 92;
 }
 
-ulong _hoo93(ulong x)
+long _hoo93(long x)
 {
     return x * 93;
 }
 
-ulong _hoo94(ulong x)
+long _hoo94(long x)
 {
     return x * 94;
 }
 
-ulong _hoo95(ulong x)
+long _hoo95(long x)
 {
     return x * 95;
 }
 
-ulong _hoo96(ulong x)
+long _hoo96(long x)
 {
     return x * 96;
 }
 
-ulong _hoo97(ulong x)
+long _hoo97(long x)
 {
     return x * 97;
 }
 
-ulong _hoo98(ulong x)
+long _hoo98(long x)
 {
     return x * 98;
 }
 
-ulong _hoo99(ulong x)
+long _hoo99(long x)
 {
     return x * 99;
 }
 
-ulong _hoo100(ulong x)
+long _hoo100(long x)
 {
     return x * 100;
 }
 
-ulong _hoo101(ulong x)
+long _hoo101(long x)
 {
     return x * 101;
 }
 
-ulong _hoo102(ulong x)
+long _hoo102(long x)
 {
     return x * 102;
 }
 
-ulong _hoo103(ulong x)
+long _hoo103(long x)
 {
     return x * 103;
 }
 
-ulong _hoo104(ulong x)
+long _hoo104(long x)
 {
     return x * 104;
 }
 
-ulong _hoo105(ulong x)
+long _hoo105(long x)
 {
     return x * 105;
 }
 
-ulong _hoo106(ulong x)
+long _hoo106(long x)
 {
     return x * 106;
 }
 
-ulong _hoo107(ulong x)
+long _hoo107(long x)
 {
     return x * 107;
 }
 
-ulong _hoo108(ulong x)
+long _hoo108(long x)
 {
     return x * 108;
 }
 
-ulong _hoo109(ulong x)
+long _hoo109(long x)
 {
     return x * 109;
 }
 
-ulong _hoo110(ulong x)
+long _hoo110(long x)
 {
     return x * 110;
 }
 
-ulong _hoo111(ulong x)
+long _hoo111(long x)
 {
     return x * 111;
 }
 
-ulong _hoo112(ulong x)
+long _hoo112(long x)
 {
     return x * 112;
 }
 
-ulong _hoo113(ulong x)
+long _hoo113(long x)
 {
     return x * 113;
 }
 
-ulong _hoo114(ulong x)
+long _hoo114(long x)
 {
     return x * 114;
 }
 
-ulong _hoo115(ulong x)
+long _hoo115(long x)
 {
     return x * 115;
 }
 
-ulong _hoo116(ulong x)
+long _hoo116(long x)
 {
     return x * 116;
 }
 
-ulong _hoo117(ulong x)
+long _hoo117(long x)
 {
     return x * 117;
 }
 
-ulong _hoo118(ulong x)
+long _hoo118(long x)
 {
     return x * 118;
 }
 
-ulong _hoo119(ulong x)
+long _hoo119(long x)
 {
     return x * 119;
 }
 
-ulong _hoo120(ulong x)
+long _hoo120(long x)
 {
     return x * 120;
 }
 
-ulong _hoo121(ulong x)
+long _hoo121(long x)
 {
     return x * 121;
 }
 
-ulong _hoo122(ulong x)
+long _hoo122(long x)
 {
     return x * 122;
 }
 
-ulong _hoo123(ulong x)
+long _hoo123(long x)
 {
     return x * 123;
 }
 
-ulong _hoo124(ulong x)
+long _hoo124(long x)
 {
     return x * 124;
 }
 
-ulong _hoo125(ulong x)
+long _hoo125(long x)
 {
     return x * 125;
 }
 
-ulong _hoo126(ulong x)
+long _hoo126(long x)
 {
     return x * 126;
 }
 
-ulong _hoo127(ulong x)
+long _hoo127(long x)
 {
     return x * 127;
 }
 
-ulong _hoo128(ulong x)
+long _hoo128(long x)
 {
     return x * 128;
 }
 
-ulong _hoo129(ulong x)
+long _hoo129(long x)
 {
     return x * 129;
 }
 
-ulong _hoo130(ulong x)
+long _hoo130(long x)
 {
     return x * 130;
 }
 
-ulong _hoo131(ulong x)
+long _hoo131(long x)
 {
     return x * 131;
 }
 
-ulong _hoo132(ulong x)
+long _hoo132(long x)
 {
     return x * 132;
 }
 
-ulong _hoo133(ulong x)
+long _hoo133(long x)
 {
     return x * 133;
 }
 
-ulong _hoo134(ulong x)
+long _hoo134(long x)
 {
     return x * 134;
 }
 
-ulong _hoo135(ulong x)
+long _hoo135(long x)
 {
     return x * 135;
 }
 
-ulong _hoo136(ulong x)
+long _hoo136(long x)
 {
     return x * 136;
 }
 
-ulong _hoo137(ulong x)
+long _hoo137(long x)
 {
     return x * 137;
 }
 
-ulong _hoo138(ulong x)
+long _hoo138(long x)
 {
     return x * 138;
 }
 
-ulong _hoo139(ulong x)
+long _hoo139(long x)
 {
     return x * 139;
 }
 
-ulong _hoo140(ulong x)
+long _hoo140(long x)
 {
     return x * 140;
 }
 
-ulong _hoo141(ulong x)
+long _hoo141(long x)
 {
     return x * 141;
 }
 
-ulong _hoo142(ulong x)
+long _hoo142(long x)
 {
     return x * 142;
 }
 
-ulong _hoo143(ulong x)
+long _hoo143(long x)
 {
     return x * 143;
 }
 
-ulong _hoo144(ulong x)
+long _hoo144(long x)
 {
     return x * 144;
 }
 
-ulong _hoo145(ulong x)
+long _hoo145(long x)
 {
     return x * 145;
 }
 
-ulong _hoo146(ulong x)
+long _hoo146(long x)
 {
     return x * 146;
 }
 
-ulong _hoo147(ulong x)
+long _hoo147(long x)
 {
     return x * 147;
 }
 
-ulong _hoo148(ulong x)
+long _hoo148(long x)
 {
     return x * 148;
 }
 
-ulong _hoo149(ulong x)
+long _hoo149(long x)
 {
     return x * 149;
 }
 
-ulong _hoo150(ulong x)
+long _hoo150(long x)
 {
     return x * 150;
 }
 
-ulong _hoo151(ulong x)
+long _hoo151(long x)
 {
     return x * 151;
 }
 
-ulong _hoo152(ulong x)
+long _hoo152(long x)
 {
     return x * 152;
 }
 
-ulong _hoo153(ulong x)
+long _hoo153(long x)
 {
     return x * 153;
 }
 
-ulong _hoo154(ulong x)
+long _hoo154(long x)
 {
     return x * 154;
 }
 
-ulong _hoo155(ulong x)
+long _hoo155(long x)
 {
     return x * 155;
 }
 
-ulong _hoo156(ulong x)
+long _hoo156(long x)
 {
     return x * 156;
 }
 
-ulong _hoo157(ulong x)
+long _hoo157(long x)
 {
     return x * 157;
 }
 
-ulong _hoo158(ulong x)
+long _hoo158(long x)
 {
     return x * 158;
 }
 
-ulong _hoo159(ulong x)
+long _hoo159(long x)
 {
     return x * 159;
 }
 
-ulong _hoo160(ulong x)
+long _hoo160(long x)
 {
     return x * 160;
 }
 
-ulong _hoo161(ulong x)
+long _hoo161(long x)
 {
     return x * 161;
 }
 
-ulong _hoo162(ulong x)
+long _hoo162(long x)
 {
     return x * 162;
 }
 
-ulong _hoo163(ulong x)
+long _hoo163(long x)
 {
     return x * 163;
 }
 
-ulong _hoo164(ulong x)
+long _hoo164(long x)
 {
     return x * 164;
 }
 
-ulong _hoo165(ulong x)
+long _hoo165(long x)
 {
     return x * 165;
 }
 
-ulong _hoo166(ulong x)
+long _hoo166(long x)
 {
     return x * 166;
 }
 
-ulong _hoo167(ulong x)
+long _hoo167(long x)
 {
     return x * 167;
 }
 
-ulong _hoo168(ulong x)
+long _hoo168(long x)
 {
     return x * 168;
 }
 
-ulong _hoo169(ulong x)
+long _hoo169(long x)
 {
     return x * 169;
 }
 
-ulong _hoo170(ulong x)
+long _hoo170(long x)
 {
     return x * 170;
 }
 
-ulong _hoo171(ulong x)
+long _hoo171(long x)
 {
     return x * 171;
 }
 
-ulong _hoo172(ulong x)
+long _hoo172(long x)
 {
     return x * 172;
 }
 
-ulong _hoo173(ulong x)
+long _hoo173(long x)
 {
     return x * 173;
 }
 
-ulong _hoo174(ulong x)
+long _hoo174(long x)
 {
     return x * 174;
 }
 
-ulong _hoo175(ulong x)
+long _hoo175(long x)
 {
     return x * 175;
 }
 
-ulong _hoo176(ulong x)
+long _hoo176(long x)
 {
     return x * 176;
 }
 
-ulong _hoo177(ulong x)
+long _hoo177(long x)
 {
     return x * 177;
 }
 
-ulong _hoo178(ulong x)
+long _hoo178(long x)
 {
     return x * 178;
 }
 
-ulong _hoo179(ulong x)
+long _hoo179(long x)
 {
     return x * 179;
 }
 
-ulong _hoo180(ulong x)
+long _hoo180(long x)
 {
     return x * 180;
 }
 
-ulong _hoo181(ulong x)
+long _hoo181(long x)
 {
     return x * 181;
 }
 
-ulong _hoo182(ulong x)
+long _hoo182(long x)
 {
     return x * 182;
 }
 
-ulong _hoo183(ulong x)
+long _hoo183(long x)
 {
     return x * 183;
 }
 
-ulong _hoo184(ulong x)
+long _hoo184(long x)
 {
     return x * 184;
 }
 
-ulong _hoo185(ulong x)
+long _hoo185(long x)
 {
     return x * 185;
 }
 
-ulong _hoo186(ulong x)
+long _hoo186(long x)
 {
     return x * 186;
 }
 
-ulong _hoo187(ulong x)
+long _hoo187(long x)
 {
     return x * 187;
 }
 
-ulong _hoo188(ulong x)
+long _hoo188(long x)
 {
     return x * 188;
 }
 
-ulong _hoo189(ulong x)
+long _hoo189(long x)
 {
     return x * 189;
 }
 
-ulong _hoo190(ulong x)
+long _hoo190(long x)
 {
     return x * 190;
 }
 
-ulong _hoo191(ulong x)
+long _hoo191(long x)
 {
     return x * 191;
 }
 
-ulong _hoo192(ulong x)
+long _hoo192(long x)
 {
     return x * 192;
 }
 
-ulong _hoo193(ulong x)
+long _hoo193(long x)
 {
     return x * 193;
 }
 
-ulong _hoo194(ulong x)
+long _hoo194(long x)
 {
     return x * 194;
 }
 
-ulong _hoo195(ulong x)
+long _hoo195(long x)
 {
     return x * 195;
 }
 
-ulong _hoo196(ulong x)
+long _hoo196(long x)
 {
     return x * 196;
 }
 
-ulong _hoo197(ulong x)
+long _hoo197(long x)
 {
     return x * 197;
 }
 
-ulong _hoo198(ulong x)
+long _hoo198(long x)
 {
     return x * 198;
 }
 
-ulong _hoo199(ulong x)
+long _hoo199(long x)
 {
     return x * 199;
 }
 
-ulong _hoo200(ulong x)
+long _hoo200(long x)
 {
     return x * 200;
 }
 
-ulong _hoo201(ulong x)
+long _hoo201(long x)
 {
     return x * 201;
 }
 
-ulong _hoo202(ulong x)
+long _hoo202(long x)
 {
     return x * 202;
 }
 
-ulong _hoo203(ulong x)
+long _hoo203(long x)
 {
     return x * 203;
 }
 
-ulong _hoo204(ulong x)
+long _hoo204(long x)
 {
     return x * 204;
 }
 
-ulong _hoo205(ulong x)
+long _hoo205(long x)
 {
     return x * 205;
 }
 
-ulong _hoo206(ulong x)
+long _hoo206(long x)
 {
     return x * 206;
 }
 
-ulong _hoo207(ulong x)
+long _hoo207(long x)
 {
     return x * 207;
 }
 
-ulong _hoo208(ulong x)
+long _hoo208(long x)
 {
     return x * 208;
 }
 
-ulong _hoo209(ulong x)
+long _hoo209(long x)
 {
     return x * 209;
 }
 
-ulong _hoo210(ulong x)
+long _hoo210(long x)
 {
     return x * 210;
 }
 
-ulong _hoo211(ulong x)
+long _hoo211(long x)
 {
     return x * 211;
 }
 
-ulong _hoo212(ulong x)
+long _hoo212(long x)
 {
     return x * 212;
 }
 
-ulong _hoo213(ulong x)
+long _hoo213(long x)
 {
     return x * 213;
 }
 
-ulong _hoo214(ulong x)
+long _hoo214(long x)
 {
     return x * 214;
 }
 
-ulong _hoo215(ulong x)
+long _hoo215(long x)
 {
     return x * 215;
 }
 
-ulong _hoo216(ulong x)
+long _hoo216(long x)
 {
     return x * 216;
 }
 
-ulong _hoo217(ulong x)
+long _hoo217(long x)
 {
     return x * 217;
 }
 
-ulong _hoo218(ulong x)
+long _hoo218(long x)
 {
     return x * 218;
 }
 
-ulong _hoo219(ulong x)
+long _hoo219(long x)
 {
     return x * 219;
 }
 
-ulong _hoo220(ulong x)
+long _hoo220(long x)
 {
     return x * 220;
 }
 
-ulong _hoo221(ulong x)
+long _hoo221(long x)
 {
     return x * 221;
 }
 
-ulong _hoo222(ulong x)
+long _hoo222(long x)
 {
     return x * 222;
 }
 
-ulong _hoo223(ulong x)
+long _hoo223(long x)
 {
     return x * 223;
 }
 
-ulong _hoo224(ulong x)
+long _hoo224(long x)
 {
     return x * 224;
 }
 
-ulong _hoo225(ulong x)
+long _hoo225(long x)
 {
     return x * 225;
 }
 
-ulong _hoo226(ulong x)
+long _hoo226(long x)
 {
     return x * 226;
 }
 
-ulong _hoo227(ulong x)
+long _hoo227(long x)
 {
     return x * 227;
 }
 
-ulong _hoo228(ulong x)
+long _hoo228(long x)
 {
     return x * 228;
 }
 
-ulong _hoo229(ulong x)
+long _hoo229(long x)
 {
     return x * 229;
 }
 
-ulong _hoo230(ulong x)
+long _hoo230(long x)
 {
     return x * 230;
 }
 
-ulong _hoo231(ulong x)
+long _hoo231(long x)
 {
     return x * 231;
 }
 
-ulong _hoo232(ulong x)
+long _hoo232(long x)
 {
     return x * 232;
 }
 
-ulong _hoo233(ulong x)
+long _hoo233(long x)
 {
     return x * 233;
 }
 
-ulong _hoo234(ulong x)
+long _hoo234(long x)
 {
     return x * 234;
 }
 
-ulong _hoo235(ulong x)
+long _hoo235(long x)
 {
     return x * 235;
 }
 
-ulong _hoo236(ulong x)
+long _hoo236(long x)
 {
     return x * 236;
 }
 
-ulong _hoo237(ulong x)
+long _hoo237(long x)
 {
     return x * 237;
 }
 
-ulong _hoo238(ulong x)
+long _hoo238(long x)
 {
     return x * 238;
 }
 
-ulong _hoo239(ulong x)
+long _hoo239(long x)
 {
     return x * 239;
 }
 
-ulong _hoo240(ulong x)
+long _hoo240(long x)
 {
     return x * 240;
 }
 
-ulong _hoo241(ulong x)
+long _hoo241(long x)
 {
     return x * 241;
 }
 
-ulong _hoo242(ulong x)
+long _hoo242(long x)
 {
     return x * 242;
 }
 
-ulong _hoo243(ulong x)
+long _hoo243(long x)
 {
     return x * 243;
 }
 
-ulong _hoo244(ulong x)
+long _hoo244(long x)
 {
     return x * 244;
 }
 
-ulong _hoo245(ulong x)
+long _hoo245(long x)
 {
     return x * 245;
 }
 
-ulong _hoo246(ulong x)
+long _hoo246(long x)
 {
     return x * 246;
 }
 
-ulong _hoo247(ulong x)
+long _hoo247(long x)
 {
     return x * 247;
 }
 
-ulong _hoo248(ulong x)
+long _hoo248(long x)
 {
     return x * 248;
 }
 
-ulong _hoo249(ulong x)
+long _hoo249(long x)
 {
     return x * 249;
 }
