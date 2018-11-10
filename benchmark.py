@@ -41,7 +41,7 @@ def generate_D(function_count, root_path='generated'):
 }
 ''')
 
-    print("Generated D source file: ", file_path)
+    print("Generated {} source file: {}".format(LANG.upper(), file_path))
 
     check_D_file(file_path)
 
