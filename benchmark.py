@@ -5,10 +5,10 @@ import os.path
 import timeit
 
 
-def check_D_file(file_path):
+def check_D_file(path):
     start = timeit.timeit()
     end = timeit.timeit()
-    print("Check took of {} took {}".format(file_path, end - start))
+    print("Check took of {} took {}".format(path, end - start))
 
 
 def generate_D(function_count, root_path='generated'):
@@ -17,8 +17,8 @@ def generate_D(function_count, root_path='generated'):
 
     types = ["int", "double"]
 
-    file_path = os.path.join(root_path, LANG, "foo." + LANG)
-    with open(file_path, 'w') as f:
+    path = os.path.join(root_path, LANG, "foo." + LANG)
+    with open(path, 'w') as f:
         for typ in types:
             for n in range(0, function_count):
                 f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
@@ -41,9 +41,9 @@ def generate_D(function_count, root_path='generated'):
 }
 ''')
 
-    print("Generated {} source file: {}".format(LANG.upper(), file_path))
+    print("Generated {} source file: {}".format(LANG.upper(), path))
 
-    check_D_file(file_path)
+    check_D_file(path)
 
 
 if __name__ == '__main__':
