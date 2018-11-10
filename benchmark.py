@@ -8,19 +8,28 @@ def generate_D(root_path='generated'):
 
     lang = "d"
 
-    with open(os.path.join(root_path, lang, "foo." + lang), 'w') as f:
+    file_path = os.path.join(root_path, lang, "foo." + lang)
+    with open(file_path, 'w') as f:
         f.write(
-'''long f_0(long x)
+'''long inc_long_0(long x)
 {
     return x * 0;
 }
 
-void main(string[] args)
+double inc_double_0(double x)
 {
-    long sum = 0;
-    sum += f_0(42);
+    return x * 0;
+}
+
+int main(string[] args)
+{
+    long long_sum = 0;
+    long_sum += inc_long_0(42);
+    return 0;
 }
 ''')
+
+    print("Generated D source file: ", file_path)
 
 
 if __name__ == '__main__':
