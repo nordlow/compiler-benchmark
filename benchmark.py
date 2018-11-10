@@ -3,16 +3,20 @@
 
 import subprocess
 import os.path
-import timeit
-
+from timeit import default_timer as timer
 
 def check_D_file(path):
-    start = timeit.timeit()
-    with subprocess.Popen(['/usr/bin/dmd', path],
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE) as proc:
-        print(proc.communicate())
-    end = timeit.timeit()
+
+    args = ['/usr/bin/dmd', '-o-', path]
+
+
+    start = timer()
+    subprocess.call(args)
+    # with subprocess.Popen(args,
+    #                       stdout=subprocess.PIPE,
+    #                       stderr=subprocess.PIPE) as proc:
+    #     print(proc.communicate())
+    end = timer()
     print("Checking of {} took {:1.3f} seconds".format(path, end - start))
 
 
@@ -50,4 +54,4 @@ def generate(f_count, language, root_path='generated'):
 
 
 if __name__ == '__main__':
-    generate(f_count=10, language="d")
+    generate(f_count=50000, language="d")
