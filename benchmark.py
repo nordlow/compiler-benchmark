@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
 
+import subprocess
 import os.path
 import timeit
 
 
 def check_D_file(path):
     start = timeit.timeit()
+    with subprocess.Popen(['/usr/bin/dmd', path],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE) as proc:
+        print(proc.communicate())
     end = timeit.timeit()
     print("Checking of {} took {:1.3f} seconds".format(path, end - start))
 
