@@ -25,7 +25,10 @@ def do_file(path, args):
 def generate(f_count, language, args, root_path='generated'):
     lang = language.lower()
 
-    types = ["int", "long", "float", "double"]
+    if lang in ["c", "c++", "d"]:
+        types = ["int", "long", "float", "double"]
+    elif lang == "rust":
+        types = ["i32", "i64", "f32", "f64"]
 
     if lang == "rust":
         ext = "rs"
@@ -56,7 +59,7 @@ def generate(f_count, language, args, root_path='generated'):
 
         # CALCULATE
         for typ in types:
-            if lang in ["c", "c++"]:
+            if lang in ["c", "c++", "d"]:
                 f.write('''    {{T}} {{T}}_sum = 0;
 '''.replace("{{T}}", typ))
             elif lang == "rust":
