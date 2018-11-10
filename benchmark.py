@@ -27,9 +27,9 @@ def generate(f_count, language, args, root_path='generated'):
 
     # types by language
     if lang in ["c", "c++", "d"]:
-        types = ["int", "long", "float", "double"]
+        types = ["int"]
     elif lang == "rust":
-        types = ["i32", "i64", "f32", "f64"]
+        types = ["i32"]
 
     # extensions by language
     if lang == "rust":
@@ -42,10 +42,10 @@ def generate(f_count, language, args, root_path='generated'):
         for typ in types:
             for n in range(0, f_count):
                 if lang in ["c", "c++", "d"]:
-                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
+                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x + {{N}}; }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "rust":
-                    f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { return x * (x + {{N}}); }
+                    f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
@@ -59,7 +59,7 @@ def generate(f_count, language, args, root_path='generated'):
 {
 ''')
         elif lang == "rust":
-            f.write('''fn main() {
+            f.write('''fn main() -> i32 {
 ''')
         else:
             assert False
@@ -79,9 +79,9 @@ def generate(f_count, language, args, root_path='generated'):
                 f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
 
-        f.write('''    return int_sum;
+        f.write('''    return {{T}}_sum;
 }
-''')
+'''.replace('{{T}}', types[0]))
 
     # print("Generated {} source file: {}".format(language.upper(), path))
 
@@ -89,7 +89,7 @@ def generate(f_count, language, args, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 5000
+    f_count = 50
 
     span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
