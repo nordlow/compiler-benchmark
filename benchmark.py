@@ -107,4 +107,5 @@ if __name__ == '__main__':
     span_D_LDC = generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
 
     print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
-    print("D/Rust speedup:", span_C_GCC_8 / span_Rust)
+    print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
+    print("D/Rust speedup:", span_Rust / span_D_LDC)
