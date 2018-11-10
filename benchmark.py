@@ -100,13 +100,13 @@ if __name__ == '__main__':
     span_C_Clang_7 = generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
 
     # C GCC
-    span_Cxx_GCC_5 = generate(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
-
-    # C GCC
     span_C_GCC_8 = generate(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
     span_C_GCC_7 = generate(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
     span_C_GCC_6 = generate(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
     span_C_GCC_5 = generate(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
+
+    # C++ GCC
+    span_Cxx_GCC_5 = generate(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
 
     # D
     span_D_DMD = generate(f_count=f_count, language="D", args=['dmd', '-o-'])
