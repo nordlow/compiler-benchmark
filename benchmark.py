@@ -9,14 +9,16 @@ def do_file(path, args):
 
     start = timer()
     # subprocess.call(args)
-    with subprocess.Popen(args + [path],
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE) as proc:
-        results = proc.communicate()
-        print(results)
+    count = 5                   # number run counts
+    for _ in range(1, count):
+        with subprocess.Popen(args + [path],
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE) as proc:
+            results = proc.communicate()
+            # print(results)
     end = timer()
-    span = end - start
-    print("Checking of {} took {:1.3f} seconds ({})".format(path, end - start, args[0]))
+    span = (end - start) / count
+    print("Checking of {} took {:1.3f} seconds ({})".format(path, span, args[0]))
     return span
 
 
@@ -59,7 +61,7 @@ def generate(f_count, language, args, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 10000
+    f_count = 5000
 
     C_FLAGS = ['-fsyntax-only']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
