@@ -8,10 +8,10 @@ import timeit
 def check_D_file(path):
     start = timeit.timeit()
     end = timeit.timeit()
-    print("Check took of {} took {}".format(path, end - start))
+    print("Checking of {} took {:1.3f} seconds".format(path, end - start))
 
 
-def generate_D(function_count, root_path='generated'):
+def generate_D(f_count, root_path='generated'):
 
     language = "d"
 
@@ -20,7 +20,7 @@ def generate_D(function_count, root_path='generated'):
     path = os.path.join(root_path, language, "foo." + language)
     with open(path, 'w') as f:
         for typ in types:
-            for n in range(0, function_count):
+            for n in range(0, f_count):
                 f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
@@ -33,7 +33,7 @@ def generate_D(function_count, root_path='generated'):
             f.write('''    {{T}} {{T}}_sum = 0;
 '''.replace("{{T}}", typ))
 
-            for n in range(0, function_count):
+            for n in range(0, f_count):
                 f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
 
@@ -47,5 +47,4 @@ def generate_D(function_count, root_path='generated'):
 
 
 if __name__ == '__main__':
-    function_count = 10
-    generate_D(function_count=function_count)
+    generate_D(f_count=10)
