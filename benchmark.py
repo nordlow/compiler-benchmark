@@ -15,7 +15,9 @@ def do_file(path, args):
         results = proc.communicate()
         print(results)
     end = timer()
+    span = end - start
     print("Checking of {} took {:1.3f} seconds ({})".format(path, end - start, args[0]))
+    return span
 
 
 def generate(f_count, language, args, root_path='generated'):
@@ -53,7 +55,7 @@ def generate(f_count, language, args, root_path='generated'):
 
     # print("Generated {} source file: {}".format(language.upper(), path))
 
-    do_file(path, args=args)  # "-betterC"
+    return do_file(path, args=args)  # "-betterC"
 
 
 if __name__ == '__main__':
@@ -62,11 +64,13 @@ if __name__ == '__main__':
     C_FLAGS = ['-fsyntax-only']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
-    generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
-    generate(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
-    generate(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
-    generate(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
-    generate(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
+    span_C_Clang_7 = generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
+    span_C_GCC_8 = generate(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
+    span_C_GCC_7 = generate(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
+    span_C_GCC_6 = generate(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
+    span_C_GCC_5 = generate(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
 
-    generate(f_count=f_count, language="D", args=['dmd', '-o-'])
-    generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
+    span_D_DMD = generate(f_count=f_count, language="D", args=['dmd', '-o-'])
+    span_D_LDC = generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
+
+    print("D/C speed:", span_C_GCC_8 / span_D_LDC)
