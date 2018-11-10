@@ -38,12 +38,16 @@ def generate(f_count, language, args, root_path='generated'):
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, f_count):
-                f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
+                if lang in ["c", "c++", "d"]:
+                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "rust":
+                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
         # MAIN HEADER
-        if lang == "c":
+        if lang in ["c", "c++"]:
             f.write('''int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 {
 ''')
