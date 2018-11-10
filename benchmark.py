@@ -2,6 +2,7 @@
 
 
 import os.path
+import timeit
 
 
 def generate_D(function_count, root_path='generated'):
@@ -38,5 +39,5 @@ def generate_D(function_count, root_path='generated'):
 
 
 if __name__ == '__main__':
-    function_count = 100000
+    function_count = 10
     generate_D(function_count=function_count)
