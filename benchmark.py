@@ -25,15 +25,18 @@ def do_file(path, args):
 def generate(f_count, language, args, root_path='generated'):
     lang = language.lower()
 
+    # types by language
     if lang in ["c", "c++", "d"]:
         types = ["int", "long", "float", "double"]
     elif lang == "rust":
         types = ["i32", "i64", "f32", "f64"]
 
+    # extensions by language
     if lang == "rust":
         ext = "rs"
     else:
         ext = lang
+
     path = os.path.join(root_path, lang, "foo." + ext)
     with open(path, 'w') as f:
         for typ in types:
@@ -42,7 +45,7 @@ def generate(f_count, language, args, root_path='generated'):
                     f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "rust":
-                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
+                    f.write('''fn add_{{T}}_{{N}}({{T}} x) -> {{T}} { return x * (x + {{N}}); }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
