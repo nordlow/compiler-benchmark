@@ -89,7 +89,7 @@ def generate(f_count, language, args, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 5000
+    f_count = 50000
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
