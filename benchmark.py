@@ -15,7 +15,7 @@ def generate(f_count, language, root_path='generated'):
 
     types = ["int", "long", "float", "double"]
 
-    path = os.path.join(root_path, language, "foo." + language)
+    path = os.path.join(root_path, language, "foo." + language.lower())
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, f_count):
