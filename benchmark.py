@@ -22,7 +22,7 @@ def generate(f_count, language, args, root_path='generated'):
 
     types = ["int", "long", "float", "double"]
 
-    path = os.path.join(root_path, language, "foo." + language.lower())
+    path = os.path.join(root_path, language.lower(), "foo." + language.lower())
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, f_count):
@@ -30,11 +30,11 @@ def generate(f_count, language, args, root_path='generated'):
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
-        if language == "c":
+        if language.upper() == "C":
             f.write('''int main(int argc, char* argv[])
 {
 ''')
-        elif language == "d":
+        elif language.upper() == "D":
             f.write('''int main(string[] args)
 {
 ''')
@@ -60,6 +60,6 @@ if __name__ == '__main__':
     f_count = 50000
     C_FLAGS = ['-fsyntax-only']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    generate(f_count=f_count, language="c", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
-    generate(f_count=f_count, language="c", args=['gcc-8'] + C_FLAGS)
-    generate(f_count=f_count, language="d", args=['dmd', '-o-'])
+    generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
+    generate(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
+    generate(f_count=f_count, language="D", args=['dmd', '-o-'])
