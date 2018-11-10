@@ -5,6 +5,12 @@ import os.path
 import timeit
 
 
+def check_D_file(file_path):
+    start = timeit.timeit()
+    end = timeit.timeit()
+    print("Check took of {} took {}".format(file_path, end - start))
+
+
 def generate_D(function_count, root_path='generated'):
 
     LANG = "d"
@@ -36,6 +42,8 @@ def generate_D(function_count, root_path='generated'):
 ''')
 
     print("Generated D source file: ", file_path)
+
+    check_D_file(file_path)
 
 
 if __name__ == '__main__':
