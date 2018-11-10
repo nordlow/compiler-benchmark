@@ -57,13 +57,16 @@ def generate(f_count, language, args, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 50000
+    f_count = 10000
 
     C_FLAGS = ['-fsyntax-only']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
     generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
     generate(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
+    generate(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
+    generate(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
+    generate(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
 
     generate(f_count=f_count, language="D", args=['dmd', '-o-'])
     generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
