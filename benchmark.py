@@ -4,10 +4,9 @@
 import os.path
 
 
-def generate_D(root_path='generated'):
+def generate_D(function_count, root_path='generated'):
 
     LANG = "d"
-    function_count = 5 # number of function
 
     types = ["int", "double"]
 
@@ -39,4 +38,5 @@ def generate_D(root_path='generated'):
 
 
 if __name__ == '__main__':
-    generate_D()
+    function_count = 5
+    generate_D(function_count=function_count)
