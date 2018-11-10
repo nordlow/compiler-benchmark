@@ -6,22 +6,19 @@ import os.path
 
 def generate_D(root_path='generated'):
 
+    function_count = 5 # number of function
+
     lang = "d"
 
     file_path = os.path.join(root_path, lang, "foo." + lang)
     with open(file_path, 'w') as f:
-        f.write(
-'''long inc_long_0(long x)
-{
-    return x * 0;
-}
+        for typ in ['long', 'double']:
+            for count in range(0, function_count):
+                f.write('''${TYPE} inc_long_0(long x) { return x * 0; }
+'''.replace("${TYPE}", typ))
+            f.write('\n')
 
-double inc_double_0(double x)
-{
-    return x * 0;
-}
-
-int main(string[] args)
+        f.write('''int main(string[] args)
 {
     long long_sum = 0;
     long_sum += inc_long_0(42);
