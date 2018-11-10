@@ -5,9 +5,7 @@ import subprocess
 import os.path
 from timeit import default_timer as timer
 
-def check_D_file(path):
-
-    args = ['/usr/bin/dmd', '-o-', path]  # '-betterC'
+def check_file(path, args):
 
     start = timer()
     # subprocess.call(args)
@@ -49,7 +47,8 @@ def generate(f_count, language, root_path='generated'):
 
     print("Generated {} source file: {}".format(language.upper(), path))
 
-    check_D_file(path)
+    args = ['/usr/bin/dmd', '-o-', path]  # '-betterC'
+    check_file(path, args=args)
 
 
 if __name__ == '__main__':
