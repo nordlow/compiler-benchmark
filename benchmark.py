@@ -13,11 +13,11 @@ def check_D_file(path):
 
 def generate_D(function_count, root_path='generated'):
 
-    LANG = "d"
+    language = "d"
 
     types = ["int", "double"]
 
-    path = os.path.join(root_path, LANG, "foo." + LANG)
+    path = os.path.join(root_path, language, "foo." + language)
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, function_count):
@@ -41,7 +41,7 @@ def generate_D(function_count, root_path='generated'):
 }
 ''')
 
-    print("Generated {} source file: {}".format(LANG.upper(), path))
+    print("Generated {} source file: {}".format(language.upper(), path))
 
     check_D_file(path)
 
