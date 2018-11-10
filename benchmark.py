@@ -7,9 +7,8 @@ import os.path
 def regenerate_sources(root_path='generated'):
     lang = "d"
     with open(os.path.join(root_path, lang, "foo." + lang), 'w') as f:
-        f.write('''#!/usr/bin/env rdmd
-
-long foo0(long x)
+        f.write(
+'''long foo0(long x)
 {
     return x * 0;
 }
