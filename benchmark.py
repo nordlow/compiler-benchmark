@@ -4,11 +4,13 @@
 import os.path
 
 
-def regenerate_sources(root_path='generated'):
+def generate_D(root_path='generated'):
+
     lang = "d"
+
     with open(os.path.join(root_path, lang, "foo." + lang), 'w') as f:
         f.write(
-'''long foo0(long x)
+'''long f_0(long x)
 {
     return x * 0;
 }
@@ -16,10 +18,10 @@ def regenerate_sources(root_path='generated'):
 void main(string[] args)
 {
     long sum = 0;
-    sum += foo0(42);
+    sum += f_0(42);
 }
 ''')
 
 
 if __name__ == '__main__':
-    regenerate_sources()
+    generate_D()
