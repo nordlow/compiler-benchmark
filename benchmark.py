@@ -39,6 +39,7 @@ def generate(f_count, language, args, root_path='generated'):
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
+        # MAIN HEADER
         if lang == "c":
             f.write('''int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 {
@@ -50,10 +51,19 @@ def generate(f_count, language, args, root_path='generated'):
         elif lang == "rust":
             f.write('''fn main() {
 ''')
+        else:
+            assert False
 
+        # CALCULATE
         for typ in types:
-            f.write('''    {{T}} {{T}}_sum = 0;
+            if lang in ["c", "c++"]:
+                f.write('''    {{T}} {{T}}_sum = 0;
 '''.replace("{{T}}", typ))
+            elif lang == "rust":
+                f.write('''    let mut {{T}}_sum : {{T}} = 0;
+'''.replace("{{T}}", typ))
+            else:
+                assert False
 
             for n in range(0, f_count):
                 f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
