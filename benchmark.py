@@ -45,7 +45,7 @@ def generate(f_count, language, args, root_path='generated'):
                     f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "rust":
-                    f.write('''fn add_{{T}}_{{N}}({{T}} x) -> {{T}} { return x * (x + {{N}}); }
+                    f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { return x * (x + {{N}}); }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
