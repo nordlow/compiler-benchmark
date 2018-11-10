@@ -9,7 +9,6 @@ def check_D_file(path):
 
     args = ['/usr/bin/dmd', '-o-', path]
 
-
     start = timer()
     subprocess.call(args)
     # with subprocess.Popen(args,
