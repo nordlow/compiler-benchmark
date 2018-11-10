@@ -17,7 +17,7 @@ def do_file(path, args):
             results = proc.communicate()
             print(results)
     end = timer()
-    span = (end - start) / count
+    span = (end - start) / count  # time span
     print("Checking of {} took {:1.3f} seconds ({})".format(path, span, args[0]))
     return span
 
