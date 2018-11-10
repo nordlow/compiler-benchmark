@@ -11,9 +11,7 @@ def check_D_file(path):
     print("Checking of {} took {:1.3f} seconds".format(path, end - start))
 
 
-def generate_D(f_count, root_path='generated'):
-
-    language = "d"
+def generate(f_count, language, root_path='generated'):
 
     types = ["int", "long", "float", "double"]
 
@@ -47,4 +45,4 @@ def generate_D(f_count, root_path='generated'):
 
 
 if __name__ == '__main__':
-    generate_D(f_count=10)
+    generate(f_count=10, language="d")
