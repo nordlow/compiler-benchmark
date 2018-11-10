@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 
 def check_D_file(path):
 
-    args = ['/usr/bin/dmd', '-o-', path]
+    args = ['/usr/bin/dmd', '-o-', path]  # '-betterC'
 
     start = timer()
     # subprocess.call(args)
