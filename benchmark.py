@@ -13,6 +13,7 @@ def do_file(path, args):
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE) as proc:
         results = proc.communicate()
+        print(results)
     end = timer()
     print("Checking of {} took {:1.3f} seconds ({})".format(path, end - start, args[0]))
 
@@ -57,6 +58,8 @@ def generate(f_count, language, args, root_path='generated'):
 
 if __name__ == '__main__':
     f_count = 50000
-    C_FLAGS = ['-fsyntax-only', '-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    generate(f_count=f_count, language="c", args=['clang-7'] + C_FLAGS)
+    C_FLAGS = ['-fsyntax-only']
+    C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
+    generate(f_count=f_count, language="c", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
+    generate(f_count=f_count, language="c", args=['gcc-8'] + C_FLAGS)
     generate(f_count=f_count, language="d", args=['dmd', '-o-'])
