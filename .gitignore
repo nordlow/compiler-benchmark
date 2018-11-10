@@ -7,3 +7,4 @@ __test__*__
 compiler-benchmark
 elm-stuff/
 .mypy_cache/
+generated/
