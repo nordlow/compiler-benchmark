@@ -5,19 +5,19 @@ import subprocess
 import os.path
 from timeit import default_timer as timer
 
-def check_file(path, args):
+def do_file(path, args):
 
     start = timer()
     # subprocess.call(args)
-    with subprocess.Popen(args,
+    with subprocess.Popen(args + [path],
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE) as proc:
-        print(proc.communicate())
+        results = proc.communicate()
     end = timer()
-    print("Checking of {} took {:1.3f} seconds".format(path, end - start))
+    print("Checking of {} took {:1.3f} seconds ({})".format(path, end - start, args[0]))
 
 
-def generate(f_count, language, root_path='generated'):
+def generate(f_count, language, args, root_path='generated'):
 
     types = ["int", "long", "float", "double"]
 
@@ -29,7 +29,12 @@ def generate(f_count, language, root_path='generated'):
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
-        f.write('''int main(string[] args)
+        if language == "c":
+            f.write('''int main(int argc, char* argv[])
+{
+''')
+        elif language == "d":
+            f.write('''int main(string[] args)
 {
 ''')
 
@@ -45,11 +50,13 @@ def generate(f_count, language, root_path='generated'):
 }
 ''')
 
-    print("Generated {} source file: {}".format(language.upper(), path))
+    # print("Generated {} source file: {}".format(language.upper(), path))
 
-    args = ['/usr/bin/dmd', '-o-', path]  # '-betterC'
-    check_file(path, args=args)
+    do_file(path, args=args)  # "-betterC"
 
 
 if __name__ == '__main__':
-    generate(f_count=50000, language="d")
+    f_count = 50000
+    C_FLAGS = ['-fsyntax-only', '-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
+    generate(f_count=f_count, language="c", args=['clang-7'] + C_FLAGS)
+    generate(f_count=f_count, language="d", args=['dmd', '-o-'])
