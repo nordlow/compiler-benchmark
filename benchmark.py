@@ -20,9 +20,9 @@ def generate_D(function_count, root_path='generated'):
     file_path = os.path.join(root_path, LANG, "foo." + LANG)
     with open(file_path, 'w') as f:
         for typ in types:
-            for count in range(0, function_count):
-                f.write('''{{TYPE}} add_{{TYPE}}_{{COUNT}}({{TYPE}} x) { return x * (x + {{COUNT}}); }
-'''.replace("{{TYPE}}", typ).replace("{{COUNT}}", str(count)))
+            for n in range(0, function_count):
+                f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x * (x + {{N}}); }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
         f.write('''int main(string[] args)
@@ -30,12 +30,12 @@ def generate_D(function_count, root_path='generated'):
 ''')
 
         for typ in types:
-            f.write('''    {{TYPE}} {{TYPE}}_sum = 0;
-'''.replace("{{TYPE}}", typ))
+            f.write('''    {{T}} {{T}}_sum = 0;
+'''.replace("{{T}}", typ))
 
-            for count in range(0, function_count):
-                f.write('''    {{TYPE}}_sum += add_{{TYPE}}_{{COUNT}}({{COUNT}});
-'''.replace("{{TYPE}}", typ).replace("{{COUNT}}", str(count)))
+            for n in range(0, function_count):
+                f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
 
         f.write('''    return int_sum;
 }
