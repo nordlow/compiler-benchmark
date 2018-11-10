@@ -14,16 +14,23 @@ def generate_D(root_path='generated'):
     with open(file_path, 'w') as f:
         for typ in ['long', 'double']:
             for count in range(0, function_count):
-                f.write('''${TYPE} inc_long_0(long x) { return x * 0; }
-'''.replace("${TYPE}", typ))
+                f.write('''${{TYPE}} add_${{TYPE}}_${{COUNT}}(${{TYPE}} x) { return x * ${{COUNT}}; }
+'''.replace("${{TYPE}}", typ).replace("${{COUNT}}", str(count)))
             f.write('\n')
 
         f.write('''int main(string[] args)
 {
-    long long_sum = 0;
-    long_sum += inc_long_0(42);
-    return 0;
-}
+''')
+
+        for typ in ['long', 'double']:
+            f.write('''    ${{TYPE}} ${{TYPE}}_sum = 0;
+'''.replace("${{TYPE}}", typ))
+
+            for count in range(0, function_count):
+                f.write('''    ${{TYPE}}_sum += add_${{TYPE}}_0(42);
+'''.replace("${{TYPE}}", typ))
+
+        f.write('''}
 ''')
 
     print("Generated D source file: ", file_path)
