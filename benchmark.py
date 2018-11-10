@@ -40,7 +40,7 @@ def generate(f_count, language, args, root_path='generated'):
             f.write('\n')
 
         if lang == "c":
-            f.write('''int main(int argc, char* argv[])
+            f.write('''int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 {
 ''')
         elif lang == "d":
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
-    C_FLAGS = ['-fsyntax-only']
+    C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
     span_C_Clang_7 = generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
