@@ -15,7 +15,7 @@ def generate_D(f_count, root_path='generated'):
 
     language = "d"
 
-    types = ["int", "double"]
+    types = ["int", "float", "double"]
 
     path = os.path.join(root_path, language, "foo." + language)
     with open(path, 'w') as f:
