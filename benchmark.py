@@ -15,7 +15,7 @@ def generate_D(root_path='generated'):
     with open(file_path, 'w') as f:
         for typ in types:
             for count in range(0, function_count):
-                f.write('''${{TYPE}} add_${{TYPE}}_${{COUNT}}(${{TYPE}} x) { return x * ${{COUNT}}; }
+                f.write('''${{TYPE}} add_${{TYPE}}_${{COUNT}}(${{TYPE}} x) { return x * (x + ${{COUNT}}); }
 '''.replace("${{TYPE}}", typ).replace("${{COUNT}}", str(count)))
             f.write('\n')
 
