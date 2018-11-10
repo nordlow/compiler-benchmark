@@ -10,11 +10,11 @@ def check_D_file(path):
     args = ['/usr/bin/dmd', '-o-', path]
 
     start = timer()
-    subprocess.call(args)
-    # with subprocess.Popen(args,
-    #                       stdout=subprocess.PIPE,
-    #                       stderr=subprocess.PIPE) as proc:
-    #     print(proc.communicate())
+    # subprocess.call(args)
+    with subprocess.Popen(args,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE) as proc:
+        print(proc.communicate())
     end = timer()
     print("Checking of {} took {:1.3f} seconds".format(path, end - start))
 
