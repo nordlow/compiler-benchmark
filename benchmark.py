@@ -15,7 +15,7 @@ def do_file(path, args):
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
-            print(results)
+            # print(results)
     end = timer()
     span = (end - start) / count  # time span
     print("Checking of {} took {:1.3f} seconds ({})".format(path, span, args[0]))
@@ -91,8 +91,6 @@ def generate(f_count, language, args, root_path='generated'):
 if __name__ == '__main__':
     f_count = 1000
 
-    span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
-
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
@@ -108,6 +106,8 @@ if __name__ == '__main__':
 
     span_D_DMD = generate(f_count=f_count, language="D", args=['dmd', '-o-'])
     span_D_LDC = generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
+
+    span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
     print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
