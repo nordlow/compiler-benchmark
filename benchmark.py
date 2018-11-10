@@ -15,7 +15,7 @@ def do_file(path, args):
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
-            # print(results)
+            print(results)
     end = timer()
     span = (end - start) / count
     print("Checking of {} took {:1.3f} seconds ({})".format(path, span, args[0]))
@@ -23,10 +23,15 @@ def do_file(path, args):
 
 
 def generate(f_count, language, args, root_path='generated'):
+    lang = language.lower()
 
     types = ["int", "long", "float", "double"]
 
-    path = os.path.join(root_path, language.lower(), "foo." + language.lower())
+    if lang == "rust":
+        ext = "rs"
+    else:
+        ext = lang
+    path = os.path.join(root_path, lang, "foo." + ext)
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, f_count):
@@ -34,13 +39,16 @@ def generate(f_count, language, args, root_path='generated'):
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
-        if language.upper() == "C":
+        if lang == "c":
             f.write('''int main(int argc, char* argv[])
 {
 ''')
-        elif language.upper() == "D":
+        elif lang == "d":
             f.write('''int main(string[] args)
 {
+''')
+        elif lang == "rust":
+            f.write('''fn main() {
 ''')
 
         for typ in types:
@@ -63,6 +71,8 @@ def generate(f_count, language, args, root_path='generated'):
 if __name__ == '__main__':
     f_count = 5000
 
+    span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
+
     C_FLAGS = ['-fsyntax-only']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
@@ -75,4 +85,5 @@ if __name__ == '__main__':
     span_D_DMD = generate(f_count=f_count, language="D", args=['dmd', '-o-'])
     span_D_LDC = generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
 
-    print("D/C speed:", span_C_GCC_8 / span_D_LDC)
+    print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
+    print("D/Rust speedup:", span_C_GCC_8 / span_Rust)
