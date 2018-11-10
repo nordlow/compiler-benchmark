@@ -89,7 +89,7 @@ def generate(f_count, language, args, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 50
+    f_count = 500
 
     span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
