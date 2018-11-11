@@ -95,7 +95,7 @@ def generate_top(f_count, language, root_path='generated'):
 
     end = timer()
     span = (end - start) # time span
-    print("Generating  {} took {:1.3f} seconds".format(path, span))
+    print("Generating {} took {:1.3f} seconds ({})".format(path, span, language))
 
     # print("Generated {} source file: {}".format(language.upper(), path))
 
@@ -108,6 +108,9 @@ if __name__ == '__main__':
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
+    CLANG_VERSIONS = [7, 8, 9]
+    GCC_VERSIONS = [4, 5, 6, 7, 8, 9]
+
     languages = ["C", "C++", "D", "Rust"]
 
     gpaths = {}                  # generated paths
@@ -116,11 +119,16 @@ if __name__ == '__main__':
         gpaths[language] = generate_top(f_count=f_count, language=language)
 
     # C
-    span_C_Clang_7 = compile_file(path=gpaths["C"], args=['clang-7'] + C_CLANG_FLAGS)
-    span_C_GCC_8 = compile_file(path=gpaths["C"], args=['gcc-8'] + C_FLAGS)
-    span_C_GCC_7 = compile_file(path=gpaths["C"], args=['gcc-7'] + C_FLAGS)
-    span_C_GCC_6 = compile_file(path=gpaths["C"], args=['gcc-6'] + C_FLAGS)
-    span_C_GCC_5 = compile_file(path=gpaths["C"], args=['gcc-5'] + C_FLAGS)
+    for clang_version in CLANG_VERSIONS:
+        clang_ = shutil.which('clang-' + str(clang_version))
+        if clang_ is not None:
+            span_C_Clang_7 = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
+
+    # C
+    for gcc_version in GCC_VERSIONS:
+        gcc_ = shutil.which('gcc-' + str(gcc_version))
+        if gcc_ is not None:
+            span_C_GCC_8 = compile_file(path=gpaths["C"], args=[gcc_] + C_FLAGS)
 
     # C++
     span_Cxx_GCC_5 = compile_file(path=gpaths["C++"], args=['g++-8'] + C_FLAGS)
