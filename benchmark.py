@@ -38,7 +38,9 @@ def generate_top(f_count, language, args, root_path='generated'):
     else:
         ext = lang
 
-    path = os.path.join(root_path, lang, "foo." + ext)
+    dir_path = os.path.join(root_path, lang)
+    os.makedirs(dir_path, exist_ok=True)
+    path = os.path.join(dir_path, "foo." + ext)
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, f_count):
