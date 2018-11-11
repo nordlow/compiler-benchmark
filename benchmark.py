@@ -36,6 +36,8 @@ def generate_top(f_count, language, root_path='generated'):
         types = ["int"]
     elif lang == "rust":
         types = ["i32"]
+    elif lang == "go":
+        types = ["int32"]
 
     # extensions by language
     if lang == "rust":
@@ -110,7 +112,7 @@ if __name__ == '__main__':
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
-    languages = ["C", "C++", "D", "Rust"]
+    languages = ["C", "C++", "D", "Rust", "Go"]
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
@@ -172,6 +174,15 @@ if __name__ == '__main__':
         if language not in compilers: compilers[language] = rustc_
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
     print()
+
+    # Go
+    language = "Go"
+    print(language + ":")
+    gccgo_ = shutil.which('gccgo')
+    if gccgo_ is not None:
+        if language not in compilers: compilers[language] = gccgo_
+        spans[language] = compile_file(path=gpaths["Go"], args=[gccgo_, '-c'])
+        print()
 
     print("Speedup" + ":")
     # print("- D/C:", span_C_GCC_8 / span_D_LDC)
