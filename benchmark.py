@@ -23,7 +23,7 @@ def compile_file(path, args):
     return span
 
 
-def generate_top(f_count, language, args, root_path='generated'):
+def generate_top(f_count, language, root_path='generated'):
     lang = language.lower()
 
     # types by language
@@ -41,6 +41,7 @@ def generate_top(f_count, language, args, root_path='generated'):
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, "foo." + ext)
+    start = timer()
     with open(path, 'w') as f:
         for typ in types:
             for n in range(0, f_count):
@@ -86,9 +87,13 @@ def generate_top(f_count, language, args, root_path='generated'):
 }
 '''.replace('{{T}}', types[0]))
 
+    end = timer()
+    span = (end - start) # time span
+    print("Generating {} took {:1.3f} seconds".format(path, span))
+
     # print("Generated {} source file: {}".format(language.upper(), path))
 
-    return compile_file(path, args=args)  # "-betterC"
+    return path  # "-betterC"
 
 
 if __name__ == '__main__':
@@ -99,26 +104,25 @@ if __name__ == '__main__':
 
     # TODO don't regenerate sources
 
-    # C Clang
-    span_C_Clang_7 = generate_top(f_count=f_count, language="C", args=['clang-7'] + C_CLANG_FLAGS)
+    # C
+    path_C = generate_top(f_count=f_count, language="C")
+    span_C_Clang_7 = compile_file(path=path_C, args=['clang-7'] + C_CLANG_FLAGS)
+    span_C_GCC_8 = compile_file(path=path_C, args=['gcc-8'] + C_FLAGS)
+    span_C_GCC_7 = compile_file(path=path_C, args=['gcc-7'] + C_FLAGS)
+    span_C_GCC_6 = compile_file(path=path_C, args=['gcc-6'] + C_FLAGS)
+    span_C_GCC_5 = compile_file(path=path_C, args=['gcc-5'] + C_FLAGS)
 
-    # C GCC
-    span_C_GCC_8 = generate_top(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
-    span_C_GCC_7 = generate_top(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
-    span_C_GCC_6 = generate_top(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
-    span_C_GCC_5 = generate_top(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
+    # # C++
+    # span_Cxx_GCC_5 = generate_top(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
+    # span_Cxx_Clang_7 = generate_top(f_count=f_count, language="C++", args=['clang++-7'] + C_CLANG_FLAGS)
 
-    # C++ GCC
-    span_Cxx_GCC_5 = generate_top(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
-    span_Cxx_Clang_7 = generate_top(f_count=f_count, language="C++", args=['clang++-7'] + C_CLANG_FLAGS)
+    # # D
+    # span_D_DMD = generate_top(f_count=f_count, language="D", args=['dmd', '-o-'])
+    # span_D_LDC = generate_top(f_count=f_count, language="D", args=['ldmd2', '-o-'])
 
-    # D
-    span_D_DMD = generate_top(f_count=f_count, language="D", args=['dmd', '-o-'])
-    span_D_LDC = generate_top(f_count=f_count, language="D", args=['ldmd2', '-o-'])
+    # # Rust
+    # span_Rust = generate_top(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
-    # Rust
-    span_Rust = generate_top(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
-
-    print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
-    print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
-    print("D/Rust speedup:", span_Rust / span_D_LDC)
+    # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
+    # print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
+    # print("D/Rust speedup:", span_Rust / span_D_LDC)
