@@ -150,22 +150,20 @@ if __name__ == '__main__':
     print(language + ":")
     dmd_ = shutil.which('dmd')
     if dmd_ is not None:
-        if language not in compilers:
-            compilers[language] = dmd_
+        if language not in compilers: compilers[language] = dmd_
         spans[dmd_] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
-        if language not in compilers:
-            compilers[language] = ldc_
+        if language not in compilers: compilers[language] = ldc_
         spans[ldc_] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
     print()
 
     # Rust
-    print("Rust:")
+    langauge = "Rust"
+    print(language + ":")
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
-        if "Rust" not in compilers:
-            compilers["Rust"] = rustc_
+        if language not in compilers: compilers[language] = rustc_
         span_Rust = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
