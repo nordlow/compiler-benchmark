@@ -50,6 +50,9 @@ def generate_top(f_count, language, root_path='generated'):
     path = os.path.join(dir_path, "foo." + ext)
     start = timer()
     with open(path, 'w') as f:
+        f.write('''package foo;
+
+''')
         for typ in types:
             for n in range(0, f_count):
                 if lang in ["c", "c++", "d"]:
@@ -73,11 +76,11 @@ def generate_top(f_count, language, root_path='generated'):
 {
 ''')
         elif lang == "rust":
-            f.write('''fn main() -> i32 {
-''')
+            f.write('''fn main() -> {{T}} {
+'''.replace('{{T}}', types[0]))
         elif lang == "go":
-            f.write('''func main() i32 {
-''')
+            f.write('''func main() {{T}} {
+'''.replace('{{T}}', types[0]))
         else:
             assert False
 
