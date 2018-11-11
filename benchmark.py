@@ -219,6 +219,7 @@ if __name__ == '__main__':
         # Alternatives:
         # - `rustc --emit=metadata -Z no-codegen`
         # - `rustc -Z no-codegen`
+        # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '-Z', 'no-codegen'])
         print()
 
