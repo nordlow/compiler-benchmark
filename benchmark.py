@@ -22,7 +22,10 @@ def compile_file(path, args, run_count=1):
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
-            # print(results)
+            if results[0]:
+                print("stdout:", results[0])
+            if results[1]:
+                print("stderr:", results[1])
     end = timer()
     span = (end - start) / run_count  # time span
     print("- Checking of {} took {:1.3f} seconds (using \"{}\")".format(path, span, args[0]))
