@@ -114,30 +114,38 @@ if __name__ == '__main__':
     languages = ["C", "C++", "D", "Rust"]
 
     gpaths = {}                  # generated paths
+    spans = {}
 
     for language in languages:
         gpaths[language] = generate_top(f_count=f_count, language=language)
+    print()
 
     # C
     for clang_version in CLANG_VERSIONS:
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
-            span_C_Clang_7 = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
+            spans[clang_version] = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
+
+        clangxx_ = shutil.which('clang++-' + str(clang_version))
+        if clangxx_ is not None:
+            spans[clang_version] = compile_file(path=gpaths["C++"], args=[clangxx_] + C_CLANG_FLAGS)
+    print()
 
     # C GCC
     for gcc_version in GCC_VERSIONS:
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
-            span_C_GCC_8 = compile_file(path=gpaths["C"], args=[gcc_] + C_FLAGS)
+            spans[gcc_] = compile_file(path=gpaths["C"], args=[gcc_] + C_FLAGS)
+        gxx_ = shutil.which('g++-' + str(gcc_version))
+        if gxx_ is not None:
+            spans[gxx_] = compile_file(path=gpaths["C++"], args=[gxx_] + C_FLAGS)
 
-    # C++
-    span_Cxx_GCC_5 = compile_file(path=gpaths["C++"], args=['g++-8'] + C_FLAGS)
-    span_Cxx_Clang_7 = compile_file(path=gpaths["C++"], args=['clang++-7'] + C_CLANG_FLAGS)
+    print()
 
     # D
     span_D_DMD = compile_file(path=gpaths["D"], args=['dmd', '-o-'])
     span_D_LDC = compile_file(path=gpaths["D"], args=['ldmd2', '-o-'])
-
+    span_D_DMD
     # Rust
     span_Rust = compile_file(path=gpaths["Rust"], args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
