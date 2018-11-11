@@ -115,6 +115,7 @@ if __name__ == '__main__':
 
     gpaths = {}                  # generated paths
     spans = {}
+    compilers = {}
 
     print("Code-generation:")
     for language in languages:
@@ -158,6 +159,7 @@ if __name__ == '__main__':
     print("Rust:")
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
+        compilers["Rust"] = rustc_
         span_Rust = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
