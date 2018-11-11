@@ -218,7 +218,7 @@ if __name__ == '__main__':
         # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
         # Alternatives:
         # - `rustc --emit=metadata -Z no-codegen`
-        # - `rustc -Z no-codegen`
+        # - Not yet in stable: `rustc -Z no-codegen`
         # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '-Z', 'no-codegen'])
         print()
