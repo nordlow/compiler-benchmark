@@ -209,7 +209,7 @@ if __name__ == '__main__':
 
     print("Speedups" + ":")
 
-    pprint(spans)
+    # pprint(spans)
 
     print_speedup(from_lang="D", to_lang="gcc-8")
     print_speedup(from_lang="D", to_lang="g++-8")
