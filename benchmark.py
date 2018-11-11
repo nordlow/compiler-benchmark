@@ -164,10 +164,13 @@ if __name__ == '__main__':
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
             spans[gcc_] = compile_file(path=gpaths["C"], args=[gcc_] + C_FLAGS)
+            spans["gcc-" + str(gcc_version)] = spans[gcc_]
+
         language = "C++"
         gxx_ = shutil.which('g++-' + str(gcc_version))
         if gxx_ is not None:
             spans[gxx_] = compile_file(path=gpaths["C++"], args=[gxx_] + C_FLAGS)
+            spans["g++-" + str(gcc_version)] = spans[gxx_]
     print()
 
     # D
@@ -208,6 +211,8 @@ if __name__ == '__main__':
 
     pprint(spans)
 
+    print_speedup(from_lang="D", to_lang="gcc-8")
+    print_speedup(from_lang="D", to_lang="g++-8")
     print_speedup(from_lang="D", to_lang="Clang")
     print_speedup(from_lang="D", to_lang="Clang++")
     print_speedup(from_lang="D", to_lang="Go")
