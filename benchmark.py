@@ -185,17 +185,25 @@ if __name__ == '__main__':
     gccgo_ = shutil.which('gccgo')
     if gccgo_ is not None:
         if language not in compilers: compilers[language] = gccgo_
-        spans[language] = compile_file(path=gpaths["Go"], args=[gccgo_, '-fsyntax-only', '-c'])
+        spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
         print()
 
     # Rust
-    language = "Rust"
-    print(language + ":")
-    rustc_ = shutil.which('rustc')
-    if rustc_ is not None:
-        if language not in compilers: compilers[language] = rustc_
-        spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
-        print()
+    if False:
+        language = "Rust"
+        print(language + ":")
+        rustc_ = shutil.which('rustc')
+        if rustc_ is not None:
+            if language not in compilers: compilers[language] = rustc_
+            spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
+            print()
 
-    print("Speedup" + ":")
-    print("- D/Rust: {:.2f}".format(spans["Rust"] / spans["D"]))
+    print("Speedups" + ":")
+
+    if ("D" in spans and
+        "Go" in spans):
+        print("- D/Go: {:.2f}".format(spans["Go"] / spans["D"]))
+
+    if ("D" in spans and
+        "Rust" in spans):
+        print("- D/Rust: {:.2f}".format(spans["Rust"] / spans["D"]))
