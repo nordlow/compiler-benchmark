@@ -112,15 +112,16 @@ if __name__ == '__main__':
     span_C_GCC_6 = compile_file(path=path_C, args=['gcc-6'] + C_FLAGS)
     span_C_GCC_5 = compile_file(path=path_C, args=['gcc-5'] + C_FLAGS)
 
-    # # C++
+    # C++
+    path_Cxx = generate_top(f_count=f_count, language="C++")
     # span_Cxx_GCC_5 = generate_top(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
     # span_Cxx_Clang_7 = generate_top(f_count=f_count, language="C++", args=['clang++-7'] + C_CLANG_FLAGS)
 
-    # # D
+    # D
     # span_D_DMD = generate_top(f_count=f_count, language="D", args=['dmd', '-o-'])
     # span_D_LDC = generate_top(f_count=f_count, language="D", args=['ldmd2', '-o-'])
 
-    # # Rust
+    # Rust
     # span_Rust = generate_top(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
