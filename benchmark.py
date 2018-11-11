@@ -59,7 +59,7 @@ def generate_top(f_count, language, root_path='generated'):
                     f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "go":
-                    f.write('''func add_{{T}}_{{N}}(x: {{T}}) {{T}} { return x + {{N}} }
+                    f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
