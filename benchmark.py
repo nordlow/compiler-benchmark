@@ -198,6 +198,4 @@ if __name__ == '__main__':
         print()
 
     print("Speedup" + ":")
-    # print("- D/C:", span_C_GCC_8 / span_D_LDC)
-    # print("- D/C++:", span_Cxx_GCC_5 / span_D_LDC)
     print("- D/Rust: {:.2f}".format(spans["Rust"] / spans["D"]))
