@@ -4,9 +4,15 @@
 import subprocess
 import os.path
 from timeit import default_timer as timer
+import shutil
 
 
 def compile_file(path, args):
+
+    compiler = shutil.which(args[0])
+    if compiler is None:
+        print('Could not find compiler:', args[0])
+        return None
 
     start = timer()
     # subprocess.call(args)
