@@ -55,6 +55,10 @@ def generate_top(f_count, language, root_path='generated'):
             f.write('''package foo;
 
 ''')
+        elif language == "Rust":
+            f.write('''use std::process::exit;
+
+''')
         for typ in types:
             for n in range(0, f_count):
                 if lang in ["c", "c++", "d"]:
@@ -78,7 +82,7 @@ def generate_top(f_count, language, root_path='generated'):
 {
 ''')
         elif lang == "rust":
-            f.write('''fn main() -> {{T}} {
+            f.write('''fn main() {
 '''.replace('{{T}}', types[0]))
         elif lang == "go":
             f.write('''func main() {{T}} {
@@ -104,7 +108,12 @@ def generate_top(f_count, language, root_path='generated'):
                 f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
 
-        f.write('''    return {{T}}_sum;
+        if lang == "rust":
+            f.write('''    exit({{T}}_sum);
+}
+'''.replace('{{T}}', types[0]))
+        else:
+            f.write('''    return {{T}}_sum;
 }
 '''.replace('{{T}}', types[0]))
 
@@ -206,6 +215,7 @@ if __name__ == '__main__':
             if language not in compilers: compilers[language] = rustc_
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # TODO try `rustc --emit=metadata -Z no-codegen`
+            # TODO try: `rustc -Z no-codegen`
             # TODO try `cargo check`
             spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
             print()
