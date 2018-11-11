@@ -204,6 +204,7 @@ if __name__ == '__main__':
         rustc_ = shutil.which('rustc')
         if rustc_ is not None:
             if language not in compilers: compilers[language] = rustc_
+            # TODO try rustc --emit=metadata -Z no-codegen
             spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
             print()
 
