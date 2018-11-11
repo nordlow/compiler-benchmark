@@ -117,7 +117,7 @@ def generate_top(f_count, language, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 500
+    f_count = 5000
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -179,15 +179,6 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
     print()
 
-    # Rust
-    language = "Rust"
-    print(language + ":")
-    rustc_ = shutil.which('rustc')
-    if rustc_ is not None:
-        if language not in compilers: compilers[language] = rustc_
-        spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
-    print()
-
     # Go
     language = "Go"
     print(language + ":")
@@ -195,6 +186,15 @@ if __name__ == '__main__':
     if gccgo_ is not None:
         if language not in compilers: compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths["Go"], args=[gccgo_, '-fsyntax-only', '-c'])
+        print()
+
+    # Rust
+    language = "Rust"
+    print(language + ":")
+    rustc_ = shutil.which('rustc')
+    if rustc_ is not None:
+        if language not in compilers: compilers[language] = rustc_
+        spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
         print()
 
     print("Speedup" + ":")
