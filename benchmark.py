@@ -7,8 +7,7 @@ from timeit import default_timer as timer
 import shutil
 
 
-def compile_file(path, args,
-                 run_count=1):
+def compile_file(path, args, run_count=1):
 
     compiler = shutil.which(args[0])
     if compiler is None:
