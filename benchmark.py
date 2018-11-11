@@ -98,7 +98,7 @@ if __name__ == '__main__':
     # TODO don't regenerate sources
 
     # C Clang
-    span_C_Clang_7 = generate_top(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
+    span_C_Clang_7 = generate_top(f_count=f_count, language="C", args=['clang-7'] + C_CLANG_FLAGS)
 
     # C GCC
     span_C_GCC_8 = generate_top(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
@@ -108,6 +108,7 @@ if __name__ == '__main__':
 
     # C++ GCC
     span_Cxx_GCC_5 = generate_top(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
+    span_Cxx_Clang_7 = generate_top(f_count=f_count, language="C++", args=['clang++-7'] + C_CLANG_FLAGS)
 
     # D
     span_D_DMD = generate_top(f_count=f_count, language="D", args=['dmd', '-o-'])
