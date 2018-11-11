@@ -107,8 +107,8 @@ if __name__ == '__main__':
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
-    CLANG_VERSIONS = [7, 8, 9]
-    GCC_VERSIONS = [4, 5, 6, 7, 8, 9]
+    CLANG_VERSIONS = [7, 8, 9, 10]
+    GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
     languages = ["C", "C++", "D", "Rust"]
 
