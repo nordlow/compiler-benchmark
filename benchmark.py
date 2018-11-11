@@ -58,6 +58,9 @@ def generate_top(f_count, language, root_path='generated'):
                 elif lang == "rust":
                     f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "go":
+                    f.write('''func add_{{T}}_{{N}}(x: {{T}}) {{T}} { return x + {{N}} }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
         # MAIN HEADER
@@ -85,6 +88,9 @@ def generate_top(f_count, language, root_path='generated'):
 '''.replace("{{T}}", typ))
             elif lang == "rust":
                 f.write('''    let mut {{T}}_sum : {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "go":
+                f.write('''    var {{T}}_sum {{T}} = 0;
 '''.replace("{{T}}", typ))
             else:
                 assert False
