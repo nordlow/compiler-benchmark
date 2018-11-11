@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 import shutil
 
 
-def compile_file(path, args, run_count=1):
+def compile_file(file_path, args, run_count=1):
 
     compiler = shutil.which(args[0])
     if compiler is None:
@@ -17,14 +17,14 @@ def compile_file(path, args, run_count=1):
     start = timer()
     # subprocess.call(args)
     for _ in range(1, run_count):
-        with subprocess.Popen(args + [path],
+        with subprocess.Popen(args + [file_path],
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
             # print(results)
     end = timer()
     span = (end - start) / run_count  # time span
-    print("Checking of {} took {:1.3f} seconds (using \"{}\")".format(path, span, args[0]))
+    print("Checking of {} took {:1.3f} seconds (using \"{}\")".format(file_path, span, args[0]))
     return span
 
 
