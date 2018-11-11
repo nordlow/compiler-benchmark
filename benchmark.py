@@ -21,7 +21,7 @@ def compile_file(path, args, run_count=3):
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
-            # print(results)
+            print(results)
     end = timer()
     span = (end - start) / run_count  # time span
     print("- Checking of {} took {:1.3f} seconds (using \"{}\")".format(path, span, args[0]))
@@ -50,7 +50,8 @@ def generate_top(f_count, language, root_path='generated'):
     path = os.path.join(dir_path, "foo." + ext)
     start = timer()
     with open(path, 'w') as f:
-        f.write('''package foo;
+        if language == "Go":
+            f.write('''package foo;
 
 ''')
         for typ in types:
@@ -193,7 +194,7 @@ if __name__ == '__main__':
     gccgo_ = shutil.which('gccgo')
     if gccgo_ is not None:
         if language not in compilers: compilers[language] = gccgo_
-        spans[language] = compile_file(path=gpaths["Go"], args=[gccgo_, '-c'])
+        spans[language] = compile_file(path=gpaths["Go"], args=[gccgo_, '-fsyntax-only', '-c'])
         print()
 
     print("Speedup" + ":")
