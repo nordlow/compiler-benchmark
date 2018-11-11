@@ -173,4 +173,4 @@ if __name__ == '__main__':
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
     # print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
-    print("D/Rust speedup: {:.1f}".format(spans["Rust"] / spans["D"]))
+    print("D/Rust speedup: {:.2f}".format(spans["Rust"] / spans["D"]))
