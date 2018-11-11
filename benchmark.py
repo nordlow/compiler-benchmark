@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 import shutil
 
 
-def compile_file(path, args, run_count=1):
+def compile_file(path, args, run_count=3):
 
     compiler = shutil.which(args[0])
     if compiler is None:
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     print()
 
     # Rust
-    langauge = "Rust"
+    language = "Rust"
     print(language + ":")
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
