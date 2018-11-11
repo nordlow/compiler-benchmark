@@ -156,7 +156,9 @@ if __name__ == '__main__':
 
     # Rust
     print("Rust:")
-    span_Rust = compile_file(path=gpaths["Rust"], args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
+    rustc_ = shutil.which('rustc')
+    if rustc_ is not None:
+        span_Rust = compile_file(path=gpaths["Rust"], args=[rustc, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
     # print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
