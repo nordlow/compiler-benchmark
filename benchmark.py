@@ -5,6 +5,7 @@ import subprocess
 import os.path
 from timeit import default_timer as timer
 import shutil
+from pprint import pprint
 
 
 def compile_file(path, args, run_count=1):
@@ -148,7 +149,7 @@ if __name__ == '__main__':
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
             spans["Clang"] = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
-            spans[clang_version] = spans["Clang"]
+            spans[clang_] = spans["Clang"]
 
         language = "C++"
         clangxx_ = shutil.which('clang++-' + str(clang_version))
@@ -205,7 +206,7 @@ if __name__ == '__main__':
 
     print("Speedups" + ":")
 
-    print(spans)
+    pprint(spans)
 
     print_speedup(from_lang="D", to_lang="Clang")
     print_speedup(from_lang="D", to_lang="Clang++")
