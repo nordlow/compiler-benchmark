@@ -102,26 +102,27 @@ if __name__ == '__main__':
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
-    # TODO don't regenerate sources
+    languages = ["C", "C++", "D", "Rust"]
 
-    path_C = generate_top(f_count=f_count, language="C")
-    path_Cxx = generate_top(f_count=f_count, language="C++")
-    path_D = generate_top(f_count=f_count, language="D")
+    gpaths = {}                  # generated paths
+
+    for language in languages:
+        gpaths[language] = generate_top(f_count=f_count, language=language)
 
     # C
-    span_C_Clang_7 = compile_file(path=path_C, args=['clang-7'] + C_CLANG_FLAGS)
-    span_C_GCC_8 = compile_file(path=path_C, args=['gcc-8'] + C_FLAGS)
-    span_C_GCC_7 = compile_file(path=path_C, args=['gcc-7'] + C_FLAGS)
-    span_C_GCC_6 = compile_file(path=path_C, args=['gcc-6'] + C_FLAGS)
-    span_C_GCC_5 = compile_file(path=path_C, args=['gcc-5'] + C_FLAGS)
+    span_C_Clang_7 = compile_file(path=gpaths["C"], args=['clang-7'] + C_CLANG_FLAGS)
+    span_C_GCC_8 = compile_file(path=gpaths["C"], args=['gcc-8'] + C_FLAGS)
+    span_C_GCC_7 = compile_file(path=gpaths["C"], args=['gcc-7'] + C_FLAGS)
+    span_C_GCC_6 = compile_file(path=gpaths["C"], args=['gcc-6'] + C_FLAGS)
+    span_C_GCC_5 = compile_file(path=gpaths["C"], args=['gcc-5'] + C_FLAGS)
 
     # C++
-    span_Cxx_GCC_5 = compile_file(path=path_Cxx, args=['g++-8'] + C_FLAGS)
-    span_Cxx_Clang_7 = compile_file(path=path_Cxx, args=['clang++-7'] + C_CLANG_FLAGS)
+    span_Cxx_GCC_5 = compile_file(path=gpaths["C++"], args=['g++-8'] + C_FLAGS)
+    span_Cxx_Clang_7 = compile_file(path=gpaths["C++"], args=['clang++-7'] + C_CLANG_FLAGS)
 
     # D
-    span_D_DMD = compile_file(path=path_D, args=['dmd', '-o-'])
-    span_D_LDC = compile_file(path=path_D, args=['ldmd2', '-o-'])
+    span_D_DMD = compile_file(path=gpaths["D"], args=['dmd', '-o-'])
+    span_D_LDC = compile_file(path=gpaths["D"], args=['ldmd2', '-o-'])
 
     # Rust
     # span_Rust = compile_file(path=path_X, args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
