@@ -8,7 +8,7 @@ import shutil
 
 
 def compile_file(path, args,
-                 count=1):      # number of run counts
+                 run_count=1):
 
     compiler = shutil.which(args[0])
     if compiler is None:
@@ -17,14 +17,14 @@ def compile_file(path, args,
 
     start = timer()
     # subprocess.call(args)
-    for _ in range(1, count):
+    for _ in range(1, run_count):
         with subprocess.Popen(args + [path],
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
             # print(results)
     end = timer()
-    span = (end - start) / count  # time span
+    span = (end - start) / run_count  # time span
     print("Checking of {} took {:1.3f} seconds (using \"{}\")".format(path, span, args[0]))
     return span
 
