@@ -116,7 +116,7 @@ if __name__ == '__main__':
     gpaths = {}                  # generated paths
     spans = {}
 
-    print("Source-code-generation:")
+    print("code-generation:")
     for language in languages:
         gpaths[language] = generate_top(f_count=f_count, language=language)
     print()
