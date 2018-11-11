@@ -127,7 +127,8 @@ if __name__ == '__main__':
         language = "C"
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
-            spans[clang_version] = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
+            spans["Clang"] = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
+            spans[clang_version] = spans["Clang"]
 
         language = "C++"
         clangxx_ = shutil.which('clang++-' + str(clang_version))
