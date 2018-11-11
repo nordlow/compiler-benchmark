@@ -116,6 +116,11 @@ def generate_top(f_count, language, root_path='generated'):
     return path  # "-betterC"
 
 
+def print_speedup(from_lang, to_lang):
+    if (from_lang in spans and to_lang in spans):
+        print("- {} to {}: {:.2f}".format(from_lang, to_lang, spans[to_lang] / spans[from_lang]))
+
+
 if __name__ == '__main__':
     f_count = 5000
 
@@ -202,14 +207,7 @@ if __name__ == '__main__':
 
     print(spans)
 
-    if ("D" in spans and "Clang" in spans):
-        print("- D/C-Clang: {:.2f}".format(spans["Clang"] / spans["D"]))
-
-    if ("D" in spans and "Clang++" in spans):
-        print("- D/C++-Clang++: {:.2f}".format(spans["Clang++"] / spans["D"]))
-
-    if ("D" in spans and "Go" in spans):
-        print("- D/Go: {:.2f}".format(spans["Go"] / spans["D"]))
-
-    if ("D" in spans and "Rust" in spans):
-        print("- D/Rust: {:.2f}".format(spans["Rust"] / spans["D"]))
+    print_speedup(from_lang="D", to_lang="Clang")
+    print_speedup(from_lang="D", to_lang="Clang++")
+    print_speedup(from_lang="D", to_lang="Go")
+    print_speedup(from_lang="D", to_lang="Rust")
