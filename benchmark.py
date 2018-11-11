@@ -103,7 +103,7 @@ def generate_top(f_count, language, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 5000
+    f_count = 500
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -146,12 +146,17 @@ if __name__ == '__main__':
     print()
 
     # D
-    print("D:")
+    language = "D"
+    print(language + ":")
     dmd_ = shutil.which('dmd')
     if dmd_ is not None:
+        if language not in compilers:
+            compilers[language] = dmd_
         spans[dmd_] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
+        if language not in compilers:
+            compilers[language] = ldc_
         spans[ldc_] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
     print()
 
@@ -159,7 +164,8 @@ if __name__ == '__main__':
     print("Rust:")
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
-        compilers["Rust"] = rustc_
+        if "Rust" not in compilers:
+            compilers["Rust"] = rustc_
         span_Rust = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
