@@ -89,7 +89,7 @@ def generate_top(f_count, language, root_path='generated'):
 
     end = timer()
     span = (end - start) # time span
-    print("Generating {} took {:1.3f} seconds".format(path, span))
+    print("Generating  {} took {:1.3f} seconds".format(path, span))
 
     # print("Generated {} source file: {}".format(language.upper(), path))
 
