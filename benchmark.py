@@ -7,7 +7,8 @@ from timeit import default_timer as timer
 import shutil
 
 
-def compile_file(path, args):
+def compile_file(path, args,
+                 count=1):      # number of run counts
 
     compiler = shutil.which(args[0])
     if compiler is None:
@@ -16,7 +17,6 @@ def compile_file(path, args):
 
     start = timer()
     # subprocess.call(args)
-    count = 5                   # number run counts
     for _ in range(1, count):
         with subprocess.Popen(args + [path],
                               stdout=subprocess.PIPE,
