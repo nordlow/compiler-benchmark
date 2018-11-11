@@ -120,7 +120,8 @@ if __name__ == '__main__':
         gpaths[language] = generate_top(f_count=f_count, language=language)
     print()
 
-    # C
+    # Clang
+    print("Clang:")
     for clang_version in CLANG_VERSIONS:
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
@@ -132,6 +133,7 @@ if __name__ == '__main__':
     print()
 
     # C GCC
+    print("GCC:")
     for gcc_version in GCC_VERSIONS:
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
@@ -139,14 +141,16 @@ if __name__ == '__main__':
         gxx_ = shutil.which('g++-' + str(gcc_version))
         if gxx_ is not None:
             spans[gxx_] = compile_file(path=gpaths["C++"], args=[gxx_] + C_FLAGS)
-
     print()
 
     # D
+    print("D:")
     span_D_DMD = compile_file(path=gpaths["D"], args=['dmd', '-o-'])
     span_D_LDC = compile_file(path=gpaths["D"], args=['ldmd2', '-o-'])
-    span_D_DMD
+    print()
+
     # Rust
+    print("Rust:")
     span_Rust = compile_file(path=gpaths["Rust"], args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
