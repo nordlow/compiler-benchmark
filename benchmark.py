@@ -5,7 +5,8 @@ import subprocess
 import os.path
 from timeit import default_timer as timer
 
-def do_file(path, args):
+
+def compile_file(path, args):
 
     start = timer()
     # subprocess.call(args)
@@ -85,7 +86,7 @@ def generate_top(f_count, language, args, root_path='generated'):
 
     # print("Generated {} source file: {}".format(language.upper(), path))
 
-    return do_file(path, args=args)  # "-betterC"
+    return compile_file(path, args=args)  # "-betterC"
 
 
 if __name__ == '__main__':
