@@ -22,7 +22,7 @@ def do_file(path, args):
     return span
 
 
-def generate(f_count, language, args, root_path='generated'):
+def generate_top(f_count, language, args, root_path='generated'):
     lang = language.lower()
 
     # types by language
@@ -97,23 +97,23 @@ if __name__ == '__main__':
     # TODO don't regenerate sources
 
     # C Clang
-    span_C_Clang_7 = generate(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
+    span_C_Clang_7 = generate_top(f_count=f_count, language="C", args=['clang-7'] + C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option'])
 
     # C GCC
-    span_C_GCC_8 = generate(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
-    span_C_GCC_7 = generate(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
-    span_C_GCC_6 = generate(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
-    span_C_GCC_5 = generate(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
+    span_C_GCC_8 = generate_top(f_count=f_count, language="C", args=['gcc-8'] + C_FLAGS)
+    span_C_GCC_7 = generate_top(f_count=f_count, language="C", args=['gcc-7'] + C_FLAGS)
+    span_C_GCC_6 = generate_top(f_count=f_count, language="C", args=['gcc-6'] + C_FLAGS)
+    span_C_GCC_5 = generate_top(f_count=f_count, language="C", args=['gcc-5'] + C_FLAGS)
 
     # C++ GCC
-    span_Cxx_GCC_5 = generate(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
+    span_Cxx_GCC_5 = generate_top(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
 
     # D
-    span_D_DMD = generate(f_count=f_count, language="D", args=['dmd', '-o-'])
-    span_D_LDC = generate(f_count=f_count, language="D", args=['ldmd2', '-o-'])
+    span_D_DMD = generate_top(f_count=f_count, language="D", args=['dmd', '-o-'])
+    span_D_LDC = generate_top(f_count=f_count, language="D", args=['ldmd2', '-o-'])
 
     # Rust
-    span_Rust = generate(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
+    span_Rust = generate_top(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
     print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
