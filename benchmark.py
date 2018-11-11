@@ -124,7 +124,7 @@ if __name__ == '__main__':
         if clang_ is not None:
             span_C_Clang_7 = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
 
-    # C
+    # C GCC
     for gcc_version in GCC_VERSIONS:
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
