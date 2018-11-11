@@ -104,8 +104,11 @@ if __name__ == '__main__':
 
     # TODO don't regenerate sources
 
-    # C
     path_C = generate_top(f_count=f_count, language="C")
+    path_Cxx = generate_top(f_count=f_count, language="C++")
+    path_D = generate_top(f_count=f_count, language="D")
+
+    # C
     span_C_Clang_7 = compile_file(path=path_C, args=['clang-7'] + C_CLANG_FLAGS)
     span_C_GCC_8 = compile_file(path=path_C, args=['gcc-8'] + C_FLAGS)
     span_C_GCC_7 = compile_file(path=path_C, args=['gcc-7'] + C_FLAGS)
@@ -113,16 +116,15 @@ if __name__ == '__main__':
     span_C_GCC_5 = compile_file(path=path_C, args=['gcc-5'] + C_FLAGS)
 
     # C++
-    path_Cxx = generate_top(f_count=f_count, language="C++")
-    # span_Cxx_GCC_5 = generate_top(f_count=f_count, language="C++", args=['g++-8'] + C_FLAGS)
-    # span_Cxx_Clang_7 = generate_top(f_count=f_count, language="C++", args=['clang++-7'] + C_CLANG_FLAGS)
+    span_Cxx_GCC_5 = compile_file(path=path_Cxx, args=['g++-8'] + C_FLAGS)
+    span_Cxx_Clang_7 = compile_file(path=path_Cxx, args=['clang++-7'] + C_CLANG_FLAGS)
 
     # D
-    # span_D_DMD = generate_top(f_count=f_count, language="D", args=['dmd', '-o-'])
-    # span_D_LDC = generate_top(f_count=f_count, language="D", args=['ldmd2', '-o-'])
+    span_D_DMD = compile_file(path=path_D, args=['dmd', '-o-'])
+    span_D_LDC = compile_file(path=path_D, args=['ldmd2', '-o-'])
 
     # Rust
-    # span_Rust = generate_top(f_count=f_count, language="Rust", args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
+    # span_Rust = compile_file(path=path_X, args=['rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
     # print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
