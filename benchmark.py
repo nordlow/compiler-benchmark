@@ -171,6 +171,6 @@ if __name__ == '__main__':
         if language not in compilers: compilers[language] = rustc_
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
 
-    # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
-    # print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
-    print("D/Rust speedup: {:.2f}".format(spans["Rust"] / spans["D"]))
+    # print("D/C Speedup:", span_C_GCC_8 / span_D_LDC)
+    # print("D/C++ Speedup:", span_Cxx_GCC_5 / span_D_LDC)
+    print("D/Rust Speedup: {:.2f}".format(spans["Rust"] / spans["D"]))
