@@ -117,6 +117,7 @@ if __name__ == '__main__':
     spans = {}
 
     for language in languages:
+        print(language + ":")
         gpaths[language] = generate_top(f_count=f_count, language=language)
     print()
 
