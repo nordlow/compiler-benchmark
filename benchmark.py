@@ -72,6 +72,9 @@ def generate_top(f_count, language, root_path='generated'):
         elif lang == "rust":
             f.write('''fn main() -> i32 {
 ''')
+        elif lang == "go":
+            f.write('''func main() i32 {
+''')
         else:
             assert False
 
