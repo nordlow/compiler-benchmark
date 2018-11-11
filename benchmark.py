@@ -145,8 +145,12 @@ if __name__ == '__main__':
 
     # D
     print("D:")
-    span_D_DMD = compile_file(path=gpaths["D"], args=['dmd', '-o-'])
-    span_D_LDC = compile_file(path=gpaths["D"], args=['ldmd2', '-o-'])
+    dmd_ = shutil.which('dmd')
+    if dmd_ is not None:
+        spans[dmd_] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
+    ldc_ = shutil.which('ldmd2')
+    if ldc_ is not None:
+        spans[ldc_] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
     print()
 
     # Rust
