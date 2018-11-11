@@ -102,7 +102,7 @@ def generate_top(f_count, language, root_path='generated'):
 
 
 if __name__ == '__main__':
-    f_count = 5000
+    f_count = 500
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -124,10 +124,12 @@ if __name__ == '__main__':
     # Clang
     print("Clang:")
     for clang_version in CLANG_VERSIONS:
+        language = "C"
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
             spans[clang_version] = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS)
 
+        language = "C++"
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
             spans[clang_version] = compile_file(path=gpaths["C++"], args=[clangxx_] + C_CLANG_FLAGS)
@@ -136,9 +138,11 @@ if __name__ == '__main__':
     # C GCC
     print("GCC:")
     for gcc_version in GCC_VERSIONS:
+        language = "C"
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
             spans[gcc_] = compile_file(path=gpaths["C"], args=[gcc_] + C_FLAGS)
+        language = "C++"
         gxx_ = shutil.which('g++-' + str(gcc_version))
         if gxx_ is not None:
             spans[gxx_] = compile_file(path=gpaths["C++"], args=[gxx_] + C_FLAGS)
@@ -169,4 +173,4 @@ if __name__ == '__main__':
 
     # print("D/C speedup:", span_C_GCC_8 / span_D_LDC)
     # print("D/C++ speedup:", span_Cxx_GCC_5 / span_D_LDC)
-    print("D/Rust speedup:", spans["Rust"] / spans["D"])
+    print("D/Rust speedup: {:.1f}".format(spans["Rust"] / spans["D"]))
