@@ -147,10 +147,12 @@ if __name__ == '__main__':
     # D
     language = "D"
     print(language + ":")
+    # DMD
     dmd_ = shutil.which('dmd')
     if dmd_ is not None:
         if language not in compilers: compilers[language] = dmd_
         spans[dmd_] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
+    # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
         if language not in compilers: compilers[language] = ldc_
