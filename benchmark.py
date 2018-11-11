@@ -173,6 +173,7 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'])
     print()
 
-    # print("D/C Speedup:", span_C_GCC_8 / span_D_LDC)
-    # print("D/C++ Speedup:", span_Cxx_GCC_5 / span_D_LDC)
-    print("D/Rust Speedup: {:.2f}".format(spans["Rust"] / spans["D"]))
+    print("Speedup" + ":")
+    # print("- D/C:", span_C_GCC_8 / span_D_LDC)
+    # print("- D/C++:", span_Cxx_GCC_5 / span_D_LDC)
+    print("- D/Rust: {:.2f}".format(spans["Rust"] / spans["D"]))
