@@ -148,7 +148,7 @@ if __name__ == '__main__':
         language = "C++"
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
-            spans[clang_version] = compile_file(path=gpaths["C++"], args=[clangxx_] + C_CLANG_FLAGS)
+            spans["Clang++"] = compile_file(path=gpaths["C++"], args=[clangxx_] + C_CLANG_FLAGS)
     print()
 
     # C GCC
@@ -200,10 +200,16 @@ if __name__ == '__main__':
 
     print("Speedups" + ":")
 
-    if ("D" in spans and
-        "Go" in spans):
+    print(spans)
+
+    if ("D" in spans and "Clang" in spans):
+        print("- D/C-Clang: {:.2f}".format(spans["Clang"] / spans["D"]))
+
+    if ("D" in spans and "Clang++" in spans):
+        print("- D/C++-Clang++: {:.2f}".format(spans["Clang++"] / spans["D"]))
+
+    if ("D" in spans and "Go" in spans):
         print("- D/Go: {:.2f}".format(spans["Go"] / spans["D"]))
 
-    if ("D" in spans and
-        "Rust" in spans):
+    if ("D" in spans and "Rust" in spans):
         print("- D/Rust: {:.2f}".format(spans["Rust"] / spans["D"]))
