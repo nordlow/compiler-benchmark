@@ -13,5 +13,5 @@ or
 
 .
 
-This will generated code into the directory `generated/` and then benchmark
+This will generated code into a new directory `generated/` and then benchmark
 checks on that code and print the results to standard output.
