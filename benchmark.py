@@ -239,10 +239,10 @@ if __name__ == '__main__':
     # Zig
     language = "Zig"
     print(language + ":")
-    zig_ = shutil.which('zigc')
+    zig_ = shutil.which('zig')
     if zig_ is not None:
         if language not in compilers: compilers[language] = zig_
-        spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])
+        spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])  # no syntax flag currently so compile to object file instead
         print()
 
     print("Speedups" + ":")
