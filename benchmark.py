@@ -38,7 +38,7 @@ def generate_top(f_count, language, root_path='generated'):
     # types by language
     if lang in ["c", "c++", "d"]:
         types = ["int"]
-    elif lang == "rust":
+    elif lang in ["rust", "zig"]:
         types = ["i32"]
     elif lang == "go":
         types = ["int32"]
@@ -70,6 +70,9 @@ def generate_top(f_count, language, root_path='generated'):
                 elif lang == "rust":
                     f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "zig":
+                    f.write('''fn add_{{T}}_{{N}}(x: {{T}}) {{T}} { return x + {{N}}; }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "go":
                     f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
@@ -87,6 +90,9 @@ def generate_top(f_count, language, root_path='generated'):
         elif lang == "rust":
             f.write('''fn main() {
 '''.replace('{{T}}', types[0]))
+        elif lang == "zig":
+            f.write('''pub fn main() void {
+'''.replace('{{T}}', types[0]))
         elif lang == "go":
             f.write('''func main() {{T}} {
 '''.replace('{{T}}', types[0]))
@@ -101,6 +107,9 @@ def generate_top(f_count, language, root_path='generated'):
             elif lang == "rust":
                 f.write('''    let mut {{T}}_sum : {{T}} = 0;
 '''.replace("{{T}}", typ))
+            elif lang == "zig":
+                f.write('''    var {{T}}_sum: {{T}} = 0;
+'''.replace("{{T}}", typ))
             elif lang == "go":
                 f.write('''    var {{T}}_sum {{T}} = 0;
 '''.replace("{{T}}", typ))
@@ -113,6 +122,10 @@ def generate_top(f_count, language, root_path='generated'):
 
         if lang == "rust":
             f.write('''    exit({{T}}_sum);
+}
+'''.replace('{{T}}', types[0]))
+        elif lang == "zig":
+            f.write('''
 }
 '''.replace('{{T}}', types[0]))
         else:
@@ -143,7 +156,7 @@ if __name__ == '__main__':
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
-    languages = ["C", "C++", "D", "Rust", "Go"]
+    languages = ["C", "C++", "D", "Rust", "Zig", "Go"]
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
@@ -223,6 +236,15 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '-Z', 'no-codegen'])
         print()
 
+    # Zig
+    language = "Zig"
+    print(language + ":")
+    zig_ = shutil.which('zigc')
+    if zig_ is not None:
+        if language not in compilers: compilers[language] = zig_
+        spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])
+        print()
+
     print("Speedups" + ":")
 
     # pprint(spans)
@@ -233,3 +255,4 @@ if __name__ == '__main__':
     print_speedup(from_lang="D", to_lang="Clang++")
     print_speedup(from_lang="D", to_lang="Go")
     print_speedup(from_lang="D", to_lang="Rust")
+    print_speedup(from_lang="D", to_lang="Zig")
