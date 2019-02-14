@@ -13,11 +13,13 @@ or
 
 .
 
-This will generate code into the directory `generated` and then perform
-benchmarks of the standard way for a compiler to check that generated for
-lexical, syntactic and in most case also semantic checks. Notice that GCC and
-Clang doesn't perform all semantic checks (because it's too costly). This is in
-contrast to D's and Rust's compilers that performs all of them.
+This will generate code into the directory `generated` and then, for each
+compiler, benchmark the standard way for that compiler to check for lexical,
+syntactic and (in most cases also) semantic errors.
+
+Note that GCC and Clang doesn't perform all semantic checks for C++ (because
+it's too costly). This is in contrast to D's and Rust's compilers that perform
+all of them.
 
 ## TODO
 
