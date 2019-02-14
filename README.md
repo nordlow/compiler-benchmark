@@ -21,4 +21,4 @@ contrast to D's and Rust's compilers that performs all of them.
 
 ## TODO
 
-Add languages Zig and Julia.
+Add languages Zig, Julia, Java.
