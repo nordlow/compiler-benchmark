@@ -13,8 +13,11 @@ or
 
 .
 
-This will generated code into a new directory `generated/** and then benchmark
-checks on that code and print the results to standard output.
+This will generate code into the directory `generated` and then perform
+benchmarks of the standard way for a compiler to check that generated for
+lexical, syntactic and in most case also semantic checks. Notice that GCC and
+Clang doesn't perform all semantic checks (because it's too costly). This is in
+contrast to D's and Rust's compilers that performs all of them.
 
 ## TODO
 
