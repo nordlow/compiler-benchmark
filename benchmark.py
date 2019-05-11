@@ -249,8 +249,8 @@ if __name__ == '__main__':
 
     # pprint(spans)
 
-    print_speedup(from_lang="D", to_lang="gcc-8")
-    print_speedup(from_lang="D", to_lang="g++-8")
+    print_speedup(from_lang="D", to_lang="gcc-9")
+    print_speedup(from_lang="D", to_lang="g++-9")
     print_speedup(from_lang="D", to_lang="Clang")
     print_speedup(from_lang="D", to_lang="Clang++")
     print_speedup(from_lang="D", to_lang="Go")
