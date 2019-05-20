@@ -197,7 +197,7 @@ main()
 
 def print_speedup(from_lang, to_lang):
     if (from_lang in spans and to_lang in spans):
-        print("- {} to {}: {:.2f}".format(from_lang, to_lang, spans[to_lang] / spans[from_lang]))
+        print("- Speedup of {} over {}: {:.2f}".format(from_lang, to_lang, spans[to_lang] / spans[from_lang]))
 
 
 if __name__ == '__main__':
@@ -272,9 +272,9 @@ if __name__ == '__main__':
 
     # Go
     language = "Go"
-    print(language + ":")
     gccgo_ = shutil.which('gccgo')
     if gccgo_ is not None:
+        print(language + ":")
         if language not in compilers: compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
         print_speedup(from_lang="D", to_lang="Go")
@@ -282,9 +282,9 @@ if __name__ == '__main__':
 
     # Rust
     language = "Rust"
-    print(language + ":")
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
+        print(language + ":")
         if language not in compilers: compilers[language] = rustc_
         # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
         # Alternatives:
@@ -297,9 +297,9 @@ if __name__ == '__main__':
 
     # Julia
     language = "Julia"
-    print(language + ":")
     julia_ = shutil.which('julia')
     if julia_ is not None:
+        print(language + ":")
         if language not in compilers: compilers[language] = julia_
         # See: https://stackoverflow.com/questions/53250631/does-julia-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
         # Alternatives:
