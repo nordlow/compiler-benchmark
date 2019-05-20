@@ -53,15 +53,38 @@ def generate_top(f_count, language, root_path='generated'):
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, "foo." + ext)
     start = timer()
+
     with open(path, 'w') as f:
-        if language == "Go":
+
+        # package definition
+        if lang == "go":
             f.write('''package foo;
 
 ''')
-        elif language == "Rust":
-            f.write('''use std::process::exit;
+
+        # standard io module
+        if lang in ["c"]:
+            f.write('''#include <stdio.h>
+''')
+        if lang in ["c++"]:
+            f.write('''#include <iostream>
+''')
+        if lang == "d":
+            f.write('''import std.stdio;
+''')
+        if lang == "rust":
+            f.write('''use std::io;
+''')
+        if lang == "go":
+            f.write('''import "fmt";
 
 ''')
+
+        # special modules
+        if lang == "rust":
+            f.write('''use std::process::exit;
+''')
+
         for typ in types:
             for n in range(0, f_count):
                 if lang in ["c", "c++", "d"]:
