@@ -23,4 +23,4 @@ all of them.
 
 ## TODO
 
-Add languages Zig, Julia, Java.
+Add languages Zig, Java.
