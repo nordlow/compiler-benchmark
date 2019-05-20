@@ -188,7 +188,7 @@ main()
 
     end = timer()
     span = (end - start) # time span
-    print("Generating {} took {:1.3f} seconds ({})".format(path, span, language))
+    print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
 
     # print("Generated {} source file: {}".format(language.upper(), path))
 
@@ -201,7 +201,7 @@ def print_speedup(from_lang, to_lang):
 
 
 if __name__ == '__main__':
-    f_count = 50000
+    f_count = 100000
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -220,6 +220,21 @@ if __name__ == '__main__':
         gpaths[language] = generate_top(f_count=f_count, language=language)
     print()
 
+    # D
+    language = "D"
+    print(language + ":")
+    # DMD
+    dmd_ = shutil.which('dmd')
+    if dmd_ is not None:
+        if language not in compilers: compilers[language] = dmd_
+        spans[language] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
+        # LDC
+    ldc_ = shutil.which('ldmd2')
+    if ldc_ is not None:
+        if language not in compilers: compilers[language] = ldc_
+        spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
+        print()
+
     # Clang
     print("Clang:")
     for clang_version in CLANG_VERSIONS:
@@ -233,6 +248,8 @@ if __name__ == '__main__':
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
             spans["Clang++"] = compile_file(path=gpaths["C++"], args=[clangxx_] + C_CLANG_FLAGS)
+    print_speedup(from_lang="D", to_lang="Clang")
+    print_speedup(from_lang="D", to_lang="Clang++")
     print()
 
     # C GCC
@@ -249,21 +266,8 @@ if __name__ == '__main__':
         if gxx_ is not None:
             spans[gxx_] = compile_file(path=gpaths["C++"], args=[gxx_] + C_FLAGS)
             spans["g++-" + str(gcc_version)] = spans[gxx_]
-    print()
-
-    # D
-    language = "D"
-    print(language + ":")
-    # DMD
-    dmd_ = shutil.which('dmd')
-    if dmd_ is not None:
-        if language not in compilers: compilers[language] = dmd_
-        spans[language] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
-    # LDC
-    ldc_ = shutil.which('ldmd2')
-    if ldc_ is not None:
-        if language not in compilers: compilers[language] = ldc_
-        spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
+    print_speedup(from_lang="D", to_lang="gcc-9")
+    print_speedup(from_lang="D", to_lang="g++-9")
     print()
 
     # Go
@@ -273,6 +277,7 @@ if __name__ == '__main__':
     if gccgo_ is not None:
         if language not in compilers: compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
+        print_speedup(from_lang="D", to_lang="Go")
         print()
 
     # Rust
@@ -287,6 +292,7 @@ if __name__ == '__main__':
         # - Not yet in stable: `rustc -Z no-codegen`
         # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '-Z', 'no-codegen'])
+        print_speedup(from_lang="D", to_lang="Rust")
         print()
 
     # Julia
@@ -301,6 +307,7 @@ if __name__ == '__main__':
         # - Not yet in stable: `juliac -Z no-codegen`
         # - 'juliac', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths["Julia"], args=[julia_])
+        print_speedup(from_lang="D", to_lang="Julia")
         print()
 
     # Zig
@@ -310,17 +317,9 @@ if __name__ == '__main__':
     if zig_ is not None:
         if language not in compilers: compilers[language] = zig_
         spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])  # no syntax flag currently so compile to object file instead
+        print_speedup(from_lang="D", to_lang="Zig")
         print()
 
     print("Speedups" + ":")
 
     # pprint(spans)
-
-    print_speedup(from_lang="D", to_lang="gcc-9")
-    print_speedup(from_lang="D", to_lang="g++-9")
-    print_speedup(from_lang="D", to_lang="Clang")
-    print_speedup(from_lang="D", to_lang="Clang++")
-    print_speedup(from_lang="D", to_lang="Go")
-    print_speedup(from_lang="D", to_lang="Rust")
-    print_speedup(from_lang="D", to_lang="Zig")
-    print_speedup(from_lang="D", to_lang="Julia")
