@@ -104,7 +104,7 @@ def generate_top(f_count, language, root_path='generated'):
                     f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "julia":
-                    f.write('''function add_{{T}}_{{N}}(x: {{T}})::{{T}}
+                    f.write('''function add_{{T}}_{{N}}(x::{{T}})::{{T}}
     return x + {{N}}
 end;
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
@@ -129,7 +129,8 @@ end;
             f.write('''func main() {{T}} {
 '''.replace('{{T}}', types[0]))
         elif lang == "julia":
-            pass                # no main needed
+            f.write('''function main()::{{T}}
+'''.replace('{{T}}', types[0]))
         else:
             assert False
 
@@ -165,6 +166,12 @@ end;
             f.write('''
 }
 '''.replace('{{T}}', types[0]))
+        elif lang == "julia":
+            f.write('''    return {{T}}_sum;
+end
+
+main()
+'''.replace('{{T}}', types[0]))
         else:
             f.write('''    return {{T}}_sum;
 }
@@ -185,7 +192,7 @@ def print_speedup(from_lang, to_lang):
 
 
 if __name__ == '__main__':
-    f_count = 50000
+    f_count = 5
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
