@@ -42,10 +42,14 @@ def generate_top(f_count, language, root_path='generated'):
         types = ["i32"]
     elif lang == "go":
         types = ["int32"]
+    elif lang == "julia":
+        types = ["Int32"]
 
     # extensions by language
     if lang == "rust":
         ext = "rs"
+    elif lang == "julia":
+        ext = "jl"
     else:
         ext = lang
 
@@ -99,6 +103,11 @@ def generate_top(f_count, language, root_path='generated'):
                 elif lang == "go":
                     f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "julia":
+                    f.write('''function add_{{T}}_{{N}}(x: {{T}})::{{T}}
+    return x + {{N}}
+end;
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
 
         # MAIN HEADER
@@ -119,6 +128,8 @@ def generate_top(f_count, language, root_path='generated'):
         elif lang == "go":
             f.write('''func main() {{T}} {
 '''.replace('{{T}}', types[0]))
+        elif lang == "julia":
+            pass                # no main needed
         else:
             assert False
 
@@ -135,6 +146,9 @@ def generate_top(f_count, language, root_path='generated'):
 '''.replace("{{T}}", typ))
             elif lang == "go":
                 f.write('''    var {{T}}_sum {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "julia":
+                f.write('''    {{T}}_sum::{{T}} = 0;
 '''.replace("{{T}}", typ))
             else:
                 assert False
@@ -179,7 +193,7 @@ if __name__ == '__main__':
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
-    languages = ["C", "C++", "D", "Rust", "Zig", "Go"]
+    languages = ["C", "C++", "D", "Rust", "Zig", "Go", "Julia"]
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
@@ -245,6 +259,20 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
         print()
 
+    # Julia
+    language = "Julia"
+    print(language + ":")
+    julia_ = shutil.which('julia')
+    if julia_ is not None:
+        if language not in compilers: compilers[language] = julia_
+        # See: https://stackoverflow.com/questions/53250631/does-julia-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
+        # Alternatives:
+        # - `juliac --emit=metadata -Z no-codegen`
+        # - Not yet in stable: `juliac -Z no-codegen`
+        # - 'juliac', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
+        spans[language] = compile_file(path=gpaths["Julia"], args=[julia_])
+        print()
+
     # Rust
     language = "Rust"
     print(language + ":")
@@ -279,3 +307,4 @@ if __name__ == '__main__':
     print_speedup(from_lang="D", to_lang="Go")
     print_speedup(from_lang="D", to_lang="Rust")
     print_speedup(from_lang="D", to_lang="Zig")
+    print_speedup(from_lang="D", to_lang="Julia")
