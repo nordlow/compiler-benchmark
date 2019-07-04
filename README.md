@@ -5,11 +5,11 @@ compilers, currently C, C++, D, Go and Rust.
 
 Just run as
 
-    ./benchmark.py
+    ./benchmark
 
 or
 
-    python3 benchmark.py
+    python3 benchmark
 
 .
 
