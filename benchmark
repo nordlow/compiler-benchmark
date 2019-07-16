@@ -58,15 +58,15 @@ def file_ext_of_lang(lang):
 
 def generate_test_program_1(f_count, language, root_path='generated'):
     program_name = "sample1"
+
     lang = language.lower()
     types = long_types_of_lang(lang)
     ext = file_ext_of_lang(lang)
-
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, program_name + "." + ext)
-    start = timer()
 
+    start = timer()
     with open(path, 'w') as f:
 
         # package definition
@@ -204,15 +204,15 @@ main()
 
 def generate_test_program_2(f_count, language, root_path='generated'):
     program_name = "sample2"
+
     lang = language.lower()
     types = long_types_of_lang(lang)
     ext = file_ext_of_lang(lang)
-
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, program_name + "." + ext)
-    start = timer()
 
+    start = timer()
     with open(path, 'w') as f:
 
         # package definition
