@@ -97,7 +97,7 @@ def generate_top(f_count, language, root_path='generated'):
                     f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x + {{N}}; }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 if lang in ["d"]:
-                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x + {{N}}; }
+                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) pure { return x + {{N}}; }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "rust":
                     f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { x + {{N}} }
