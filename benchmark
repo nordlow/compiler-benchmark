@@ -32,7 +32,7 @@ def compile_file(path, args, run_count=1):
     return span
 
 
-def long_types_in_lang(lang):
+def long_types_of_lang(lang):
     if lang in ["c", "c++"]:
         return ["long"]
     elif lang in ["d"]:
@@ -47,18 +47,20 @@ def long_types_in_lang(lang):
         return None
 
 
+def file_ext_of_lang(lang):
+    if lang == "rust":
+        return "rs"
+    elif lang == "julia":
+        return "jl"
+    else:
+        return lang
+
+
 def generate_test_program_1(f_count, language, root_path='generated'):
     lang = language.lower()
 
-    types = long_types_in_lang(lang)
-
-    # extensions by language
-    if lang == "rust":
-        ext = "rs"
-    elif lang == "julia":
-        ext = "jl"
-    else:
-        ext = lang
+    types = long_types_of_lang(lang)
+    ext = file_ext_of_lang(lang)
 
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
@@ -204,7 +206,7 @@ def generate_test_program_2(f_count, language, root_path='generated'):
     lang = language.lower()
 
     # types by language
-    types = long_types_in_lang(lang)
+    types = long_types_of_lang(lang)
 
     # extensions by language
     if lang == "rust":
