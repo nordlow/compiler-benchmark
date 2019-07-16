@@ -32,7 +32,7 @@ def compile_file(path, args, run_count=1):
     return span
 
 
-def generate_top(f_count, language, root_path='generated'):
+def generate_test_program_1(f_count, language, root_path='generated'):
     lang = language.lower()
 
     # types by language
@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
     print("Code-generation:")
     for language in languages:
-        gpaths[language] = generate_top(f_count=f_count, language=language)
+        gpaths[language] = generate_test_program_1(f_count=f_count, language=language)
     print()
 
     # D
