@@ -32,20 +32,25 @@ def compile_file(path, args, run_count=1):
     return span
 
 
+def long_types_in_lang(lang):
+    if lang in ["c", "c++"]:
+        return ["long"]
+    elif lang in ["d"]:
+        return ["long"]
+    elif lang in ["rust", "zig"]:
+        return ["i64"]
+    elif lang == "go":
+        return ["int64"]
+    elif lang == "julia":
+        return ["Int64"]
+    else:
+        return None
+
+
 def generate_test_program_1(f_count, language, root_path='generated'):
     lang = language.lower()
 
-    # types by language
-    if lang in ["c", "c++"]:
-        types = ["long"]
-    if lang in ["d"]:
-        types = ["long"]
-    elif lang in ["rust", "zig"]:
-        types = ["i64"]
-    elif lang == "go":
-        types = ["int64"]
-    elif lang == "julia":
-        types = ["Int64"]
+    types = long_types_in_lang(lang)
 
     # extensions by language
     if lang == "rust":
@@ -57,14 +62,14 @@ def generate_test_program_1(f_count, language, root_path='generated'):
 
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
-    path = os.path.join(dir_path, "foo." + ext)
+    path = os.path.join(dir_path, "sample1." + ext)
     start = timer()
 
     with open(path, 'w') as f:
 
         # package definition
         if lang == "go":
-            f.write('''package foo;
+            f.write('''package sample1;
 
 ''')
 
@@ -114,6 +119,160 @@ def generate_test_program_1(f_count, language, root_path='generated'):
 end;
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
             f.write('\n')
+
+        # MAIN HEADER
+        if lang in ["c", "c++"]:
+            f.write('''int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
+{
+''')
+        elif lang == "d":
+            f.write('''int main(string[] args)
+{
+''')
+        elif lang == "rust":
+            f.write('''fn main() {
+'''.replace('{{T}}', types[0]))
+        elif lang == "zig":
+            f.write('''pub fn main() void {
+'''.replace('{{T}}', types[0]))
+        elif lang == "go":
+            f.write('''func main() {{T}} {
+'''.replace('{{T}}', types[0]))
+        elif lang == "julia":
+            f.write('''function main()::{{T}}
+'''.replace('{{T}}', types[0]))
+        else:
+            assert False
+
+        # CALCULATE
+        for typ in types:
+            if lang in ["c", "c++", "d"]:
+                f.write('''    {{T}} {{T}}_sum = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "rust":
+                f.write('''    let mut {{T}}_sum : {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "zig":
+                f.write('''    var {{T}}_sum: {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "go":
+                f.write('''    var {{T}}_sum {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "julia":
+                f.write('''    {{T}}_sum::{{T}} = 0;
+'''.replace("{{T}}", typ))
+            else:
+                assert False
+
+            for n in range(0, f_count):
+                f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+
+        if lang == "rust":
+            f.write('''    exit({{T}}_sum);
+}
+'''.replace('{{T}}', types[0]))
+        elif lang == "zig":
+            f.write('''
+}
+'''.replace('{{T}}', types[0]))
+        elif lang == "julia":
+            f.write('''    return {{T}}_sum;
+end
+
+main()
+'''.replace('{{T}}', types[0]))
+        elif lang == "d":
+            f.write('''    return cast(int){{T}}_sum;
+}
+'''.replace('{{T}}', types[0]))
+        else:
+            f.write('''    return {{T}}_sum;
+}
+'''.replace('{{T}}', types[0]))
+
+    end = timer()
+    span = (end - start) # time span
+    print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
+
+    # print("Generated {} source file: {}".format(language.upper(), path))
+
+    return path  # "-betterC"
+
+
+def generate_test_program_2(f_count, language, root_path='generated'):
+    lang = language.lower()
+
+    # types by language
+    types = long_types_in_lang(lang)
+
+    # extensions by language
+    if lang == "rust":
+        ext = "rs"
+    elif lang == "julia":
+        ext = "jl"
+    else:
+        ext = lang
+
+    dir_path = os.path.join(root_path, lang)
+    os.makedirs(dir_path, exist_ok=True)
+    path = os.path.join(dir_path, "sample2." + ext)
+    start = timer()
+
+    with open(path, 'w') as f:
+
+        # package definition
+        if lang == "go":
+            f.write('''package sample2;
+
+''')
+
+        # standard io module
+        if lang in ["c"]:
+            f.write('''#include <stdio.h>
+''')
+        if lang in ["c++"]:
+            f.write('''#include <iostream>
+''')
+        if lang == "d":
+            f.write('''import std.stdio;
+''')
+        if lang == "rust":
+            f.write('''use std::io;
+''')
+        if lang == "go":
+            f.write('''import "fmt";
+
+''')
+
+        # special modules
+        if lang == "rust":
+            f.write('''use std::process::exit;
+''')
+
+        for typ in types:
+            for n in range(0, f_count):
+                if lang in ["c", "c++"]:
+                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) { return x + {{N}}; }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                if lang in ["d"]:
+                    f.write('''{{T}} add_{{T}}_{{N}}({{T}} x) pure { return x + {{N}}; }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "rust":
+                    f.write('''fn add_{{T}}_{{N}}(x: {{T}}) -> {{T}} { x + {{N}} }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "zig":
+                    f.write('''fn add_{{T}}_{{N}}(x: {{T}}) {{T}} { return x + {{N}}; }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "go":
+                    f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "julia":
+                    f.write('''function add_{{T}}_{{N}}(x::{{T}})::{{T}}
+    return x + {{N}}
+end;
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                    f.write('\n')
 
         # MAIN HEADER
         if lang in ["c", "c++"]:
