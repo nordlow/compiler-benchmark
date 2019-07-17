@@ -76,22 +76,22 @@ def generate_test_program_1(f_count, language, root_path='generated'):
 ''')
 
         # standard io module
-        if lang in ["c"]:
-            f.write('''#include <stdio.h>
-''')
-        if lang in ["c++"]:
-            f.write('''#include <iostream>
-''')
-        if lang == "d":
-            f.write('''import std.stdio;
-''')
-        if lang == "rust":
-            f.write('''use std::io;
-''')
-        if lang == "go":
-            f.write('''import "fmt";
+#         if lang in ["c"]:
+#             f.write('''#include <stdio.h>
+# ''')
+#         if lang in ["c++"]:
+#             f.write('''#include <iostream>
+# ''')
+#         if lang == "d":
+#             f.write('''import std.stdio;
+# ''')
+#         if lang == "rust":
+#             f.write('''use std::io;
+# ''')
+#         if lang == "go":
+#             f.write('''import "fmt";
 
-''')
+# ''')
 
         # special modules
         if lang == "rust":
