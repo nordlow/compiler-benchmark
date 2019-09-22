@@ -37,7 +37,7 @@ def long_types_of_lang(lang):
         return ["long"]
     elif lang in ["d"]:
         return ["long"]
-    elif lang in ["rust", "zig"]:
+    elif lang in ["rust", "zig", "v"]:
         return ["i64"]
     elif lang == "go":
         return ["int64"]
@@ -115,6 +115,9 @@ def generate_test_program_1(f_count, language, root_path='generated'):
                 elif lang == "go":
                     f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "v":
+                    f.write('''fn add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "julia":
                     f.write('''function add_{{T}}_{{N}}(x::{{T}})::{{T}}
     return x + {{N}}
@@ -140,6 +143,9 @@ end;
         elif lang == "go":
             f.write('''func main() {{T}} {
 '''.replace('{{T}}', types[0]))
+        elif lang == "v":
+            f.write('''fn main() {{T}} {
+'''.replace('{{T}}', types[0]))
         elif lang == "julia":
             f.write('''function main()::{{T}}
 '''.replace('{{T}}', types[0]))
@@ -158,6 +164,9 @@ end;
                 f.write('''    var {{T}}_sum: {{T}} = 0;
 '''.replace("{{T}}", typ))
             elif lang == "go":
+                f.write('''    var {{T}}_sum {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "v":
                 f.write('''    var {{T}}_sum {{T}} = 0;
 '''.replace("{{T}}", typ))
             elif lang == "julia":
@@ -261,6 +270,9 @@ def generate_test_program_2(f_count, language, root_path='generated'):
                 elif lang == "go":
                     f.write('''func add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
 '''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                elif lang == "v":
+                    f.write('''fn add_{{T}}_{{N}}(x {{T}}) {{T}} { return x + {{N}} }
+'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
                 elif lang == "julia":
                     f.write('''function add_{{T}}_{{N}}(x::{{T}})::{{T}}
     return x + {{N}}
@@ -286,6 +298,9 @@ end;
         elif lang == "go":
             f.write('''func main() {{T}} {
 '''.replace('{{T}}', types[0]))
+        elif lang == "v":
+            f.write('''fn main() {{T}} {
+'''.replace('{{T}}', types[0]))
         elif lang == "julia":
             f.write('''function main()::{{T}}
 '''.replace('{{T}}', types[0]))
@@ -304,6 +319,9 @@ end;
                 f.write('''    var {{T}}_sum: {{T}} = 0;
 '''.replace("{{T}}", typ))
             elif lang == "go":
+                f.write('''    var {{T}}_sum {{T}} = 0;
+'''.replace("{{T}}", typ))
+            elif lang == "v":
                 f.write('''    var {{T}}_sum {{T}} = 0;
 '''.replace("{{T}}", typ))
             elif lang == "julia":
@@ -362,7 +380,7 @@ if __name__ == '__main__':
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
-    languages = ["C", "C++", "D", "Rust", "Zig", "Go", "Julia"]
+    languages = ["C", "C++", "D", "Rust", "Zig", "Go", "V", "Julia"]
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
@@ -431,6 +449,16 @@ if __name__ == '__main__':
         if language not in compilers: compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
         print_speedup(from_lang="D", to_lang="Go")
+        print()
+
+    # V
+    language = "V"
+    gccv_ = shutil.which('~/Work/v/v')
+    if gccv_ is not None:
+        print(language + ":")
+        if language not in compilers: compilers[language] = gccv_
+        spans[language] = compile_file(path=gpaths[language], args=[gccv_])
+        print_speedup(from_lang="D", to_lang="V")
         print()
 
     # Rust
