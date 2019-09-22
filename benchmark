@@ -18,6 +18,7 @@ def compile_file(path, args, run_count=1):
     start = timer()
     # subprocess.call(args)
     for _ in range(0, run_count):
+        print(args + [path])
         with subprocess.Popen(args + [path],
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
@@ -144,7 +145,7 @@ end;
             f.write('''func main() {{T}} {
 '''.replace('{{T}}', types[0]))
         elif lang == "v":
-            f.write('''fn main() {{T}} {
+            f.write('''fn main() {
 '''.replace('{{T}}', types[0]))
         elif lang == "julia":
             f.write('''function main()::{{T}}
@@ -167,7 +168,7 @@ end;
                 f.write('''    var {{T}}_sum {{T}} = 0;
 '''.replace("{{T}}", typ))
             elif lang == "v":
-                f.write('''    var {{T}}_sum {{T}} = 0;
+                f.write('''    mut {{T}}_sum := {{T}}(0)
 '''.replace("{{T}}", typ))
             elif lang == "julia":
                 f.write('''    {{T}}_sum::{{T}} = 0;
@@ -176,8 +177,10 @@ end;
                 assert False
 
             for n in range(0, f_count):
-                f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}});
-'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                f.write('''    {{T}}_sum += add_{{T}}_{{N}}({{N}})'''.replace("{{T}}", typ).replace("{{N}}", str(n)))
+                if lang not in ["v"]:
+                    f.write(';')
+                f.write('\n')
 
         if lang == "rust":
             f.write('''    exit({{T}}_sum);
@@ -372,7 +375,7 @@ def print_speedup(from_lang, to_lang):
 
 
 if __name__ == '__main__':
-    f_count = 50000
+    f_count = 1
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
