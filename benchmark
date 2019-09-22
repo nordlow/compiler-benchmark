@@ -406,6 +406,16 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
         print()
 
+    # V
+    language = "V"
+    v_ = os.path.expanduser('~/Work/v/v')
+    if v_ is not None:
+        print(language + ":")
+        if language not in compilers: compilers[language] = v_
+        spans[language] = compile_file(path=gpaths[language], args=[v_, 'build'])
+        print_speedup(from_lang="D", to_lang="V")
+        print()
+
     # Clang
     print("Clang:")
     for clang_version in CLANG_VERSIONS:
@@ -449,16 +459,6 @@ if __name__ == '__main__':
         if language not in compilers: compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
         print_speedup(from_lang="D", to_lang="Go")
-        print()
-
-    # V
-    language = "V"
-    gccv_ = shutil.which('~/Work/v/v')
-    if gccv_ is not None:
-        print(language + ":")
-        if language not in compilers: compilers[language] = gccv_
-        spans[language] = compile_file(path=gpaths[language], args=[gccv_])
-        print_speedup(from_lang="D", to_lang="V")
         print()
 
     # Rust
