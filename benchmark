@@ -72,9 +72,9 @@ def generate_test_program_1(f_count, language, root_path='generated'):
 
         # package definition
         if lang == "go":
-            f.write('''package ''' + program_name + ''';
-
-''')
+            f.write('''package ''' + program_name + ''';\n\n''')
+        if lang == "v":
+            f.write('''import os\n\n''')
 
         # standard io module
 #         if lang in ["c"]:
@@ -186,6 +186,9 @@ end;
             f.write('''    exit({{T}}_sum);
 }
 '''.replace('{{T}}', types[0]))
+        elif lang == "v":
+            f.write('''    exit(int({{T}}_sum))\n}
+'''.replace('{{T}}', types[0]))
         elif lang == "zig":
             f.write('''
 }
@@ -249,6 +252,9 @@ def generate_test_program_2(f_count, language, root_path='generated'):
         if lang == "go":
             f.write('''import "fmt";
 
+''')
+        if lang == "v":
+            f.write('''import os
 ''')
 
         # special modules
