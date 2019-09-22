@@ -406,7 +406,7 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
         print()
 
-    # V
+    # V (vlang.io)
     language = "V"
     v_ = os.path.expanduser('~/Work/v/v')
     if v_ is not None:
