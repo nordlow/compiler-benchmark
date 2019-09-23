@@ -18,7 +18,6 @@ def compile_file(path, args, run_count=1):
     start = timer()
     # subprocess.call(args)
     for _ in range(0, run_count):
-        print(args + [path])
         with subprocess.Popen(args + [path],
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
