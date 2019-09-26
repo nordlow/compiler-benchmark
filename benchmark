@@ -102,8 +102,14 @@ def generate_test_program_1(f_count, language, root_path='generated',
 
         for typ in types:
             for n in range(0, f_count):
-                if lang in ["c", "c++"]:
+                if lang in ["c"]:
                     f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+                elif lang in ["c++"]:
+                    f.write(Tm('${X}${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n')
+                            .substitute(T=typ,
+                                        N=str(n),
+                                        X='template<typename T=int> ' if templated_function else ''))
+                    # template<typename T1, typename T2 = int> class A;
                 if lang in ["d"]:
                     f.write(Tm('${T} add_${T}_${N}${X}(${T} x) pure { return x + ${N}; }\n')
                             .substitute(T=typ,
@@ -401,16 +407,6 @@ if __name__ == '__main__':
         spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
         print()
 
-    # V (vlang.io)
-    language = "V"
-    v_ = os.path.expanduser('~/Work/v/v')
-    if v_ is not None:
-        print(language + ":")
-        if language not in compilers: compilers[language] = v_
-        spans[language] = compile_file(path=gpaths[language], args=[v_, 'build'])
-        print_speedup(from_lang="D", to_lang="V")
-        print()
-
     # Clang
     print("Clang:")
     for clang_version in CLANG_VERSIONS:
@@ -471,6 +467,16 @@ if __name__ == '__main__':
         print_speedup(from_lang="D", to_lang="Rust")
         print()
 
+    # Zig
+    language = "Zig"
+    print(language + ":")
+    zig_ = shutil.which('zig')
+    if zig_ is not None:
+        if language not in compilers: compilers[language] = zig_
+        spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])  # no syntax flag currently so compile to object file instead
+        print_speedup(from_lang="D", to_lang="Zig")
+        print()
+
     # Julia
     language = "Julia"
     julia_ = shutil.which('julia')
@@ -486,14 +492,14 @@ if __name__ == '__main__':
         print_speedup(from_lang="D", to_lang="Julia")
         print()
 
-    # Zig
-    language = "Zig"
-    print(language + ":")
-    zig_ = shutil.which('zig')
-    if zig_ is not None:
-        if language not in compilers: compilers[language] = zig_
-        spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])  # no syntax flag currently so compile to object file instead
-        print_speedup(from_lang="D", to_lang="Zig")
+    # V (vlang.io)
+    language = "V"
+    v_ = os.path.expanduser('~/Work/v/v')
+    if v_ is not None:
+        print(language + ":")
+        if language not in compilers: compilers[language] = v_
+        spans[language] = compile_file(path=gpaths[language], args=[v_, 'build'])
+        print_speedup(from_lang="D", to_lang="V")
         print()
 
     print("Speedups" + ":")
