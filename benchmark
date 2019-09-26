@@ -3,7 +3,7 @@
 
 import subprocess
 import os.path
-from string import Template
+from string import Template as Tm
 from timeit import default_timer as timer
 import shutil
 from pprint import pprint
@@ -102,20 +102,20 @@ def generate_test_program_1(f_count, language, root_path='generated'):
         for typ in types:
             for n in range(0, f_count):
                 if lang in ["c", "c++"]:
-                    f.write(Template('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+                    f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
                 if lang in ["d"]:
-                    f.write(Template('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
+                    f.write(Tm('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "rust":
-                    f.write(Template('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(n)))
+                    f.write(Tm('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "zig":
-                    f.write(Template('fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+                    f.write(Tm('fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
                 elif lang == "go":
-                    f.write(Template('func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
+                    f.write(Tm('func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "v":
-                    f.write(Template('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
+                    f.write(Tm('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "julia":
-                    f.write(Template('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(n)))
+                    f.write(Tm('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(n)))
             f.write('\n')
 
         # MAIN HEADER
@@ -124,70 +124,70 @@ def generate_test_program_1(f_count, language, root_path='generated'):
         elif lang == "d":
             f.write('int main(string[] args) {\n')
         elif lang == "rust":
-            f.write(Template('fn main() {\n').substitute(T=types[0]))
+            f.write(Tm('fn main() {\n').substitute(T=types[0]))
         elif lang == "zig":
-            f.write(Template('pub fn main() void {\n').substitute(T=types[0]))
+            f.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
         elif lang == "go":
-            f.write(Template('func main() ${T} {\n').substitute(T=types[0]))
+            f.write(Tm('func main() ${T} {\n').substitute(T=types[0]))
         elif lang == "v":
-            f.write(Template('fn main() {\n').substitute(T=types[0]))
+            f.write(Tm('fn main() {\n').substitute(T=types[0]))
         elif lang == "julia":
-            f.write(Template('function main()::${T}\n').substitute(T=types[0]))
+            f.write(Tm('function main()::${T}\n').substitute(T=types[0]))
         else:
             assert False
 
         # CALCULATE
         for typ in types:
             if lang in ["c", "c++", "d"]:
-                f.write(Template('''    ${T} ${T}_sum = 0;
+                f.write(Tm('''    ${T} ${T}_sum = 0;
 ''').substitute(T=typ))
             elif lang == "rust":
-                f.write(Template('''    let mut ${T}_sum : ${T} = 0;
+                f.write(Tm('''    let mut ${T}_sum : ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "zig":
-                f.write(Template('''    var ${T}_sum: ${T} = 0;
+                f.write(Tm('''    var ${T}_sum: ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "go":
-                f.write(Template('''    var ${T}_sum ${T} = 0;
+                f.write(Tm('''    var ${T}_sum ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "v":
-                f.write(Template('''    mut ${T}_sum := ${T}(0)
+                f.write(Tm('''    mut ${T}_sum := ${T}(0)
 ''').substitute(T=typ))
             elif lang == "julia":
-                f.write(Template('''    ${T}_sum::${T} = 0;
+                f.write(Tm('''    ${T}_sum::${T} = 0;
 ''').substitute(T=typ))
             else:
                 assert False
 
             for n in range(0, f_count):
-                f.write(Template('''    ${T}_sum += add_${T}_${N}(${N})''').substitute(T=typ, N=str(n)))
+                f.write(Tm('''    ${T}_sum += add_${T}_${N}(${N})''').substitute(T=typ, N=str(n)))
                 if lang not in ["v"]:
                     f.write(';')
                 f.write('\n')
 
         if lang == "rust":
-            f.write(Template('''    exit(${T}_sum);
+            f.write(Tm('''    exit(${T}_sum);
 }
 ''').substitute(T=types[0]))
         elif lang == "v":
-            f.write(Template('''    exit(int(${T}_sum))\n}
+            f.write(Tm('''    exit(int(${T}_sum))\n}
 ''').substitute(T=types[0]))
         elif lang == "zig":
-            f.write(Template('''
+            f.write(Tm('''
 }
 ''').substitute(T=types[0]))
         elif lang == "julia":
-            f.write(Template('''    return ${T}_sum;
+            f.write(Tm('''    return ${T}_sum;
 end
 
 main()
 ''').substitute(T=types[0]))
         elif lang == "d":
-            f.write(Template('''    return cast(int)${T}_sum;
+            f.write(Tm('''    return cast(int)${T}_sum;
 }
 ''').substitute(T=types[0]))
         else:
-            f.write(Template('''    return ${T}_sum;
+            f.write(Tm('''    return ${T}_sum;
 }
 ''').substitute(T=types[0]))
 
@@ -248,25 +248,25 @@ def generate_test_program_2(f_count, language, root_path='generated'):
         for typ in types:
             for n in range(0, f_count):
                 if lang in ["c", "c++"]:
-                    f.write(Template('''${T} add_${T}_${N}(${T} x) { return x + ${N}; }
+                    f.write(Tm('''${T} add_${T}_${N}(${T} x) { return x + ${N}; }
 ''').substitute(T=typ, N=str(n)))
                 if lang in ["d"]:
-                    f.write(Template('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
+                    f.write(Tm('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "rust":
-                    f.write(Template('''fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }
+                    f.write(Tm('''fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "zig":
-                    f.write(Template('''fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }
+                    f.write(Tm('''fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "go":
-                    f.write(Template('''func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
+                    f.write(Tm('''func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "v":
-                    f.write(Template('''fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
+                    f.write(Tm('''fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "julia":
-                    f.write(Template('''function add_${T}_${N}(x::${T})::${T}
+                    f.write(Tm('''function add_${T}_${N}(x::${T})::${T}
     return x + ${N}
 end;
 ''').substitute(T=typ, N=str(n)))
@@ -282,19 +282,19 @@ end;
 {
 ''')
         elif lang == "rust":
-            f.write(Template('''fn main() {
+            f.write(Tm('''fn main() {
 ''').substitute(T=types[0]))
         elif lang == "zig":
-            f.write(Template('''pub fn main() void {
+            f.write(Tm('''pub fn main() void {
 ''').substitute(T=types[0]))
         elif lang == "go":
-            f.write(Template('''func main() ${T} {
+            f.write(Tm('''func main() ${T} {
 ''').substitute(T=types[0]))
         elif lang == "v":
-            f.write(Template('''fn main() ${T} {
+            f.write(Tm('''fn main() ${T} {
 ''').substitute(T=types[0]))
         elif lang == "julia":
-            f.write(Template('''function main()::${T}
+            f.write(Tm('''function main()::${T}
 ''').substitute(T=types[0]))
         else:
             assert False
@@ -302,50 +302,50 @@ end;
         # CALCULATE
         for typ in types:
             if lang in ["c", "c++", "d"]:
-                f.write(Template('''    ${T} ${T}_sum = 0;
+                f.write(Tm('''    ${T} ${T}_sum = 0;
 ''').substitute(T=typ))
             elif lang == "rust":
-                f.write(Template('''    let mut ${T}_sum : ${T} = 0;
+                f.write(Tm('''    let mut ${T}_sum : ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "zig":
-                f.write(Template('''    var ${T}_sum: ${T} = 0;
+                f.write(Tm('''    var ${T}_sum: ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "go":
-                f.write(Template('''    var ${T}_sum ${T} = 0;
+                f.write(Tm('''    var ${T}_sum ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "v":
-                f.write(Template('''    var ${T}_sum ${T} = 0;
+                f.write(Tm('''    var ${T}_sum ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "julia":
-                f.write(Template('''    ${T}_sum::${T} = 0;
+                f.write(Tm('''    ${T}_sum::${T} = 0;
 ''').substitute(T=typ))
             else:
                 assert False
 
             for n in range(0, f_count):
-                f.write(Template('''    ${T}_sum += add_${T}_${N}(${N});
+                f.write(Tm('''    ${T}_sum += add_${T}_${N}(${N});
 ''').substitute(T=typ, N=str(n)))
 
         if lang == "rust":
-            f.write(Template('''    exit(${T}_sum);
+            f.write(Tm('''    exit(${T}_sum);
 }
 ''').substitute(T=types[0]))
         elif lang == "zig":
-            f.write(Template('''
+            f.write(Tm('''
 }
 ''').substitute(T=types[0]))
         elif lang == "julia":
-            f.write(Template('''    return ${T}_sum;
+            f.write(Tm('''    return ${T}_sum;
 end
 
 main()
 ''').substitute(T=types[0]))
         elif lang == "d":
-            f.write(Template('''    return cast(int)${T}_sum;
+            f.write(Tm('''    return cast(int)${T}_sum;
 }
 ''').substitute(T=types[0]))
         else:
-            f.write(Template('''    return ${T}_sum;
+            f.write(Tm('''    return ${T}_sum;
 }
 ''').substitute(T=types[0]))
 
