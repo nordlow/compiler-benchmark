@@ -107,48 +107,32 @@ def generate_test_program_1(f_count, language, root_path='generated'):
                     f.write(Template('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
 ''').substitute(T=typ, N=str(n)))
                 elif lang == "rust":
-                    f.write(Template('''fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }
-''').substitute(T=typ, N=str(n)))
+                    f.write(Template('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "zig":
-                    f.write(Template('''fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }
-''').substitute(T=typ, N=str(n)))
+                    f.write(Template('fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
                 elif lang == "go":
-                    f.write(Template('''func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
-''').substitute(T=typ, N=str(n)))
+                    f.write(Template('func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "v":
-                    f.write(Template('''fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
-''').substitute(T=typ, N=str(n)))
+                    f.write(Template('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "julia":
-                    f.write(Template('''function add_${T}_${N}(x::${T})::${T}
-    return x + ${N}
-end;
-''').substitute(T=typ, N=str(n)))
+                    f.write(Template('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(n)))
             f.write('\n')
 
         # MAIN HEADER
         if lang in ["c", "c++"]:
-            f.write('''int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
-{
-''')
+            f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
         elif lang == "d":
-            f.write('''int main(string[] args)
-{
-''')
+            f.write('int main(string[] args) {\n')
         elif lang == "rust":
-            f.write(Template('''fn main() {
-''').substitute(T=types[0]))
+            f.write(Template('fn main() {\n').substitute(T=types[0]))
         elif lang == "zig":
-            f.write(Template('''pub fn main() void {
-''').substitute(T=types[0]))
+            f.write(Template('pub fn main() void {\n').substitute(T=types[0]))
         elif lang == "go":
-            f.write(Template('''func main() ${T} {
-''').substitute(T=types[0]))
+            f.write(Template('func main() ${T} {\n').substitute(T=types[0]))
         elif lang == "v":
-            f.write(Template('''fn main() {
-''').substitute(T=types[0]))
+            f.write(Template('fn main() {\n').substitute(T=types[0]))
         elif lang == "julia":
-            f.write(Template('''function main()::${T}
-''').substitute(T=types[0]))
+            f.write(Template('function main()::${T}\n').substitute(T=types[0]))
         else:
             assert False
 
