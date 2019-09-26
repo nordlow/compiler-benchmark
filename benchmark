@@ -57,7 +57,8 @@ def file_ext_of_lang(lang):
         return lang
 
 
-def generate_test_program_1(f_count, language, root_path='generated'):
+def generate_test_program_1(f_count, language, root_path='generated',
+                            templated_function=False):
     program_name = "sample1"
 
     lang = language.lower()
@@ -104,8 +105,10 @@ def generate_test_program_1(f_count, language, root_path='generated'):
                 if lang in ["c", "c++"]:
                     f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
                 if lang in ["d"]:
-                    f.write(Tm('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
-''').substitute(T=typ, N=str(n)))
+                    f.write(Tm('${T} add_${T}_${N}${X}(${T} x) pure { return x + ${N}; }\n')
+                            .substitute(T=typ,
+                                        N=str(n),
+                                        X='(alias T=void)' if templated_function else ''))
                 elif lang == "rust":
                     f.write(Tm('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(n)))
                 elif lang == "zig":
