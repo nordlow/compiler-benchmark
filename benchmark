@@ -73,9 +73,9 @@ def generate_test_program_1(f_count, language, root_path='generated',
 
         # package definition
         if lang == "go":
-            f.write('''package ''' + program_name + ''';\n\n''')
+            f.write('package ' + program_name + ';\n\n')
         if lang == "v":
-            f.write('''import os\n\n''')
+            f.write('import os\n\n')
 
         # standard io module
 #         if lang in ["c"]:
@@ -97,8 +97,7 @@ def generate_test_program_1(f_count, language, root_path='generated',
 
         # special modules
         if lang == "rust":
-            f.write('''use std::process::exit;
-''')
+            f.write('use std::process::exit;\n')
 
         for typ in types:
             for n in range(0, f_count):
@@ -148,43 +147,32 @@ def generate_test_program_1(f_count, language, root_path='generated',
         # CALCULATE
         for typ in types:
             if lang in ["c", "c++", "d"]:
-                f.write(Tm('''    ${T} ${T}_sum = 0;
-''').substitute(T=typ))
+                f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
             elif lang == "rust":
-                f.write(Tm('''    let mut ${T}_sum : ${T} = 0;
-''').substitute(T=typ))
+                f.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
             elif lang == "zig":
-                f.write(Tm('''    var ${T}_sum: ${T} = 0;
-''').substitute(T=typ))
+                f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
             elif lang == "go":
-                f.write(Tm('''    var ${T}_sum ${T} = 0;
-''').substitute(T=typ))
+                f.write(Tm('    var ${T}_sum ${T} = 0;\n').substitute(T=typ))
             elif lang == "v":
-                f.write(Tm('''    mut ${T}_sum := ${T}(0)
-''').substitute(T=typ))
+                f.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
             elif lang == "julia":
-                f.write(Tm('''    ${T}_sum::${T} = 0;
-''').substitute(T=typ))
+                f.write(Tm('    ${T}_sum::${T} = 0;\n').substitute(T=typ))
             else:
                 assert False
 
             for n in range(0, f_count):
-                f.write(Tm('''    ${T}_sum += add_${T}_${N}(${N})''').substitute(T=typ, N=str(n)))
+                f.write(Tm('    ${T}_sum += add_${T}_${N}(${N})').substitute(T=typ, N=str(n)))
                 if lang not in ["v"]:
                     f.write(';')
                 f.write('\n')
 
         if lang == "rust":
-            f.write(Tm('''    exit(${T}_sum);
-}
-''').substitute(T=types[0]))
+            f.write(Tm('    exit(${T}_sum);\n}\n').substitute(T=types[0]))
         elif lang == "v":
-            f.write(Tm('''    exit(int(${T}_sum))\n}
-''').substitute(T=types[0]))
+            f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
         elif lang == "zig":
-            f.write(Tm('''
-}
-''').substitute(T=types[0]))
+            f.write(Tm('\n}\n').substitute(T=types[0]))
         elif lang == "julia":
             f.write(Tm('''    return ${T}_sum;
 end
