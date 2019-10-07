@@ -168,7 +168,7 @@ def generate_test_program_1(f_count, language, root_path='generated',
                 f.write('\n')
 
         if lang == "rust":
-            f.write(Tm('    exit(${T}_sum);\n}\n').substitute(T=types[0]))
+            f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
         elif lang == "v":
             f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
         elif lang == "zig":
