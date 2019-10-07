@@ -450,6 +450,7 @@ if __name__ == '__main__':
         if language not in compilers:
             compilers[language] = rustc_
         # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
+        # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
         # Alternatives:
         # - `rustc --emit=metadata -Z no-codegen`
         # - Not yet in stable: `rustc -Z no-codegen`
@@ -476,11 +477,6 @@ if __name__ == '__main__':
         print(language + ":")
         if language not in compilers:
             compilers[language] = julia_
-        # See: https://stackoverflow.com/questions/53250631/does-julia-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
-        # Alternatives:
-        # - `juliac --emit=metadata -Z no-codegen`
-        # - Not yet in stable: `juliac -Z no-codegen`
-        # - 'juliac', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths["Julia"], args=[julia_])
         print_speedup(from_lang="D", to_lang="Julia")
         print()
