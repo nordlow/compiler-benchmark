@@ -189,7 +189,7 @@ main()
 ''').substitute(T=types[0]))
 
     end = timer()
-    span = (end - start) # time span
+    span = (end - start)  # time span
     print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
 
     # print("Generated {} source file: {}".format(language.upper(), path))
@@ -347,7 +347,7 @@ main()
 ''').substitute(T=types[0]))
 
     end = timer()
-    span = (end - start) # time span
+    span = (end - start)  # time span
     print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
 
     # print("Generated {} source file: {}".format(language.upper(), path))
@@ -386,12 +386,14 @@ if __name__ == '__main__':
     # DMD
     dmd_ = shutil.which('dmd')
     if dmd_ is not None:
-        if language not in compilers: compilers[language] = dmd_
+        if language not in compilers:
+            compilers[language] = dmd_
         spans[language] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'])
         # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
-        if language not in compilers: compilers[language] = ldc_
+        if language not in compilers:
+            compilers[language] = ldc_
         spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'])
         print()
 
@@ -435,7 +437,8 @@ if __name__ == '__main__':
     gccgo_ = shutil.which('gccgo')
     if gccgo_ is not None:
         print(language + ":")
-        if language not in compilers: compilers[language] = gccgo_
+        if language not in compilers:
+            compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'])
         print_speedup(from_lang="D", to_lang="Go")
         print()
@@ -445,7 +448,8 @@ if __name__ == '__main__':
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
         print(language + ":")
-        if language not in compilers: compilers[language] = rustc_
+        if language not in compilers:
+            compilers[language] = rustc_
         # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
         # Alternatives:
         # - `rustc --emit=metadata -Z no-codegen`
@@ -460,7 +464,8 @@ if __name__ == '__main__':
     print(language + ":")
     zig_ = shutil.which('zig')
     if zig_ is not None:
-        if language not in compilers: compilers[language] = zig_
+        if language not in compilers:
+            compilers[language] = zig_
         spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'])  # no syntax flag currently so compile to object file instead
         print_speedup(from_lang="D", to_lang="Zig")
         print()
@@ -470,7 +475,8 @@ if __name__ == '__main__':
     julia_ = shutil.which('julia')
     if julia_ is not None:
         print(language + ":")
-        if language not in compilers: compilers[language] = julia_
+        if language not in compilers:
+            compilers[language] = julia_
         # See: https://stackoverflow.com/questions/53250631/does-julia-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
         # Alternatives:
         # - `juliac --emit=metadata -Z no-codegen`
@@ -485,7 +491,8 @@ if __name__ == '__main__':
     v_ = os.path.expanduser('~/Work/v/v')
     if v_ is not None:
         print(language + ":")
-        if language not in compilers: compilers[language] = v_
+        if language not in compilers:
+            compilers[language] = v_
         spans[language] = compile_file(path=gpaths[language], args=[v_, 'build'])
         print_speedup(from_lang="D", to_lang="V")
         print()
