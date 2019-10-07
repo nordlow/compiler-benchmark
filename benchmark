@@ -2,9 +2,9 @@
 
 import subprocess
 import os.path
+import shutil
 from string import Template as Tm
 from timeit import default_timer as timer
-import shutil
 
 
 def compile_file(path, args, run_count=1):
