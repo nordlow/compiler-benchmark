@@ -3,6 +3,11 @@
 Benchmarks compilation speeds of different combinations of languages and
 compilers, currently C, C++, D, Go, Rust, V, Zig and Julia.
 
+Note that Julia's JIT-compiler is very memory hungry. A maximum recommended
+`function-count` for Julia is 5000.
+
+## Sample run
+
 Just run as, for instance,
 
     ./benchmark --function-count=10000 --run-count=5
