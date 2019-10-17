@@ -31,7 +31,7 @@ all of them.
 
 The output on my laptop for the sample call
 
-    ./benchmark --function-count=50000 --run-count=5
+    ./benchmark --function-count=45000 --run-count=5
 
 results in the following output
 
