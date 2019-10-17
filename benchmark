@@ -192,8 +192,7 @@ def main():
         print_speedup(spans, from_lang="D", to_lang="Julia")
         print()
 
-    print("Speedups" + ":")
-
+    # print("Speedups" + ":")
     # pprint(spans)
 
 
