@@ -510,7 +510,9 @@ if __name__ == '__main__':
         print(language + ":")
         if language not in compilers:
             compilers[language] = julia_
-        spans[language] = compile_file(path=gpaths["Julia"], args=[julia_], run_count=run_count)
+        spans[language] = compile_file(path=gpaths["Julia"],
+                                       args=[julia_],
+                                       run_count=run_count)
         print_speedup(from_lang="D", to_lang="Julia")
         print()
 
