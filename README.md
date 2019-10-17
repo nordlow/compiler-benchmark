@@ -5,11 +5,11 @@ compilers, currently C, C++, D, Go, Rust, V, Zig and Julia.
 
 Just run as, for instance,
 
-    ./benchmark --function-count=10000 --run-counnt=5
+    ./benchmark --function-count=10000 --run-count=5
 
 or
 
-    python3 benchmark
+    python3 benchmark --function-count=10000 --run-count=5
 
 .
 
