@@ -96,6 +96,7 @@ def main():
                                        args=[gcc_] + C_FLAGS,
                                        run_count=args.run_count)
             spans["gcc-" + str(gcc_version)] = spans[gcc_]
+            print()
 
         language = "C++"
         gxx_ = shutil.which('g++-' + str(gcc_version))
@@ -106,7 +107,7 @@ def main():
             spans["g++-" + str(gcc_version)] = spans[gxx_]
             print_speedup(spans, from_lang="D", to_lang="gcc-9")
             print_speedup(spans, from_lang="D", to_lang="g++-9")
-        print()
+            print()
 
     # Go
     language = "Go"
