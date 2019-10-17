@@ -23,7 +23,11 @@ all of them.
 
 ## Sample output on my machine
 
+The output on my laptop for the sample call
 
+    ./benchmark --function-count=50000 --run-count=5
+
+results in the following output
 
 ## TODO
 
