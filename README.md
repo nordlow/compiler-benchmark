@@ -29,6 +29,62 @@ The output on my laptop for the sample call
 
 results in the following output
 
+```
+Code-generation:
+- Generating generated/c/sample1.c took 0.422 seconds (C)
+- Generating generated/c++/sample1.c++ took 0.447 seconds (C++)
+- Generating generated/d/sample1.d took 0.447 seconds (D)
+- Generating generated/rust/sample1.rs took 0.428 seconds (Rust)
+- Generating generated/zig/sample1.zig took 0.423 seconds (Zig)
+- Generating generated/go/sample1.go took 0.430 seconds (Go)
+- Generating generated/v/sample1.v took 0.419 seconds (V)
+- Generating generated/julia/sample1.jl took 0.422 seconds (Julia)
+
+D:
+- Checking of generated/d/sample1.d took 0.502 seconds (using "/usr/bin/dmd")
+- Checking of generated/d/sample1.d took 0.405 seconds (using "/home/per/.local/ldc2-1.18.0-linux-x86_64/bin/ldmd2")
+
+Clang:
+- Checking of generated/c/sample1.c took 1.160 seconds (using "/usr/bin/clang-8")
+- Checking of generated/c++/sample1.c++ took 1.522 seconds (using "/usr/bin/clang++-8")
+- Speedup of D over Clang: 2.86
+- Speedup of D over Clang++: 3.76
+- Checking of generated/c/sample1.c took 1.323 seconds (using "/usr/bin/clang-9")
+- Checking of generated/c++/sample1.c++ took 1.722 seconds (using "/usr/bin/clang++-9")
+- Speedup of D over Clang: 3.27
+- Speedup of D over Clang++: 4.25
+
+GCC:
+- Checking of generated/c/sample1.c took 0.431 seconds (using "/usr/bin/gcc-8")
+- Checking of generated/c++/sample1.c++ took 1.017 seconds (using "/usr/bin/g++-8")
+- Checking of generated/c/sample1.c took 0.451 seconds (using "/usr/bin/gcc-9")
+- Checking of generated/c++/sample1.c++ took 1.132 seconds (using "/usr/bin/g++-9")
+- Speedup of D over gcc-9: 1.11
+- Speedup of D over g++-9: 2.79
+
+Go:
+- Checking of generated/go/sample1.go took 1.305 seconds (using "/usr/bin/gccgo")
+- Speedup of D over Go: 3.22
+
+Rust:
+- Checking of generated/rust/sample1.rs took 31.508 seconds (using "/home/per/.cargo/bin/rustc")
+- Speedup of D over Rust: 77.80
+
+V:
+stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
+stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
+stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
+stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
+stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
+- Checking of generated/v/sample1.v took 2.216 seconds (using "/home/per/Work/v/v")
+- Speedup of D over V: 5.47
+
+Zig:
+- Checking of generated/zig/sample1.zig took 4.616 seconds (using "/snap/bin/zig")
+- Speedup of D over Zig: 11.40
+
+```
+
 ## TODO
 
 Add languages Java.
