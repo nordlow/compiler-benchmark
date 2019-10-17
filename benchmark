@@ -355,7 +355,7 @@ def generate_test_program_1(function_count, language, root_path='generated',
         elif lang == "v":
             f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
         elif lang == "java":
-            f.write(Tm('        System.exit(int(${T}_sum));\n    }\n').substitute(T=types[0]))
+            f.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
         elif lang == "zig":
             f.write(Tm('\n}\n').substitute(T=types[0]))
         elif lang == "julia":
