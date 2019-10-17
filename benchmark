@@ -31,7 +31,7 @@ def main():
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
-    languages = ["C", "C++", "D", "Rust", "Zig", "Go", "V", "Julia"]
+    languages = ["C", "C++", "Java", "D", "Rust", "Zig", "Go", "V", "Julia"]
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
@@ -121,6 +121,19 @@ def main():
                                        run_count=args.run_count)
         print_speedup(spans, from_lang="D", to_lang="Go")
         print()
+
+    # Java
+    language = "Java"
+    java_ = shutil.which('javac')
+    if java_ is not None:
+        print(language + ":")
+        if language not in compilers:
+            compilers[language] = java_
+            spans[language] = compile_file(path=gpaths[language],
+                                           args=[java_],
+                                           run_count=args.run_count)
+            print_speedup(spans, from_lang="D", to_lang="Java")
+            print()
 
     # Rust
     language = "Rust"
@@ -252,24 +265,6 @@ def generate_test_program_1(function_count, language, root_path='generated',
             f.write('package ' + program_name + ';\n\n')
         if lang == "v":
             f.write('import os\n\n')
-
-        # standard io module
-#         if lang in ["c"]:
-#             f.write('''#include <stdio.h>
-# ''')
-#         if lang in ["c++"]:
-#             f.write('''#include <iostream>
-# ''')
-#         if lang == "d":
-#             f.write('''import std.stdio;
-# ''')
-#         if lang == "rust":
-#             f.write('''use std::io;
-# ''')
-#         if lang == "go":
-#             f.write('''import "fmt";
-
-# ''')
 
         # special modules
         if lang == "rust":
