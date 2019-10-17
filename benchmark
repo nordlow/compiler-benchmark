@@ -41,7 +41,7 @@ def main():
     for language in languages:
         gpaths[language] = generate_test_program_1(function_count=args.function_count,
                                                    language=language)
-        print()
+    print()
 
     # D
     language = "D"
@@ -52,18 +52,18 @@ def main():
     if dmd_ is not None:
         if language not in compilers:
             compilers[language] = dmd_
-            spans[language] = compile_file(path=gpaths["D"],
-                                           args=[dmd_, '-o-'] + d_flags,
-                                           run_count=args.run_count)
+        spans[language] = compile_file(path=gpaths["D"],
+                                       args=[dmd_, '-o-'] + d_flags,
+                                       run_count=args.run_count)
     # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
         if language not in compilers:
             compilers[language] = ldc_
-            spans[language] = compile_file(path=gpaths["D"],
-                                           args=[ldc_, '-o-'] + d_flags,
-                                           run_count=args.run_count)
-            print()
+        spans[language] = compile_file(path=gpaths["D"],
+                                       args=[ldc_, '-o-'] + d_flags,
+                                       run_count=args.run_count)
+    print()
 
     # Clang
     print("Clang:")
