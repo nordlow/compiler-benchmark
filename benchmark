@@ -389,13 +389,17 @@ if __name__ == '__main__':
     if dmd_ is not None:
         if language not in compilers:
             compilers[language] = dmd_
-        spans[language] = compile_file(path=gpaths["D"], args=[dmd_, '-o-'] + d_flags, run_count=run_count)
+        spans[language] = compile_file(path=gpaths["D"],
+                                       args=[dmd_, '-o-'] + d_flags,
+                                       run_count=run_count)
         # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
         if language not in compilers:
             compilers[language] = ldc_
-        spans[language] = compile_file(path=gpaths["D"], args=[ldc_, '-o-'] + d_flags, run_count=run_count)
+        spans[language] = compile_file(path=gpaths["D"],
+                                       args=[ldc_, '-o-'] + d_flags,
+                                       run_count=run_count)
         print()
 
     # Clang
@@ -404,13 +408,17 @@ if __name__ == '__main__':
         language = "C"
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
-            spans["Clang"] = compile_file(path=gpaths["C"], args=[clang_] + C_CLANG_FLAGS, run_count=run_count)
+            spans["Clang"] = compile_file(path=gpaths["C"],
+                                          args=[clang_] + C_CLANG_FLAGS,
+                                          run_count=run_count)
             spans[clang_] = spans["Clang"]
 
         language = "C++"
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
-            spans["Clang++"] = compile_file(path=gpaths["C++"], args=[clangxx_] + C_CLANG_FLAGS, run_count=run_count)
+            spans["Clang++"] = compile_file(path=gpaths["C++"],
+                                            args=[clangxx_] + C_CLANG_FLAGS,
+                                            run_count=run_count)
     print_speedup(from_lang="D", to_lang="Clang")
     print_speedup(from_lang="D", to_lang="Clang++")
     print()
@@ -421,13 +429,17 @@ if __name__ == '__main__':
         language = "C"
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
-            spans[gcc_] = compile_file(path=gpaths["C"], args=[gcc_] + C_FLAGS, run_count=run_count)
+            spans[gcc_] = compile_file(path=gpaths["C"],
+                                       args=[gcc_] + C_FLAGS,
+                                       run_count=run_count)
             spans["gcc-" + str(gcc_version)] = spans[gcc_]
 
         language = "C++"
         gxx_ = shutil.which('g++-' + str(gcc_version))
         if gxx_ is not None:
-            spans[gxx_] = compile_file(path=gpaths["C++"], args=[gxx_] + C_FLAGS, run_count=run_count)
+            spans[gxx_] = compile_file(path=gpaths["C++"],
+                                       args=[gxx_] + C_FLAGS,
+                                       run_count=run_count)
             spans["g++-" + str(gcc_version)] = spans[gxx_]
     print_speedup(from_lang="D", to_lang="gcc-9")
     print_speedup(from_lang="D", to_lang="g++-9")
@@ -440,7 +452,9 @@ if __name__ == '__main__':
         print(language + ":")
         if language not in compilers:
             compilers[language] = gccgo_
-        spans[language] = compile_file(path=gpaths[language], args=[gccgo_, '-fsyntax-only', '-c'], run_count=run_count)
+        spans[language] = compile_file(path=gpaths[language],
+                                       args=[gccgo_, '-fsyntax-only', '-c'],
+                                       run_count=run_count)
         print_speedup(from_lang="D", to_lang="Go")
         print()
 
@@ -457,7 +471,9 @@ if __name__ == '__main__':
         # - `rustc --emit=metadata -Z no-codegen`
         # - Not yet in stable: `rustc -Z no-codegen`
         # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
-        spans[language] = compile_file(path=gpaths["Rust"], args=[rustc_, '-Z', 'no-codegen'], run_count=run_count)
+        spans[language] = compile_file(path=gpaths["Rust"],
+                                       args=[rustc_, '-Z', 'no-codegen'],
+                                       run_count=run_count)
         print_speedup(from_lang="D", to_lang="Rust")
         print()
 
@@ -468,7 +484,9 @@ if __name__ == '__main__':
         print(language + ":")
         if language not in compilers:
             compilers[language] = v_
-            spans[language] = compile_file(path=gpaths[language], args=[v_, 'build'], run_count=run_count)
+            spans[language] = compile_file(path=gpaths[language],
+                                           args=[v_, 'build'],
+                                           run_count=run_count)
             print_speedup(from_lang="D", to_lang="V")
             print()
 
@@ -479,7 +497,9 @@ if __name__ == '__main__':
     if zig_ is not None:
         if language not in compilers:
             compilers[language] = zig_
-        spans[language] = compile_file(path=gpaths["Zig"], args=[zig_, 'build-obj'], run_count=run_count)  # no syntax flag currently so compile to object file instead
+        spans[language] = compile_file(path=gpaths["Zig"],
+                                       args=[zig_, 'build-obj', '-fno-emit-bin'],
+                                       run_count=run_count)  # no syntax flag currently so compile to object file instead
         print_speedup(from_lang="D", to_lang="Zig")
         print()
 
