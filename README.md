@@ -70,15 +70,6 @@ Rust:
 - Checking of generated/rust/sample1.rs took 31.508 seconds (using "/home/per/.cargo/bin/rustc")
 - Speedup of D over Rust: 77.80
 
-V:
-stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
-stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
-stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
-stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
-stderr: b'generated/v/sample1.v:100006:8: more than 50 000 statements in function `main`\n100005|     i64_sum += add_i64_49999(49999)\n\n100006|     exit(int(i64_sum))\n\n              ^\n100007| }\n\n'
-- Checking of generated/v/sample1.v took 2.216 seconds (using "/home/per/Work/v/v")
-- Speedup of D over V: 5.47
-
 Zig:
 - Checking of generated/zig/sample1.zig took 4.616 seconds (using "/snap/bin/zig")
 - Speedup of D over Zig: 11.40
