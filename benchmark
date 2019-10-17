@@ -223,7 +223,7 @@ def compile_file(path, args, run_count=1):
 
 
 def long_types_of_lang(lang):
-    if lang in ["c", "c++"]:
+    if lang in ["c", "c++", "java"]:
         return ["long"]
     elif lang in ["d"]:
         return ["long"]
@@ -300,6 +300,8 @@ def generate_test_program_1(function_count, language, root_path='generated',
         # MAIN HEADER
         if lang in ["c", "c++"]:
             f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
+        elif lang == "java":
+            f.write('class HelloWorld {\npublic static void main(String args[]) {\n')
         elif lang == "d":
             f.write('int main(string[] args) {\n')
         elif lang == "rust":
@@ -319,6 +321,8 @@ def generate_test_program_1(function_count, language, root_path='generated',
         for typ in types:
             if lang in ["c", "c++", "d"]:
                 f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
+            elif lang == "java":
+                pass
             elif lang == "rust":
                 f.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
             elif lang == "zig":
@@ -342,6 +346,8 @@ def generate_test_program_1(function_count, language, root_path='generated',
             f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
         elif lang == "v":
             f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
+        elif lang == "java":
+            f.write(Tm('    System.exit(int(${T}_sum));\n}\n').substitute(T=types[0]))
         elif lang == "zig":
             f.write(Tm('\n}\n').substitute(T=types[0]))
         elif lang == "julia":
@@ -358,6 +364,9 @@ main()
             f.write(Tm('''    return ${T}_sum;
 }
 ''').substitute(T=types[0]))
+
+        if lang == "java":
+            f.write('}\n')            # one extra closing brace for class
 
     end = timer()
     span = (end - start)  # time span
