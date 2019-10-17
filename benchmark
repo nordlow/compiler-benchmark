@@ -106,7 +106,7 @@ def main():
             spans["g++-" + str(gcc_version)] = spans[gxx_]
             print_speedup(spans, from_lang="D", to_lang="gcc-9")
             print_speedup(spans, from_lang="D", to_lang="g++-9")
-            print()
+        print()
 
     # Go
     language = "Go"
@@ -115,11 +115,11 @@ def main():
         print(language + ":")
         if language not in compilers:
             compilers[language] = gccgo_
-            spans[language] = compile_file(path=gpaths[language],
-                                           args=[gccgo_, '-fsyntax-only', '-c'],
-                                           run_count=args.run_count)
-            print_speedup(spans, from_lang="D", to_lang="Go")
-            print()
+        spans[language] = compile_file(path=gpaths[language],
+                                       args=[gccgo_, '-fsyntax-only', '-c'],
+                                       run_count=args.run_count)
+        print_speedup(spans, from_lang="D", to_lang="Go")
+        print()
 
     # Rust
     language = "Rust"
@@ -147,11 +147,11 @@ def main():
         print(language + ":")
         if language not in compilers:
             compilers[language] = v_
-            spans[language] = compile_file(path=gpaths[language],
-                                           args=[v_, 'build'],
-                                           run_count=args.run_count)
-            print_speedup(spans, from_lang="D", to_lang="V")
-            print()
+        spans[language] = compile_file(path=gpaths[language],
+                                       args=[v_, 'build'],
+                                       run_count=args.run_count)
+        print_speedup(spans, from_lang="D", to_lang="V")
+        print()
 
     # Zig
     language = "Zig"
@@ -160,11 +160,11 @@ def main():
     if zig_ is not None:
         if language not in compilers:
             compilers[language] = zig_
-            spans[language] = compile_file(path=gpaths["Zig"],
-                                           args=[zig_, 'build-obj', '-fno-emit-bin'],
-                                           run_count=args.run_count)  # no syntax flag currently so compile to object file instead
-            print_speedup(spans, from_lang="D", to_lang="Zig")
-            print()
+        spans[language] = compile_file(path=gpaths["Zig"],
+                                       args=[zig_, 'build-obj', '-fno-emit-bin'],
+                                       run_count=args.run_count)  # no syntax flag currently so compile to object file instead
+        print_speedup(spans, from_lang="D", to_lang="Zig")
+        print()
 
     # Julia
     language = "Julia"
@@ -173,11 +173,11 @@ def main():
         print(language + ":")
         if language not in compilers:
             compilers[language] = julia_
-            spans[language] = compile_file(path=gpaths["Julia"],
-                                           args=[julia_],
-                                           run_count=args.run_count)
-            print_speedup(spans, from_lang="D", to_lang="Julia")
-            print()
+        spans[language] = compile_file(path=gpaths["Julia"],
+                                       args=[julia_],
+                                       run_count=args.run_count)
+        print_speedup(spans, from_lang="D", to_lang="Julia")
+        print()
 
     print("Speedups" + ":")
 
