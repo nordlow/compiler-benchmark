@@ -274,6 +274,8 @@ def generate_test_program_1(function_count, language, root_path='generated',
             for n in range(0, function_count):
                 if lang in ["c"]:
                     f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+                if lang in ["c", "java"]:
+                    f.write(Tm('static ${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
                 elif lang in ["c++"]:
                     f.write(Tm('${X}${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n')
                             .substitute(T=typ,
