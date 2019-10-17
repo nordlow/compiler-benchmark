@@ -1,7 +1,7 @@
 # compiler-benchmark
 
 Benchmarks compilation speeds of different combinations of languages and
-compilers, currently C, C++, D, Go and Rust.
+compilers, currently C, C++, D, Go, Rust, V, Zig, Julia.
 
 Just run as
 
@@ -23,4 +23,4 @@ all of them.
 
 ## TODO
 
-Add languages Zig, Java.
+Add languages Java.
