@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import subprocess
 import os.path
 import shutil
@@ -8,8 +9,17 @@ from timeit import default_timer as timer
 
 
 def main():
+    parser = argparse.ArgumentParser()
 
-    f_count = 50000
+    parser.add_argument("--server", type=str,
+                        default="http://dev-demo.sectra.se",
+                        help="TODO Some doc here.")
+
+    parser.add_argument("--function-count", type=int,
+                        default=100000,
+                        help="Number of functions generated and called in generated code samples.")
+
+    args = parser.parse_args()
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -27,7 +37,8 @@ def main():
 
     print("Code-generation:")
     for language in languages:
-        gpaths[language] = generate_test_program_1(f_count=f_count, language=language)
+        gpaths[language] = generate_test_program_1(function_count=args.function_count,
+                                                   language=language)
         print()
 
     # D
@@ -219,7 +230,7 @@ def file_ext_of_lang(lang):
         return lang
 
 
-def generate_test_program_1(f_count, language, root_path='generated',
+def generate_test_program_1(function_count, language, root_path='generated',
                             templated_function=False):
     program_name = "sample1"
 
@@ -262,7 +273,7 @@ def generate_test_program_1(f_count, language, root_path='generated',
             f.write('use std::process::exit;\n')
 
         for typ in types:
-            for n in range(0, f_count):
+            for n in range(0, function_count):
                 if lang in ["c"]:
                     f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
                 elif lang in ["c++"]:
@@ -323,7 +334,7 @@ def generate_test_program_1(f_count, language, root_path='generated',
             else:
                 assert False
 
-            for n in range(0, f_count):
+            for n in range(0, function_count):
                 f.write(Tm('    ${T}_sum += add_${T}_${N}(${N})').substitute(T=typ, N=str(n)))
                 if lang not in ["v"]:
                     f.write(';')
@@ -359,7 +370,7 @@ main()
     return path  # "-betterC"
 
 
-def generate_test_program_2(f_count, language, root_path='generated'):
+def generate_test_program_2(function_count, language, root_path='generated'):
     program_name = "sample2"
 
     lang = language.lower()
@@ -405,7 +416,7 @@ def generate_test_program_2(f_count, language, root_path='generated'):
 ''')
 
         for typ in types:
-            for n in range(0, f_count):
+            for n in range(0, function_count):
                 if lang in ["c", "c++"]:
                     f.write(Tm('''${T} add_${T}_${N}(${T} x) { return x + ${N}; }
 ''').substitute(T=typ, N=str(n)))
@@ -481,7 +492,7 @@ end;
             else:
                 assert False
 
-            for n in range(0, f_count):
+            for n in range(0, function_count):
                 f.write(Tm('''    ${T}_sum += add_${T}_${N}(${N});
 ''').substitute(T=typ, N=str(n)))
 
