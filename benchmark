@@ -19,6 +19,10 @@ def main():
                         default=10000,
                         help="Number of functions generated and called in generated code samples.")
 
+    parser.add_argument("--run-count", type=int,
+                        default=1,
+                        help="Number of test runs for each compilation.")
+
     args = parser.parse_args()
 
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
@@ -26,8 +30,6 @@ def main():
 
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
-
-    run_count = 1               # TODO param
 
     languages = ["C", "C++", "D", "Rust", "Zig", "Go", "V", "Julia"]
 
@@ -52,7 +54,7 @@ def main():
             compilers[language] = dmd_
             spans[language] = compile_file(path=gpaths["D"],
                                            args=[dmd_, '-o-'] + d_flags,
-                                           run_count=run_count)
+                                           run_count=args.run_count)
             # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
@@ -60,7 +62,7 @@ def main():
             compilers[language] = ldc_
             spans[language] = compile_file(path=gpaths["D"],
                                            args=[ldc_, '-o-'] + d_flags,
-                                           run_count=run_count)
+                                           run_count=args.run_count)
             print()
 
     # Clang
@@ -71,7 +73,7 @@ def main():
         if clang_ is not None:
             spans["Clang"] = compile_file(path=gpaths["C"],
                                           args=[clang_] + C_CLANG_FLAGS,
-                                          run_count=run_count)
+                                          run_count=args.run_count)
             spans[clang_] = spans["Clang"]
 
         language = "C++"
@@ -79,7 +81,7 @@ def main():
         if clangxx_ is not None:
             spans["Clang++"] = compile_file(path=gpaths["C++"],
                                             args=[clangxx_] + C_CLANG_FLAGS,
-                                            run_count=run_count)
+                                            run_count=args.run_count)
             print_speedup(spans, from_lang="D", to_lang="Clang")
             print_speedup(spans, from_lang="D", to_lang="Clang++")
             print()
@@ -92,7 +94,7 @@ def main():
         if gcc_ is not None:
             spans[gcc_] = compile_file(path=gpaths["C"],
                                        args=[gcc_] + C_FLAGS,
-                                       run_count=run_count)
+                                       run_count=args.run_count)
             spans["gcc-" + str(gcc_version)] = spans[gcc_]
 
         language = "C++"
@@ -100,7 +102,7 @@ def main():
         if gxx_ is not None:
             spans[gxx_] = compile_file(path=gpaths["C++"],
                                        args=[gxx_] + C_FLAGS,
-                                       run_count=run_count)
+                                       run_count=args.run_count)
             spans["g++-" + str(gcc_version)] = spans[gxx_]
             print_speedup(spans, from_lang="D", to_lang="gcc-9")
             print_speedup(spans, from_lang="D", to_lang="g++-9")
@@ -115,7 +117,7 @@ def main():
             compilers[language] = gccgo_
             spans[language] = compile_file(path=gpaths[language],
                                            args=[gccgo_, '-fsyntax-only', '-c'],
-                                           run_count=run_count)
+                                           run_count=args.run_count)
             print_speedup(spans, from_lang="D", to_lang="Go")
             print()
 
@@ -134,7 +136,7 @@ def main():
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths["Rust"],
                                        args=[rustc_, '-Z', 'no-codegen'],
-                                       run_count=run_count)
+                                       run_count=args.run_count)
         print_speedup(spans, from_lang="D", to_lang="Rust")
         print()
 
@@ -147,7 +149,7 @@ def main():
             compilers[language] = v_
             spans[language] = compile_file(path=gpaths[language],
                                            args=[v_, 'build'],
-                                           run_count=run_count)
+                                           run_count=args.run_count)
             print_speedup(spans, from_lang="D", to_lang="V")
             print()
 
@@ -160,7 +162,7 @@ def main():
             compilers[language] = zig_
             spans[language] = compile_file(path=gpaths["Zig"],
                                            args=[zig_, 'build-obj', '-fno-emit-bin'],
-                                           run_count=run_count)  # no syntax flag currently so compile to object file instead
+                                           run_count=args.run_count)  # no syntax flag currently so compile to object file instead
             print_speedup(spans, from_lang="D", to_lang="Zig")
             print()
 
@@ -173,7 +175,7 @@ def main():
             compilers[language] = julia_
             spans[language] = compile_file(path=gpaths["Julia"],
                                            args=[julia_],
-                                           run_count=run_count)
+                                           run_count=args.run_count)
             print_speedup(spans, from_lang="D", to_lang="Julia")
             print()
 
