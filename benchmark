@@ -13,11 +13,11 @@ def main():
 
     parser.add_argument("--function-count", type=int,
                         default=10000,
-                        help="Number of functions generated and called in generated code samples.")
+                        help="Number of functions generated and called")
 
     parser.add_argument("--run-count", type=int,
                         default=1,
-                        help="Number of test runs for each compilation.")
+                        help="Number of test runs for each compilation")
 
     args = parser.parse_args()
 
