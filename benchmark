@@ -17,7 +17,7 @@ def main():
 
     parser.add_argument("--run-count", type=int,
                         default=1,
-                        help="Number of test runs for each compilation")
+                        help="Number of runs for each compilation")
 
     args = parser.parse_args()
 
