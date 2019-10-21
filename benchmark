@@ -213,20 +213,22 @@ def compile_file(path, args, run_count=1):
         print('Could not find compiler:', args[0])
         return None
 
-    start = timer()
-    # subprocess.call(args)
+    spans = []
     for _ in range(0, run_count):
+        start = timer()
         with subprocess.Popen(args + [path],
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
+            end = timer()
+            span = end - start
+            spans.append(span)
             if results[0]:
                 print('stdout:', results[0])
             if results[1]:
                 print('stderr:', results[1])
-    end = timer()
-    span = (end - start) / run_count  # time span
-    print('- Checking of {} took {:1.3f} seconds (using "{}")'.format(path, span, args[0]))
+    span_min = min(spans)
+    print('- Checking of {} took {:1.3f} seconds (using "{}")'.format(path, span_min, args[0]))
     return span
 
 
