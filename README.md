@@ -93,4 +93,5 @@ Zig:
 
 ## TODO
 
-Add language Fortran.
+- Add language Fortran.
+- Add language Ada and do syntax checking using `-gnats`. See: https://gcc.gnu.org/onlinedocs/gcc-4.7.4/gnat_ugn_unw/Using-gcc-for-Syntax-Checking.html
