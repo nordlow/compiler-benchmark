@@ -227,8 +227,11 @@ def compile_file(path, args, run_count=1):
                 print('stdout:', results[0])
             if results[1]:
                 print('stderr:', results[1])
+
     span_min = min(spans)
+
     print('- Checking of {} took {:1.3f} seconds (using "{}")'.format(path, span_min, args[0]))
+
     return span
 
 
