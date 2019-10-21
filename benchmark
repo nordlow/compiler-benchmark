@@ -24,17 +24,14 @@ def main():
     C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
 
-    CLANG_VERSIONS = [7, 8, 9, 10]
-    GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
-
-    languages = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
+    LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
     compilers = {}                  # compilers
 
     print('Code-generation:')
-    for language in languages:
+    for language in LANGUAGES:
         gpaths[language] = generate_test_program_1(function_count=args.function_count,
                                                    language=language)
     print()
@@ -44,6 +41,7 @@ def main():
 
     # Clang
     print('Clang:')
+    CLANG_VERSIONS = [7, 8, 9, 10]
     for clang_version in CLANG_VERSIONS:
         language = 'C'
         clang_ = shutil.which('clang-' + str(clang_version))
@@ -65,6 +63,7 @@ def main():
 
     # C GCC
     print('GCC:')
+    GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
     for gcc_version in GCC_VERSIONS:
         language = 'C'
         gcc_ = shutil.which('gcc-' + str(gcc_version))
