@@ -538,8 +538,12 @@ main()
 
 
 def print_speedup(spans, from_lang, to_lang):
-    if (from_lang in spans and to_lang in spans):
-        print("- Speedup of {} over {}: {:.2f}".format(from_lang, to_lang, spans[to_lang] / spans[from_lang]))
+    try:
+        print("- Speedup of {} over {}: {:.2f}".format(from_lang,
+                                                       to_lang,
+                                                       spans[to_lang] / spans[from_lang]))
+    except KeyError:
+        pass
 
 
 if __name__ == '__main__':
