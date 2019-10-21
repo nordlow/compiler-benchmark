@@ -112,7 +112,7 @@ def main():
         if language not in compilers:
             compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language],
-                                       args=[gccgo_, '-fsyntax-only', '-c'],
+                                       args=[gccgo_, '-fsyntax-only', '-S'],
                                        run_count=args.run_count)
         print_speedup(spans, from_lang="D", to_lang="Go")
         print()
