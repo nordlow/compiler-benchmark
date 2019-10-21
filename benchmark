@@ -27,6 +27,7 @@ def main():
     LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 
     print('Code-generation:')
+
     gpaths = {}                 # generated paths by language
     for language in LANGUAGES:
         gpaths[language] = generate_test_program_1(function_count=args.function_count,
