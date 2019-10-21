@@ -185,7 +185,7 @@ def benchmark_D(compilers, spans, gpaths, args):
         spans[language] = compile_file(path=gpaths["D"],
                                        args=[dmd_, '-o-'] + d_flags,
                                        run_count=args.run_count)
-            # LDC
+    # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
         if language not in compilers:
