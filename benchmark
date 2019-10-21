@@ -26,15 +26,15 @@ def main():
 
     LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 
-    compilers = {}              # compilers by language
-    gpaths = {}                 # generated paths by language
-    spans = {}                  # time spans by compiler path
-
     print('Code-generation:')
+    gpaths = {}                 # generated paths by language
     for language in LANGUAGES:
         gpaths[language] = generate_test_program_1(function_count=args.function_count,
                                                    language=language)
     print()
+
+    compilers = {}              # compilers by language
+    spans = {}                  # time spans by compiler path
 
     # D
     benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args)
