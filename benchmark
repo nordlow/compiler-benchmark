@@ -26,9 +26,9 @@ def main():
 
     LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 
-    gpaths = {}                 # generated paths
-    spans = {}                  # time spans
-    compilers = {}              # compilers
+    compilers = {}              # compilers by language
+    gpaths = {}                 # generated paths by language
+    spans = {}                  # time spans by compiler path
 
     print('Code-generation:')
     for language in LANGUAGES:
