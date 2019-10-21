@@ -32,7 +32,8 @@ def main():
     spans = {}                  # time spans by compiler path
 
     # D
-    benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args)
+    benchmark_D(compilers=compilers, spans=spans,
+                gpaths=gpaths, args=args)
 
     # Clang
     print('Clang:')
