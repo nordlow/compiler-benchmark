@@ -37,7 +37,7 @@ def main():
 
     # Clang
     print('Clang:')
-    CLANG_VERSIONS = [7, 8, 9, 10]
+    CLANG_VERSIONS = [7, 8, 9, 10, 11, 12, 13]
     for clang_version in CLANG_VERSIONS:
         language = 'C'
         clang_ = shutil.which('clang-' + str(clang_version))
@@ -59,7 +59,7 @@ def main():
 
     # C GCC
     print('GCC:')
-    GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
+    GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     for gcc_version in GCC_VERSIONS:
         language = 'C'
         gcc_ = shutil.which('gcc-' + str(gcc_version))
