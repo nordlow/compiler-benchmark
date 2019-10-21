@@ -174,27 +174,35 @@ def main():
 
 
 def benchmark_D(compilers, spans, gpaths, args):
+
     language = 'D'
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
+
     print(language + ':')
+
+    if language not in spans:
+        spans[language] = []
 
     # DMD
     dmd_ = shutil.which('dmd')
     if dmd_ is not None:
         if language not in compilers:
             compilers[language] = dmd_
-        spans[language] = compile_file(path=gpaths['D'],
-                                       args=[dmd_, '-o-'] + d_flags,
-                                       run_count=args.run_count)
+        spans[language].append(compile_file(path=gpaths['D'],
+                                            args=[dmd_, '-o-'] + d_flags,
+                                            run_count=args.run_count))
 
     # LDC
     ldc_ = shutil.which('ldmd2')
     if ldc_ is not None:
         if language not in compilers:
             compilers[language] = ldc_
-        spans[language] = compile_file(path=gpaths['D'],
-                                       args=[ldc_, '-o-'] + d_flags,
-                                       run_count=args.run_count)
+        spans[language].append(compile_file(path=gpaths['D'],
+                                            args=[ldc_, '-o-'] + d_flags,
+                                            run_count=args.run_count))
+
+    spans[language] = min(spans[language])
+
     print()
 
 
