@@ -28,7 +28,7 @@ def main():
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
-    compilers = {}                  # compilers
+    compilers = {}              # compilers
 
     print('Code-generation:')
     for language in LANGUAGES:
