@@ -27,13 +27,13 @@ def main():
     CLANG_VERSIONS = [7, 8, 9, 10]
     GCC_VERSIONS = [4, 5, 6, 7, 8, 9, 10]
 
-    languages = ["C", "C++", "Java", "D", "Rust", "Zig", "Go", "V", "Julia"]
+    languages = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 
     gpaths = {}                 # generated paths
     spans = {}                  # time spans
     compilers = {}                  # compilers
 
-    print("Code-generation:")
+    print('Code-generation:')
     for language in languages:
         gpaths[language] = generate_test_program_1(function_count=args.function_count,
                                                    language=language)
@@ -43,79 +43,79 @@ def main():
     benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args)
 
     # Clang
-    print("Clang:")
+    print('Clang:')
     for clang_version in CLANG_VERSIONS:
-        language = "C"
+        language = 'C'
         clang_ = shutil.which('clang-' + str(clang_version))
         if clang_ is not None:
-            spans["Clang"] = compile_file(path=gpaths["C"],
+            spans['Clang'] = compile_file(path=gpaths['C'],
                                           args=[clang_] + C_CLANG_FLAGS,
                                           run_count=args.run_count)
-            spans[clang_] = spans["Clang"]
+            spans[clang_] = spans['Clang']
 
-        language = "C++"
+        language = 'C++'
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
-            spans["Clang++"] = compile_file(path=gpaths["C++"],
+            spans['Clang++'] = compile_file(path=gpaths['C++'],
                                             args=[clangxx_] + C_CLANG_FLAGS,
                                             run_count=args.run_count)
-            print_speedup(spans, from_lang="D", to_lang="Clang")
-            print_speedup(spans, from_lang="D", to_lang="Clang++")
+            print_speedup(spans, from_lang='D', to_lang='Clang')
+            print_speedup(spans, from_lang='D', to_lang='Clang++')
     print()
 
     # C GCC
-    print("GCC:")
+    print('GCC:')
     for gcc_version in GCC_VERSIONS:
-        language = "C"
+        language = 'C'
         gcc_ = shutil.which('gcc-' + str(gcc_version))
         if gcc_ is not None:
-            spans[gcc_] = compile_file(path=gpaths["C"],
+            spans[gcc_] = compile_file(path=gpaths['C'],
                                        args=[gcc_] + C_FLAGS,
                                        run_count=args.run_count)
-            spans["gcc-" + str(gcc_version)] = spans[gcc_]
+            spans['gcc-' + str(gcc_version)] = spans[gcc_]
 
-        language = "C++"
+        language = 'C++'
         gxx_ = shutil.which('g++-' + str(gcc_version))
         if gxx_ is not None:
-            spans[gxx_] = compile_file(path=gpaths["C++"],
+            spans[gxx_] = compile_file(path=gpaths['C++'],
                                        args=[gxx_] + C_FLAGS,
                                        run_count=args.run_count)
-            spans["g++-" + str(gcc_version)] = spans[gxx_]
-            print_speedup(spans, from_lang="D", to_lang="gcc-9")
-            print_speedup(spans, from_lang="D", to_lang="g++-9")
+            spans['g++-' + str(gcc_version)] = spans[gxx_]
+            print_speedup(spans, from_lang='D', to_lang='gcc-9')
+            print_speedup(spans, from_lang='D', to_lang='g++-9')
     print()
 
     # Go
-    language = "Go"
+    language = 'Go'
     gccgo_ = shutil.which('gccgo')
     if gccgo_ is not None:
-        print(language + ":")
+        print(language + ':')
         if language not in compilers:
             compilers[language] = gccgo_
         spans[language] = compile_file(path=gpaths[language],
                                        args=[gccgo_, '-fsyntax-only', '-S'],
                                        run_count=args.run_count)
-        print_speedup(spans, from_lang="D", to_lang="Go")
+        print_speedup(spans, from_lang='D', to_lang='Go')
         print()
 
     # Java
-    language = "Java"
+    language = 'Java'
     java_ = shutil.which('javac')
     if java_ is not None:
-        print(language + ":")
+        print(language + ':')
         if language not in compilers:
             compilers[language] = java_
             spans[language] = compile_file(path=gpaths[language],
                                            args=[java_, '-Xdiags:verbose'],
                                            run_count=args.run_count)
-            print_speedup(spans, from_lang="D", to_lang="Java")
+            print_speedup(spans, from_lang='D', to_lang='Java')
             print()
 
     # Rust
-    language = "Rust"
+    language = 'Rust'
     rustc_ = shutil.which('rustc')
     if rustc_ is not None:
-        print(language + ":")
+        print(language + ':')
         if language not in compilers:
             compilers[language] = rustc_
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
@@ -124,66 +124,66 @@ def main():
             # - `rustc --emit=metadata -Z no-codegen`
             # - Not yet in stable: `rustc -Z no-codegen`
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
-        spans[language] = compile_file(path=gpaths["Rust"],
+        spans[language] = compile_file(path=gpaths['Rust'],
                                        args=[rustc_, '-Z', 'no-codegen'],
                                        run_count=args.run_count)
-        print_speedup(spans, from_lang="D", to_lang="Rust")
+        print_speedup(spans, from_lang='D', to_lang='Rust')
         print()
 
     # V (vlang.io)
-    language = "V"
+    language = 'V'
     v_ = os.path.expanduser('~/Work/v/v')
     if v_ is not None:
-        print(language + ":")
+        print(language + ':')
         if language not in compilers:
             compilers[language] = v_
         spans[language] = compile_file(path=gpaths[language],
                                        args=[v_, 'build'],
                                        run_count=args.run_count)
-        print_speedup(spans, from_lang="D", to_lang="V")
+        print_speedup(spans, from_lang='D', to_lang='V')
         print()
 
     # Zig
-    language = "Zig"
-    print(language + ":")
+    language = 'Zig'
+    print(language + ':')
     zig_ = shutil.which('zig')
     if zig_ is not None:
         if language not in compilers:
             compilers[language] = zig_
-        spans[language] = compile_file(path=gpaths["Zig"],
+        spans[language] = compile_file(path=gpaths['Zig'],
                                        args=[zig_, 'build-obj', '-fno-emit-bin'],
                                        run_count=args.run_count)  # no syntax flag currently so compile to object file instead
-        print_speedup(spans, from_lang="D", to_lang="Zig")
+        print_speedup(spans, from_lang='D', to_lang='Zig')
         print()
 
     # Julia
-    language = "Julia"
+    language = 'Julia'
     julia_ = shutil.which('julia')
     if julia_ is not None:
-        print(language + ":")
+        print(language + ':')
         if language not in compilers:
             compilers[language] = julia_
-        spans[language] = compile_file(path=gpaths["Julia"],
+        spans[language] = compile_file(path=gpaths['Julia'],
                                        args=[julia_],
                                        run_count=args.run_count)
-        print_speedup(spans, from_lang="D", to_lang="Julia")
+        print_speedup(spans, from_lang='D', to_lang='Julia')
         print()
 
-    # print("Speedups" + ":")
+    # print('Speedups' + ':')
     # pprint(spans)
 
 
 def benchmark_D(compilers, spans, gpaths, args):
-    language = "D"
+    language = 'D'
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
-    print(language + ":")
+    print(language + ':')
 
     # DMD
     dmd_ = shutil.which('dmd')
     if dmd_ is not None:
         if language not in compilers:
             compilers[language] = dmd_
-        spans[language] = compile_file(path=gpaths["D"],
+        spans[language] = compile_file(path=gpaths['D'],
                                        args=[dmd_, '-o-'] + d_flags,
                                        run_count=args.run_count)
 
@@ -192,7 +192,7 @@ def benchmark_D(compilers, spans, gpaths, args):
     if ldc_ is not None:
         if language not in compilers:
             compilers[language] = ldc_
-        spans[language] = compile_file(path=gpaths["D"],
+        spans[language] = compile_file(path=gpaths['D'],
                                        args=[ldc_, '-o-'] + d_flags,
                                        run_count=args.run_count)
     print()
@@ -213,49 +213,49 @@ def compile_file(path, args, run_count=1):
                               stderr=subprocess.PIPE) as proc:
             results = proc.communicate()
             if results[0]:
-                print("stdout:", results[0])
+                print('stdout:', results[0])
             if results[1]:
-                print("stderr:", results[1])
+                print('stderr:', results[1])
     end = timer()
     span = (end - start) / run_count  # time span
-    print("- Checking of {} took {:1.3f} seconds (using \"{}\")".format(path, span, args[0]))
+    print('- Checking of {} took {:1.3f} seconds (using "{}")'.format(path, span, args[0]))
     return span
 
 
 def long_types_of_lang(lang):
-    if lang in ["c", "c++", "java"]:
-        return ["long"]
-    elif lang in ["d"]:
-        return ["long"]
-    elif lang in ["rust", "zig", "v"]:
-        return ["i64"]
-    elif lang == "go":
-        return ["int64"]
-    elif lang == "julia":
-        return ["Int64"]
+    if lang in ['c', 'c++', 'java']:
+        return ['long']
+    elif lang in ['d']:
+        return ['long']
+    elif lang in ['rust', 'zig', 'v']:
+        return ['i64']
+    elif lang == 'go':
+        return ['int64']
+    elif lang == 'julia':
+        return ['Int64']
     else:
         return None
 
 
 def file_ext_of_lang(lang):
-    if lang == "rust":
-        return "rs"
-    elif lang == "julia":
-        return "jl"
+    if lang == 'rust':
+        return 'rs'
+    elif lang == 'julia':
+        return 'jl'
     else:
         return lang
 
 
 def generate_test_program_1(function_count, language, root_path='generated',
                             templated_function=False):
-    program_name = "sample1"
+    program_name = 'sample1'
 
     lang = language.lower()
     types = long_types_of_lang(lang)
     ext = file_ext_of_lang(lang)
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
-    path = os.path.join(dir_path, program_name + "." + ext)
+    path = os.path.join(dir_path, program_name + '.' + ext)
 
     start = timer()
     with open(path, 'w') as f:
