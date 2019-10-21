@@ -26,13 +26,7 @@ def main():
 
     LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 
-    print('Code-generation:')
-
-    gpaths = {}                 # generated paths by language
-    for language in LANGUAGES:
-        gpaths[language] = generate_test_program_1(function_count=args.function_count,
-                                                   language=language)
-    print()
+    gpaths = generate_code(languages=LANGUAGES, args=args)
 
     compilers = {}              # compilers by language
     spans = {}                  # time spans by compiler path
@@ -171,6 +165,16 @@ def main():
 
     # print('Speedups' + ':')
     # pprint(spans)
+
+
+def generate_code(languages, args):
+    print('Code-generation:')
+    gpaths = {}
+    for language in languages:
+        gpaths[language] = generate_test_program_1(function_count=args.function_count,
+                                                   language=language)
+    print()
+    return gpaths
 
 
 def benchmark_D(compilers, spans, gpaths, args):
