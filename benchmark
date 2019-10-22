@@ -178,6 +178,14 @@ def generate_code(languages, args):
     return gpaths
 
 
+def benchmark_GCC(compilers, spans, gpaths, args):
+    pass
+
+
+def benchmark_Clang(compilers, spans, gpaths, args):
+    pass
+
+
 def benchmark_D(compilers, spans, gpaths, args):
 
     language = 'D'
