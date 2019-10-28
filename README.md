@@ -74,16 +74,6 @@ Go:
 - Speedup of D over Go: 3.48
 
 V:
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
 - Checking of generated/v/sample1.v took 2.893 seconds (using "/home/per/Work/v/v")
 - Speedup of D over V: 8.23
 
