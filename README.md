@@ -31,64 +31,63 @@ all of them.
 
 The output on my laptop for the sample call
 
-    ./benchmark --function-count=45000 --run-count=5
+    ./benchmark --function-count=45000 --run-count=10
 
 results in the following output
 
 ```
-- Generating generated/c/sample1.c took 0.412 seconds (C)
-- Generating generated/c++/sample1.c++ took 0.452 seconds (C++)
-- Generating generated/java/sample1.java took 0.447 seconds (Java)
-- Generating generated/d/sample1.d took 0.456 seconds (D)
-- Generating generated/rust/sample1.rs took 0.418 seconds (Rust)
+Code-generation:
+- Generating generated/c/sample1.c took 0.393 seconds (C)
+- Generating generated/c++/sample1.c++ took 0.416 seconds (C++)
+- Generating generated/java/sample1.java took 0.405 seconds (Java)
+- Generating generated/d/sample1.d took 0.416 seconds (D)
+- Generating generated/rust/sample1.rs took 0.394 seconds (Rust)
 - Generating generated/zig/sample1.zig took 0.395 seconds (Zig)
-- Generating generated/go/sample1.go took 0.402 seconds (Go)
-- Generating generated/v/sample1.v took 0.412 seconds (V)
-- Generating generated/julia/sample1.jl took 0.397 seconds (Julia)
+- Generating generated/go/sample1.go took 0.396 seconds (Go)
+- Generating generated/v/sample1.v took 0.389 seconds (V)
+- Generating generated/julia/sample1.jl took 0.392 seconds (Julia)
 
 D:
-- Checking of generated/d/sample1.d took 0.479 seconds (using "/usr/bin/dmd")
-- Checking of generated/d/sample1.d took 0.377 seconds (using "/home/per/.local/ldc2-1.18.0-linux-x86_64/bin/ldmd2")
+- Checking of generated/d/sample1.d took 0.351 seconds (using "/home/per/.local/dlang/linux/bin64/dmd")
+- Checking of generated/d/sample1.d took 0.388 seconds (using "/home/per/.local/ldc2-1.18.0-linux-x86_64/bin/ldmd2")
 
 Clang:
-- Checking of generated/c/sample1.c took 1.130 seconds (using "/usr/bin/clang-8")
-- Checking of generated/c++/sample1.c++ took 1.485 seconds (using "/usr/bin/clang++-8")
-- Speedup of D over Clang: 2.99
-- Speedup of D over Clang++: 3.93
-- Checking of generated/c/sample1.c took 1.247 seconds (using "/usr/bin/clang-9")
-- Checking of generated/c++/sample1.c++ took 1.635 seconds (using "/usr/bin/clang++-9")
-- Speedup of D over Clang: 3.30
-- Speedup of D over Clang++: 4.33
+- Checking of generated/c/sample1.c took 1.093 seconds (using "/usr/bin/clang-8")
+- Checking of generated/c++/sample1.c++ took 1.397 seconds (using "/usr/bin/clang++-8")
+- Speedup of D over Clang: 3.17
+- Speedup of D over Clang++: 4.05
+- Checking of generated/c/sample1.c took 1.226 seconds (using "/usr/bin/clang-9")
+- Checking of generated/c++/sample1.c++ took 1.569 seconds (using "/usr/bin/clang++-9")
+- Speedup of D over Clang: 3.46
+- Speedup of D over Clang++: 4.69
 
 GCC:
-- Checking of generated/c/sample1.c took 0.399 seconds (using "/usr/bin/gcc-8")
-- Checking of generated/c++/sample1.c++ took 0.945 seconds (using "/usr/bin/g++-8")
-- Checking of generated/c/sample1.c took 0.424 seconds (using "/usr/bin/gcc-9")
-- Checking of generated/c++/sample1.c++ took 1.059 seconds (using "/usr/bin/g++-9")
-- Speedup of D over gcc-9: 1.12
-- Speedup of D over g++-9: 2.80
+- Checking of generated/c/sample1.c took 0.387 seconds (using "/usr/bin/gcc-8")
+- Checking of generated/c++/sample1.c++ took 0.930 seconds (using "/usr/bin/g++-8")
+- Checking of generated/c/sample1.c took 0.409 seconds (using "/usr/bin/gcc-9")
+- Checking of generated/c++/sample1.c++ took 1.055 seconds (using "/usr/bin/g++-9")
+- Speedup of D over gcc-9: 1.16
+- Speedup of D over g++-9: 2.97
 
 Go:
-- Checking of generated/go/sample1.go took 1.213 seconds (using "/usr/bin/gccgo")
-- Speedup of D over Go: 3.21
+- Checking of generated/go/sample1.go took 1.214 seconds (using "/usr/bin/gccgo")
+- Speedup of D over Go: 3.45
 
 Java:
-stderr: b'generated/java/sample1.java:45003: error: code too large\n    public static void main(String args[]) {\n                       ^\ngenerated/java/sample1.java:1: error: too many constants\nclass HelloWorld {\n^\n2 errors\n'
-- Checking of generated/java/sample1.java took 5.456 seconds (using "/usr/bin/javac")
-- Speedup of D over Java: 14.45
+- Checking of generated/java/sample1.java took 5.102 seconds (using "/usr/bin/javac")
+- Speedup of D over Java: 15.59
 
 Rust:
-- Checking of generated/rust/sample1.rs took 27.244 seconds (using "/home/per/.cargo/bin/rustc")
-- Speedup of D over Rust: 72.17
+- Checking of generated/rust/sample1.rs took 27.509 seconds (using "/home/per/.cargo/bin/rustc")
+- Speedup of D over Rust: 77.34
 
 V:
-stderr: b'warning: generated/v/sample1.v:1:6: the following imports were never used: \n * os\n'
-- Checking of generated/v/sample1.v took 2.413 seconds (using "/home/per/Work/v/v")
-- Speedup of D over V: 6.39
+- Checking of generated/v/sample1.v took 2.416 seconds (using "/home/per/Work/v/v")
+- Speedup of D over V: 6.83
 
 Zig:
-- Checking of generated/zig/sample1.zig took 4.212 seconds (using "/snap/bin/zig")
-- Speedup of D over Zig: 11.16
+- Checking of generated/zig/sample1.zig took 4.306 seconds (using "/snap/bin/zig")
+- Speedup of D over Zig: 12.18
 ```
 
 ## TODO
