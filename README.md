@@ -90,6 +90,8 @@ Zig:
 - Speedup of D over Zig: 12.18
 ```
 
+This is with DMD built with LDC for an additional 20 percent drop in compilation time.
+
 ## TODO
 
 - Add language Fortran.
