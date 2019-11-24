@@ -199,7 +199,7 @@ def benchmark_Clang(compilers, spans, gpaths, args):
 def benchmark_D(compilers, spans, gpaths, args,
                 generate_object_file):
 
-    language = 'D' + ('gen' if generate_object_file else "")
+    language = 'D' + ('-object-generation' if generate_object_file else "")
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
     print(language + ':')
