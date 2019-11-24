@@ -40,12 +40,12 @@ def main():
     CLANG_VERSIONS = range(5, 13)
     for clang_version in CLANG_VERSIONS:
         language = 'C'
-        clang_ = shutil.which('clang-' + str(clang_version))
-        if clang_ is not None:
+        clang_exec = shutil.which('clang-' + str(clang_version))
+        if clang_exec is not None:
             spans['Clang'] = compile_file(path=gpaths['C'],
-                                          args=[clang_] + C_CLANG_FLAGS,
+                                          args=[clang_exec] + C_CLANG_FLAGS,
                                           run_count=args.run_count)
-            spans[clang_] = spans['Clang']
+            spans[clang_exec] = spans['Clang']
 
         language = 'C++'
         clangxx_ = shutil.which('clang++-' + str(clang_version))
@@ -62,46 +62,46 @@ def main():
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
         language = 'C'
-        gcc_ = shutil.which('gcc-' + str(gcc_version))
-        if gcc_ is not None:
-            spans[gcc_] = compile_file(path=gpaths['C'],
-                                       args=[gcc_] + C_FLAGS,
-                                       run_count=args.run_count)
-            spans['gcc-' + str(gcc_version)] = spans[gcc_]
+        gcc_exec = shutil.which('gcc-' + str(gcc_version))
+        if gcc_exec is not None:
+            spans[gcc_exec] = compile_file(path=gpaths['C'],
+                                           args=[gcc_exec] + C_FLAGS,
+                                           run_count=args.run_count)
+            spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
 
         language = 'C++'
-        gxx_ = shutil.which('g++-' + str(gcc_version))
-        if gxx_ is not None:
-            spans[gxx_] = compile_file(path=gpaths['C++'],
-                                       args=[gxx_] + C_FLAGS,
-                                       run_count=args.run_count)
-            spans['g++-' + str(gcc_version)] = spans[gxx_]
+        gxx_exec = shutil.which('g++-' + str(gcc_version))
+        if gxx_exec is not None:
+            spans[gxx_exec] = compile_file(path=gpaths['C++'],
+                                           args=[gxx_exec] + C_FLAGS,
+                                           run_count=args.run_count)
+            spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D', to_lang='gcc-9')
             print_speedup(spans, from_lang='D', to_lang='g++-9')
     print()
 
     # Go
     language = 'Go'
-    gccgo_ = shutil.which('gccgo')
-    if gccgo_ is not None:
+    gccgo_exec = shutil.which('gccgo')
+    if gccgo_exec is not None:
         print(language + ':')
         if language not in compilers:
-            compilers[language] = gccgo_
+            compilers[language] = gccgo_exec
         spans[language] = compile_file(path=gpaths[language],
-                                       args=[gccgo_, '-fsyntax-only', '-S'],
+                                       args=[gccgo_exec, '-fsyntax-only', '-S'],
                                        run_count=args.run_count)
         print_speedup(spans, from_lang='D', to_lang='Go')
         print()
 
     # V (vlang.io)
     language = 'V'
-    v_ = os.path.expanduser('~/Work/v/v')
-    if v_ is not None:
+    v_exec = os.path.expanduser('~/Work/v/v')
+    if v_exec is not None:
         print(language + ':')
         if language not in compilers:
-            compilers[language] = v_
+            compilers[language] = v_exec
             spans[language] = compile_file(path=gpaths[language],
-                                           args=[v_, 'build'],
+                                           args=[v_exec, 'build'],
                                            run_count=args.run_count)
             print_speedup(spans, from_lang='D', to_lang='V')
             print()
@@ -109,23 +109,23 @@ def main():
     # Zig
     language = 'Zig'
     print(language + ':')
-    zig_ = shutil.which('zig')
-    if zig_ is not None:
+    zig_exec = shutil.which('zig')
+    if zig_exec is not None:
         if language not in compilers:
-            compilers[language] = zig_
+            compilers[language] = zig_exec
             spans[language] = compile_file(path=gpaths['Zig'],
-                                           args=[zig_, 'build-obj', '-fno-emit-bin'],
+                                           args=[zig_exec, 'build-obj', '-fno-emit-bin'],
                                            run_count=args.run_count)  # no syntax flag currently so compile to object file instead
             print_speedup(spans, from_lang='D', to_lang='Zig')
             print()
 
     # Rust
     language = 'Rust'
-    rustc_ = shutil.which('rustc')
-    if rustc_ is not None:
+    rustc_exec = shutil.which('rustc')
+    if rustc_exec is not None:
         print(language + ':')
         if language not in compilers:
-            compilers[language] = rustc_
+            compilers[language] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
@@ -133,33 +133,33 @@ def main():
             # - Not yet in stable: `rustc -Z no-codegen`
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         spans[language] = compile_file(path=gpaths['Rust'],
-                                       args=[rustc_, '-Z', 'no-codegen'],
+                                       args=[rustc_exec, '-Z', 'no-codegen'],
                                        run_count=args.run_count)
         print_speedup(spans, from_lang='D', to_lang='Rust')
         print()
 
     # Java
     language = 'Java'
-    java_ = shutil.which('javac')
-    if java_ is not None:
+    java_exec = shutil.which('javac')
+    if java_exec is not None:
         print(language + ':')
         if language not in compilers:
-            compilers[language] = java_
+            compilers[language] = java_exec
             spans[language] = compile_file(path=gpaths[language],
-                                           args=[java_, '-Xdiags:verbose'],
+                                           args=[java_exec, '-Xdiags:verbose'],
                                            run_count=args.run_count)
             print_speedup(spans, from_lang='D', to_lang='Java')
             print()
 
     # Julia
     language = 'Julia'
-    julia_ = shutil.which('julia')
-    if julia_ is not None:
+    julia_exec = shutil.which('julia')
+    if julia_exec is not None:
         print(language + ':')
         if language not in compilers:
-            compilers[language] = julia_
+            compilers[language] = julia_exec
         spans[language] = compile_file(path=gpaths['Julia'],
-                                       args=[julia_],
+                                       args=[julia_exec],
                                        run_count=args.run_count)
         print_speedup(spans, from_lang='D', to_lang='Julia')
         print()
@@ -197,21 +197,21 @@ def benchmark_D(compilers, spans, gpaths, args):
         spans[language] = []
 
     # DMD
-    dmd_ = shutil.which('dmd')
-    if dmd_ is not None:
+    dmd_exec = shutil.which('dmd')
+    if dmd_exec is not None:
         if language not in compilers:
-            compilers[language] = dmd_
+            compilers[language] = dmd_exec
         spans[language].append(compile_file(path=gpaths['D'],
-                                            args=[dmd_, '-o-'] + d_flags,
+                                            args=[dmd_exec, '-o-'] + d_flags,
                                             run_count=args.run_count))
 
     # LDC
-    ldc_ = shutil.which('ldmd2')
-    if ldc_ is not None:
+    ldc_exec = shutil.which('ldmd2')
+    if ldc_exec is not None:
         if language not in compilers:
-            compilers[language] = ldc_
+            compilers[language] = ldc_exec
         spans[language].append(compile_file(path=gpaths['D'],
-                                            args=[ldc_, '-o-'] + d_flags,
+                                            args=[ldc_exec, '-o-'] + d_flags,
                                             run_count=args.run_count))
 
     spans[language] = min(spans[language])
