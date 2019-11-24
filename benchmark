@@ -32,8 +32,18 @@ def main():
     spans = {}                  # time spans by compiler path
 
     # D
-    benchmark_D(compilers=compilers, spans=spans,
-                gpaths=gpaths, args=args)
+    benchmark_D(compilers=compilers,
+                spans=spans,
+                gpaths=gpaths,
+                args=args,
+                generate_object_file=False)
+
+    # D
+    # benchmark_D(compilers=compilers,
+    #             spans=spans,
+    #             gpaths=gpaths,
+    #             args=args,
+    #             generate_object_file=True)
 
     # Clang
     print('Clang:')
@@ -186,7 +196,8 @@ def benchmark_Clang(compilers, spans, gpaths, args):
     pass
 
 
-def benchmark_D(compilers, spans, gpaths, args):
+def benchmark_D(compilers, spans, gpaths, args,
+                generate_object_file):
 
     language = 'D'
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
@@ -202,7 +213,7 @@ def benchmark_D(compilers, spans, gpaths, args):
         if language not in compilers:
             compilers[language] = dmd_exec
         spans[language].append(compile_file(path=gpaths['D'],
-                                            args=[dmd_exec, '-o-'] + d_flags,
+                                            args=[dmd_exec, '-c' if generate_object_file else '-o-'] + d_flags,
                                             run_count=args.run_count))
 
     # LDC
@@ -211,7 +222,7 @@ def benchmark_D(compilers, spans, gpaths, args):
         if language not in compilers:
             compilers[language] = ldc_exec
         spans[language].append(compile_file(path=gpaths['D'],
-                                            args=[ldc_exec, '-o-'] + d_flags,
+                                            args=[ldc_exec, '-c' if generate_object_file else '-o-'] + d_flags,
                                             run_count=args.run_count))
 
     spans[language] = min(spans[language])
