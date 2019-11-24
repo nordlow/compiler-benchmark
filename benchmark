@@ -300,8 +300,8 @@ def generate_test_program_1(function_count, language, root_path='generated',
         # package definition
         if lang == "go":
             f.write('package ' + program_name + ';\n\n')
-        if lang == "v":
-            f.write('import os\n\n')
+        # if lang == "v":
+        #     f.write('import os\n\n')
 
         # special modules
         if lang == "rust":
