@@ -8,3 +8,4 @@ compiler-benchmark
 elm-stuff/
 .mypy_cache/
 generated/
+sample1.h
