@@ -110,7 +110,7 @@ def main():
 
     # V (vlang.io)
     language = 'V'
-    v_exec = os.path.expanduser('~/Work/v/v')
+    v_exec = shutil.which('v')
     if v_exec is not None:
         print(language + ':')
         if language not in compilers:
