@@ -52,19 +52,25 @@ def main():
         language = 'C'
         clang_exec = shutil.which('clang-' + str(clang_version))
         if clang_exec is not None:
+            version_run = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
             spans['Clang'] = compile_file(path=gpaths['C'],
                                           args=[clang_exec] + C_CLANG_FLAGS,
                                           run_count=args.run_count,
-                                          operation_message='Check')
+                                          operation_message='Check',
+                                          compiler_version=version)
             spans[clang_exec] = spans['Clang']
 
         language = 'C++'
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
+            version_run = subprocess.run([clangxx_, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
             spans['Clang++'] = compile_file(path=gpaths['C++'],
                                             args=[clangxx_] + C_CLANG_FLAGS,
                                             run_count=args.run_count,
-                                            operation_message='Check')
+                                            operation_message='Check',
+                                            compiler_version=version)
             print_speedup(spans, from_lang='D', to_lang='Clang')
             print_speedup(spans, from_lang='D', to_lang='Clang++')
     print()
@@ -223,28 +229,28 @@ def benchmark_D(compilers, spans, gpaths, args,
     # DMD
     dmd_exec = shutil.which('dmd')
     if dmd_exec is not None:
-        dmd_version_output = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
-        dmd_version = dmd_version_output.stdout.decode('utf-8').split()[3]
+        version_run = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[3]
         if language not in compilers:
             compilers[language] = dmd_exec
         spans[language].append(compile_file(path=gpaths['D'],
                                             args=[dmd_exec, exec_args] + d_flags,
                                             run_count=args.run_count,
                                             operation_message=operation_message,
-                                            compiler_version=dmd_version))
+                                            compiler_version=version))
 
     # LDC
     ldc_exec = shutil.which('ldmd2')
     if ldc_exec is not None:
-        ldc_version_output = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
-        ldc_version = ldc_version_output.stdout.decode('utf-8').split()[6][1:-2]
+        version_run = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[6][1:-2]
         if language not in compilers:
             compilers[language] = ldc_exec
         spans[language].append(compile_file(path=gpaths['D'],
                                             args=[ldc_exec, exec_args] + d_flags,
                                             run_count=args.run_count,
                                             operation_message=operation_message,
-                                            compiler_version=ldc_version))
+                                            compiler_version=version))
 
     spans[language] = min(spans[language])
 
