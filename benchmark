@@ -113,10 +113,13 @@ def main():
         print(language + ':')
         if language not in compilers:
             compilers[language] = gccgo_exec
+        version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[2]
         spans[language] = compile_file(path=gpaths[language],
                                        args=[gccgo_exec, '-fsyntax-only', '-S'],
                                        run_count=args.run_count,
-                                       operation_message='Check')
+                                       operation_message='Check',
+                                       compiler_version=version)
         print_speedup(spans, from_lang='D', to_lang='Go')
         print()
 
