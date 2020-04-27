@@ -113,15 +113,15 @@ def main():
         print(language + ':')
         if language not in compilers:
             compilers[language] = gccgo_exec
-        version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
-        version = version_run.stdout.decode('utf-8').split()[2]
-        spans[language] = compile_file(path=gpaths[language],
-                                       args=[gccgo_exec, '-fsyntax-only', '-S'],
-                                       run_count=args.run_count,
-                                       operation_message='Check',
-                                       compiler_version=version)
-        print_speedup(spans, from_lang='D', to_lang='Go')
-        print()
+            version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
+            spans[language] = compile_file(path=gpaths[language],
+                                           args=[gccgo_exec, '-fsyntax-only', '-S'],
+                                           run_count=args.run_count,
+                                           operation_message='Check',
+                                           compiler_version=version)
+            print_speedup(spans, from_lang='D', to_lang='Go')
+            print()
 
     # V (vlang.io)
     language = 'V'
@@ -144,10 +144,13 @@ def main():
     if zig_exec is not None:
         if language not in compilers:
             compilers[language] = zig_exec
+            version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[0]
             spans[language] = compile_file(path=gpaths['Zig'],
                                            args=[zig_exec, 'build-obj', '-fno-emit-bin'],
                                            run_count=args.run_count,  # no syntax flag currently so compile to object file instead
-                                           operation_message='Compilation')
+                                           operation_message='Compilation',
+                                           compiler_version=version)
             print_speedup(spans, from_lang='D', to_lang='Zig')
             print()
 
