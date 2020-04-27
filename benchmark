@@ -82,19 +82,25 @@ def main():
         language = 'C'
         gcc_exec = shutil.which('gcc-' + str(gcc_version))
         if gcc_exec is not None:
+            version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
             spans[gcc_exec] = compile_file(path=gpaths['C'],
                                            args=[gcc_exec] + C_FLAGS,
                                            run_count=args.run_count,
-                                           operation_message='Check')
+                                           operation_message='Check',
+                                           compiler_version=version)
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
 
         language = 'C++'
         gxx_exec = shutil.which('g++-' + str(gcc_version))
         if gxx_exec is not None:
+            version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
             spans[gxx_exec] = compile_file(path=gpaths['C++'],
                                            args=[gxx_exec] + C_FLAGS,
                                            run_count=args.run_count,
-                                           operation_message='Check')
+                                           operation_message='Check',
+                                           compiler_version=version)
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D', to_lang='gcc-9')
             print_speedup(spans, from_lang='D', to_lang='g++-9')
