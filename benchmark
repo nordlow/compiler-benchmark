@@ -130,10 +130,13 @@ def main():
         print(language + ':')
         if language not in compilers:
             compilers[language] = v_exec
+            version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[1]
             spans[language] = compile_file(path=gpaths[language],
                                            args=[v_exec, 'build'],
                                            run_count=args.run_count,
-                                           operation_message='Compilation')
+                                           operation_message='Compilation',
+                                           compiler_version=version)
             print_speedup(spans, from_lang='D', to_lang='V')
             print()
 
@@ -167,10 +170,13 @@ def main():
             # - `rustc --emit=metadata -Z no-codegen`
             # - Not yet in stable: `rustc -Z no-codegen`
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
+        version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[1]
         spans[language] = compile_file(path=gpaths['Rust'],
                                        args=[rustc_exec, '-Z', 'no-codegen'],
                                        run_count=args.run_count,
-                                       operation_message='Check')
+                                       operation_message='Check',
+                                       compiler_version=version)
         print_speedup(spans, from_lang='D', to_lang='Rust')
         print()
 
