@@ -358,29 +358,10 @@ def generate_test_program_linear(function_count, language, root_path='generated'
         generate_test_language_specific_prefix(lang, program_name, f)
         generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False)
         generate_test_main_header(lang, types, f)
-
-        # CALCULATE
         for typ in types:
-            if lang in ["c", "c++", "d"]:
-                f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
-            elif lang in ["java"]:
-                f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
-            elif lang == "rust":
-                f.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
-            elif lang == "zig":
-                f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
-            elif lang == "go":
-                f.write(Tm('    var ${T}_sum ${T} = 0;\n').substitute(T=typ))
-            elif lang == "v":
-                f.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
-            elif lang == "julia":
-                f.write(Tm('    ${T}_sum::${T} = 0;\n').substitute(T=typ))
-            else:
-                assert False
-
+            generate_linear_test_function_variable(lang, typ, f)
             for function_index in range(0, function_count):
                 generate_test_function_call(lang, function_index, typ, f)
-
         generate_test_language_specific_postfix(lang, types, f)
 
     end = timer()
@@ -497,6 +478,25 @@ def generate_test_main_header(lang, types, f):
         f.write(Tm('fn main() {\n').substitute(T=types[0]))
     elif lang == "julia":
         f.write(Tm('function main()::${T}\n').substitute(T=types[0]))
+    else:
+        assert False
+
+
+def generate_linear_test_function_variable(lang, typ, f):
+    if lang in ["c", "c++", "d"]:
+        f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
+    elif lang in ["java"]:
+        f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
+    elif lang == "rust":
+        f.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
+    elif lang == "zig":
+        f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
+    elif lang == "go":
+        f.write(Tm('    var ${T}_sum ${T} = 0;\n').substitute(T=typ))
+    elif lang == "v":
+        f.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
+    elif lang == "julia":
+        f.write(Tm('    ${T}_sum::${T} = 0;\n').substitute(T=typ))
     else:
         assert False
 
