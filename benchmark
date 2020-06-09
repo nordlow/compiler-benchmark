@@ -8,6 +8,9 @@ from string import Template as Tm
 from timeit import default_timer as timer
 
 
+DEFAULT_PROGRAM_NAME = 'sample1'
+
+
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -344,7 +347,7 @@ def generate_test_program_tree(function_count, language, root_path='generated',
 
 def generate_test_program_linear(function_count, language, root_path='generated',
                                  templated_function=False):
-    program_name = 'sample1'
+    program_name = DEFAULT_PROGRAM_NAME
 
     lang = language.lower()
     types = long_types_of_lang(lang)
