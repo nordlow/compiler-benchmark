@@ -370,10 +370,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
         if lang == "java":
             f.write('class HelloWorld {\n')
 
-        for typ in types:
-            for n in range(0, function_count):
-                generate_test_function_definition(lang, typ, n, f, templated_function=False)
-            f.write('\n')
+        generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False)
 
         # MAIN HEADER
         if lang in ["c", "c++"]:
@@ -455,6 +452,13 @@ main()
     # print("Generated {} source file: {}".format(language.upper(), path))
 
     return path  # "-betterC"
+
+
+def generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False):
+    for typ in types:
+        for n in range(0, function_count):
+            generate_test_function_definition(lang, typ, n, f, templated_function=False)
+        f.write('\n')
 
 
 def generate_test_function_definition(lang, typ, n, f, templated_function=False):
