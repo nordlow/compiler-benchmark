@@ -328,7 +328,7 @@ def long_types_of_lang(lang):
         return None
 
 
-def file_ext_of_lang(lang):
+def language_file_extension(lang):
     if lang == 'rust':
         return 'rs'
     elif lang == 'julia':
@@ -348,7 +348,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
 
     lang = language.lower()
     types = long_types_of_lang(lang)
-    ext = file_ext_of_lang(lang)
+    ext = language_file_extension(lang)
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, program_name + '.' + ext)
@@ -506,7 +506,7 @@ def generate_test_program_2(function_count, language, root_path='generated'):
 
     lang = language.lower()
     types = long_types_of_lang(lang)
-    ext = file_ext_of_lang(lang)
+    ext = language_file_extension(lang)
     dir_path = os.path.join(root_path, lang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, program_name + "." + ext)
