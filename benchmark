@@ -219,8 +219,9 @@ def generate_code(languages, args):
     print('Code-generation:')
     gpaths = {}
     for language in languages:
-        gpaths[language] = generate_test_program_linear(function_count=args.function_count,
-                                                        language=language)
+        gpaths[language] = generate_test_program(language=language,
+                                                 function_count=args.function_count,
+                                                 tree_depth=1)
     print()
     return gpaths
 
@@ -340,13 +341,11 @@ def language_file_extension(lang):
         return lang
 
 
-def generate_test_program_tree(function_count, language, root_path='generated',
-                               templated_function=False):
-    pass
-
-
-def generate_test_program_linear(function_count, language, root_path='generated',
-                                 templated_function=False):
+def generate_test_program(language,
+                          function_count,
+                          tree_depth=1,
+                          root_path='generated',
+                          templated_function=False):
     program_name = DEFAULT_PROGRAM_NAME
 
     lang = language.lower()
