@@ -363,11 +363,9 @@ def generate_test_program_linear(function_count, language, root_path='generated'
             for function_index in range(0, function_count):
                 generate_test_function_call(lang, function_index, typ, f)
         generate_test_language_specific_postfix(lang, types, f)
-
     end = timer()
     span = (end - start)  # time span
     print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
-
     # print("Generated {} source file: {}".format(language.upper(), path))
 
     return path  # "-betterC"
