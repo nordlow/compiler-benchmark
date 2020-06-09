@@ -379,12 +379,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
                 assert False
 
             for function_index in range(0, function_count):
-                if lang in ["java"]:
-                    f.write('    ')
-                f.write(Tm('    ${T}_sum += add_${T}_${N}(${N})').substitute(T=typ, N=str(function_index)))
-                if lang not in ["v"]:
-                    f.write(';')
-                f.write('\n')
+                generate_test_function_call(lang, function_index, typ, f)
 
         if lang == "rust":
             f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
@@ -419,6 +414,15 @@ main()
     # print("Generated {} source file: {}".format(language.upper(), path))
 
     return path  # "-betterC"
+
+
+def generate_test_function_call(lang, function_index, typ, f):
+    if lang in ["java"]:
+        f.write('    ')
+    f.write(Tm('    ${T}_sum += add_${T}_${N}(${N})').substitute(T=typ, N=str(function_index)))
+    if lang not in ["v"]:
+        f.write(';')
+    f.write('\n')
 
 
 def generate_test_language_special_intro(lang, program_name, f):
