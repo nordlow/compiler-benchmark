@@ -355,23 +355,8 @@ def generate_test_program_linear(function_count, language, root_path='generated'
 
     start = timer()
     with open(path, 'w') as f:
-
-        # package definition
-        if lang == "go":
-            f.write('package ' + program_name + ';\n\n')
-        # if lang == "v":
-        #     f.write('import os\n\n')
-
-        # special modules
-        if lang == "rust":
-            f.write('use std::process::exit;\n')
-
-        # special class wrapping
-        if lang == "java":
-            f.write('class HelloWorld {\n')
-
+        generate_test_language_special_intro(lang, program_name, f)
         generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False)
-
         generate_test_main_header(lang, types, f)
 
         # CALCULATE
@@ -434,6 +419,22 @@ main()
     # print("Generated {} source file: {}".format(language.upper(), path))
 
     return path  # "-betterC"
+
+
+def generate_test_language_special_intro(lang, program_name, f):
+    # package definition
+    if lang == "go":
+        f.write('package ' + program_name + ';\n\n')
+    # if lang == "v":
+    #     f.write('import os\n\n')
+
+    # special modules
+    if lang == "rust":
+        f.write('use std::process::exit;\n')
+
+    # special class wrapping
+    if lang == "java":
+        f.write('class HelloWorld {\n')
 
 
 def generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False):
