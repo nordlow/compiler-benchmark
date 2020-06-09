@@ -372,25 +372,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
 
         generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False)
 
-        # MAIN HEADER
-        if lang in ["c", "c++"]:
-            f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
-        elif lang == "java":
-            f.write('    public static void main(String args[]) {\n')
-        elif lang == "d":
-            f.write('int main(string[] args) {\n')
-        elif lang == "rust":
-            f.write(Tm('fn main() {\n').substitute(T=types[0]))
-        elif lang == "zig":
-            f.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
-        elif lang == "go":
-            f.write(Tm('func main() ${T} {\n').substitute(T=types[0]))
-        elif lang == "v":
-            f.write(Tm('fn main() {\n').substitute(T=types[0]))
-        elif lang == "julia":
-            f.write(Tm('function main()::${T}\n').substitute(T=types[0]))
-        else:
-            assert False
+        generate_test_main_header(lang, types, f)
 
         # CALCULATE
         for typ in types:
@@ -487,6 +469,27 @@ def generate_test_function_definition(lang, typ, function_index, f, templated_fu
         f.write(Tm('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(function_index)))
     elif lang == "julia":
         f.write(Tm('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(function_index)))
+
+
+def generate_test_main_header(lang, types, f):
+    if lang in ["c", "c++"]:
+        f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
+    elif lang == "java":
+        f.write('    public static void main(String args[]) {\n')
+    elif lang == "d":
+        f.write('int main(string[] args) {\n')
+    elif lang == "rust":
+        f.write(Tm('fn main() {\n').substitute(T=types[0]))
+    elif lang == "zig":
+        f.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
+    elif lang == "go":
+        f.write(Tm('func main() ${T} {\n').substitute(T=types[0]))
+    elif lang == "v":
+        f.write(Tm('fn main() {\n').substitute(T=types[0]))
+    elif lang == "julia":
+        f.write(Tm('function main()::${T}\n').substitute(T=types[0]))
+    else:
+        assert False
 
 
 def generate_test_program_2(function_count, language, root_path='generated'):
