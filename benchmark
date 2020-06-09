@@ -125,7 +125,7 @@ def main():
 
     # V (vlang.io)
     language = 'V'
-    v_exec = shutil.which('v')
+    v_exec = '/home/per/ware/vlang/v'  # shutil.which('v')
     if v_exec is not None:
         print(language + ':')
         if language not in compilers:
@@ -133,7 +133,7 @@ def main():
             version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[1]
             spans[language] = compile_file(path=gpaths[language],
-                                           args=[v_exec, 'build'],
+                                           args=[v_exec],
                                            run_count=args.run_count,
                                            operation_message='Compilation',
                                            compiler_version=version)
@@ -216,8 +216,8 @@ def generate_code(languages, args):
     print('Code-generation:')
     gpaths = {}
     for language in languages:
-        gpaths[language] = generate_test_program_1(function_count=args.function_count,
-                                                   language=language)
+        gpaths[language] = generate_test_program_linear(function_count=args.function_count,
+                                                        language=language)
     print()
     return gpaths
 
@@ -337,8 +337,13 @@ def file_ext_of_lang(lang):
         return lang
 
 
-def generate_test_program_1(function_count, language, root_path='generated',
-                            templated_function=False):
+def generate_test_program_tree(function_count, language, root_path='generated',
+                               templated_function=False):
+    pass
+
+
+def generate_test_program_linear(function_count, language, root_path='generated',
+                                 templated_function=False):
     program_name = 'sample1'
 
     lang = language.lower()
@@ -367,31 +372,7 @@ def generate_test_program_1(function_count, language, root_path='generated',
 
         for typ in types:
             for n in range(0, function_count):
-                if lang in ["c"]:
-                    f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
-                elif lang in ["java"]:
-                    f.write(Tm('    static ${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
-                elif lang in ["c++"]:
-                    f.write(Tm('${X}${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n')
-                            .substitute(T=typ,
-                                        N=str(n),
-                                        X='template<typename T=int> ' if templated_function else ''))
-                    # template<typename T1, typename T2 = int> class A;
-                if lang in ["d"]:
-                    f.write(Tm('${T} add_${T}_${N}${X}(${T} x) pure { return x + ${N}; }\n')
-                            .substitute(T=typ,
-                                        N=str(n),
-                                        X='(alias T=void)' if templated_function else ''))
-                elif lang == "rust":
-                    f.write(Tm('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(n)))
-                elif lang == "zig":
-                    f.write(Tm('fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
-                elif lang == "go":
-                    f.write(Tm('func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
-                elif lang == "v":
-                    f.write(Tm('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
-                elif lang == "julia":
-                    f.write(Tm('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(n)))
+                generate_test_function(lang, typ, n, f, templated_function=False)
             f.write('\n')
 
         # MAIN HEADER
@@ -474,6 +455,34 @@ main()
     # print("Generated {} source file: {}".format(language.upper(), path))
 
     return path  # "-betterC"
+
+
+def generate_test_function(lang, typ, n, f, templated_function=False):
+    if lang in ["c"]:
+        f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+    elif lang in ["java"]:
+        f.write(Tm('    static ${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+    elif lang in ["c++"]:
+        f.write(Tm('${X}${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n')
+                .substitute(T=typ,
+                            N=str(n),
+                            X='template<typename T=int> ' if templated_function else ''))
+        # template<typename T1, typename T2 = int> class A;
+    if lang in ["d"]:
+        f.write(Tm('${T} add_${T}_${N}${X}(${T} x) pure { return x + ${N}; }\n')
+                .substitute(T=typ,
+                            N=str(n),
+                            X='(alias T=void)' if templated_function else ''))
+    elif lang == "rust":
+        f.write(Tm('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(n)))
+    elif lang == "zig":
+        f.write(Tm('fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
+    elif lang == "go":
+        f.write(Tm('func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
+    elif lang == "v":
+        f.write(Tm('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(n)))
+    elif lang == "julia":
+        f.write(Tm('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(n)))
 
 
 def generate_test_program_2(function_count, language, root_path='generated'):
