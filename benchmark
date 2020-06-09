@@ -355,7 +355,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
 
     start = timer()
     with open(path, 'w') as f:
-        generate_test_language_special_intro(lang, program_name, f)
+        generate_test_language_specific_prefix(lang, program_name, f)
         generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False)
         generate_test_main_header(lang, types, f)
 
@@ -381,31 +381,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
             for function_index in range(0, function_count):
                 generate_test_function_call(lang, function_index, typ, f)
 
-        if lang == "rust":
-            f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
-        elif lang == "v":
-            f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
-        elif lang == "java":
-            f.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
-        elif lang == "zig":
-            f.write(Tm('\n}\n').substitute(T=types[0]))
-        elif lang == "julia":
-            f.write(Tm('''    return ${T}_sum;
-end
-
-main()
-''').substitute(T=types[0]))
-        elif lang == "d":
-            f.write(Tm('''    return cast(int)${T}_sum;
-}
-''').substitute(T=types[0]))
-        else:
-            f.write(Tm('''    return ${T}_sum;
-}
-''').substitute(T=types[0]))
-
-        if lang == "java":
-            f.write('}\n')            # one extra closing brace for class
+        generate_test_language_specific_postfix(lang, types, f)
 
     end = timer()
     span = (end - start)  # time span
@@ -425,7 +401,7 @@ def generate_test_function_call(lang, function_index, typ, f):
     f.write('\n')
 
 
-def generate_test_language_special_intro(lang, program_name, f):
+def generate_test_language_specific_prefix(lang, program_name, f):
     # package definition
     if lang == "go":
         f.write('package ' + program_name + ';\n\n')
@@ -439,6 +415,34 @@ def generate_test_language_special_intro(lang, program_name, f):
     # special class wrapping
     if lang == "java":
         f.write('class HelloWorld {\n')
+
+
+def generate_test_language_specific_postfix(lang, types, f):
+    if lang == "rust":
+        f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
+    elif lang == "v":
+        f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
+    elif lang == "java":
+        f.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
+    elif lang == "zig":
+        f.write(Tm('\n}\n').substitute(T=types[0]))
+    elif lang == "julia":
+        f.write(Tm('''    return ${T}_sum;
+end
+
+main()
+''').substitute(T=types[0]))
+    elif lang == "d":
+        f.write(Tm('''    return cast(int)${T}_sum;
+}
+''').substitute(T=types[0]))
+    else:
+        f.write(Tm('''    return ${T}_sum;
+}
+''').substitute(T=types[0]))
+
+    if lang == "java":
+        f.write('}\n')            # one extra closing brace for class
 
 
 def generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False):
