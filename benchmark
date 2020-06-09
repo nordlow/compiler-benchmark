@@ -372,7 +372,7 @@ def generate_test_program_linear(function_count, language, root_path='generated'
 
         for typ in types:
             for n in range(0, function_count):
-                generate_test_function(lang, typ, n, f, templated_function=False)
+                generate_test_function_definition(lang, typ, n, f, templated_function=False)
             f.write('\n')
 
         # MAIN HEADER
@@ -457,7 +457,7 @@ main()
     return path  # "-betterC"
 
 
-def generate_test_function(lang, typ, n, f, templated_function=False):
+def generate_test_function_definition(lang, typ, n, f, templated_function=False):
     if lang in ["c"]:
         f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(n)))
     elif lang in ["java"]:
