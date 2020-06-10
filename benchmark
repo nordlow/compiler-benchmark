@@ -366,12 +366,14 @@ def generate_test_program(language,
     start = timer()
     with open(path, 'w') as f:
         generate_test_language_specific_prefix(lang, program_name, f)
+
         generate_linear_test_function_definition_set(lang, types, args.function_count, f, templated_function=False)
         generate_test_main_header(lang, types, f)
         for typ in types:
             generate_linear_test_function_variable(lang, typ, f)
             for function_index in range(0, args.function_count):
                 generate_test_function_call(lang, function_index, typ, f)
+
         generate_test_language_specific_postfix(lang, types, f)
     end = timer()
     span = (end - start)  # time span
