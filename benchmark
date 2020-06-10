@@ -18,13 +18,9 @@ def main():
                         default=100,
                         help="Number of functions generated and called")
 
-    parser.add_argument("--function-height", type=int,
-                        default=8,
-                        help="Function call height (depth)")
-
-    parser.add_argument("--function-arity", type=int,
-                        default=2,
-                        help="Function arity")
+    parser.add_argument("--function-depth", type=int,
+                        default=100,
+                        help="Function call depth")
 
     parser.add_argument("--run-count", type=int,
                         default=1,
@@ -371,8 +367,8 @@ def generate_test_program(language,
         generate_test_main_header(lang, types, f)
         for typ in types:
             generate_linear_test_function_variable(lang, typ, f)
-            for function_index in range(0, args.function_count):
-                generate_test_function_call(lang, function_index, typ, f)
+            for findex in range(0, args.function_count):
+                generate_test_function_call(lang, findex, typ, f)
 
         generate_test_language_specific_postfix(lang, types, f)
     end = timer()
@@ -383,10 +379,10 @@ def generate_test_program(language,
     return path  # "-betterC"
 
 
-def generate_test_function_call(lang, function_index, typ, f):
+def generate_test_function_call(lang, findex, typ, f):
     if lang in ["java"]:
         f.write('    ')
-    f.write(Tm('    ${T}_sum += add_${T}_${N}(${N})').substitute(T=typ, N=str(function_index)))
+    f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
     if lang not in ["v"]:
         f.write(';')
     f.write('\n')
@@ -438,37 +434,59 @@ main()
 
 def generate_linear_test_function_definition_set(lang, types, args, f, templated_function=False):
     for typ in types:
-        for function_index in range(0, args.function_count):
-            generate_test_function_definition(lang, typ, function_index, args.function_height, f, templated_function=False)
+        for findex in range(0, args.function_count):
+            for fheight in range(0, args.function_depth):
+                generate_test_function_definition(args, lang, typ, findex, fheight, f, templated_function=False)
+            f.write('\n')
         f.write('\n')
 
 
-def generate_test_function_definition(lang, typ, function_index, function_height, f, templated_function=False):
+def function_name(typ, findex, fheight):
+    if fheight is not None:
+        return Tm('add_${T}_n${N}_h${H}').substitute(T=typ,
+                                                     N=str(findex),
+                                                     H=str(fheight))
+    else:
+        return Tm('add_${T}_n${N}').substitute(T=typ,
+                                               N=str(findex))
+
+
+def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated_function=False):
+    if fheight == 0:
+        expr = 'x'
+    else:
+        expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x)'
+
+    if fheight == args.function_depth - 1:
+        fname = function_name(typ, findex, fheight=None)
+    else:
+        fname = function_name(typ, findex, fheight)
+
     if lang in ["c"]:
-        f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('${T} ${F}(${T} x) { return ${X} + ${N}; }\n').substitute(T=typ, F=str(fname), N=str(findex), X=expr))
     elif lang in ["java"]:
-        f.write(Tm('    static ${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('    static ${T} ${F}(${T} x) { return x + ${N}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight),))
     elif lang in ["c++"]:
-        f.write(Tm('${X}${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n')
+        f.write(Tm('${X}${T} ${F}(${T} x) { return x + ${N}; }\n')
                 .substitute(T=typ,
-                            N=str(function_index),
+                            F=str(fname), N=str(findex), H=str(fheight),
                             X='template<typename T=int> ' if templated_function else ''))
         # template<typename T1, typename T2 = int> class A;
     if lang in ["d"]:
-        f.write(Tm('${T} add_${T}_${N}${X}(${T} x) pure { return x + ${N}; }\n')
+        f.write(Tm('${T} ${F}${X}(${T} x) pure { return x + ${N}; }\n')
                 .substitute(T=typ,
-                            N=str(function_index),
+                            F=str(fname), N=str(findex), H=str(fheight),
                             X='(alias T=void)' if templated_function else ''))
     elif lang == "rust":
-        f.write(Tm('fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('fn ${F}(x: ${T}) -> ${T} { x + ${N} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight)))
     elif lang == "zig":
-        f.write(Tm('fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('fn ${F}(x: ${T}) ${T} { return x + ${N}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight)))
     elif lang == "go":
-        f.write(Tm('func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('func ${F}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight)))
     elif lang == "v":
-        f.write(Tm('fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('fn ${F}(x ${T}) ${T} { return x + ${N} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight)))
     elif lang == "julia":
-        f.write(Tm('function add_${T}_${N}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, N=str(function_index)))
+        f.write(Tm('function ${F}(x::${T})::${T}\n    return x + ${N}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight)))
 
 
 def generate_test_main_header(lang, types, f):
@@ -557,30 +575,30 @@ def generate_test_program_2(function_count, language, root_path='generated'):
 ''')
 
         for typ in types:
-            for function_index in range(0, function_count):
+            for findex in range(0, function_count):
                 if lang in ["c", "c++"]:
-                    f.write(Tm('''${T} add_${T}_${N}(${T} x) { return x + ${N}; }
-''').substitute(T=typ, N=str(function_index)))
+                    f.write(Tm('''${T} add_${T}_n${N}(${T} x) { return x + ${N}; }
+''').substitute(T=typ, N=str(findex)))
                 if lang in ["d"]:
-                    f.write(Tm('''${T} add_${T}_${N}(${T} x) pure { return x + ${N}; }
-''').substitute(T=typ, N=str(function_index)))
+                    f.write(Tm('''${T} add_${T}_n${N}(${T} x) pure { return x + ${N}; }
+''').substitute(T=typ, N=str(findex)))
                 elif lang == "rust":
-                    f.write(Tm('''fn add_${T}_${N}(x: ${T}) -> ${T} { x + ${N} }
-''').substitute(T=typ, N=str(function_index)))
+                    f.write(Tm('''fn add_${T}_n${N}(x: ${T}) -> ${T} { x + ${N} }
+''').substitute(T=typ, N=str(findex)))
                 elif lang == "zig":
-                    f.write(Tm('''fn add_${T}_${N}(x: ${T}) ${T} { return x + ${N}; }
-''').substitute(T=typ, N=str(function_index)))
+                    f.write(Tm('''fn add_${T}_n${N}(x: ${T}) ${T} { return x + ${N}; }
+''').substitute(T=typ, N=str(findex)))
                 elif lang == "go":
-                    f.write(Tm('''func add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
-''').substitute(T=typ, N=str(function_index)))
+                    f.write(Tm('''func add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
+''').substitute(T=typ, N=str(findex)))
                 elif lang == "v":
-                    f.write(Tm('''fn add_${T}_${N}(x ${T}) ${T} { return x + ${N} }
-''').substitute(T=typ, N=str(function_index)))
+                    f.write(Tm('''fn add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
+''').substitute(T=typ, N=str(findex)))
                 elif lang == "julia":
-                    f.write(Tm('''function add_${T}_${N}(x::${T})::${T}
+                    f.write(Tm('''function add_${T}_n${N}(x::${T})::${T}
     return x + ${N}
 end;
-''').substitute(T=typ, N=str(function_index)))
+''').substitute(T=typ, N=str(findex)))
                     f.write('\n')
 
         # MAIN HEADER
@@ -633,9 +651,9 @@ end;
             else:
                 assert False
 
-            for function_index in range(0, function_count):
-                f.write(Tm('''    ${T}_sum += add_${T}_${N}(${N});
-''').substitute(T=typ, N=str(function_index)))
+            for findex in range(0, function_count):
+                f.write(Tm('''    ${T}_sum += add_${T}_n${N}(${N});
+''').substitute(T=typ, N=str(findex)))
 
         if lang == "rust":
             f.write(Tm('''    exit(${T}_sum);
