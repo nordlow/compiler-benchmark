@@ -143,8 +143,9 @@ def main():
             compilers[language] = v_exec
             version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[1]
+            vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
             spans[language] = compile_file(path=gpaths[language],
-                                           args=[v_exec],
+                                           args=[v_exec, '-backend', 'x64'],
                                            run_count=args.run_count,
                                            operation_message='Compilation',
                                            compiler_version=version)
@@ -298,6 +299,7 @@ def compile_file(path, args, run_count=1,
     spans = []
     for _ in range(0, run_count):
         start = timer()
+        # print(args + [path])
         with subprocess.Popen(args + [path],
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE) as proc:
