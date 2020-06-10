@@ -11,11 +11,11 @@ Note that Julia's JIT-compiler is very memory hungry. A maximum recommended
 
 Just run as, for instance,
 
-    ./benchmark --function-count=10000 --run-count=5
+    ./benchmark --function-count=100 --function-depth=100 --run-count=5
 
 or
 
-    python3 benchmark --function-count=10000 --run-count=5
+    python3 benchmark --function-count=100 --function-depth=100 --run-count=5
 
 .
 
