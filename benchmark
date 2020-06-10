@@ -136,7 +136,7 @@ def main():
 
     # V (vlang.io)
     language = 'V'
-    v_exec = '/home/per/ware/vlang/v'  # shutil.which('v')
+    v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
         print(language + ':')
         if language not in compilers:
@@ -228,8 +228,7 @@ def generate_code(languages, args):
     gpaths = {}
     for language in languages:
         gpaths[language] = generate_test_program(language=language,
-                                                 function_count=args.function_count,
-                                                 tree_depth=1)
+                                                 args=args)
     print()
     return gpaths
 
@@ -350,8 +349,7 @@ def language_file_extension(lang):
 
 
 def generate_test_program(language,
-                          function_count,
-                          tree_depth=1,
+                          args,
                           root_path='generated',
                           templated_function=False):
     program_name = DEFAULT_PROGRAM_NAME
@@ -366,11 +364,11 @@ def generate_test_program(language,
     start = timer()
     with open(path, 'w') as f:
         generate_test_language_specific_prefix(lang, program_name, f)
-        generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False)
+        generate_linear_test_function_definition_set(lang, types, args.function_count, f, templated_function=False)
         generate_test_main_header(lang, types, f)
         for typ in types:
             generate_linear_test_function_variable(lang, typ, f)
-            for function_index in range(0, function_count):
+            for function_index in range(0, args.function_count):
                 generate_test_function_call(lang, function_index, typ, f)
         generate_test_language_specific_postfix(lang, types, f)
     end = timer()
