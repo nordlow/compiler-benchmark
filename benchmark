@@ -15,8 +15,16 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--function-count", type=int,
-                        default=10000,
+                        default=100,
                         help="Number of functions generated and called")
+
+    parser.add_argument("--function-call-depth", type=int,
+                        default=8,
+                        help="Function call depth")
+
+    parser.add_argument("--function-arity", type=int,
+                        default=2,
+                        help="Function arity")
 
     parser.add_argument("--run-count", type=int,
                         default=1,
