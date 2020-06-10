@@ -453,9 +453,9 @@ def function_name(typ, findex, fheight):
 
 def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated_function=False):
     if fheight == 0:
-        expr = 'x'
+        expr = 'x + ' + str(findex)
     else:
-        expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x)'
+        expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + str(findex)
 
     if fheight == args.function_depth - 1:
         fname = function_name(typ, findex, fheight=None)
@@ -463,28 +463,28 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
         fname = function_name(typ, findex, fheight)
 
     if lang in ["c"]:
-        f.write(Tm('${T} ${F}(${T} x) { return ${X} + ${N}; }\n').substitute(T=typ, F=str(fname), N=str(findex), X=expr))
+        f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), X=expr))
     elif lang in ["java"]:
-        f.write(Tm('    static ${T} ${F}(${T} x) { return ${X} + ${N}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang in ["c++"]:
-        f.write(Tm('${M}${T} ${F}(${T} x) { return ${X} + ${N}; }\n')
+        f.write(Tm('${M}${T} ${F}(${T} x) { return ${X}; }\n')
                 .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight),
                             M='template<typename T=int> ' if templated_function else '',
                             X=expr))
         # template<typename T1, typename T2 = int> class A;
     if lang in ["d"]:
-        f.write(Tm('${T} ${F}${X}(${T} x) pure { return ${X} + ${N}; }\n')
-                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X='(alias T=void)' if templated_function else ''))
+        f.write(Tm('${T} ${F}${M}(${T} x) @safe pure nothrow @nogc { return ${X}; }\n')
+                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(alias T=void)' if templated_function else '', X=expr))
     elif lang == "rust":
-        f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} + ${N} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "zig":
-        f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X} + ${N}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "go":
-        f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} + ${N} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "v":
-        f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} + ${N} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "julia":
-        f.write(Tm('function ${F}(x::${T})::${T}\n    return ${X} + ${N}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('function ${F}(x::${T})::${T}\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
 
 
 def generate_test_main_header(lang, types, f):
