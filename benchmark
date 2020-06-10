@@ -18,9 +18,9 @@ def main():
                         default=100,
                         help="Number of functions generated and called")
 
-    parser.add_argument("--function-call-depth", type=int,
+    parser.add_argument("--function-height", type=int,
                         default=8,
-                        help="Function call depth")
+                        help="Function call height (depth)")
 
     parser.add_argument("--function-arity", type=int,
                         default=2,
@@ -145,7 +145,7 @@ def main():
             version = version_run.stdout.decode('utf-8').split()[1]
             vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
             spans[language] = compile_file(path=gpaths[language],
-                                           args=[v_exec, '-backend', 'x64'],
+                                           args=[v_exec, '-backend', vlang_backends[2]],
                                            run_count=args.run_count,
                                            operation_message='Compilation',
                                            compiler_version=version)
@@ -367,7 +367,7 @@ def generate_test_program(language,
     with open(path, 'w') as f:
         generate_test_language_specific_prefix(lang, program_name, f)
 
-        generate_linear_test_function_definition_set(lang, types, args.function_count, f, templated_function=False)
+        generate_linear_test_function_definition_set(lang, types, args, f, templated_function=False)
         generate_test_main_header(lang, types, f)
         for typ in types:
             generate_linear_test_function_variable(lang, typ, f)
@@ -436,14 +436,14 @@ main()
         f.write('}\n')            # one extra closing brace for class
 
 
-def generate_linear_test_function_definition_set(lang, types, function_count, f, templated_function=False):
+def generate_linear_test_function_definition_set(lang, types, args, f, templated_function=False):
     for typ in types:
-        for function_index in range(0, function_count):
-            generate_test_function_definition(lang, typ, function_index, f, templated_function=False)
+        for function_index in range(0, args.function_count):
+            generate_test_function_definition(lang, typ, function_index, args.function_height, f, templated_function=False)
         f.write('\n')
 
 
-def generate_test_function_definition(lang, typ, function_index, f, templated_function=False):
+def generate_test_function_definition(lang, typ, function_index, function_height, f, templated_function=False):
     if lang in ["c"]:
         f.write(Tm('${T} add_${T}_${N}(${T} x) { return x + ${N}; }\n').substitute(T=typ, N=str(function_index)))
     elif lang in ["java"]:
