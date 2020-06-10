@@ -37,57 +37,69 @@ results in the following output
 
 ```
 Code-generation:
-- Generating generated/c/sample1.c took 0.394 seconds (C)
-- Generating generated/c++/sample1.c++ took 0.421 seconds (C++)
-- Generating generated/java/sample1.java took 0.400 seconds (Java)
-- Generating generated/d/sample1.d took 0.415 seconds (D)
-- Generating generated/rust/sample1.rs took 0.401 seconds (Rust)
-- Generating generated/zig/sample1.zig took 0.396 seconds (Zig)
-- Generating generated/go/sample1.go took 0.401 seconds (Go)
-- Generating generated/v/sample1.v took 0.391 seconds (V)
-- Generating generated/julia/sample1.jl took 0.404 seconds (Julia)
+- Generating generated/c/linear.c took 0.494 seconds (C)
+- Generating generated/c++/linear.c++ took 0.552 seconds (C++)
+- Generating generated/java/linear.java took 0.448 seconds (Java)
+- Generating generated/d/linear.d took 0.516 seconds (D)
+- Generating generated/rust/linear.rs took 0.521 seconds (Rust)
+- Generating generated/zig/linear.zig took 0.451 seconds (Zig)
+- Generating generated/go/linear.go took 0.449 seconds (Go)
+- Generating generated/v/linear.v took 0.446 seconds (V)
+- Generating generated/julia/linear.jl took 0.453 seconds (Julia)
 
 D:
-- Checking of generated/d/sample1.d took 0.353 seconds (using "/home/per/.local/dlang/linux/bin64/dmd")
-- Checking of generated/d/sample1.d took 0.388 seconds (using "/home/per/.local/ldc2-1.18.0-linux-x86_64/bin/ldmd2")
+- Check took 0.316 seconds (using "/home/per/.local/dlang/linux/bin64/dmd" version v2.092.1-beta.1-308-g3202e730d)
+- Check took 0.362 seconds (using "/home/per/.local/ldc2-1.22.0-beta1-linux-x86_64/bin/ldmd2" version 1.22.0-beta1)
+
+D-compilation:
+- Compilation took 0.728 seconds (using "/home/per/.local/dlang/linux/bin64/dmd" version v2.092.1-beta.1-308-g3202e730d)
+- Compilation took 7.453 seconds (using "/home/per/.local/ldc2-1.22.0-beta1-linux-x86_64/bin/ldmd2" version 1.22.0-beta1)
 
 Clang:
-- Checking of generated/c/sample1.c took 1.105 seconds (using "/usr/bin/clang-8")
-- Checking of generated/c++/sample1.c++ took 1.410 seconds (using "/usr/bin/clang++-8")
-- Speedup of D over Clang: 3.18
-- Speedup of D over Clang++: 4.19
-- Checking of generated/c/sample1.c took 1.230 seconds (using "/usr/bin/clang-9")
-- Checking of generated/c++/sample1.c++ took 1.550 seconds (using "/usr/bin/clang++-9")
-- Speedup of D over Clang: 3.49
-- Speedup of D over Clang++: 4.53
+- Check took 1.082 seconds (using "/usr/bin/clang-8" version 8.0.1-9)
+- Check took 1.521 seconds (using "/usr/bin/clang++-8" version 8.0.1-9)
+- Speedup of D over Clang: 3.40
+- Speedup of D over Clang++: 4.78
+- Check took 1.176 seconds (using "/usr/bin/clang-9" version 9.0.1-12)
+- Check took 1.596 seconds (using "/usr/bin/clang++-9" version 9.0.1-12)
+- Speedup of D over Clang: 3.80
+- Speedup of D over Clang++: 5.23
+- Check took 1.252 seconds (using "/usr/bin/clang-10" version 10.0.0-4ubuntu1)
+- Check took 1.689 seconds (using "/usr/bin/clang++-10" version 10.0.0-4ubuntu1)
+- Speedup of D over Clang: 4.00
+- Speedup of D over Clang++: 5.44
 
 GCC:
-- Checking of generated/c/sample1.c took 0.380 seconds (using "/usr/bin/gcc-8")
-- Checking of generated/c++/sample1.c++ took 0.936 seconds (using "/usr/bin/g++-8")
-- Checking of generated/c/sample1.c took 0.404 seconds (using "/usr/bin/gcc-9")
-- Checking of generated/c++/sample1.c++ took 1.048 seconds (using "/usr/bin/g++-9")
-- Speedup of D over gcc-9: 1.17
-- Speedup of D over g++-9: 3.09
+- Check took 0.333 seconds (using "/usr/bin/gcc-8" version 8.4.0-3ubuntu2))
+- Check took 0.837 seconds (using "/usr/bin/g++-8" version 8.4.0-3ubuntu2))
+- Check took 0.507 seconds (using "/usr/bin/gcc-9" version 9.3.0-10ubuntu2))
+- Check took 1.355 seconds (using "/usr/bin/g++-9" version 9.3.0-10ubuntu2))
+- Speedup of D over gcc-9: 1.61
+- Speedup of D over g++-9: 4.41
+- Check took 0.540 seconds (using "/usr/bin/gcc-10" version 10-20200411-0ubuntu1))
+- Check took 1.525 seconds (using "/usr/bin/g++-10" version 10-20200411-0ubuntu1))
+- Speedup of D over gcc-9: 1.61
+- Speedup of D over g++-9: 4.41
 
 Go:
-- Checking of generated/go/sample1.go took 1.221 seconds (using "/usr/bin/gccgo")
-- Speedup of D over Go: 3.48
+- Check took 1.075 seconds (using "/usr/bin/gccgo" version 10-20200411-0ubuntu1))
+- Speedup of D over Go: 3.40
 
 V:
-- Checking of generated/v/sample1.v took 2.893 seconds (using "/home/per/Work/v/v")
-- Speedup of D over V: 8.23
+- Compilation took 19.241 seconds (using "/home/per/ware/vlang/v" version 0.1.27)
+- Speedup of D over V: 60.89
 
 Zig:
-- Checking of generated/zig/sample1.zig took 4.306 seconds (using "/snap/bin/zig")
-- Speedup of D over Zig: 12.20
+- Compilation took 4.128 seconds (using "/snap/bin/zig" version 0.6.0)
+- Speedup of D over Zig: 13.16
 
 Rust:
-- Checking of generated/rust/sample1.rs took 27.590 seconds (using "/home/per/.cargo/bin/rustc")
-- Speedup of D over Rust: 78.98
+- Check took 11.041 seconds (using "/home/per/.cargo/bin/rustc" version 1.46.0-nightly)
+- Speedup of D over Rust: 35.45
 
 Java:
-- Checking of generated/java/sample1.java took 4.798 seconds (using "/usr/bin/javac")
-- Speedup of D over Java: 17.00
+- Compilation took 4.495 seconds (using "/usr/bin/javac")
+- Speedup of D over Java: 17.39
 ```
 
 This is with DMD built with LDC for an additional 20 percent drop in compilation time.
