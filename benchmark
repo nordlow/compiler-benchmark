@@ -232,7 +232,7 @@ def benchmark_D(compilers, spans, gpaths, args,
     language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
-    print('D' + '-' + operation_message + ':')
+    print(language + ':')
 
     if language not in spans:
         spans[language] = []
