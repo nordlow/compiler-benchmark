@@ -95,6 +95,7 @@ def main():
                                            operation_message='Check',
                                            compiler_version=version)
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
+            print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
 
         language = 'C++'
         gxx_exec = shutil.which('g++-' + str(gcc_version))
@@ -107,8 +108,7 @@ def main():
                                            operation_message='Check',
                                            compiler_version=version)
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
-            print_speedup(spans, from_lang='D-check', to_lang='gcc-9')
-            print_speedup(spans, from_lang='D-check', to_lang='g++-9')
+            print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
     print()
 
     # Go
@@ -296,8 +296,8 @@ def benchmark_Rust(compilers, spans, gpaths, args,
                                        operation_message=operation_message,
                                        compiler_version=version)
         print_speedup(spans,
-                      from_lang='D' + operation_message,
-                      to_lang='Rust' + operation_message)
+                      from_lang='D-' + operation_message.lower(),
+                      to_lang='Rust-' + operation_message.lower())
         print()
 
 
