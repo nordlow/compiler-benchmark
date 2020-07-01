@@ -289,7 +289,6 @@ def benchmark_Rust(compilers, spans, gpaths, args,
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
-        print([rustc_exec] if generate_object_file else [rustc_exec, '-Z', 'no-codegen'])
         spans[language] = compile_file(path=gpaths['Rust'],
                                        args=[rustc_exec] if generate_object_file else [rustc_exec, '-Z', 'no-codegen'],
                                        run_count=args.run_count,
