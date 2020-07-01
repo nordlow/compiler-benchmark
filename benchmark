@@ -44,8 +44,6 @@ def main():
                 gpaths=gpaths,
                 args=args,
                 generate_object_file=False)
-
-    # D
     benchmark_D(compilers=compilers,
                 spans=spans,
                 gpaths=gpaths,
@@ -166,27 +164,16 @@ def main():
             print()
 
     # Rust
-    language = 'Rust'
-    rustc_exec = shutil.which('rustc')
-    if rustc_exec is not None:
-        print(language + ':')
-        if language not in compilers:
-            compilers[language] = rustc_exec
-            # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
-            # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
-            # Alternatives:
-            # - `rustc --emit=metadata -Z no-codegen`
-            # - Not yet in stable: `rustc -Z no-codegen`
-            # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
-        version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
-        version = version_run.stdout.decode('utf-8').split()[1]
-        spans[language] = compile_file(path=gpaths['Rust'],
-                                       args=[rustc_exec, '-Z', 'no-codegen'],
-                                       run_count=args.run_count,
-                                       operation_message='Check',
-                                       compiler_version=version)
-        print_speedup(spans, from_lang='D', to_lang='Rust')
-        print()
+    benchmark_Rust(compilers=compilers,
+                   spans=spans,
+                   gpaths=gpaths,
+                   args=args,
+                   generate_object_file=False)
+    benchmark_Rust(compilers=compilers,
+                   spans=spans,
+                   gpaths=gpaths,
+                   args=args,
+                   generate_object_file=True)
 
     # Java
     language = 'Java'
@@ -239,7 +226,7 @@ def benchmark_Clang(compilers, spans, gpaths, args):
 
 
 def benchmark_D(compilers, spans, gpaths, args,
-                generate_object_file):
+                generate_object_file=False):
 
     operation_message = 'Compilation' if generate_object_file else "Check"
     language = 'D' + ('-compilation' if generate_object_file else "")
@@ -281,6 +268,34 @@ def benchmark_D(compilers, spans, gpaths, args,
     spans[language] = min(spans[language])
 
     print()
+
+
+def benchmark_Rust(compilers, spans, gpaths, args,
+                   generate_object_file=False):
+
+    operation_message = 'Compilation' if generate_object_file else "Check"
+    language = 'Rust' + ('-compilation' if generate_object_file else "")
+
+    rustc_exec = shutil.which('rustc')
+    if rustc_exec is not None:
+        print(language + ':')
+        if language not in compilers:
+            compilers[language] = rustc_exec
+            # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
+            # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
+            # Alternatives:
+            # - `rustc --emit=metadata -Z no-codegen`
+            # - Not yet in stable: `rustc -Z no-codegen`
+            # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
+        version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[1]
+        spans[language] = compile_file(path=gpaths['Rust'],
+                                       args=[rustc_exec, '-Z', 'no-codegen'],
+                                       run_count=args.run_count,
+                                       operation_message=operation_message,
+                                       compiler_version=version)
+        print_speedup(spans, from_lang='D', to_lang='Rust')
+        print()
 
 
 def compile_file(path, args, run_count=1,
