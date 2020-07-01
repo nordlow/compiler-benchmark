@@ -232,7 +232,7 @@ def benchmark_D(compilers, spans, gpaths, args,
     language = 'D' + ('-compilation' if generate_object_file else "")
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
-    print(language + ':')
+    print('D' + '-' + operation_message + ':')
 
     if language not in spans:
         spans[language] = []
@@ -289,8 +289,9 @@ def benchmark_Rust(compilers, spans, gpaths, args,
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
+        print(language)
         spans[language] = compile_file(path=gpaths['Rust'],
-                                       args=[rustc_exec, '-Z', 'no-codegen'],
+                                       args=[rustc_exec] if generate_object_file else [rustc_exec, '-Z', 'no-codegen'],
                                        run_count=args.run_count,
                                        operation_message=operation_message,
                                        compiler_version=version)
