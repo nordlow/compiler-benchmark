@@ -274,7 +274,7 @@ def benchmark_Rust(compilers, spans, gpaths, args,
                    generate_object_file=False):
 
     operation_message = 'Compilation' if generate_object_file else "Check"
-    language = 'Rust' + operation_message.lower()
+    language = 'Rust-' + operation_message.lower()
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
