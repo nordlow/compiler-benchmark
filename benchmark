@@ -76,8 +76,8 @@ def main():
                                             run_count=args.run_count,
                                             operation_message='Check',
                                             compiler_version=version)
-            print_speedup(spans, from_lang='D', to_lang='Clang')
-            print_speedup(spans, from_lang='D', to_lang='Clang++')
+            print_speedup(spans, from_lang='D-check', to_lang='Clang')
+            print_speedup(spans, from_lang='D-check', to_lang='Clang++')
     print()
 
     # C GCC
@@ -107,8 +107,8 @@ def main():
                                            operation_message='Check',
                                            compiler_version=version)
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
-            print_speedup(spans, from_lang='D', to_lang='gcc-9')
-            print_speedup(spans, from_lang='D', to_lang='g++-9')
+            print_speedup(spans, from_lang='D-check', to_lang='gcc-9')
+            print_speedup(spans, from_lang='D-check', to_lang='g++-9')
     print()
 
     # Go
@@ -125,7 +125,7 @@ def main():
                                            run_count=args.run_count,
                                            operation_message='Check',
                                            compiler_version=version)
-            print_speedup(spans, from_lang='D', to_lang='Go')
+            print_speedup(spans, from_lang='D-check', to_lang='Go')
             print()
 
     # V (vlang.io)
@@ -143,7 +143,7 @@ def main():
                                            run_count=args.run_count,
                                            operation_message='Compilation',
                                            compiler_version=version)
-            print_speedup(spans, from_lang='D', to_lang='V')
+            print_speedup(spans, from_lang='D-compilation', to_lang='V')
             print()
 
     # Zig
@@ -160,7 +160,7 @@ def main():
                                            run_count=args.run_count,  # no syntax flag currently so compile to object file instead
                                            operation_message='Compilation',
                                            compiler_version=version)
-            print_speedup(spans, from_lang='D', to_lang='Zig')
+            print_speedup(spans, from_lang='D-compilation', to_lang='Zig')
             print()
 
     # Rust
@@ -186,7 +186,7 @@ def main():
                                            args=[java_exec, '-Xdiags:verbose'],
                                            run_count=args.run_count,
                                            operation_message='Compilation')
-            print_speedup(spans, from_lang='D', to_lang='Java')
+            print_speedup(spans, from_lang='D-compilation', to_lang='Java')
             print()
 
     # Julia
@@ -200,7 +200,7 @@ def main():
                                        args=[julia_exec],
                                        run_count=args.run_count,
                                        operation_message='Compilation')
-        print_speedup(spans, from_lang='D', to_lang='Julia')
+        print_speedup(spans, from_lang='D-compilation', to_lang='Julia')
         print()
 
     # print('Speedups' + ':')
@@ -229,7 +229,7 @@ def benchmark_D(compilers, spans, gpaths, args,
                 generate_object_file=False):
 
     operation_message = 'Compilation' if generate_object_file else "Check"
-    language = 'D' + ('-compilation' if generate_object_file else "")
+    language = 'D' + ('-compilation' if generate_object_file else "-check")
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
     print('D' + '-' + operation_message + ':')
@@ -274,7 +274,7 @@ def benchmark_Rust(compilers, spans, gpaths, args,
                    generate_object_file=False):
 
     operation_message = 'Compilation' if generate_object_file else "Check"
-    language = 'Rust' + ('-compilation' if generate_object_file else "")
+    language = 'Rust' + ('-compilation' if generate_object_file else "-check")
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
@@ -289,13 +289,15 @@ def benchmark_Rust(compilers, spans, gpaths, args,
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
-        print(language)
+        print([rustc_exec] if generate_object_file else [rustc_exec, '-Z', 'no-codegen'])
         spans[language] = compile_file(path=gpaths['Rust'],
                                        args=[rustc_exec] if generate_object_file else [rustc_exec, '-Z', 'no-codegen'],
                                        run_count=args.run_count,
                                        operation_message=operation_message,
                                        compiler_version=version)
-        print_speedup(spans, from_lang='D', to_lang='Rust')
+        print_speedup(spans,
+                      from_lang='D' + operation_message,
+                      to_lang='Rust' + operation_message)
         print()
 
 
@@ -702,12 +704,9 @@ main()
 
 
 def print_speedup(spans, from_lang, to_lang):
-    try:
-        print("- Speedup of {} over {}: {:.2f}".format(from_lang,
-                                                       to_lang,
-                                                       spans[to_lang] / spans[from_lang]))
-    except KeyError:
-        pass
+    print("- Speedup of {} over {}: {:.2f}".format(from_lang,
+                                                   to_lang,
+                                                   spans[to_lang] / spans[from_lang]))
 
 
 if __name__ == '__main__':
