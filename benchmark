@@ -229,7 +229,7 @@ def benchmark_D(compilers, spans, gpaths, args,
                 generate_object_file=False):
 
     operation_message = 'Compilation' if generate_object_file else "Check"
-    language = 'D' + ('-compilation' if generate_object_file else "-check")
+    language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
     print('D' + '-' + operation_message + ':')
