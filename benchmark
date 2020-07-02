@@ -37,15 +37,15 @@ def main():
     spans = {}                  # time spans by compiler path
 
     benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                generate_object_file=False)
+                gen_obj=False)
     benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                generate_object_file=True)
+                gen_obj=True)
 
     benchmark_Clang(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                    generate_object_file=False)
+                    gen_obj=False)
 
     benchmark_GCC(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                  generate_object_file=False)
+                  gen_obj=False)
 
     # Go
     language = 'Go'
@@ -104,12 +104,12 @@ def main():
                    spans=spans,
                    gpaths=gpaths,
                    args=args,
-                   generate_object_file=False)
+                   gen_obj=False)
     benchmark_Rust(compilers=compilers,
                    spans=spans,
                    gpaths=gpaths,
                    args=args,
-                   generate_object_file=True)
+                   gen_obj=True)
 
     # Java
     language = 'Java'
@@ -154,7 +154,7 @@ def generate_code(languages, args):
 
 
 def benchmark_GCC(compilers, spans, gpaths, args,
-                  generate_object_file=False):
+                  gen_obj=False):
     print('GCC:')
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
@@ -187,7 +187,7 @@ def benchmark_GCC(compilers, spans, gpaths, args,
 
 
 def benchmark_Clang(compilers, spans, gpaths, args,
-                    generate_object_file=False):
+                    gen_obj=False):
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print('Clang:')
     CLANG_VERSIONS = range(5, 13)
@@ -220,9 +220,9 @@ def benchmark_Clang(compilers, spans, gpaths, args,
 
 
 def benchmark_D(compilers, spans, gpaths, args,
-                generate_object_file=False):
+                gen_obj=False):
 
-    operation_message = 'Compilation' if generate_object_file else "Check"
+    operation_message = 'Compilation' if gen_obj else "Check"
     language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
@@ -231,7 +231,7 @@ def benchmark_D(compilers, spans, gpaths, args,
     if language not in spans:
         spans[language] = []
 
-    exec_args = '-c' if generate_object_file else '-o-'
+    exec_args = '-c' if gen_obj else '-o-'
 
     # DMD
     dmd_exec = shutil.which('dmd')
@@ -265,9 +265,9 @@ def benchmark_D(compilers, spans, gpaths, args,
 
 
 def benchmark_Rust(compilers, spans, gpaths, args,
-                   generate_object_file=False):
+                   gen_obj=False):
 
-    operation_message = 'Compilation' if generate_object_file else "Check"
+    operation_message = 'Compilation' if gen_obj else "Check"
     language = 'Rust-' + operation_message.lower()
 
     rustc_exec = shutil.which('rustc')
@@ -284,7 +284,7 @@ def benchmark_Rust(compilers, spans, gpaths, args,
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
         spans[language] = compile_file(path=gpaths['Rust'],
-                                       args=[rustc_exec] if generate_object_file else [rustc_exec, '-Z', 'no-codegen'],
+                                       args=[rustc_exec] if gen_obj else [rustc_exec, '-Z', 'no-codegen'],
                                        run_count=args.run_count,
                                        operation_message=operation_message,
                                        compiler_version=version)
