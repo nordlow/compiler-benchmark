@@ -44,36 +44,8 @@ def main():
     benchmark_Clang(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
                     generate_object_file=False)
 
-    # C GCC
-    print('GCC:')
-    GCC_VERSIONS = range(5, 13)
-    for gcc_version in GCC_VERSIONS:
-        language = 'C'
-        gcc_exec = shutil.which('gcc-' + str(gcc_version))
-        if gcc_exec is not None:
-            version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
-            spans[gcc_exec] = compile_file(path=gpaths['C'],
-                                           args=[gcc_exec] + C_FLAGS,
-                                           run_count=args.run_count,
-                                           operation_message='Check',
-                                           compiler_version=version)
-            spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
-            print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
-
-        language = 'C++'
-        gxx_exec = shutil.which('g++-' + str(gcc_version))
-        if gxx_exec is not None:
-            version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
-            spans[gxx_exec] = compile_file(path=gpaths['C++'],
-                                           args=[gxx_exec] + C_FLAGS,
-                                           run_count=args.run_count,
-                                           operation_message='Check',
-                                           compiler_version=version)
-            spans['g++-' + str(gcc_version)] = spans[gxx_exec]
-            print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
-    print()
+    benchmark_GCC(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
+                  generate_object_file=False)
 
     # Go
     language = 'Go'
@@ -181,8 +153,37 @@ def generate_code(languages, args):
     return gpaths
 
 
-def benchmark_GCC(compilers, spans, gpaths, args):
-    pass
+def benchmark_GCC(compilers, spans, gpaths, args,
+                  generate_object_file=False):
+    print('GCC:')
+    GCC_VERSIONS = range(5, 13)
+    for gcc_version in GCC_VERSIONS:
+        language = 'C'
+        gcc_exec = shutil.which('gcc-' + str(gcc_version))
+        if gcc_exec is not None:
+            version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
+            spans[gcc_exec] = compile_file(path=gpaths['C'],
+                                           args=[gcc_exec] + C_FLAGS,
+                                           run_count=args.run_count,
+                                           operation_message='Check',
+                                           compiler_version=version)
+            spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
+            print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
+
+        language = 'C++'
+        gxx_exec = shutil.which('g++-' + str(gcc_version))
+        if gxx_exec is not None:
+            version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
+            spans[gxx_exec] = compile_file(path=gpaths['C++'],
+                                           args=[gxx_exec] + C_FLAGS,
+                                           run_count=args.run_count,
+                                           operation_message='Check',
+                                           compiler_version=version)
+            spans['g++-' + str(gcc_version)] = spans[gxx_exec]
+            print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
+    print()
 
 
 def benchmark_Clang(compilers, spans, gpaths, args,
