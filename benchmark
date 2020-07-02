@@ -36,21 +36,12 @@ def main():
     compilers = {}              # compilers by language
     spans = {}                  # time spans by compiler path
 
-    benchmark_D(compilers=compilers,
-                spans=spans,
-                gpaths=gpaths,
-                args=args,
+    benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
                 generate_object_file=False)
-    benchmark_D(compilers=compilers,
-                spans=spans,
-                gpaths=gpaths,
-                args=args,
+    benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
                 generate_object_file=True)
 
-    benchmark_Clang(compilers=compilers,
-                    spans=spans,
-                    gpaths=gpaths,
-                    args=args,
+    benchmark_Clang(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
                     generate_object_file=False)
 
     # C GCC
