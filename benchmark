@@ -36,7 +36,6 @@ def main():
     compilers = {}              # compilers by language
     spans = {}                  # time spans by compiler path
 
-    # D
     benchmark_D(compilers=compilers,
                 spans=spans,
                 gpaths=gpaths,
@@ -48,7 +47,6 @@ def main():
                 args=args,
                 generate_object_file=True)
 
-    # Clang
     benchmark_Clang(compilers=compilers,
                     spans=spans,
                     gpaths=gpaths,
