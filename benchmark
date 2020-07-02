@@ -213,7 +213,7 @@ def benchmark_Clang(compilers, spans, gpaths, args,
             spans['Clang++'] = compile_file(path=gpaths['C++'],
                                             args=[clangxx_] + C_CLANG_FLAGS,
                                             run_count=args.run_count,
-                                            operation_message='Check',
+                                            operation_message=operation_message,
                                             compiler_version=version)
             print_speedup(spans, from_lang='D-check', to_lang='Clang')
             print_speedup(spans, from_lang='D-check', to_lang='Clang++')
