@@ -188,6 +188,7 @@ def benchmark_GCC(compilers, spans, gpaths, args,
 
 def benchmark_Clang(compilers, spans, gpaths, args,
                     gen_obj=False):
+    operation_message = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print('Clang:')
     CLANG_VERSIONS = range(5, 13)
@@ -200,7 +201,7 @@ def benchmark_Clang(compilers, spans, gpaths, args,
             spans['Clang'] = compile_file(path=gpaths['C'],
                                           args=[clang_exec] + C_CLANG_FLAGS,
                                           run_count=args.run_count,
-                                          operation_message='Check',
+                                          operation_message=operation_message,
                                           compiler_version=version)
             spans[clang_exec] = spans['Clang']
 
