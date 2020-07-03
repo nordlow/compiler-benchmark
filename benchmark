@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import os.path
 import shutil
+from pprint import pprint
 import markdown_strings as md   # pip install markdown_strings
 
 from string import Template as Tm
@@ -38,10 +39,12 @@ def main():
     execs = {}                   # execs by language
     spans = {}                  # time spans by compiler path
 
-    md_rows = (benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+    results = (benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
                benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
                benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
                benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False))
+    # pprint(results)
+    # print(md.table_from_rows(results))
 
     # Go
     language = 'Go'
@@ -151,7 +154,7 @@ def generate_code(languages, args):
 
 def benchmark_GCC(execs, spans, gpaths, args,
                   gen_obj=False):
-    md_rows = list()
+    results = list()
     print(md.header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
@@ -160,11 +163,13 @@ def benchmark_GCC(execs, spans, gpaths, args,
         if gcc_exec is not None:
             version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
-            spans[gcc_exec] = compile_file(path=gpaths['C'],
-                                           args=[gcc_exec] + C_FLAGS,
-                                           run_count=args.run_count,
-                                           operation_message='Check',
-                                           compiler_version=version)
+            span_min = compile_file(path=gpaths['C'],
+                                    args=[gcc_exec] + C_FLAGS,
+                                    run_count=args.run_count,
+                                    operation_message='Check',
+                                    compiler_version=version)
+            results.append([language, gcc_exec, version, span_min])
+            spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
 
@@ -173,20 +178,22 @@ def benchmark_GCC(execs, spans, gpaths, args,
         if gxx_exec is not None:
             version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
-            spans[gxx_exec] = compile_file(path=gpaths['C++'],
-                                           args=[gxx_exec] + C_FLAGS,
-                                           run_count=args.run_count,
-                                           operation_message='Check',
-                                           compiler_version=version)
+            span_min = compile_file(path=gpaths['C++'],
+                                    args=[gxx_exec] + C_FLAGS,
+                                    run_count=args.run_count,
+                                    operation_message='Check',
+                                    compiler_version=version)
+            results.append([language, gxx_exec, version, span_min])
+            spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
     print()
-    return md_rows
+    return results
 
 
 def benchmark_Clang(execs, spans, gpaths, args,
                     gen_obj=False):
-    md_rows = list()
+    results = list()
     operation_message = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md.header('Clang:', 2))
@@ -217,13 +224,13 @@ def benchmark_Clang(execs, spans, gpaths, args,
             print_speedup(spans, from_lang='D-check', to_lang='Clang')
             print_speedup(spans, from_lang='D-check', to_lang='Clang++')
     print()
-    return md_rows
+    return results
 
 
 def benchmark_D(execs, spans, gpaths, args,
                 gen_obj=False):
 
-    md_rows = list()
+    results = list()
 
     operation_message = 'Compilation' if gen_obj else "Check"
     language = 'D-' + operation_message.lower()
@@ -243,12 +250,13 @@ def benchmark_D(execs, spans, gpaths, args,
         version = version_run.stdout.decode('utf-8').split()[3]
         if language not in execs:
             execs[language] = dmd_exec
-        result = compile_file(path=gpaths['D'],
-                              args=[dmd_exec, exec_args] + d_flags,
-                              run_count=args.run_count,
-                              operation_message=operation_message,
-                              compiler_version=version)
-        spans[language].append(result)
+        span_min = compile_file(path=gpaths['D'],
+                                args=[dmd_exec, exec_args] + d_flags,
+                                run_count=args.run_count,
+                                operation_message=operation_message,
+                                compiler_version=version)
+        results.append([language, dmd_exec, version, span_min])
+        spans[language].append(span_min)
 
     # LDC
     ldc_exec = shutil.which('ldmd2')
@@ -257,18 +265,19 @@ def benchmark_D(execs, spans, gpaths, args,
         version = version_run.stdout.decode('utf-8').split()[6][1:-2]
         if language not in execs:
             execs[language] = ldc_exec
-        result = compile_file(path=gpaths['D'],
-                              args=[ldc_exec, exec_args] + d_flags,
-                              run_count=args.run_count,
-                              operation_message=operation_message,
-                              compiler_version=version)
-        spans[language].append(result)
+        span_min = compile_file(path=gpaths['D'],
+                                args=[ldc_exec, exec_args] + d_flags,
+                                run_count=args.run_count,
+                                operation_message=operation_message,
+                                compiler_version=version)
+        results.append([language, ldc_exec, version, span_min])
+        spans[language].append(span_min)
 
     spans[language] = min(spans[language])
 
     print()
 
-    return md_rows
+    return results
 
 
 def benchmark_Rust(execs, spans, gpaths, args,
