@@ -68,7 +68,6 @@ def main():
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
     results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-    print(results)
 
 
     # Go
