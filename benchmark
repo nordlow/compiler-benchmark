@@ -35,13 +35,13 @@ def main():
 
     gpaths = generate_code(languages=LANGUAGES, args=args)
 
-    compilers = {}              # compilers by language
+    execs = {}                   # execs by language
     spans = {}                  # time spans by compiler path
 
-    md_rows = (benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
-               benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
-               benchmark_Clang(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
-               benchmark_GCC(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=False))
+    md_rows = (benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
+               benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+               benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False))
     print(md_rows)
 
     # Go
@@ -49,8 +49,8 @@ def main():
     gccgo_exec = shutil.which('gccgo')
     if gccgo_exec is not None:
         print(md.header(language + ':', 2))
-        if language not in compilers:
-            compilers[language] = gccgo_exec
+        if language not in execs:
+            execs[language] = gccgo_exec
             version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
             spans[language] = compile_file(path=gpaths[language],
@@ -66,8 +66,8 @@ def main():
     v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
         print(md.header(language + ':', 2))
-        if language not in compilers:
-            compilers[language] = v_exec
+        if language not in execs:
+            execs[language] = v_exec
             version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[1]
             vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
@@ -84,8 +84,8 @@ def main():
     print(md.header(language + ':', 2))
     zig_exec = shutil.which('zig')
     if zig_exec is not None:
-        if language not in compilers:
-            compilers[language] = zig_exec
+        if language not in execs:
+            execs[language] = zig_exec
             version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[0]
             spans[language] = compile_file(path=gpaths['Zig'],
@@ -97,12 +97,12 @@ def main():
             print()
 
     # Rust
-    benchmark_Rust(compilers=compilers,
+    benchmark_Rust(execs=execs,
                    spans=spans,
                    gpaths=gpaths,
                    args=args,
                    gen_obj=False)
-    benchmark_Rust(compilers=compilers,
+    benchmark_Rust(execs=execs,
                    spans=spans,
                    gpaths=gpaths,
                    args=args,
@@ -113,8 +113,8 @@ def main():
     java_exec = shutil.which('javac')
     if java_exec is not None:
         print(md.header(language + ':', 2))
-        if language not in compilers:
-            compilers[language] = java_exec
+        if language not in execs:
+            execs[language] = java_exec
             spans[language] = compile_file(path=gpaths[language],
                                            args=[java_exec, '-Xdiags:verbose'],
                                            run_count=args.run_count,
@@ -127,8 +127,8 @@ def main():
     julia_exec = shutil.which('julia')
     if julia_exec is not None:
         print(md.header(language + ':', 2))
-        if language not in compilers:
-            compilers[language] = julia_exec
+        if language not in execs:
+            execs[language] = julia_exec
         spans[language] = compile_file(path=gpaths['Julia'],
                                        args=[julia_exec],
                                        run_count=args.run_count,
@@ -150,8 +150,9 @@ def generate_code(languages, args):
     return gpaths
 
 
-def benchmark_GCC(compilers, spans, gpaths, args,
+def benchmark_GCC(execs, spans, gpaths, args,
                   gen_obj=False):
+    md_rows = list()
     print(md.header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
@@ -181,10 +182,12 @@ def benchmark_GCC(compilers, spans, gpaths, args,
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
     print()
+    return md_rows
 
 
-def benchmark_Clang(compilers, spans, gpaths, args,
+def benchmark_Clang(execs, spans, gpaths, args,
                     gen_obj=False):
+    md_rows = list()
     operation_message = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md.header('Clang:', 2))
@@ -215,9 +218,10 @@ def benchmark_Clang(compilers, spans, gpaths, args,
             print_speedup(spans, from_lang='D-check', to_lang='Clang')
             print_speedup(spans, from_lang='D-check', to_lang='Clang++')
     print()
+    return md_rows
 
 
-def benchmark_D(compilers, spans, gpaths, args,
+def benchmark_D(execs, spans, gpaths, args,
                 gen_obj=False):
 
     md_rows = list()
@@ -238,8 +242,8 @@ def benchmark_D(compilers, spans, gpaths, args,
     if dmd_exec is not None:
         version_run = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[3]
-        if language not in compilers:
-            compilers[language] = dmd_exec
+        if language not in execs:
+            execs[language] = dmd_exec
         spans[language].append(compile_file(path=gpaths['D'],
                                             args=[dmd_exec, exec_args] + d_flags,
                                             run_count=args.run_count,
@@ -251,8 +255,8 @@ def benchmark_D(compilers, spans, gpaths, args,
     if ldc_exec is not None:
         version_run = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[6][1:-2]
-        if language not in compilers:
-            compilers[language] = ldc_exec
+        if language not in execs:
+            execs[language] = ldc_exec
         spans[language].append(compile_file(path=gpaths['D'],
                                             args=[ldc_exec, exec_args] + d_flags,
                                             run_count=args.run_count,
@@ -266,7 +270,7 @@ def benchmark_D(compilers, spans, gpaths, args,
     return md_rows
 
 
-def benchmark_Rust(compilers, spans, gpaths, args,
+def benchmark_Rust(execs, spans, gpaths, args,
                    gen_obj=False):
 
     operation_message = 'Compilation' if gen_obj else "Check"
@@ -275,8 +279,8 @@ def benchmark_Rust(compilers, spans, gpaths, args,
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
         print(md.header(language + ':', 2))
-        if language not in compilers:
-            compilers[language] = rustc_exec
+        if language not in execs:
+            execs[language] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
