@@ -4,6 +4,8 @@ import argparse
 import subprocess
 import os.path
 import shutil
+import markdown_strings as md   # pip install markdown_strings
+
 from string import Template as Tm
 from timeit import default_timer as timer
 
@@ -51,7 +53,7 @@ def main():
     language = 'Go'
     gccgo_exec = shutil.which('gccgo')
     if gccgo_exec is not None:
-        print(language + ':')
+        print(md.header(language + ':', 2))
         if language not in compilers:
             compilers[language] = gccgo_exec
             version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
@@ -68,7 +70,7 @@ def main():
     language = 'V'
     v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
-        print(language + ':')
+        print(md.header(language + ':', 2))
         if language not in compilers:
             compilers[language] = v_exec
             version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
@@ -84,7 +86,7 @@ def main():
 
     # Zig
     language = 'Zig'
-    print(language + ':')
+    print(md.header(language + ':', 2))
     zig_exec = shutil.which('zig')
     if zig_exec is not None:
         if language not in compilers:
@@ -115,7 +117,7 @@ def main():
     language = 'Java'
     java_exec = shutil.which('javac')
     if java_exec is not None:
-        print(language + ':')
+        print(md.header(language + ':', 2))
         if language not in compilers:
             compilers[language] = java_exec
             spans[language] = compile_file(path=gpaths[language],
@@ -129,7 +131,7 @@ def main():
     language = 'Julia'
     julia_exec = shutil.which('julia')
     if julia_exec is not None:
-        print(language + ':')
+        print(md.header(language + ':', 2))
         if language not in compilers:
             compilers[language] = julia_exec
         spans[language] = compile_file(path=gpaths['Julia'],
@@ -144,7 +146,7 @@ def main():
 
 
 def generate_code(languages, args):
-    print('Code-generation:')
+    print(md.header('Code-generation:', 1))
     gpaths = {}
     for language in languages:
         gpaths[language] = generate_test_program(language=language,
@@ -155,7 +157,7 @@ def generate_code(languages, args):
 
 def benchmark_GCC(compilers, spans, gpaths, args,
                   gen_obj=False):
-    print('GCC:')
+    print(md.header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
         language = 'C'
@@ -190,7 +192,7 @@ def benchmark_Clang(compilers, spans, gpaths, args,
                     gen_obj=False):
     operation_message = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    print('Clang:')
+    print(md.header('Clang:', 2))
     CLANG_VERSIONS = range(5, 13)
     for clang_version in CLANG_VERSIONS:
         language = 'C'
@@ -227,7 +229,7 @@ def benchmark_D(compilers, spans, gpaths, args,
     language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
-    print(language + ':')
+    print(md.header(language + ':', 2))
 
     if language not in spans:
         spans[language] = []
@@ -273,7 +275,7 @@ def benchmark_Rust(compilers, spans, gpaths, args,
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
-        print(language + ':')
+        print(md.header(language + ':', 2))
         if language not in compilers:
             compilers[language] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
