@@ -69,7 +69,6 @@ def main():
                benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
                benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
                )
-    pprint(results)
     print(md_table(TABLE_TITLES, results))
 
     # Go
