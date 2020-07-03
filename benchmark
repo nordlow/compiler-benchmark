@@ -38,16 +38,11 @@ def main():
     compilers = {}              # compilers by language
     spans = {}                  # time spans by compiler path
 
-    benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                gen_obj=False)
-    benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                gen_obj=True)
-
-    benchmark_Clang(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                    gen_obj=False)
-
-    benchmark_GCC(compilers=compilers, spans=spans, gpaths=gpaths, args=args,
-                  gen_obj=False)
+    md_rows = (benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+               benchmark_D(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
+               benchmark_Clang(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+               benchmark_GCC(compilers=compilers, spans=spans, gpaths=gpaths, args=args, gen_obj=False))
+    print(md_rows)
 
     # Go
     language = 'Go'
@@ -225,6 +220,8 @@ def benchmark_Clang(compilers, spans, gpaths, args,
 def benchmark_D(compilers, spans, gpaths, args,
                 gen_obj=False):
 
+    md_rows = list()
+
     operation_message = 'Compilation' if gen_obj else "Check"
     language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
@@ -265,6 +262,8 @@ def benchmark_D(compilers, spans, gpaths, args,
     spans[language] = min(spans[language])
 
     print()
+
+    return md_rows
 
 
 def benchmark_Rust(compilers, spans, gpaths, args,
