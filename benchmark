@@ -63,13 +63,13 @@ def main():
     execs = {}                   # execs by language
     spans = {}                  # time spans by compiler path
 
-    TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
-    results = (benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)  +
-               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
-               benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
-               benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-               )
-    print(md_table(TABLE_TITLES, results))
+    results = []
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+    print(results)
+
 
     # Go
     language = 'Go'
@@ -165,6 +165,9 @@ def main():
 
     # print('Speedups' + ':')
     # pprint(spans)
+
+    TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
+    print(md_table(TABLE_TITLES, results))
 
 
 def generate_code(languages, args):
