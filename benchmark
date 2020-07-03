@@ -243,11 +243,12 @@ def benchmark_D(execs, spans, gpaths, args,
         version = version_run.stdout.decode('utf-8').split()[3]
         if language not in execs:
             execs[language] = dmd_exec
-        spans[language].append(compile_file(path=gpaths['D'],
-                                            args=[dmd_exec, exec_args] + d_flags,
-                                            run_count=args.run_count,
-                                            operation_message=operation_message,
-                                            compiler_version=version))
+        result = compile_file(path=gpaths['D'],
+                              args=[dmd_exec, exec_args] + d_flags,
+                              run_count=args.run_count,
+                              operation_message=operation_message,
+                              compiler_version=version)
+        spans[language].append(result)
 
     # LDC
     ldc_exec = shutil.which('ldmd2')
@@ -256,11 +257,12 @@ def benchmark_D(execs, spans, gpaths, args,
         version = version_run.stdout.decode('utf-8').split()[6][1:-2]
         if language not in execs:
             execs[language] = ldc_exec
-        spans[language].append(compile_file(path=gpaths['D'],
-                                            args=[ldc_exec, exec_args] + d_flags,
-                                            run_count=args.run_count,
-                                            operation_message=operation_message,
-                                            compiler_version=version))
+        result = compile_file(path=gpaths['D'],
+                              args=[ldc_exec, exec_args] + d_flags,
+                              run_count=args.run_count,
+                              operation_message=operation_message,
+                              compiler_version=version)
+        spans[language].append(result)
 
     spans[language] = min(spans[language])
 
@@ -335,7 +337,7 @@ def compile_file(path, args, run_count=1,
         print('- {} took {:1.3f} seconds (using "{}"{})'.format(operation_message, span_min, args[0],
                                                                 compiler_version_str))
 
-    return span
+    return span_min
 
 
 def long_types_of_lang(lang):
