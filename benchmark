@@ -14,7 +14,7 @@ DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
 
 
-def md_header(text, nr):
+def md_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
 
