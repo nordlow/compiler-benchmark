@@ -42,12 +42,12 @@ def main():
     execs = {}                   # execs by language
     spans = {}                  # time spans by compiler path
 
-    TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time span"]
+    TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
     results = ([TABLE_TITLES] +
                benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)  +
-               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
-               # benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
-               # benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
+               benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+               benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
                )
     pprint(results)
 
