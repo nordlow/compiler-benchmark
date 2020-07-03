@@ -5,7 +5,6 @@ import subprocess
 import os.path
 import shutil
 from pprint import pprint
-import markdown_strings as md   # pip install markdown_strings
 
 from string import Template as Tm
 from timeit import default_timer as timer
@@ -13,6 +12,10 @@ from timeit import default_timer as timer
 
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
+
+
+def md_header(text, nr):
+    return '#' * nr + ' ' + text
 
 
 def main():
@@ -39,18 +42,20 @@ def main():
     execs = {}                   # execs by language
     spans = {}                  # time spans by compiler path
 
-    results = (benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
-               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
-               benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
-               benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False))
-    # pprint(results)
-    # print(md.table_from_rows(results))
+    TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time span"]
+    results = ([TABLE_TITLES] +
+               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)  +
+               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+               # benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
+               # benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+               )
+    pprint(results)
 
     # Go
     language = 'Go'
     gccgo_exec = shutil.which('gccgo')
     if gccgo_exec is not None:
-        print(md.header(language + ':', 2))
+        print(md_header(language + ':', 2))
         if language not in execs:
             execs[language] = gccgo_exec
             version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
@@ -67,7 +72,7 @@ def main():
     language = 'V'
     v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
-        print(md.header(language + ':', 2))
+        print(md_header(language + ':', 2))
         if language not in execs:
             execs[language] = v_exec
             version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
@@ -83,7 +88,7 @@ def main():
 
     # Zig
     language = 'Zig'
-    print(md.header(language + ':', 2))
+    print(md_header(language + ':', 2))
     zig_exec = shutil.which('zig')
     if zig_exec is not None:
         if language not in execs:
@@ -114,7 +119,7 @@ def main():
     language = 'Java'
     java_exec = shutil.which('javac')
     if java_exec is not None:
-        print(md.header(language + ':', 2))
+        print(md_header(language + ':', 2))
         if language not in execs:
             execs[language] = java_exec
             spans[language] = compile_file(path=gpaths[language],
@@ -128,7 +133,7 @@ def main():
     language = 'Julia'
     julia_exec = shutil.which('julia')
     if julia_exec is not None:
-        print(md.header(language + ':', 2))
+        print(md_header(language + ':', 2))
         if language not in execs:
             execs[language] = julia_exec
         spans[language] = compile_file(path=gpaths['Julia'],
@@ -143,7 +148,7 @@ def main():
 
 
 def generate_code(languages, args):
-    print(md.header('Code-generation:', 1))
+    print(md_header('Code-generation:', 1))
     gpaths = {}
     for language in languages:
         gpaths[language] = generate_test_program(language=language,
@@ -155,7 +160,7 @@ def generate_code(languages, args):
 def benchmark_GCC(execs, spans, gpaths, args,
                   gen_obj=False):
     results = list()
-    print(md.header('GCC:', 2))
+    print(md_header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
         language = 'C'
@@ -196,7 +201,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
     results = list()
     operation_message = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    print(md.header('Clang:', 2))
+    print(md_header('Clang:', 2))
     CLANG_VERSIONS = range(5, 13)
     for clang_version in CLANG_VERSIONS:
         language = 'C'
@@ -236,7 +241,7 @@ def benchmark_D(execs, spans, gpaths, args,
     language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
-    print(md.header(language + ':', 2))
+    print(md_header(language + ':', 2))
 
     if language not in spans:
         spans[language] = []
@@ -288,7 +293,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
-        print(md.header(language + ':', 2))
+        print(md_header(language + ':', 2))
         if language not in execs:
             execs[language] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
