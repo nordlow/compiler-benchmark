@@ -18,6 +18,27 @@ def md_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
 
+def md_table(header, rows):
+    result = ''
+
+    result += '| '
+    for col in header:
+        result += str(col) + ' | '
+    result += '\n'
+
+    result += '| '
+    for col in range(len(header)):
+        result += '---' + ' | '
+    result += '\n'
+
+    for row in rows:
+        result += '| '
+        for col in row:
+            result += str(col) + ' | '
+        result += '\n'
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -43,13 +64,13 @@ def main():
     spans = {}                  # time spans by compiler path
 
     TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
-    results = ([TABLE_TITLES] +
-               benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)  +
+    results = (benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)  +
                benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
                benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
                benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
                )
     pprint(results)
+    print(md_table(TABLE_TITLES, results))
 
     # Go
     language = 'Go'
