@@ -42,7 +42,6 @@ def main():
                benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True) +
                benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False) +
                benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False))
-    print(md_rows)
 
     # Go
     language = 'Go'
