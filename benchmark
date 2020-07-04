@@ -70,23 +70,7 @@ def main():
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-
-    # Zig
-    language = 'Zig'
-    print(md_header(language + ':', 2))
-    zig_exec = shutil.which('zig')
-    if zig_exec is not None:
-        if language not in execs:
-            execs[language] = zig_exec
-            version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[0]
-            spans[language] = compile_file(path=gpaths['Zig'],
-                                           args=[zig_exec, 'build-obj', '-fno-emit-bin'],
-                                           run_count=args.run_count,  # no syntax flag currently so compile to object file instead
-                                           operation_message='Compilation',
-                                           compiler_version=version)
-            print_speedup(spans, from_lang='D-compilation', to_lang='Zig')
-            print()
+    results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
 
     # Rust
     benchmark_Rust(execs=execs,
@@ -317,6 +301,29 @@ def benchmark_V(execs, spans, gpaths, args,
             spans[language] = span_min
             results.append([language, v_exec, version, span_min])
             print_speedup(spans, from_lang='D-compilation', to_lang='V')
+            print()
+    return results
+
+
+def benchmark_Zig(execs, spans, gpaths, args,
+                  gen_obj=False):
+    results = list()
+    language = 'Zig'
+    print(md_header(language + ':', 2))
+    zig_exec = shutil.which('zig')
+    if zig_exec is not None:
+        if language not in execs:
+            execs[language] = zig_exec
+            version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[0]
+            span_min = compile_file(path=gpaths['Zig'],
+                                    args=[zig_exec, 'build-obj', '-fno-emit-bin'],
+                                    run_count=args.run_count,  # no syntax flag currently so compile to object file instead
+                                    operation_message='Compilation',
+                                    compiler_version=version)
+            spans[language] = span_min
+            results.append([language, zig_exec, version, span_min])
+            print_speedup(spans, from_lang='D-compilation', to_lang='Zig')
             print()
     return results
 
