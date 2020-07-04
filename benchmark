@@ -68,24 +68,7 @@ def main():
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
     results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-
-
-    # Go
-    language = 'Go'
-    gccgo_exec = shutil.which('gccgo')
-    if gccgo_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = gccgo_exec
-            version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
-            spans[language] = compile_file(path=gpaths[language],
-                                           args=[gccgo_exec, '-fsyntax-only', '-S'],
-                                           run_count=args.run_count,
-                                           operation_message='Check',
-                                           compiler_version=version)
-            print_speedup(spans, from_lang='D-check', to_lang='Go')
-            print()
+    results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
 
     # V (vlang.io)
     language = 'V'
@@ -304,6 +287,29 @@ def benchmark_D(execs, spans, gpaths, args,
 
     print()
 
+    return results
+
+
+def benchmark_Go(execs, spans, gpaths, args,
+                 gen_obj=False):
+    results = list()
+    language = 'Go'
+    gccgo_exec = shutil.which('gccgo')
+    if gccgo_exec is not None:
+        print(md_header(language + ':', 2))
+        if language not in execs:
+            execs[language] = gccgo_exec
+            version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[2]
+            span_min = compile_file(path=gpaths[language],
+                                    args=[gccgo_exec, '-fsyntax-only', '-S'],
+                                    run_count=args.run_count,
+                                    operation_message='Check',
+                                    compiler_version=version)
+            spans[language] = span_min
+            results.append([language, gccgo_exec, version, span_min])
+            print_speedup(spans, from_lang='D-check', to_lang='Go')
+            print()
     return results
 
 
