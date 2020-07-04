@@ -71,18 +71,8 @@ def main():
     results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-
-    # Rust
-    benchmark_Rust(execs=execs,
-                   spans=spans,
-                   gpaths=gpaths,
-                   args=args,
-                   gen_obj=False)
-    benchmark_Rust(execs=execs,
-                   spans=spans,
-                   gpaths=gpaths,
-                   args=args,
-                   gen_obj=True)
+    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
 
     # Java
     language = 'Java'
@@ -330,6 +320,7 @@ def benchmark_Zig(execs, spans, gpaths, args,
 
 def benchmark_Rust(execs, spans, gpaths, args,
                    gen_obj=False):
+    results = list()
 
     operation_message = 'Compilation' if gen_obj else "Check"
     language = 'Rust-' + operation_message.lower()
@@ -347,15 +338,18 @@ def benchmark_Rust(execs, spans, gpaths, args,
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
-        spans[language] = compile_file(path=gpaths['Rust'],
-                                       args=[rustc_exec] if gen_obj else [rustc_exec, '-Z', 'no-codegen'],
-                                       run_count=args.run_count,
-                                       operation_message=operation_message,
-                                       compiler_version=version)
+        span_min = compile_file(path=gpaths['Rust'],
+                                args=[rustc_exec] if gen_obj else [rustc_exec, '-Z', 'no-codegen'],
+                                run_count=args.run_count,
+                                operation_message=operation_message,
+                                compiler_version=version)
+        spans[language] = span_min
+        results.append([language, rustc_exec, version, span_min])
         print_speedup(spans,
                       from_lang='D-' + operation_message.lower(),
                       to_lang='Rust-' + operation_message.lower())
         print()
+    return results
 
 
 def compile_file(path, args, run_count=1,
