@@ -69,24 +69,7 @@ def main():
     results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-
-    # V (vlang.io)
-    language = 'V'
-    v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
-    if v_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = v_exec
-            version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[1]
-            vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
-            spans[language] = compile_file(path=gpaths[language],
-                                           args=[v_exec, '-backend', vlang_backends[2]],
-                                           run_count=args.run_count,
-                                           operation_message='Compilation',
-                                           compiler_version=version)
-            print_speedup(spans, from_lang='D-compilation', to_lang='V')
-            print()
+    results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
 
     # Zig
     language = 'Zig'
@@ -309,6 +292,30 @@ def benchmark_Go(execs, spans, gpaths, args,
             spans[language] = span_min
             results.append([language, gccgo_exec, version, span_min])
             print_speedup(spans, from_lang='D-check', to_lang='Go')
+            print()
+    return results
+
+def benchmark_V(execs, spans, gpaths, args,
+                gen_obj=False):
+    results = list()
+    # V (vlang.io)
+    language = 'V'
+    v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
+    if v_exec is not None:
+        print(md_header(language + ':', 2))
+        if language not in execs:
+            execs[language] = v_exec
+            version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
+            version = version_run.stdout.decode('utf-8').split()[1]
+            vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
+            span_min = compile_file(path=gpaths[language],
+                                    args=[v_exec, '-backend', vlang_backends[2]],
+                                    run_count=args.run_count,
+                                    operation_message='Compilation',
+                                    compiler_version=version)
+            spans[language] = span_min
+            results.append([language, v_exec, version, span_min])
+            print_speedup(spans, from_lang='D-compilation', to_lang='V')
             print()
     return results
 
