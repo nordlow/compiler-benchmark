@@ -295,6 +295,7 @@ def benchmark_Go(execs, spans, gpaths, args,
             print()
     return results
 
+
 def benchmark_V(execs, spans, gpaths, args,
                 gen_obj=False):
     results = list()
