@@ -73,34 +73,8 @@ def main():
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
-
-    # Java
-    language = 'Java'
-    java_exec = shutil.which('javac')
-    if java_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = java_exec
-            spans[language] = compile_file(path=gpaths[language],
-                                           args=[java_exec, '-Xdiags:verbose'],
-                                           run_count=args.run_count,
-                                           operation_message='Compile')
-            print_speedup(spans, from_lang='D-compile', to_lang='Java')
-            print()
-
-    # Julia
-    language = 'Julia'
-    julia_exec = shutil.which('julia')
-    if julia_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = julia_exec
-        spans[language] = compile_file(path=gpaths['Julia'],
-                                       args=[julia_exec],
-                                       run_count=args.run_count,
-                                       operation_message='Compile')
-        print_speedup(spans, from_lang='D-compile', to_lang='Julia')
-        print()
+    results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
 
     # print('Speedups' + ':')
     # pprint(spans)
@@ -348,6 +322,46 @@ def benchmark_Rust(execs, spans, gpaths, args,
         print_speedup(spans,
                       from_lang='D-' + operation_message.lower(),
                       to_lang='Rust-' + operation_message.lower())
+        print()
+    return results
+
+
+def benchmark_Java(execs, spans, gpaths, args,
+                   gen_obj=False):
+    results = list()
+    language = 'Java'
+    java_exec = shutil.which('javac')
+    if java_exec is not None:
+        print(md_header(language + ':', 2))
+        if language not in execs:
+            execs[language] = java_exec
+            span_min = compile_file(path=gpaths[language],
+                                    args=[java_exec, '-Xdiags:verbose'],
+                                    run_count=args.run_count,
+                                    operation_message='Compile')
+            spans[language] = span_min
+            results.append([language, java_exec, None, span_min])
+            print_speedup(spans, from_lang='D-compile', to_lang='Java')
+            print()
+    return results
+
+
+def benchmark_Julia(execs, spans, gpaths, args,
+                    gen_obj=False):
+    results = list()
+    language = 'Julia'
+    julia_exec = shutil.which('julia')
+    if julia_exec is not None:
+        print(md_header(language + ':', 2))
+        if language not in execs:
+            execs[language] = julia_exec
+        span_min = compile_file(path=gpaths['Julia'],
+                                args=[julia_exec],
+                                run_count=args.run_count,
+                                operation_message='Compile')
+        spans[language] = span_min
+        results.append([language, julia_exec, None, span_min])
+        print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
     return results
 
