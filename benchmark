@@ -84,8 +84,8 @@ def main():
             spans[language] = compile_file(path=gpaths[language],
                                            args=[java_exec, '-Xdiags:verbose'],
                                            run_count=args.run_count,
-                                           operation_message='Compilation')
-            print_speedup(spans, from_lang='D-compilation', to_lang='Java')
+                                           operation_message='Compile')
+            print_speedup(spans, from_lang='D-compile', to_lang='Java')
             print()
 
     # Julia
@@ -98,8 +98,8 @@ def main():
         spans[language] = compile_file(path=gpaths['Julia'],
                                        args=[julia_exec],
                                        run_count=args.run_count,
-                                       operation_message='Compilation')
-        print_speedup(spans, from_lang='D-compilation', to_lang='Julia')
+                                       operation_message='Compile')
+        print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
 
     # print('Speedups' + ':')
@@ -161,7 +161,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
 def benchmark_Clang(execs, spans, gpaths, args,
                     gen_obj=False):
     results = list()
-    operation_message = 'Compilation' if gen_obj else "Check"
+    operation_message = 'Compile' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 2))
     CLANG_VERSIONS = range(5, 13)
@@ -199,7 +199,7 @@ def benchmark_D(execs, spans, gpaths, args,
 
     results = list()
 
-    operation_message = 'Compilation' if gen_obj else "Check"
+    operation_message = 'Compile' if gen_obj else "Check"
     language = 'D-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
@@ -286,11 +286,11 @@ def benchmark_V(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths[language],
                                     args=[v_exec, '-backend', vlang_backends[2]],
                                     run_count=args.run_count,
-                                    operation_message='Compilation',
+                                    operation_message='Compile',
                                     compiler_version=version)
             spans[language] = span_min
             results.append([language, v_exec, version, span_min])
-            print_speedup(spans, from_lang='D-compilation', to_lang='V')
+            print_speedup(spans, from_lang='D-compile', to_lang='V')
             print()
     return results
 
@@ -309,11 +309,11 @@ def benchmark_Zig(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths['Zig'],
                                     args=[zig_exec, 'build-obj', '-fno-emit-bin'],
                                     run_count=args.run_count,  # no syntax flag currently so compile to object file instead
-                                    operation_message='Compilation',
+                                    operation_message='Compile',
                                     compiler_version=version)
             spans[language] = span_min
             results.append([language, zig_exec, version, span_min])
-            print_speedup(spans, from_lang='D-compilation', to_lang='Zig')
+            print_speedup(spans, from_lang='D-compile', to_lang='Zig')
             print()
     return results
 
@@ -322,7 +322,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
                    gen_obj=False):
     results = list()
 
-    operation_message = 'Compilation' if gen_obj else "Check"
+    operation_message = 'Compile' if gen_obj else "Check"
     language = 'Rust-' + operation_message.lower()
 
     rustc_exec = shutil.which('rustc')
