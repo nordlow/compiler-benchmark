@@ -340,7 +340,7 @@ def benchmark_Java(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Compile')
             spans[language] = span_min
-            results.append([language, java_exec, None, span_min])
+            results.append([language, java_exec, 'unknown', span_min])
             print_speedup(spans, from_lang='D-compile', to_lang='Java')
             print()
     return results
@@ -360,7 +360,7 @@ def benchmark_Julia(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message='Compile')
         spans[language] = span_min
-        results.append([language, julia_exec, None, span_min])
+        results.append([language, julia_exec, 'unknown', span_min])
         print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
     return results
