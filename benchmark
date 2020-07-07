@@ -18,11 +18,11 @@ def span_str(span):
     return "{:.3f}".format(span)
 
 
-TABLE_TITLES = ['Benchmark', 'Exec Version', 'Exec Path', "Time Span"]
+TABLE_TITLES = ['Language', 'Type', 'Exec Version', 'Exec Path', "Time Span"]
 
 
-def row_list(language, exec_path, exec_version, span):
-    return [language, exec_path, exec_version, span_str(span)]
+def row_list(language, check, exec_path, exec_version, span):
+    return [language, check, exec_path, exec_version, span_str(span)]
 
 
 def md_header(text, nr):        # Markdown header
@@ -118,7 +118,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Check',
                                     compiler_version=version)
-            results.append(row_list(language, gcc_exec, version, span_min))
+            results.append(row_list(language, 'Check', gcc_exec, version, span_min))
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
@@ -133,7 +133,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Check',
                                     compiler_version=version)
-            results.append(row_list(language, gxx_exec, version, span_min))
+            results.append(row_list(language, 'Check', gxx_exec, version, span_min))
             spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
@@ -205,7 +205,7 @@ def benchmark_D(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        results.append(row_list(language, dmd_exec, version, span_min))
+        results.append(row_list(language, operation_message, dmd_exec, version, span_min))
         spans[language].append(span_min)
 
     # LDC
@@ -220,7 +220,7 @@ def benchmark_D(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        results.append(row_list(language, ldc_exec, version, span_min))
+        results.append(row_list(language, operation_message, ldc_exec, version, span_min))
         spans[language].append(span_min)
 
     spans[language] = min(spans[language])
@@ -232,6 +232,7 @@ def benchmark_D(execs, spans, gpaths, args,
 
 def benchmark_Go(execs, spans, gpaths, args,
                  gen_obj=False):
+    operation_message = 'Check'
     results = list()
     language = 'Go'
     gccgo_exec = shutil.which('gccgo')
@@ -244,10 +245,10 @@ def benchmark_Go(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths[language],
                                     args=[gccgo_exec, '-fsyntax-only', '-S'],
                                     run_count=args.run_count,
-                                    operation_message='Check',
+                                    operation_message=operation_message,
                                     compiler_version=version)
             spans[language] = span_min
-            results.append(row_list(language, gccgo_exec, version, span_min))
+            results.append(row_list(language, operation_message, gccgo_exec, version, span_min))
             print_speedup(spans, from_lang='D-check', to_lang='Go')
             print()
     return results
@@ -255,6 +256,7 @@ def benchmark_Go(execs, spans, gpaths, args,
 
 def benchmark_V(execs, spans, gpaths, args,
                 gen_obj=False):
+    operation_message = 'Compile'
     results = list()
     # V (vlang.io)
     language = 'V'
@@ -269,10 +271,10 @@ def benchmark_V(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths[language],
                                     args=[v_exec, '-backend', vlang_backends[2]],
                                     run_count=args.run_count,
-                                    operation_message='Compile',
+                                    operation_message=operation_message,
                                     compiler_version=version)
             spans[language] = span_min
-            results.append(row_list(language, v_exec, version, span_min))
+            results.append(row_list(language, operation_message, v_exec, version, span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='V')
             print()
     return results
@@ -280,6 +282,7 @@ def benchmark_V(execs, spans, gpaths, args,
 
 def benchmark_Zig(execs, spans, gpaths, args,
                   gen_obj=False):
+    operation_message = 'Compile'
     results = list()
     language = 'Zig'
     print(md_header(language + ':', 2))
@@ -292,10 +295,10 @@ def benchmark_Zig(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths['Zig'],
                                     args=[zig_exec, 'build-obj', '-fno-emit-bin'],
                                     run_count=args.run_count,  # no syntax flag currently so compile to object file instead
-                                    operation_message='Compile',
+                                    operation_message=operation_message,
                                     compiler_version=version)
             spans[language] = span_min
-            results.append(row_list(language, zig_exec, version, span_min))
+            results.append(row_list(language, operation_message, zig_exec, version, span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='Zig')
             print()
     return results
@@ -327,7 +330,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
                                 operation_message=operation_message,
                                 compiler_version=version)
         spans[language] = span_min
-        results.append(row_list(language, rustc_exec, version, span_min))
+        results.append(row_list(language, operation_message, rustc_exec, version, span_min))
         print_speedup(spans,
                       from_lang='D-' + operation_message.lower(),
                       to_lang='Rust-' + operation_message.lower())
@@ -337,6 +340,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
 
 def benchmark_Java(execs, spans, gpaths, args,
                    gen_obj=False):
+    operation_message = 'Compile'
     results = list()
     language = 'Java'
     java_exec = shutil.which('javac')
@@ -347,9 +351,9 @@ def benchmark_Java(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths[language],
                                     args=[java_exec, '-Xdiags:verbose'],
                                     run_count=args.run_count,
-                                    operation_message='Compile')
+                                    operation_message=operation_message)
             spans[language] = span_min
-            results.append(row_list(language, java_exec, 'unknown', span_min))
+            results.append(row_list(language, operation_message, java_exec, 'unknown', span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='Java')
             print()
     return results
@@ -357,6 +361,7 @@ def benchmark_Java(execs, spans, gpaths, args,
 
 def benchmark_Julia(execs, spans, gpaths, args,
                     gen_obj=False):
+    operation_message = 'Compile'
     results = list()
     language = 'Julia'
     julia_exec = shutil.which('julia')
@@ -367,9 +372,9 @@ def benchmark_Julia(execs, spans, gpaths, args,
         span_min = compile_file(path=gpaths['Julia'],
                                 args=[julia_exec],
                                 run_count=args.run_count,
-                                operation_message='Compile')
+                                operation_message=operation_message)
         spans[language] = span_min
-        results.append(row_list(language, julia_exec, 'unknown', span_min))
+        results.append(row_list(language, operation_message, julia_exec, 'unknown', span_min))
         print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
     return results
