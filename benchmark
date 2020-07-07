@@ -22,7 +22,7 @@ TABLE_TITLES = ['Benchmark', 'Exec Version', 'Exec Path', "Time Span"]
 
 
 def row_list(language, exec_path, exec_version, span):
-    return [language, exec_version, exec_path, span_str(span)]
+    return [language, exec_path, exec_version, span_str(span)]
 
 
 def md_header(text, nr):        # Markdown header
