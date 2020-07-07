@@ -123,9 +123,9 @@ def benchmark_GCC(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths['C'],
                                     args=[gcc_exec] + C_FLAGS,
                                     run_count=args.run_count,
-                                    op='Check',
+                                    op=op,
                                     compiler_version=version)
-            results.append(row_list(lang, 'Check', gcc_exec, version, span_min))
+            results.append(row_list(lang, op, gcc_exec, version, span_min))
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
@@ -138,9 +138,9 @@ def benchmark_GCC(execs, spans, gpaths, args,
             span_min = compile_file(path=gpaths['C++'],
                                     args=[gxx_exec] + C_FLAGS,
                                     run_count=args.run_count,
-                                    op='Check',
+                                    op=op,
                                     compiler_version=version)
-            results.append(row_list(lang, 'Check', gxx_exec, version, span_min))
+            results.append(row_list(lang, op, gxx_exec, version, span_min))
             spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
@@ -240,7 +240,7 @@ def benchmark_D(execs, spans, gpaths, args,
 
 def benchmark_Go(execs, spans, gpaths, args,
                  gen_obj=False):
-    op = 'Check'
+    op = 'Compile' if gen_obj else "Check"
     results = list()
     lang = 'Go'
     gccgo_exec = shutil.which('gccgo')
