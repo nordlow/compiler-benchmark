@@ -11,7 +11,7 @@ from timeit import default_timer as timer
 
 
 DEFAULT_PROGRAM_NAME = 'linear'
-C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
+C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"]
 
 
@@ -114,6 +114,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
     op = 'Compile' if gen_obj else "Check"
     print(md_header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
+    exec_args = [] if gen_obj else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         lang = 'C'
         gcc_exec = shutil.which('gcc-' + str(gcc_version))
@@ -121,7 +122,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
             version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
             span_min = compile_file(path=gpaths['C'],
-                                    args=[gcc_exec] + C_FLAGS,
+                                    args=[gcc_exec] + C_FLAGS + exec_args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
@@ -136,7 +137,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
             version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
             span_min = compile_file(path=gpaths['C++'],
-                                    args=[gxx_exec] + C_FLAGS,
+                                    args=[gxx_exec] + C_FLAGS + exec_args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
@@ -155,6 +156,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 2))
     CLANG_VERSIONS = range(5, 13)
+    exec_args = [] if gen_obj else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         lang = 'C'
         clang_exec = shutil.which('clang-' + str(clang_version))
@@ -162,7 +164,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
             version_run = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
             spans['Clang'] = compile_file(path=gpaths['C'],
-                                          args=[clang_exec] + C_CLANG_FLAGS,
+                                          args=[clang_exec] + C_CLANG_FLAGS + exec_args,
                                           run_count=args.run_count,
                                           op=op,
                                           compiler_version=version)
@@ -174,7 +176,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
             version_run = subprocess.run([clangxx_, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
             spans['Clang++'] = compile_file(path=gpaths['C++'],
-                                            args=[clangxx_] + C_CLANG_FLAGS,
+                                            args=[clangxx_] + C_CLANG_FLAGS + exec_args,
                                             run_count=args.run_count,
                                             op=op,
                                             compiler_version=version)
