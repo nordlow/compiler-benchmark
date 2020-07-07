@@ -129,7 +129,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
             results.append(row_list(lang, op, gcc_exec, version, span_min))
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
-            print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
+            print_speedup(spans, from_lang='D-' + op, to_lang=gcc_exec)
 
         lang = 'C++'
         gxx_exec = shutil.which('g++-' + str(gcc_version))
@@ -144,7 +144,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
             results.append(row_list(lang, op, gxx_exec, version, span_min))
             spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
-            print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
+            print_speedup(spans, from_lang='D-' + op, to_lang=gxx_exec)
     print()
     return results
 
@@ -180,8 +180,8 @@ def benchmark_Clang(execs, spans, gpaths, args,
                                             run_count=args.run_count,
                                             op=op,
                                             compiler_version=version)
-            print_speedup(spans, from_lang='D-check', to_lang='Clang')
-            print_speedup(spans, from_lang='D-check', to_lang='Clang++')
+            print_speedup(spans, from_lang='D-' + op, to_lang='Clang')
+            print_speedup(spans, from_lang='D-' + op, to_lang='Clang++')
     print()
     return results
 
@@ -193,7 +193,7 @@ def benchmark_D(execs, spans, gpaths, args,
 
     op = 'Compile' if gen_obj else "Check"
     lang = 'D'
-    lang_op = lang + '-' + op.lower()
+    lang_op = lang + '-' + op
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
     print(md_header(lang_op + ':', 2))
@@ -259,7 +259,7 @@ def benchmark_Go(execs, spans, gpaths, args,
                                     compiler_version=version)
             spans[lang] = span_min
             results.append(row_list(lang, op, gccgo_exec, version, span_min))
-            print_speedup(spans, from_lang='D-check', to_lang='Go')
+            print_speedup(spans, from_lang='D-' + op, to_lang='Go')
             print()
     return results
 
@@ -285,7 +285,7 @@ def benchmark_V(execs, spans, gpaths, args,
                                     compiler_version=version)
             spans[lang] = span_min
             results.append(row_list(lang, op, v_exec, version, span_min))
-            print_speedup(spans, from_lang='D-compile', to_lang='V')
+            print_speedup(spans, from_lang='D-' + op, to_lang='V')
             print()
     return results
 
@@ -309,7 +309,7 @@ def benchmark_Zig(execs, spans, gpaths, args,
                                     compiler_version=version)
             spans[lang] = span_min
             results.append(row_list(lang, op, zig_exec, version, span_min))
-            print_speedup(spans, from_lang='D-compile', to_lang='Zig')
+            print_speedup(spans, from_lang='D-' + op, to_lang='Zig')
             print()
     return results
 
@@ -320,7 +320,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
 
     lang = 'Rust'
     op = 'Compile' if gen_obj else "Check"
-    lang_op = lang + '-' + op.lower()
+    lang_op = lang + '-' + op
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
@@ -343,8 +343,8 @@ def benchmark_Rust(execs, spans, gpaths, args,
         spans[lang_op] = span_min
         results.append(row_list(lang, op, rustc_exec, version, span_min))
         print_speedup(spans,
-                      from_lang='D-' + op.lower(),
-                      to_lang='Rust-' + op.lower())
+                      from_lang='D-' + op,
+                      to_lang='Rust-' + op)
         print()
     return results
 
@@ -365,7 +365,7 @@ def benchmark_Java(execs, spans, gpaths, args,
                                     op=op)
             spans[lang] = span_min
             results.append(row_list(lang, op, java_exec, 'unknown', span_min))
-            print_speedup(spans, from_lang='D-compile', to_lang='Java')
+            print_speedup(spans, from_lang='D-' + op, to_lang='Java')
             print()
     return results
 
