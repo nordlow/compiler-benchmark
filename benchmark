@@ -121,7 +121,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
         gcc_exec = shutil.which('gcc-' + str(gcc_version))
         if gcc_exec is not None:
             version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
+            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
             span_min = compile_file(path=gpaths['C'],
                                     args=[gcc_exec] + C_FLAGS + exec_args,
                                     run_count=args.run_count,
@@ -136,7 +136,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
         gxx_exec = shutil.which('g++-' + str(gcc_version))
         if gxx_exec is not None:
             version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
+            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
             span_min = compile_file(path=gpaths['C++'],
                                     args=[gxx_exec] + C_FLAGS + exec_args,
                                     run_count=args.run_count,
