@@ -163,7 +163,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
         clang_exec = shutil.which('clang-' + str(clang_version))
         if clang_exec is not None:
             version_run = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
+            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
             span_min = compile_file(path=gpaths['C'],
                                     args=[clang_exec] + C_CLANG_FLAGS + exec_args,
                                     run_count=args.run_count,
@@ -177,7 +177,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
         clangxx_exec = shutil.which('clang++-' + str(clang_version))
         if clangxx_exec is not None:
             version_run = subprocess.run([clangxx_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2]
+            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
             span_min = compile_file(path=gpaths['C++'],
                                     args=[clangxx_exec] + C_CLANG_FLAGS + exec_args,
                                     run_count=args.run_count,
