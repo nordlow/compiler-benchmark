@@ -309,14 +309,15 @@ def benchmark_Rust(execs, spans, gpaths, args,
                    gen_obj=False):
     results = list()
 
+    lang = 'Rust'
     op = 'Compile' if gen_obj else "Check"
-    lang = 'Rust-' + op.lower()
+    lang_op = lang + '-' + op.lower()
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
-        print(md_header(lang + ':', 2))
-        if lang not in execs:
-            execs[lang] = rustc_exec
+        print(md_header(lang_op + ':', 2))
+        if lang_op not in execs:
+            execs[lang_op] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
@@ -330,7 +331,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        spans[lang] = span_min
+        spans[lang_op] = span_min
         results.append(row_list(lang, op, rustc_exec, version, span_min))
         print_speedup(spans,
                       from_lang='D-' + op.lower(),
