@@ -18,6 +18,9 @@ def span_str(span):
     return "{:.3f}".format(span)
 
 
+TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
+
+
 def make_result(language, exec_path, exec_version, span):
     return [language, exec_path, exec_version, span_str(span)]
 
@@ -87,7 +90,6 @@ def main():
     # print('Speedups' + ':')
     # pprint(spans)
 
-    TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
     print(md_table(TABLE_TITLES, results))
 
 
