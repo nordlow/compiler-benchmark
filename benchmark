@@ -104,9 +104,10 @@ def generate_code(languages, args):
     gpaths = {}
     for lang in languages:
         gpaths[lang] = generate_test_program(lang=lang,
-                                                 args=args)
+                                             args=args)
     print()
     return gpaths
+
 
 def benchmark_GCC(execs, spans, gpaths, args,
                   gen_obj=False):
