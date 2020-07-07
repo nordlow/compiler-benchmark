@@ -21,7 +21,7 @@ def span_str(span):
 TABLE_TITLES = ['Benchmark', 'Exec Path', 'Exec Version', "Time Span"]
 
 
-def make_result(language, exec_path, exec_version, span):
+def row_list(language, exec_path, exec_version, span):
     return [language, exec_path, exec_version, span_str(span)]
 
 
@@ -118,7 +118,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Check',
                                     compiler_version=version)
-            results.append(make_result(language, gcc_exec, version, span_min))
+            results.append(row_list(language, gcc_exec, version, span_min))
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
@@ -133,7 +133,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Check',
                                     compiler_version=version)
-            results.append(make_result(language, gxx_exec, version, span_min))
+            results.append(row_list(language, gxx_exec, version, span_min))
             spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
@@ -205,7 +205,7 @@ def benchmark_D(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        results.append(make_result(language, dmd_exec, version, span_min))
+        results.append(row_list(language, dmd_exec, version, span_min))
         spans[language].append(span_min)
 
     # LDC
@@ -220,7 +220,7 @@ def benchmark_D(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        results.append(make_result(language, ldc_exec, version, span_min))
+        results.append(row_list(language, ldc_exec, version, span_min))
         spans[language].append(span_min)
 
     spans[language] = min(spans[language])
@@ -247,7 +247,7 @@ def benchmark_Go(execs, spans, gpaths, args,
                                     operation_message='Check',
                                     compiler_version=version)
             spans[language] = span_min
-            results.append(make_result(language, gccgo_exec, version, span_min))
+            results.append(row_list(language, gccgo_exec, version, span_min))
             print_speedup(spans, from_lang='D-check', to_lang='Go')
             print()
     return results
@@ -272,7 +272,7 @@ def benchmark_V(execs, spans, gpaths, args,
                                     operation_message='Compile',
                                     compiler_version=version)
             spans[language] = span_min
-            results.append(make_result(language, v_exec, version, span_min))
+            results.append(row_list(language, v_exec, version, span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='V')
             print()
     return results
@@ -295,7 +295,7 @@ def benchmark_Zig(execs, spans, gpaths, args,
                                     operation_message='Compile',
                                     compiler_version=version)
             spans[language] = span_min
-            results.append(make_result(language, zig_exec, version, span_min))
+            results.append(row_list(language, zig_exec, version, span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='Zig')
             print()
     return results
@@ -327,7 +327,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
                                 operation_message=operation_message,
                                 compiler_version=version)
         spans[language] = span_min
-        results.append(make_result(language, rustc_exec, version, span_min))
+        results.append(row_list(language, rustc_exec, version, span_min))
         print_speedup(spans,
                       from_lang='D-' + operation_message.lower(),
                       to_lang='Rust-' + operation_message.lower())
@@ -349,7 +349,7 @@ def benchmark_Java(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Compile')
             spans[language] = span_min
-            results.append(make_result(language, java_exec, 'unknown', span_min))
+            results.append(row_list(language, java_exec, 'unknown', span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='Java')
             print()
     return results
@@ -369,7 +369,7 @@ def benchmark_Julia(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message='Compile')
         spans[language] = span_min
-        results.append(make_result(language, julia_exec, 'unknown', span_min))
+        results.append(row_list(language, julia_exec, 'unknown', span_min))
         print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
     return results
