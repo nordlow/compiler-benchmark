@@ -12,8 +12,6 @@ from timeit import default_timer as timer
 
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
-
-
 TABLE_TITLES = ['Language', 'Type', 'Exec Version', 'Exec Path', "Time Span [s]"]
 
 
