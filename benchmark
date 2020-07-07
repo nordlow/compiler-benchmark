@@ -78,8 +78,13 @@ def main():
     results = []
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+
     results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
+    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+
     results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
@@ -106,6 +111,7 @@ def generate_code(languages, args):
 def benchmark_GCC(execs, spans, gpaths, args,
                   gen_obj=False):
     results = list()
+    op = 'Compile' if gen_obj else "Check"
     print(md_header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
