@@ -85,7 +85,7 @@ def main():
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
     results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
-    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+    # results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
 
     # print('Speedups' + ':')
     # pprint(spans)
