@@ -18,6 +18,10 @@ def span_str(span):
     return "{:.3f}".format(span)
 
 
+def make_result(language, exec_path, exec_version, span):
+    return [language, exec_path, exec_version, span_str(span)]
+
+
 def md_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
