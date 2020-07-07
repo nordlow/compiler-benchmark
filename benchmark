@@ -164,25 +164,28 @@ def benchmark_Clang(execs, spans, gpaths, args,
         if clang_exec is not None:
             version_run = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
-            spans['Clang'] = compile_file(path=gpaths['C'],
-                                          args=[clang_exec] + C_CLANG_FLAGS + exec_args,
-                                          run_count=args.run_count,
-                                          op=op,
-                                          compiler_version=version)
-            spans[clang_exec] = spans['Clang']
+            span_min = compile_file(path=gpaths['C'],
+                                    args=[clang_exec] + C_CLANG_FLAGS + exec_args,
+                                    run_count=args.run_count,
+                                    op=op,
+                                    compiler_version=version)
+            results.append(row_list(lang, op, clang_exec, version, span_min))
+            spans[clang_exec] = span_min
+            print_speedup(spans, from_lang='D-' + op, to_lang=clang_exec)
 
         lang = 'C++'
-        clangxx_ = shutil.which('clang++-' + str(clang_version))
-        if clangxx_ is not None:
-            version_run = subprocess.run([clangxx_, '--version'], stdout=subprocess.PIPE)
+        clangxx_exec = shutil.which('clang++-' + str(clang_version))
+        if clangxx_exec is not None:
+            version_run = subprocess.run([clangxx_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
-            spans['Clang++'] = compile_file(path=gpaths['C++'],
-                                            args=[clangxx_] + C_CLANG_FLAGS + exec_args,
-                                            run_count=args.run_count,
-                                            op=op,
-                                            compiler_version=version)
-            print_speedup(spans, from_lang='D-' + op, to_lang='Clang')
-            print_speedup(spans, from_lang='D-' + op, to_lang='Clang++')
+            span_min = compile_file(path=gpaths['C++'],
+                                    args=[clangxx_exec] + C_CLANG_FLAGS + exec_args,
+                                    run_count=args.run_count,
+                                    op=op,
+                                    compiler_version=version)
+            results.append(row_list(lang, op, clangxx_exec, version, span_min))
+            spans[clangxx_exec] = span_min
+            print_speedup(spans, from_lang='D-' + op, to_lang=clangxx_exec)
     print()
     return results
 
