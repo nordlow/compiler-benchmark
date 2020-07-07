@@ -12,7 +12,7 @@ from timeit import default_timer as timer
 
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Type', 'Exec Version', 'Exec Path', "Time Span [s]"]
+TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"]
 
 
 def row_list(lang, check, exec_path, exec_version, span):
@@ -36,8 +36,11 @@ def md_table(header, rows):
     result += '\n'
 
     result += '| '
-    for col in range(len(header)):
-        result += '---' + ' | '
+    for ix, col in enumerate(range(len(header))):
+        if ix == 4:
+            result += ':---:' + ' | '
+        else:
+            result += '---' + ' | '
     result += '\n'
 
     for row in rows:
