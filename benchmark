@@ -16,7 +16,7 @@ TABLE_TITLES = ['Language', 'Type', 'Exec Version', 'Exec Path', "Time Span [s]"
 
 
 def row_list(lang, check, exec_path, exec_version, span):
-    return [lang, check, exec_path, exec_version, format_span(span)]
+    return [lang, check, '`' + exec_path + '`', exec_version, format_span(span)]
 
 
 def format_span(span):
