@@ -21,8 +21,8 @@ def span_str(span):
 TABLE_TITLES = ['Language', 'Type', 'Exec Version', 'Exec Path', "Time Span"]
 
 
-def row_list(language, check, exec_path, exec_version, span):
-    return [language, check, exec_path, exec_version, span_str(span)]
+def row_list(lang, check, exec_path, exec_version, span):
+    return [lang, check, exec_path, exec_version, span_str(span)]
 
 
 def md_header(text, nr):        # Markdown header
@@ -96,8 +96,8 @@ def main():
 def generate_code(languages, args):
     print(md_header('Code-generation:', 1))
     gpaths = {}
-    for language in languages:
-        gpaths[language] = generate_test_program(language=language,
+    for lang in languages:
+        gpaths[lang] = generate_test_program(lang=lang,
                                                  args=args)
     print()
     return gpaths
@@ -108,7 +108,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
     print(md_header('GCC:', 2))
     GCC_VERSIONS = range(5, 13)
     for gcc_version in GCC_VERSIONS:
-        language = 'C'
+        lang = 'C'
         gcc_exec = shutil.which('gcc-' + str(gcc_version))
         if gcc_exec is not None:
             version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
@@ -118,12 +118,12 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Check',
                                     compiler_version=version)
-            results.append(row_list(language, 'Check', gcc_exec, version, span_min))
+            results.append(row_list(lang, 'Check', gcc_exec, version, span_min))
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gcc_exec)
 
-        language = 'C++'
+        lang = 'C++'
         gxx_exec = shutil.which('g++-' + str(gcc_version))
         if gxx_exec is not None:
             version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
@@ -133,7 +133,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     operation_message='Check',
                                     compiler_version=version)
-            results.append(row_list(language, 'Check', gxx_exec, version, span_min))
+            results.append(row_list(lang, 'Check', gxx_exec, version, span_min))
             spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-check', to_lang=gxx_exec)
@@ -149,7 +149,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
     print(md_header('Clang:', 2))
     CLANG_VERSIONS = range(5, 13)
     for clang_version in CLANG_VERSIONS:
-        language = 'C'
+        lang = 'C'
         clang_exec = shutil.which('clang-' + str(clang_version))
         if clang_exec is not None:
             version_run = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
@@ -161,7 +161,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
                                           compiler_version=version)
             spans[clang_exec] = spans['Clang']
 
-        language = 'C++'
+        lang = 'C++'
         clangxx_ = shutil.which('clang++-' + str(clang_version))
         if clangxx_ is not None:
             version_run = subprocess.run([clangxx_, '--version'], stdout=subprocess.PIPE)
@@ -183,13 +183,14 @@ def benchmark_D(execs, spans, gpaths, args,
     results = list()
 
     operation_message = 'Compile' if gen_obj else "Check"
-    language = 'D-' + operation_message.lower()
+    lang = 'D'
+    language_op = lang + '-' + operation_message.lower()
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
-    print(md_header(language + ':', 2))
+    print(md_header(language_op + ':', 2))
 
-    if language not in spans:
-        spans[language] = []
+    if language_op not in spans:
+        spans[language_op] = []
 
     exec_args = '-c' if gen_obj else '-o-'
 
@@ -198,32 +199,32 @@ def benchmark_D(execs, spans, gpaths, args,
     if dmd_exec is not None:
         version_run = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[3]
-        if language not in execs:
-            execs[language] = dmd_exec
+        if language_op not in execs:
+            execs[language_op] = dmd_exec
         span_min = compile_file(path=gpaths['D'],
                                 args=[dmd_exec, exec_args] + d_flags,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        results.append(row_list(language, operation_message, dmd_exec, version, span_min))
-        spans[language].append(span_min)
+        results.append(row_list(lang, operation_message, dmd_exec, version, span_min))
+        spans[language_op].append(span_min)
 
     # LDC
     ldc_exec = shutil.which('ldmd2')
     if ldc_exec is not None:
         version_run = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[6][1:-2]
-        if language not in execs:
-            execs[language] = ldc_exec
+        if language_op not in execs:
+            execs[language_op] = ldc_exec
         span_min = compile_file(path=gpaths['D'],
                                 args=[ldc_exec, exec_args] + d_flags,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        results.append(row_list(language, operation_message, ldc_exec, version, span_min))
-        spans[language].append(span_min)
+        results.append(row_list(lang, operation_message, ldc_exec, version, span_min))
+        spans[language_op].append(span_min)
 
-    spans[language] = min(spans[language])
+    spans[language_op] = min(spans[language_op])
 
     print()
 
@@ -234,21 +235,21 @@ def benchmark_Go(execs, spans, gpaths, args,
                  gen_obj=False):
     operation_message = 'Check'
     results = list()
-    language = 'Go'
+    lang = 'Go'
     gccgo_exec = shutil.which('gccgo')
     if gccgo_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = gccgo_exec
+        print(md_header(lang + ':', 2))
+        if lang not in execs:
+            execs[lang] = gccgo_exec
             version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2]
-            span_min = compile_file(path=gpaths[language],
+            span_min = compile_file(path=gpaths[lang],
                                     args=[gccgo_exec, '-fsyntax-only', '-S'],
                                     run_count=args.run_count,
                                     operation_message=operation_message,
                                     compiler_version=version)
-            spans[language] = span_min
-            results.append(row_list(language, operation_message, gccgo_exec, version, span_min))
+            spans[lang] = span_min
+            results.append(row_list(lang, operation_message, gccgo_exec, version, span_min))
             print_speedup(spans, from_lang='D-check', to_lang='Go')
             print()
     return results
@@ -259,22 +260,22 @@ def benchmark_V(execs, spans, gpaths, args,
     operation_message = 'Compile'
     results = list()
     # V (vlang.io)
-    language = 'V'
+    lang = 'V'
     v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = v_exec
+        print(md_header(lang + ':', 2))
+        if lang not in execs:
+            execs[lang] = v_exec
             version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[1]
             vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
-            span_min = compile_file(path=gpaths[language],
+            span_min = compile_file(path=gpaths[lang],
                                     args=[v_exec, '-backend', vlang_backends[2]],
                                     run_count=args.run_count,
                                     operation_message=operation_message,
                                     compiler_version=version)
-            spans[language] = span_min
-            results.append(row_list(language, operation_message, v_exec, version, span_min))
+            spans[lang] = span_min
+            results.append(row_list(lang, operation_message, v_exec, version, span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='V')
             print()
     return results
@@ -284,12 +285,12 @@ def benchmark_Zig(execs, spans, gpaths, args,
                   gen_obj=False):
     operation_message = 'Compile'
     results = list()
-    language = 'Zig'
-    print(md_header(language + ':', 2))
+    lang = 'Zig'
+    print(md_header(lang + ':', 2))
     zig_exec = shutil.which('zig')
     if zig_exec is not None:
-        if language not in execs:
-            execs[language] = zig_exec
+        if lang not in execs:
+            execs[lang] = zig_exec
             version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[0]
             span_min = compile_file(path=gpaths['Zig'],
@@ -297,8 +298,8 @@ def benchmark_Zig(execs, spans, gpaths, args,
                                     run_count=args.run_count,  # no syntax flag currently so compile to object file instead
                                     operation_message=operation_message,
                                     compiler_version=version)
-            spans[language] = span_min
-            results.append(row_list(language, operation_message, zig_exec, version, span_min))
+            spans[lang] = span_min
+            results.append(row_list(lang, operation_message, zig_exec, version, span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='Zig')
             print()
     return results
@@ -309,13 +310,13 @@ def benchmark_Rust(execs, spans, gpaths, args,
     results = list()
 
     operation_message = 'Compile' if gen_obj else "Check"
-    language = 'Rust-' + operation_message.lower()
+    lang = 'Rust-' + operation_message.lower()
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = rustc_exec
+        print(md_header(lang + ':', 2))
+        if lang not in execs:
+            execs[lang] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
@@ -329,8 +330,8 @@ def benchmark_Rust(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 operation_message=operation_message,
                                 compiler_version=version)
-        spans[language] = span_min
-        results.append(row_list(language, operation_message, rustc_exec, version, span_min))
+        spans[lang] = span_min
+        results.append(row_list(lang, operation_message, rustc_exec, version, span_min))
         print_speedup(spans,
                       from_lang='D-' + operation_message.lower(),
                       to_lang='Rust-' + operation_message.lower())
@@ -342,18 +343,18 @@ def benchmark_Java(execs, spans, gpaths, args,
                    gen_obj=False):
     operation_message = 'Compile'
     results = list()
-    language = 'Java'
+    lang = 'Java'
     java_exec = shutil.which('javac')
     if java_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = java_exec
-            span_min = compile_file(path=gpaths[language],
+        print(md_header(lang + ':', 2))
+        if lang not in execs:
+            execs[lang] = java_exec
+            span_min = compile_file(path=gpaths[lang],
                                     args=[java_exec, '-Xdiags:verbose'],
                                     run_count=args.run_count,
                                     operation_message=operation_message)
-            spans[language] = span_min
-            results.append(row_list(language, operation_message, java_exec, 'unknown', span_min))
+            spans[lang] = span_min
+            results.append(row_list(lang, operation_message, java_exec, 'unknown', span_min))
             print_speedup(spans, from_lang='D-compile', to_lang='Java')
             print()
     return results
@@ -363,18 +364,18 @@ def benchmark_Julia(execs, spans, gpaths, args,
                     gen_obj=False):
     operation_message = 'Compile'
     results = list()
-    language = 'Julia'
+    lang = 'Julia'
     julia_exec = shutil.which('julia')
     if julia_exec is not None:
-        print(md_header(language + ':', 2))
-        if language not in execs:
-            execs[language] = julia_exec
+        print(md_header(lang + ':', 2))
+        if lang not in execs:
+            execs[lang] = julia_exec
         span_min = compile_file(path=gpaths['Julia'],
                                 args=[julia_exec],
                                 run_count=args.run_count,
                                 operation_message=operation_message)
-        spans[language] = span_min
-        results.append(row_list(language, operation_message, julia_exec, 'unknown', span_min))
+        spans[lang] = span_min
+        results.append(row_list(lang, operation_message, julia_exec, 'unknown', span_min))
         print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
     return results
@@ -443,13 +444,13 @@ def language_file_extension(lang):
         return lang
 
 
-def generate_test_program(language,
+def generate_test_program(lang,
                           args,
                           root_path='generated',
                           templated_function=False):
     program_name = DEFAULT_PROGRAM_NAME
 
-    lang = language.lower()
+    lang = lang.lower()
     types = long_types_of_lang(lang)
     ext = language_file_extension(lang)
     dir_path = os.path.join(root_path, lang)
@@ -470,8 +471,8 @@ def generate_test_program(language,
         generate_test_language_specific_postfix(lang, types, f)
     end = timer()
     span = (end - start)  # time span
-    print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
-    # print("Generated {} source file: {}".format(language.upper(), path))
+    print("- Generating {} took {:1.3f} seconds ({})".format(path, span, lang))
+    # print("Generated {} source file: {}".format(lang.upper(), path))
 
     return path  # "-betterC"
 
@@ -624,10 +625,10 @@ def generate_linear_test_function_variable(lang, typ, f):
         assert False
 
 
-def generate_test_program_2(function_count, language, root_path='generated'):
+def generate_test_program_2(function_count, lang, root_path='generated'):
     program_name = "sample2"
 
-    lang = language.lower()
+    lang = lang.lower()
     types = long_types_of_lang(lang)
     ext = language_file_extension(lang)
     dir_path = os.path.join(root_path, lang)
@@ -775,9 +776,9 @@ main()
 
     end = timer()
     span = (end - start)  # time span
-    print("- Generating {} took {:1.3f} seconds ({})".format(path, span, language))
+    print("- Generating {} took {:1.3f} seconds ({})".format(path, span, lang))
 
-    # print("Generated {} source file: {}".format(language.upper(), path))
+    # print("Generated {} source file: {}".format(lang.upper(), path))
 
     return path  # "-betterC"
 
