@@ -14,15 +14,15 @@ DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-fsyntax-only', '-Wall', '-Wextra']
 
 
-def format_span(span):
-    return "{:.3f}".format(span)
-
-
 TABLE_TITLES = ['Language', 'Type', 'Exec Version', 'Exec Path', "Time Span [s]"]
 
 
 def row_list(lang, check, exec_path, exec_version, span):
     return [lang, check, exec_path, exec_version, format_span(span)]
+
+
+def format_span(span):
+    return "{:.3f}".format(span)
 
 
 def md_header(text, nr):        # Markdown header
