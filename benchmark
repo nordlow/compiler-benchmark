@@ -37,10 +37,10 @@ def md_table(header, rows):
 
     result += '| '
     for ix, col in enumerate(range(len(header))):
-        if ix == 4:
-            result += ':---:' + ' | '
-        else:
+        if ix == 2:
             result += '---' + ' | '
+        else:
+            result += ':---:' + ' | '
     result += '\n'
 
     for row in rows:
