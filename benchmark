@@ -9,7 +9,6 @@ from pprint import pprint
 from string import Template as Tm
 from timeit import default_timer as timer
 
-
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"]
