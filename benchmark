@@ -13,7 +13,7 @@ LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
+TABLE_TITLES = ['Language', 'Templated', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
 
 
 def lang_templated_id(lang, templated):
@@ -31,12 +31,22 @@ def row_list(spans, lang, op, exec_path, exec_version, span, templated):
     if lang.startswith('D'):
         speedup_D = 'N/A'
     else:
-        speedup_D = format_float(span / spans[srcid('D', templated, op)])
-    return [lang, op, '`' + exec_path + '`', exec_version, format_float(span), speedup_D]
+        speedup_D = factor_str(span / spans[srcid('D', templated, op)])
+    return [lang,
+            'Yes' if templated else 'No',
+            op,
+            '`' + exec_path + '`',
+            exec_version,
+            ms_str(span),
+            speedup_D]
 
 
-def format_float(span):
+def ms_str(span):
     return "{:.3f}".format(span)
+
+
+def factor_str(factor):
+    return "{:.1f}".format(factor)
 
 
 def md_header(text, nr):        # Markdown header
