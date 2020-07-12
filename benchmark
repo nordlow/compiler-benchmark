@@ -18,7 +18,7 @@ TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "Ti
 
 def lang_templated_id(lang, templated):
     if lang in TEMPLATED_LANGUAGES:
-        return lang + ('-T' if templated else '-N')
+        return lang + ('-Templated' if templated else '-Untemplated')
     else:
         return lang
 
