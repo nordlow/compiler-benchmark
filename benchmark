@@ -231,19 +231,18 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
 
     op = 'Build' if gen_obj else "Check"
     lang = 'D'
-    opId = opIdOf(lang, templated, op)
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
-
-    print(md_header(opId + ':', 2))
-
-    if opId not in spans:
-        spans[opId] = []
 
     exec_args = '-c' if gen_obj else '-o-'
 
     # DMD
     dmd_exec = shutil.which('dmd')
     if dmd_exec is not None:
+        opId = opIdOf(lang, templated, op)
+        if opId not in spans:
+            spans[opId] = []
+        print(md_header(opId + ':', 2))
+
         version_run = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[3]
         if opId not in execs:
@@ -259,6 +258,11 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
     # LDC
     ldc_exec = shutil.which('ldmd2')
     if ldc_exec is not None:
+        opId = opIdOf(lang, templated, op)
+        if opId not in spans:
+            spans[opId] = []
+        print(md_header(opId + ':', 2))
+
         version_run = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
