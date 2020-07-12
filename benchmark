@@ -16,9 +16,12 @@ C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]", "D-Speedup"]
 
 
-def row_list(lang, check, exec_path, exec_version, span, speedup=None):
-    return [lang, check, '`' + exec_path + '`', exec_version, format_float(span),
-            format_float(speedup) if speedup else 'unknown']
+def row_list(spans, lang, op, exec_path, exec_version, span):
+    if lang.startswith('D'):
+        speedup = 'unknown'
+    else:
+        speedup = format_float(span / spans['D-' + op])
+    return [lang, op, '`' + exec_path + '`', exec_version, format_float(span), speedup]
 
 
 def format_float(span):
@@ -134,8 +137,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     compiler_version=version)
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
-            results.append(row_list(lang, op, gcc_exec, version, span_min,
-                                    speedup=span_min / spans['D-' + op]))
+            results.append(row_list(spans, lang, op, gcc_exec, version, span_min))
             print_speedup(spans, from_lang='D-' + op, to_lang=gcc_exec)
 
         lang = 'C++'
@@ -148,7 +150,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            results.append(row_list(lang, op, gxx_exec, version, span_min))
+            results.append(row_list(spans, lang, op, gxx_exec, version, span_min))
             spans[gxx_exec] = span_min
             spans['g++-' + str(gcc_version)] = spans[gxx_exec]
             print_speedup(spans, from_lang='D-' + op, to_lang=gxx_exec)
@@ -175,7 +177,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            results.append(row_list(lang, op, clang_exec, version, span_min))
+            results.append(row_list(spans, lang, op, clang_exec, version, span_min))
             spans[clang_exec] = span_min
             print_speedup(spans, from_lang='D-' + op, to_lang=clang_exec)
 
@@ -189,7 +191,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            results.append(row_list(lang, op, clangxx_exec, version, span_min))
+            results.append(row_list(spans, lang, op, clangxx_exec, version, span_min))
             spans[clangxx_exec] = span_min
             print_speedup(spans, from_lang='D-' + op, to_lang=clangxx_exec)
     print()
@@ -225,7 +227,7 @@ def benchmark_D(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        results.append(row_list(lang, op, dmd_exec, version, span_min))
+        results.append(row_list(spans, lang, op, dmd_exec, version, span_min))
         spans[lang_op].append(span_min)
 
     # LDC
@@ -240,7 +242,7 @@ def benchmark_D(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        results.append(row_list(lang, op, ldc_exec, version, span_min))
+        results.append(row_list(spans, lang, op, ldc_exec, version, span_min))
         spans[lang_op].append(span_min)
 
     spans[lang_op] = min(spans[lang_op])
@@ -268,7 +270,7 @@ def benchmark_Go(execs, spans, gpaths, args,
                                     op=op,
                                     compiler_version=version)
             spans[lang] = span_min
-            results.append(row_list(lang, op, gccgo_exec, version, span_min))
+            results.append(row_list(spans, lang, op, gccgo_exec, version, span_min))
             print_speedup(spans, from_lang='D-' + op, to_lang='Go')
             print()
     return results
@@ -294,7 +296,7 @@ def benchmark_V(execs, spans, gpaths, args,
                                     op=op,
                                     compiler_version=version)
             spans[lang] = span_min
-            results.append(row_list(lang, op, v_exec, version, span_min))
+            results.append(row_list(spans, lang, op, v_exec, version, span_min))
             print_speedup(spans, from_lang='D-' + op, to_lang='V')
             print()
     return results
@@ -318,7 +320,7 @@ def benchmark_Zig(execs, spans, gpaths, args,
                                     op=op,
                                     compiler_version=version)
             spans[lang] = span_min
-            results.append(row_list(lang, op, zig_exec, version, span_min))
+            results.append(row_list(spans, lang, op, zig_exec, version, span_min))
             print_speedup(spans, from_lang='D-' + op, to_lang='Zig')
             print()
     return results
@@ -351,7 +353,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
                                 op=op,
                                 compiler_version=version)
         spans[lang_op] = span_min
-        results.append(row_list(lang, op, rustc_exec, version, span_min))
+        results.append(row_list(spans, lang, op, rustc_exec, version, span_min))
         print_speedup(spans,
                       from_lang='D-' + op,
                       to_lang='Rust-' + op)
@@ -374,7 +376,7 @@ def benchmark_Java(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     op=op)
             spans[lang] = span_min
-            results.append(row_list(lang, op, java_exec, 'unknown', span_min))
+            results.append(row_list(spans, lang, op, java_exec, 'unknown', span_min))
             print_speedup(spans, from_lang='D-' + op, to_lang='Java')
             print()
     return results
@@ -395,7 +397,7 @@ def benchmark_Julia(execs, spans, gpaths, args,
                                 run_count=args.run_count,
                                 op=op)
         spans[lang] = span_min
-        results.append(row_list(lang, op, julia_exec, 'unknown', span_min))
+        results.append(row_list(spans, lang, op, julia_exec, 'unknown', span_min))
         print_speedup(spans, from_lang='D-compile', to_lang='Julia')
         print()
     return results
