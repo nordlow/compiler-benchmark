@@ -13,7 +13,7 @@ LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "D-Speedup"]
+TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
 
 
 def row_list(spans, lang, op, exec_path, exec_version, span):
