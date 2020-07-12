@@ -105,19 +105,19 @@ def main():
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
     results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
-    results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
-    results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
-    results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
-    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
-    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
-    results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
-    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
     # print('Speedups' + ':')
     # pprint(spans)
