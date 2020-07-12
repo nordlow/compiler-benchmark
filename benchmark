@@ -23,7 +23,7 @@ def lang_templated_id(lang, templated):
         return lang
 
 
-def srcid(lang, templated, op):
+def sidOf(lang, templated, op):
     return lang_templated_id(lang, templated) + '-' + op
 
 
@@ -31,7 +31,7 @@ def row_list(spans, lang, op, exec_path, exec_version, span, templated):
     if lang.startswith('D'):
         speedup_D = 'N/A'
     else:
-        speedup_D = factor_str(span / spans[srcid('D', templated, op)])
+        speedup_D = factor_str(span / spans[sidOf('D', templated, op)])
     return [lang,
             'Yes' if templated else 'No',
             op,
@@ -120,6 +120,7 @@ def main():
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
 
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
@@ -169,10 +170,10 @@ def benchmark_GCC(execs, spans, gpaths, args, gen_obj, templated):
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            spans[gcc_exec] = span_min
-            spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
             results.append(row_list(spans, lang, op, gcc_exec, version, span_min, templated))
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang=gcc_exec)
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
 
         lang = 'C++'
         gxx_exec = shutil.which('g++-' + str(gcc_version))
@@ -185,9 +186,9 @@ def benchmark_GCC(execs, spans, gpaths, args, gen_obj, templated):
                                     op=op,
                                     compiler_version=version)
             results.append(row_list(spans, lang, op, gxx_exec, version, span_min, templated))
-            spans[gxx_exec] = span_min
-            spans['g++-' + str(gcc_version)] = spans[gxx_exec]
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang=gxx_exec)
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
     print()
     return results
 
@@ -211,8 +212,9 @@ def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
                                     op=op,
                                     compiler_version=version)
             results.append(row_list(spans, lang, op, clang_exec, version, span_min, templated))
-            spans[clang_exec] = span_min
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang=clang_exec)
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
 
         lang = 'C++'
         clangxx_exec = shutil.which('clang++-' + str(clang_version))
@@ -225,8 +227,9 @@ def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
                                     op=op,
                                     compiler_version=version)
             results.append(row_list(spans, lang, op, clangxx_exec, version, span_min, templated))
-            spans[clangxx_exec] = span_min
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang=clangxx_exec)
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
     print()
     return results
 
@@ -237,13 +240,13 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
 
     op = 'Compilation' if gen_obj else "Check"
     lang = 'D'
-    src_op = srcid(lang, templated, op)
+    sid = sidOf(lang, templated, op)
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
 
-    print(md_header(src_op + ':', 2))
+    print(md_header(sid + ':', 2))
 
-    if src_op not in spans:
-        spans[src_op] = []
+    if sid not in spans:
+        spans[sid] = []
 
     exec_args = '-c' if gen_obj else '-o-'
 
@@ -252,32 +255,32 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
     if dmd_exec is not None:
         version_run = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[3]
-        if src_op not in execs:
-            execs[src_op] = dmd_exec
+        if sid not in execs:
+            execs[sid] = dmd_exec
         span_min = compile_file(path=gpaths[lang_templated_id(lang, templated)],
                                 args=[dmd_exec, exec_args] + d_flags,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
         results.append(row_list(spans, lang, op, dmd_exec, version, span_min, templated))
-        spans[src_op].append(span_min)
+        spans[sid].append(span_min)
 
     # LDC
     ldc_exec = shutil.which('ldmd2')
     if ldc_exec is not None:
         version_run = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[6][1:-2]
-        if src_op not in execs:
-            execs[src_op] = ldc_exec
+        if sid not in execs:
+            execs[sid] = ldc_exec
         span_min = compile_file(path=gpaths[lang_templated_id(lang, templated)],
                                 args=[ldc_exec, exec_args] + d_flags,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
         results.append(row_list(spans, lang, op, ldc_exec, version, span_min, templated))
-        spans[src_op].append(span_min)
+        spans[sid].append(span_min)
 
-    spans[src_op] = min(spans[src_op])
+    spans[sid] = min(spans[sid])
 
     print()
 
@@ -300,9 +303,10 @@ def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            spans[lang] = span_min
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
             results.append(row_list(spans, lang, op, gccgo_exec, version, span_min, templated))
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang='Go')
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
             print()
     return results
 
@@ -325,9 +329,10 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            spans[lang] = span_min
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
             results.append(row_list(spans, lang, op, v_exec, version, span_min, templated))
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang='V')
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
             print()
     return results
 
@@ -348,9 +353,10 @@ def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
                                     run_count=args.run_count,  # no syntax flag currently so compile to object file instead
                                     op=op,
                                     compiler_version=version)
-            spans[lang] = span_min
+            sid = sidOf(lang, templated, op)
+            spans[sid] = span_min
             results.append(row_list(spans, lang, op, zig_exec, version, span_min, templated))
-            print_speedup(spans, from_lang=srcid('D', templated, op), to_lang='Zig')
+            print_speedup(spans, from_sid=sidOf('D', templated, op), to_sid=sid)
             print()
     return results
 
@@ -360,13 +366,13 @@ def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
 
     lang = 'Rust'
     op = 'Compilation' if gen_obj else "Check"
-    src_op = srcid(lang, templated, op)
+    sid = sidOf(lang, templated, op)
 
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
-        print(md_header(src_op + ':', 2))
-        if src_op not in execs:
-            execs[src_op] = rustc_exec
+        print(md_header(sid + ':', 2))
+        if sid not in execs:
+            execs[sid] = rustc_exec
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
@@ -380,11 +386,11 @@ def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        spans[src_op] = span_min
+        spans[sid] = span_min
         results.append(row_list(spans, lang, op, rustc_exec, version, span_min, templated))
         print_speedup(spans,
-                      from_lang=srcid('D', templated, op),
-                      to_lang=src_op)
+                      from_sid=sidOf('D', templated, op),
+                      to_sid=sid)
         print()
     return results
 
@@ -393,21 +399,21 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
     op = 'Compilation'
     results = list()
     lang = 'Java'
-    src_op = srcid(lang, templated, op)
+    sid = sidOf(lang, templated, op)
     java_exec = shutil.which('javac')
     if java_exec is not None:
         print(md_header(lang + ':', 2))
         if lang not in execs:
-            execs[src_op] = java_exec
+            execs[sid] = java_exec
             span_min = compile_file(path=gpaths[lang_templated_id(lang, templated)],
                                     args=[java_exec, '-Xdiags:verbose'],
                                     run_count=args.run_count,
                                     op=op)
-            spans[src_op] = span_min
+            spans[sid] = span_min
             results.append(row_list(spans, lang, op, java_exec, 'unknown', span_min, templated))
             print_speedup(spans,
-                          from_lang=srcid(lang, templated, op),
-                          to_lang=src_op)
+                          from_sid=sidOf('D', templated, op),
+                          to_sid=sid)
             print()
     return results
 
@@ -425,9 +431,12 @@ def benchmark_Julia(execs, spans, gpaths, args, gen_obj, templated):
                                 args=[julia_exec],
                                 run_count=args.run_count,
                                 op=op)
-        spans[lang] = span_min
+        sid = sidOf(lang, templated, op)
+        spans[sid] = span_min
         results.append(row_list(spans, lang, op, julia_exec, 'unknown', span_min, templated))
-        print_speedup(spans, from_lang='D-compile', to_lang='Julia')
+        print_speedup(spans,
+                      from_sid=sidOf('D', templated, op),
+                      to_sid=sid)
         print()
     return results
 
@@ -838,10 +847,10 @@ main()
     return path  # "-betterC"
 
 
-def print_speedup(spans, from_lang, to_lang):
-    print("- Speedup of {} over {}: {:.2f}".format(from_lang,
-                                                   to_lang,
-                                                   spans[to_lang] / spans[from_lang]))
+def print_speedup(spans, from_sid, to_sid):
+    print("- Speedup of {} over {}: {:.2f}".format(from_sid,
+                                                   to_sid,
+                                                   spans[to_sid] / spans[from_sid]))
 
 
 if __name__ == '__main__':
