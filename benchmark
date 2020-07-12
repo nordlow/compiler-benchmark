@@ -609,7 +609,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     if fheight == 0:
         expr = 'x + ' + str(findex)
     else:
-        expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + str(findex)
+        targ = (typ + ', ' if lang == 'zig' else '')
+        expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + targ + 'x) + ' + str(findex)
 
     if fheight == args.function_depth - 1:
         fname = function_name(typ, findex, fheight=None)
