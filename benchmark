@@ -9,6 +9,8 @@ from pprint import pprint
 from string import Template as Tm
 from timeit import default_timer as timer
 
+LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
+TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"]
@@ -67,8 +69,6 @@ def main():
 
     args = parser.parse_args()
 
-    LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
-
     gpaths = generate_code(languages=LANGUAGES, args=args)
 
     execs = {}                   # execs by language
@@ -105,9 +105,10 @@ def generate_code(languages, args):
         gpaths[lang] = generate_test_program(lang=lang,
                                              args=args,
                                              templated_function=False)
-        gpaths[lang] = generate_test_program(lang=lang,
-                                             args=args,
-                                             templated_function=True)
+        if lang in TEMPLATED_LANGUAGES:
+            gpaths[lang] = generate_test_program(lang=lang,
+                                                 args=args,
+                                                 templated_function=True)
     print()
     return gpaths
 
@@ -472,13 +473,14 @@ def generate_test_program(lang,
     ext = language_file_extension(llang)
     dir_path = os.path.join(root_path, llang)
     os.makedirs(dir_path, exist_ok=True)
-    path = os.path.join(dir_path, program_name + '.' + ext)
+    path = os.path.join(dir_path, program_name + ('_t' if templated_function else '') + '.' + ext)
 
     start = timer()
     with open(path, 'w') as f:
         generate_test_language_specific_prefix(llang, program_name, f)
 
-        generate_linear_test_function_definition_set(llang, types, args, f, templated_function=False)
+        generate_linear_test_function_definition_set(llang, types, args, f,
+                                                     templated_function=templated_function)
         generate_test_main_header(llang, types, f)
         for typ in types:
             generate_linear_test_function_variable(llang, typ, f)
@@ -547,11 +549,13 @@ main()
         f.write('}\n')            # one extra closing brace for class
 
 
-def generate_linear_test_function_definition_set(lang, types, args, f, templated_function=False):
+def generate_linear_test_function_definition_set(lang, types, args, f,
+                                                 templated_function=False):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
-                generate_test_function_definition(args, lang, typ, findex, fheight, f, templated_function=False)
+                generate_test_function_definition(args, lang, typ, findex, fheight, f,
+                                                  templated_function=templated_function)
             f.write('\n')
         f.write('\n')
 
@@ -566,7 +570,8 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated_function=False):
+def generate_test_function_definition(args, lang, typ, findex, fheight, f,
+                                      templated_function=False):
     if fheight == 0:
         expr = 'x + ' + str(findex)
     else:
