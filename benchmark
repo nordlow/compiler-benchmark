@@ -312,21 +312,20 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
     v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
         print(md_header(lang + ':', 2))
-        if lang not in execs:
-            execs[lang] = v_exec
-            version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[1]
-            vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
-            span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[v_exec, '-backend', vlang_backends[2]],
-                                    run_count=args.run_count,
-                                    op=op,
-                                    compiler_version=version)
-            opId = opIdOf(lang, templated, op, v_exec)
-            spans[opId] = span_min
-            results.append(row_list(spans, lang, op, v_exec, version, span_min, templated))
-            print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
-            print()
+        execs[lang] = v_exec
+        version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[1]
+        vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
+        span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                                args=[v_exec, '-backend', vlang_backends[2]],
+                                run_count=args.run_count,
+                                op=op,
+                                compiler_version=version)
+        opId = opIdOf(lang, templated, op, v_exec)
+        spans[opId] = span_min
+        results.append(row_list(spans, lang, op, v_exec, version, span_min, templated))
+        print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
+        print()
     return results
 
 
@@ -337,20 +336,19 @@ def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
     print(md_header(lang + ':', 2))
     zig_exec = shutil.which('zig')
     if zig_exec is not None:
-        if lang not in execs:
-            execs[lang] = zig_exec
-            version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[0]
-            span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[zig_exec, 'build-obj', '-fno-emit-bin'],
-                                    run_count=args.run_count,  # no syntax flag currently so compile to object file instead
-                                    op=op,
-                                    compiler_version=version)
-            opId = opIdOf(lang, templated, op, zig_exec)
-            spans[opId] = span_min
-            results.append(row_list(spans, lang, op, zig_exec, version, span_min, templated))
-            print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
-            print()
+        execs[lang] = zig_exec
+        version_run = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[0]
+        span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                                args=[zig_exec, 'build-obj', '-fno-emit-bin'],
+                                run_count=args.run_count,  # no syntax flag currently so compile to object file instead
+                                op=op,
+                                compiler_version=version)
+        opId = opIdOf(lang, templated, op, zig_exec)
+        spans[opId] = span_min
+        results.append(row_list(spans, lang, op, zig_exec, version, span_min, templated))
+        print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
+        print()
     return results
 
 
