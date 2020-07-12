@@ -534,7 +534,7 @@ def generate_test_function_call(lang, findex, typ, f, templated):
     if lang in ["java"]:
         f.write('    ')
 
-    if lang == "zig" and templated:
+    if lang == "zig" and templated:  # Zig needs explicit template type
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(i64, ${N})').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
@@ -589,7 +589,7 @@ main()
 
 
 def generate_linear_test_function_definition_set(lang, types, args, f,
-                                                 templated=False):
+                                                 templated):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
@@ -610,7 +610,7 @@ def function_name(typ, findex, fheight):
 
 
 def generate_test_function_definition(args, lang, typ, findex, fheight, f,
-                                      templated=False):
+                                      templated):
     if fheight == 0:
         expr = 'x + ' + str(findex)
     else:
