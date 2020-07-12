@@ -35,7 +35,11 @@ def row_list(spans, lang, op, exec_path, exec_version, span, templated):
         speedup_D = 'N/A'
     else:
         speedup_D = factor_str(span / spans[opIdOf('D', templated, op)])
-    exec_path = os.path.join("~", exec_path.lstrip(os.getenv('HOME')))
+
+    home = os.getenv('HOME')
+    if exec_path.startswith(home):
+        exec_path = os.path.join("~", exec_path.lstrip(home))
+
     return [lang,
             'Yes' if templated else 'No',
             op,
