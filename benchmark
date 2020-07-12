@@ -13,12 +13,12 @@ LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]", "D-Speedup"]
+TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "D-Speedup"]
 
 
 def row_list(spans, lang, op, exec_path, exec_version, span):
     if lang.startswith('D'):
-        speedup = 'none'
+        speedup = 'N/A'
     else:
         speedup = format_float(span / spans['D-' + op])
     return [lang, op, '`' + exec_path + '`', exec_version, format_float(span), speedup]
