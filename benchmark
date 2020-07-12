@@ -24,6 +24,8 @@ def srcIdOf(lang, templated):
 
 
 def opIdOf(lang, templated, op, exec_path=None):
+    if lang == 'D' and exec_path is None:
+        exec_path = 'dmd'
     return srcIdOf(lang, templated) + '-' + op + '-' + str(exec_path)
 
 
@@ -238,9 +240,7 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
     # DMD
     dmd_exec = shutil.which('dmd')
     if dmd_exec is not None:
-        opId = opIdOf(lang, templated, op)
-        if opId not in spans:
-            spans[opId] = []
+        opId = opIdOf(lang, templated, op, 'dmd')
         print(md_header(opId + ':', 2))
 
         version_run = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
@@ -253,14 +253,12 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
                                 op=op,
                                 compiler_version=version)
         results.append(row_list(spans, lang, op, dmd_exec, version, span_min, templated))
-        spans[opId].append(span_min)
+        spans[opId] = span_min
 
     # LDC
     ldc_exec = shutil.which('ldmd2')
     if ldc_exec is not None:
-        opId = opIdOf(lang, templated, op)
-        if opId not in spans:
-            spans[opId] = []
+        opId = opIdOf(lang, templated, op, 'ldmd2')
         print(md_header(opId + ':', 2))
 
         version_run = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
@@ -273,9 +271,7 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
                                 op=op,
                                 compiler_version=version)
         results.append(row_list(spans, lang, op, ldc_exec, version, span_min, templated))
-        spans[opId].append(span_min)
-
-    spans[opId] = min(spans[opId])
+        spans[opId] = span_min
 
     print()
 
