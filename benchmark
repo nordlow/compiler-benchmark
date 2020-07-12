@@ -79,14 +79,20 @@ def main():
     spans = {}                  # time spans by compiler path
 
     results = []
-    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    # results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    # results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
-    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    # results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    # results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
-    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
-    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True)
+    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    # results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    # results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
     results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False)
@@ -117,7 +123,7 @@ def generate_code(languages, args):
     return gpaths
 
 
-def benchmark_GCC(execs, spans, gpaths, args, gen_obj):
+def benchmark_GCC(execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     print(md_header('GCC:', 2))
@@ -157,7 +163,7 @@ def benchmark_GCC(execs, spans, gpaths, args, gen_obj):
     return results
 
 
-def benchmark_Clang(execs, spans, gpaths, args, gen_obj):
+def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -196,7 +202,7 @@ def benchmark_Clang(execs, spans, gpaths, args, gen_obj):
     return results
 
 
-def benchmark_D(execs, spans, gpaths, args, gen_obj):
+def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
 
     results = list()
 
