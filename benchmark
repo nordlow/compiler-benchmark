@@ -100,34 +100,51 @@ def main():
     spans = {}                  # time spans by compiler path
 
     results = []
+
+    # D
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
     results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
-    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
-    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-    results += benchmark_Clang(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    # C
+    results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
-    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
-    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-    results += benchmark_GCC(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    # C++
+    results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+    results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
+    # Go
     results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
+    # V
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
 
+    # Zig
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
 
+    # Rust
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
+    # Java
     results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
+    # Julia
     results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
     # print('Speedups' + ':')
@@ -153,15 +170,19 @@ def generate_code(languages, args):
     return gpaths
 
 
-def benchmark_GCC(execs, spans, gpaths, args, gen_obj, templated):
+def benchmark_GCC(lang, execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     print(md_header('GCC:', 2))
     GCC_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
-        lang = 'C'
-        gcc_exec = shutil.which('gcc-' + str(gcc_version))
+        if lang == 'C':
+            gcc_exec = shutil.which('gcc-' + str(gcc_version))
+        elif lang == 'C++':
+            gcc_exec = shutil.which('g++-' + str(gcc_version))
+        else:
+            assert(False)
         if gcc_exec is not None:
             version_run = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
@@ -174,26 +195,11 @@ def benchmark_GCC(execs, spans, gpaths, args, gen_obj, templated):
             spans[opId] = span_min
             results.append(row_list(spans, lang, op, gcc_exec, version, span_min, templated))
             print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
-
-        lang = 'C++'
-        gxx_exec = shutil.which('g++-' + str(gcc_version))
-        if gxx_exec is not None:
-            version_run = subprocess.run([gxx_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
-            span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[gxx_exec] + C_FLAGS + exec_args,
-                                    run_count=args.run_count,
-                                    op=op,
-                                    compiler_version=version)
-            results.append(row_list(spans, lang, op, gxx_exec, version, span_min, templated))
-            opId = opIdOf(lang, templated, op, gxx_exec)
-            spans[opId] = span_min
-            print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
     return results
 
 
-def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
+def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -201,8 +207,12 @@ def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
     CLANG_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
-        lang = 'C'
-        clang_exec = shutil.which('clang-' + str(clang_version))
+        if lang == 'C':
+            clang_exec = shutil.which('clang-' + str(clang_version))
+        elif lang == 'C++':
+            clang_exec = shutil.which('clang++-' + str(clang_version))
+        else:
+            assert(False)
         if clang_exec is not None:
             version_run = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
             version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
@@ -213,21 +223,6 @@ def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
                                     compiler_version=version)
             results.append(row_list(spans, lang, op, clang_exec, version, span_min, templated))
             opId = opIdOf(lang, templated, op, clang_exec)
-            spans[opId] = span_min
-            print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
-
-        lang = 'C++'
-        clangxx_exec = shutil.which('clang++-' + str(clang_version))
-        if clangxx_exec is not None:
-            version_run = subprocess.run([clangxx_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
-            span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[clangxx_exec] + C_CLANG_FLAGS + exec_args,
-                                    run_count=args.run_count,
-                                    op=op,
-                                    compiler_version=version)
-            results.append(row_list(spans, lang, op, clangxx_exec, version, span_min, templated))
-            opId = opIdOf(lang, templated, op, clangxx_exec)
             spans[opId] = span_min
             print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
