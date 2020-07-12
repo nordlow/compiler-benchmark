@@ -17,11 +17,11 @@ TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"
 
 
 def row_list(lang, check, exec_path, exec_version, span, speedup=None):
-    return [lang, check, '`' + exec_path + '`', exec_version, format_span(span),
-            str(speedup) if speedup else 'unknown']
+    return [lang, check, '`' + exec_path + '`', exec_version, format_float(span),
+            format_float(speedup) if speedup else 'unknown']
 
 
-def format_span(span):
+def format_float(span):
     return "{:.3f}".format(span)
 
 
@@ -132,9 +132,10 @@ def benchmark_GCC(execs, spans, gpaths, args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            results.append(row_list(lang, op, gcc_exec, version, span_min))
             spans[gcc_exec] = span_min
             spans['gcc-' + str(gcc_version)] = spans[gcc_exec]
+            results.append(row_list(lang, op, gcc_exec, version, span_min,
+                                    speedup=span_min / spans['D-' + op]))
             print_speedup(spans, from_lang='D-' + op, to_lang=gcc_exec)
 
         lang = 'C++'
