@@ -18,7 +18,7 @@ TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"
 
 def row_list(spans, lang, op, exec_path, exec_version, span):
     if lang.startswith('D'):
-        speedup = 'unknown'
+        speedup = 'none'
     else:
         speedup = format_float(span / spans['D-' + op])
     return [lang, op, '`' + exec_path + '`', exec_version, format_float(span), speedup]
