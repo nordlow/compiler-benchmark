@@ -287,20 +287,19 @@ def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
     gccgo_exec = shutil.which('gccgo')
     if gccgo_exec is not None:
         print(md_header(lang + ':', 2))
-        if lang not in execs:
-            execs[lang] = gccgo_exec
-            version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
-            version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
-            span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[gccgo_exec, '-fsyntax-only', '-S'],
-                                    run_count=args.run_count,
-                                    op=op,
-                                    compiler_version=version)
-            opId = opIdOf(lang, templated, op, gccgo_exec)
-            spans[opId] = span_min
-            results.append(row_list(spans, lang, op, gccgo_exec, version, span_min, templated))
-            print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
-            print()
+        execs[lang] = gccgo_exec
+        version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
+        span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                                args=[gccgo_exec, '-fsyntax-only', '-S'],
+                                run_count=args.run_count,
+                                op=op,
+                                compiler_version=version)
+        opId = opIdOf(lang, templated, op, gccgo_exec)
+        spans[opId] = span_min
+        results.append(row_list(spans, lang, op, gccgo_exec, version, span_min, templated))
+        print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
+        print()
     return results
 
 
@@ -393,18 +392,17 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
     if java_exec is not None:
         opId = opIdOf(lang, templated, op, java_exec)
         print(md_header(lang + ':', 2))
-        if lang not in execs:
-            execs[opId] = java_exec
-            span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[java_exec, '-Xdiags:verbose'],
-                                    run_count=args.run_count,
-                                    op=op)
-            spans[opId] = span_min
-            results.append(row_list(spans, lang, op, java_exec, 'unknown', span_min, templated))
-            print_speedup(spans,
-                          from_opId=opIdOf('D', templated, op),
-                          to_opId=opId)
-            print()
+        execs[opId] = java_exec
+        span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                                args=[java_exec, '-Xdiags:verbose'],
+                                run_count=args.run_count,
+                                op=op)
+        spans[opId] = span_min
+        results.append(row_list(spans, lang, op, java_exec, 'unknown', span_min, templated))
+        print_speedup(spans,
+                      from_opId=opIdOf('D', templated, op),
+                      to_opId=opId)
+        print()
     return results
 
 
@@ -414,14 +412,13 @@ def benchmark_Julia(execs, spans, gpaths, args, gen_obj, templated):
     lang = 'Julia'
     julia_exec = shutil.which('julia')
     if julia_exec is not None:
+        opId = opIdOf(lang, templated, op, julia_exec)
         print(md_header(lang + ':', 2))
-        if lang not in execs:
-            execs[lang] = julia_exec
+        execs[opId] = julia_exec
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
                                 args=[julia_exec],
                                 run_count=args.run_count,
                                 op=op)
-        opId = opIdOf(lang, templated, op, julia_exec)
         spans[opId] = span_min
         results.append(row_list(spans, lang, op, julia_exec, 'unknown', span_min, templated))
         print_speedup(spans,
