@@ -159,13 +159,13 @@ def generate_code(languages, args):
     for lang in languages:
         templated = False
         gpaths[srcIdOf(lang, templated)] = generate_test_program(lang=lang,
-                                                                           args=args,
-                                                                           templated=templated)
+                                                                 args=args,
+                                                                 templated=templated)
         if lang in TEMPLATED_LANGUAGES:
             templated = True
             gpaths[srcIdOf(lang, templated)] = generate_test_program(lang=lang,
-                                                                               args=args,
-                                                                               templated=templated)
+                                                                     args=args,
+                                                                     templated=templated)
     print()
     return gpaths
 
