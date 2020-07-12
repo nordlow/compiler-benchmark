@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 import os.path
+import os
 import shutil
 from pprint import pprint
 
@@ -34,6 +35,7 @@ def row_list(spans, lang, op, exec_path, exec_version, span, templated):
         speedup_D = 'N/A'
     else:
         speedup_D = factor_str(span / spans[opIdOf('D', templated, op)])
+    exec_path = os.path.join("~", exec_path.lstrip(os.getenv('HOME')))
     return [lang,
             'Yes' if templated else 'No',
             op,
