@@ -146,7 +146,7 @@ def benchmark_GCC(execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     print(md_header('GCC:', 2))
-    GCC_VERSIONS = range(5, 13)
+    GCC_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         lang = 'C'
@@ -187,7 +187,7 @@ def benchmark_Clang(execs, spans, gpaths, args, gen_obj, templated):
     op = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 2))
-    CLANG_VERSIONS = range(5, 13)
+    CLANG_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         lang = 'C'
