@@ -512,7 +512,7 @@ def generate_test_program(lang,
 
     start = timer()
     with open(path, 'w') as f:
-        generate_test_language_specific_prefix(llang, program_name, f)
+        generate_test_language_specific_prefix(llang, program_name, f, templated=templated)
 
         generate_linear_test_function_definition_set(llang, types, args, f,
                                                      templated=templated)
@@ -545,7 +545,7 @@ def generate_test_function_call(lang, findex, typ, f, templated):
     f.write('\n')
 
 
-def generate_test_language_specific_prefix(lang, program_name, f):
+def generate_test_language_specific_prefix(lang, program_name, f, templated):
     # package definition
     if lang == "go":
         f.write('package ' + program_name + ';\n\n')
@@ -555,6 +555,8 @@ def generate_test_language_specific_prefix(lang, program_name, f):
     # special modules
     if lang == "rust":
         f.write('use std::process::exit;\n')
+        if templated:
+            f.write('use std::ops::Add;\n')
 
     # special class wrapping
     if lang == "java":
@@ -613,13 +615,19 @@ def function_name(typ, findex, fheight):
 def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                       templated):
     if fheight == 0:
-        expr = 'x + ' + str(findex)
+        if lang == 'rust' and templated:
+            expr = 'x'          # because Rust is picky
+        else:
+            expr = 'x + ' + str(findex)
     else:
         if lang == 'zig' and templated:
             xtarg = typ + ', '  # Zig needs explicit template parameter
         else:
             xtarg = ''
-        expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + str(findex)
+        if lang == 'rust' and templated:
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x)'
+        else:
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + str(findex)
 
     if fheight == args.function_depth - 1:
         fname = function_name(typ, findex, fheight=None)
@@ -641,11 +649,12 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                 .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(alias T=void)' if templated else '', X=expr))
     elif lang == "rust":
         if templated:
-            f.write(Tm('fn ${F}<${T}>(x: ${T}) -> ${T} { ${X} }\n').substitute(T='T',
-                                                                               F=str(fname),
-                                                                               N=str(findex),
-                                                                               H=str(fheight),
-                                                                               X=expr))
+            f.write(Tm('fn ${F}<${T} : ${R}>(x: ${T}) -> ${T} { ${X} }\n').substitute(T='T',
+                                                                                      R='Copy + Add<Output = T>',
+                                                                                      F=str(fname),
+                                                                                      N=str(findex),
+                                                                                      H=str(fheight),
+                                                                                      X=expr))
         else:
             f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "zig":
