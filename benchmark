@@ -498,8 +498,8 @@ def language_file_extension(lang):
 
 def generate_test_program(lang,
                           args,
-                          root_path='generated',
-                          templated=False):
+                          templated,
+                          root_path='generated'):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()        # lowered language
@@ -519,7 +519,7 @@ def generate_test_program(lang,
         for typ in types:
             generate_linear_test_function_variable(llang, typ, f)
             for findex in range(0, args.function_count):
-                generate_test_function_call(llang, findex, typ, f)
+                generate_test_function_call(llang, findex, typ, f, templated=templated)
 
         generate_test_language_specific_postfix(llang, types, f)
     end = timer()
@@ -530,10 +530,15 @@ def generate_test_program(lang,
     return path  # "-betterC"
 
 
-def generate_test_function_call(lang, findex, typ, f):
+def generate_test_function_call(lang, findex, typ, f, templated):
     if lang in ["java"]:
         f.write('    ')
-    f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+
+    if lang == "zig" and templated:
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(i64, ${N})').substitute(T=typ, N=str(findex)))
+    else:
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+
     if lang not in ["v"]:
         f.write(';')
     f.write('\n')
@@ -632,7 +637,10 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     elif lang == "rust":
         f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "zig":
-        f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        if templated:
+            f.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        else:
+            f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "go":
         f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "v":
