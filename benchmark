@@ -104,11 +104,11 @@ def generate_code(languages, args):
     for lang in languages:
         gpaths[lang] = generate_test_program(lang=lang,
                                              args=args,
-                                             templated_function=False)
+                                             templated=False)
         if lang in TEMPLATED_LANGUAGES:
             gpaths[lang] = generate_test_program(lang=lang,
                                                  args=args,
-                                                 templated_function=True)
+                                                 templated=True)
     print()
     return gpaths
 
@@ -465,7 +465,7 @@ def language_file_extension(lang):
 def generate_test_program(lang,
                           args,
                           root_path='generated',
-                          templated_function=False):
+                          templated=False):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()
@@ -473,14 +473,14 @@ def generate_test_program(lang,
     ext = language_file_extension(llang)
     dir_path = os.path.join(root_path, llang)
     os.makedirs(dir_path, exist_ok=True)
-    path = os.path.join(dir_path, program_name + ('_t' if templated_function else '') + '.' + ext)
+    path = os.path.join(dir_path, program_name + ('_t' if templated else '') + '.' + ext)
 
     start = timer()
     with open(path, 'w') as f:
         generate_test_language_specific_prefix(llang, program_name, f)
 
         generate_linear_test_function_definition_set(llang, types, args, f,
-                                                     templated_function=templated_function)
+                                                     templated=templated)
         generate_test_main_header(llang, types, f)
         for typ in types:
             generate_linear_test_function_variable(llang, typ, f)
@@ -550,12 +550,12 @@ main()
 
 
 def generate_linear_test_function_definition_set(lang, types, args, f,
-                                                 templated_function=False):
+                                                 templated=False):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
                 generate_test_function_definition(args, lang, typ, findex, fheight, f,
-                                                  templated_function=templated_function)
+                                                  templated=templated)
             f.write('\n')
         f.write('\n')
 
@@ -571,7 +571,7 @@ def function_name(typ, findex, fheight):
 
 
 def generate_test_function_definition(args, lang, typ, findex, fheight, f,
-                                      templated_function=False):
+                                      templated=False):
     if fheight == 0:
         expr = 'x + ' + str(findex)
     else:
@@ -589,12 +589,12 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     elif lang in ["c++"]:
         f.write(Tm('${M}${T} ${F}(${T} x) { return ${X}; }\n')
                 .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight),
-                            M='template<typename T=int> ' if templated_function else '',
+                            M='template<typename T=int> ' if templated else '',
                             X=expr))
         # template<typename T1, typename T2 = int> class A;
     if lang in ["d"]:
         f.write(Tm('${T} ${F}${M}(${T} x) @safe pure nothrow @nogc { return ${X}; }\n')
-                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(alias T=void)' if templated_function else '', X=expr))
+                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(alias T=void)' if templated else '', X=expr))
     elif lang == "rust":
         f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "zig":
