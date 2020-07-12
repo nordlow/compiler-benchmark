@@ -625,7 +625,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         else:
             xtarg = ''
         if lang == 'rust' and templated:
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x)'
+            call = function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x)'
+            expr = 'x + ' + call
         else:
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + str(findex)
 
