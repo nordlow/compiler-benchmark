@@ -13,11 +13,12 @@ LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]"]
+TABLE_TITLES = ['Language', 'Type', 'Exec Path', 'Exec Version', "Time Span [s]", "D-Speedup"]
 
 
-def row_list(lang, check, exec_path, exec_version, span):
-    return [lang, check, '`' + exec_path + '`', exec_version, format_span(span)]
+def row_list(lang, check, exec_path, exec_version, span, speedup=None):
+    return [lang, check, '`' + exec_path + '`', exec_version, format_span(span),
+            str(speedup) if speedup else 'unknown']
 
 
 def format_span(span):
