@@ -117,8 +117,7 @@ def generate_code(languages, args):
     return gpaths
 
 
-def benchmark_GCC(execs, spans, gpaths, args,
-                  gen_obj=False):
+def benchmark_GCC(execs, spans, gpaths, args, gen_obj):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     print(md_header('GCC:', 2))
@@ -158,8 +157,7 @@ def benchmark_GCC(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_Clang(execs, spans, gpaths, args,
-                    gen_obj=False):
+def benchmark_Clang(execs, spans, gpaths, args, gen_obj):
     results = list()
     op = 'Compilation' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
@@ -198,8 +196,7 @@ def benchmark_Clang(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_D(execs, spans, gpaths, args,
-                gen_obj=False):
+def benchmark_D(execs, spans, gpaths, args, gen_obj):
 
     results = list()
 
@@ -252,8 +249,7 @@ def benchmark_D(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_Go(execs, spans, gpaths, args,
-                 gen_obj=False):
+def benchmark_Go(execs, spans, gpaths, args, gen_obj):
     op = 'Compilation' if gen_obj else "Check"
     results = list()
     lang = 'Go'
@@ -276,8 +272,7 @@ def benchmark_Go(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_V(execs, spans, gpaths, args,
-                gen_obj=False):
+def benchmark_V(execs, spans, gpaths, args, gen_obj):
     op = 'Compilation'
     results = list()
     # V (vlang.io)
@@ -302,8 +297,7 @@ def benchmark_V(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_Zig(execs, spans, gpaths, args,
-                  gen_obj=False):
+def benchmark_Zig(execs, spans, gpaths, args, gen_obj):
     op = 'Compilation'
     results = list()
     lang = 'Zig'
@@ -326,8 +320,7 @@ def benchmark_Zig(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_Rust(execs, spans, gpaths, args,
-                   gen_obj=False):
+def benchmark_Rust(execs, spans, gpaths, args, gen_obj):
     results = list()
 
     lang = 'Rust'
@@ -361,8 +354,7 @@ def benchmark_Rust(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_Java(execs, spans, gpaths, args,
-                   gen_obj=False):
+def benchmark_Java(execs, spans, gpaths, args, gen_obj):
     op = 'Compilation'
     results = list()
     lang = 'Java'
@@ -382,8 +374,7 @@ def benchmark_Java(execs, spans, gpaths, args,
     return results
 
 
-def benchmark_Julia(execs, spans, gpaths, args,
-                    gen_obj=False):
+def benchmark_Julia(execs, spans, gpaths, args, gen_obj):
     op = 'Compilation'
     results = list()
     lang = 'Julia'
