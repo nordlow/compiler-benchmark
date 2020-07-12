@@ -143,7 +143,9 @@ def main():
 
     # Rust
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
     results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
     # Java
     results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
