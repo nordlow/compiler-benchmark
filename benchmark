@@ -13,7 +13,7 @@ LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Templated', 'Type', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
+TABLE_TITLES = ['Language', 'Templated', 'Op', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
 
 
 def srcIdOf(lang, templated):
