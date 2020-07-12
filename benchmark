@@ -103,7 +103,11 @@ def generate_code(languages, args):
     gpaths = {}
     for lang in languages:
         gpaths[lang] = generate_test_program(lang=lang,
-                                             args=args)
+                                             args=args,
+                                             templated_function=False)
+        gpaths[lang] = generate_test_program(lang=lang,
+                                             args=args,
+                                             templated_function=True)
     print()
     return gpaths
 
@@ -463,29 +467,29 @@ def generate_test_program(lang,
                           templated_function=False):
     program_name = DEFAULT_PROGRAM_NAME
 
-    lang = lang.lower()
-    types = long_types_of_lang(lang)
-    ext = language_file_extension(lang)
-    dir_path = os.path.join(root_path, lang)
+    llang = lang.lower()
+    types = long_types_of_lang(llang)
+    ext = language_file_extension(llang)
+    dir_path = os.path.join(root_path, llang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, program_name + '.' + ext)
 
     start = timer()
     with open(path, 'w') as f:
-        generate_test_language_specific_prefix(lang, program_name, f)
+        generate_test_language_specific_prefix(llang, program_name, f)
 
-        generate_linear_test_function_definition_set(lang, types, args, f, templated_function=False)
-        generate_test_main_header(lang, types, f)
+        generate_linear_test_function_definition_set(llang, types, args, f, templated_function=False)
+        generate_test_main_header(llang, types, f)
         for typ in types:
-            generate_linear_test_function_variable(lang, typ, f)
+            generate_linear_test_function_variable(llang, typ, f)
             for findex in range(0, args.function_count):
-                generate_test_function_call(lang, findex, typ, f)
+                generate_test_function_call(llang, findex, typ, f)
 
-        generate_test_language_specific_postfix(lang, types, f)
+        generate_test_language_specific_postfix(llang, types, f)
     end = timer()
     span = (end - start)  # time span
     print("- Generating {} took {:1.3f} seconds ({})".format(path, span, lang))
-    # print("Generated {} source file: {}".format(lang.upper(), path))
+    # print("Generated {} source file: {}".format(llang.upper(), path))
 
     return path  # "-betterC"
 
