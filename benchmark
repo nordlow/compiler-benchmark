@@ -168,7 +168,7 @@ def generate_code(languages, args):
 
 def benchmark_GCC(lang, execs, spans, gpaths, args, gen_obj, templated):
     results = list()
-    op = 'Compilation' if gen_obj else "Check"
+    op = 'Build' if gen_obj else "Check"
     print(md_header('GCC:', 2))
     GCC_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
@@ -197,7 +197,7 @@ def benchmark_GCC(lang, execs, spans, gpaths, args, gen_obj, templated):
 
 def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
     results = list()
-    op = 'Compilation' if gen_obj else "Check"
+    op = 'Build' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 2))
     CLANG_VERSIONS = range(5, 15)
@@ -229,7 +229,7 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
 
     results = list()
 
-    op = 'Compilation' if gen_obj else "Check"
+    op = 'Build' if gen_obj else "Check"
     lang = 'D'
     opId = opIdOf(lang, templated, op)
     d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
@@ -279,7 +279,7 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
 
 
 def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Compilation' if gen_obj else "Check"
+    op = 'Build' if gen_obj else "Check"
     results = list()
     lang = 'Go'
     gccgo_exec = shutil.which('gccgo')
@@ -303,7 +303,7 @@ def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
 
 
 def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Compilation'
+    op = 'Build'
     results = list()
     # V (vlang.io)
     lang = 'V'
@@ -329,7 +329,7 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
 
 
 def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Compilation'
+    op = 'Build'
     results = list()
     lang = 'Zig'
     print(md_header(lang + ':', 2))
@@ -356,7 +356,7 @@ def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
     results = list()
 
     lang = 'Rust'
-    op = 'Compilation' if gen_obj else "Check"
+    op = 'Build' if gen_obj else "Check"
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
         opId = opIdOf(lang, templated, op, rustc_exec)
@@ -386,7 +386,7 @@ def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
 
 
 def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Compilation'
+    op = 'Build'
     results = list()
     lang = 'Java'
     java_exec = shutil.which('javac')
@@ -409,7 +409,7 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
 
 
 def benchmark_Julia(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Compilation'
+    op = 'Build'
     results = list()
     lang = 'Julia'
     julia_exec = shutil.which('julia')
