@@ -109,13 +109,9 @@ def main():
 
     # C
     results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-    results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
     results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-    results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
     results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-    results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
     results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-    results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
     # C++
     results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
