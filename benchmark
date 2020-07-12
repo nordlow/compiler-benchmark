@@ -640,7 +640,14 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         f.write(Tm('${T} ${F}${M}(${T} x) @safe pure nothrow @nogc { return ${X}; }\n')
                 .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(alias T=void)' if templated else '', X=expr))
     elif lang == "rust":
-        f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        if templated:
+            f.write(Tm('fn ${F}<${T}>(x: ${T}) -> ${T} { ${X} }\n').substitute(T='T',
+                                                                               F=str(fname),
+                                                                               N=str(findex),
+                                                                               H=str(fheight),
+                                                                               X=expr))
+        else:
+            f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "zig":
         if templated:
             f.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
