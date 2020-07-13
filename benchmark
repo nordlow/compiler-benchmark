@@ -182,7 +182,7 @@ def generate_code(languages, args):
 def benchmark_GCC(lang, execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Build' if gen_obj else "Check"
-    print(md_header('GCC:', 2))
+    print(md_header('GCC:', 1))
     GCC_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
@@ -212,7 +212,7 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
     results = list()
     op = 'Build' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    print(md_header('Clang:', 2))
+    print(md_header('Clang:', 1))
     CLANG_VERSIONS = range(5, 15)
     exec_args = [] if gen_obj else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
@@ -232,6 +232,7 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
                                     compiler_version=version)
             results.append(row_list(spans, lang, op, clang_exec, version, span_min, templated))
             opId = opIdOf(lang, templated, op, clang_exec)
+            print(md_header(opId + ':', 2))
             spans[opId] = span_min
             print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
@@ -295,7 +296,6 @@ def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
     lang = 'Go'
     gccgo_exec = shutil.which('gccgo')
     if gccgo_exec is not None:
-        print(md_header(lang + ':', 2))
         execs[lang] = gccgo_exec
         version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
@@ -305,6 +305,7 @@ def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
                                 op=op,
                                 compiler_version=version)
         opId = opIdOf(lang, templated, op, gccgo_exec)
+        print(md_header(opId + ':', 2))
         spans[opId] = span_min
         results.append(row_list(spans, lang, op, gccgo_exec, version, span_min, templated))
         print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
@@ -319,7 +320,6 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
     lang = 'V'
     v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if v_exec is not None:
-        print(md_header(lang + ':', 2))
         execs[lang] = v_exec
         version_run = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
@@ -330,6 +330,7 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
                                 op=op,
                                 compiler_version=version)
         opId = opIdOf(lang, templated, op, v_exec)
+        print(md_header(opId + ':', 2))
         spans[opId] = span_min
         results.append(row_list(spans, lang, op, v_exec, version, span_min, templated))
         print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
@@ -341,7 +342,6 @@ def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
     op = 'Build'
     results = list()
     lang = 'Zig'
-    print(md_header(lang + ':', 2))
     zig_exec = shutil.which('zig')
     if zig_exec is not None:
         execs[lang] = zig_exec
@@ -353,6 +353,7 @@ def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
                                 op=op,
                                 compiler_version=version)
         opId = opIdOf(lang, templated, op, zig_exec)
+        print(md_header(opId + ':', 2))
         spans[opId] = span_min
         results.append(row_list(spans, lang, op, zig_exec, version, span_min, templated))
         print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
@@ -400,7 +401,7 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
     javac_exec = shutil.which('javac')
     if javac_exec is not None:
         opId = opIdOf(lang, templated, op, javac_exec)
-        print(md_header(lang + ':', 2))
+        print(md_header(opId + ':', 2))
         execs[opId] = javac_exec
         version_run = subprocess.run([javac_exec, '-version'], stderr=subprocess.PIPE)
         version = version_run.stderr.decode('utf-8').split()[1]
@@ -424,7 +425,7 @@ def benchmark_Julia(execs, spans, gpaths, args, gen_obj, templated):
     julia_exec = shutil.which('julia')
     if julia_exec is not None:
         opId = opIdOf(lang, templated, op, julia_exec)
-        print(md_header(lang + ':', 2))
+        print(md_header(opId + ':', 2))
         execs[opId] = julia_exec
         version_run = subprocess.run([julia_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[2]
