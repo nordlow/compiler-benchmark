@@ -397,19 +397,19 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
     op = 'Build'
     results = list()
     lang = 'Java'
-    java_exec = shutil.which('javac')
-    if java_exec is not None:
-        opId = opIdOf(lang, templated, op, java_exec)
+    javac_exec = shutil.which('javac')
+    if javac_exec is not None:
+        opId = opIdOf(lang, templated, op, javac_exec)
         print(md_header(lang + ':', 2))
-        execs[opId] = java_exec
-        version_run = subprocess.run([java_exec, '-version'], stdout=subprocess.PIPE)
-        version = version_run.stdout.decode('utf-8').split()[1]
+        execs[opId] = javac_exec
+        version_run = subprocess.run([javac_exec, '-version'], stderr=subprocess.PIPE)
+        version = version_run.stderr.decode('utf-8').split()[1]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[java_exec, '-Xdiags:verbose'],
+                                args=[javac_exec, '-Xdiags:verbose'],
                                 run_count=args.run_count,
                                 op=op)
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, java_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, javac_exec, version, span_min, templated))
         print_speedup(spans,
                       from_opId=opIdOf('D', templated, op),
                       to_opId=opId)
