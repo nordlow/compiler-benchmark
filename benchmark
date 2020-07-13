@@ -136,6 +136,8 @@ def main():
 
     # V
     results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+    # TODO activate when issue https://github.com/vlang/v/issues/5818 has ben fixed:
+    # results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
 
     # Zig
     results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
@@ -666,7 +668,10 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     elif lang == "go":
         f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "v":
-        f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        if templated:
+            f.write(Tm('fn ${F}<${T}>(x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        else:
+            f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "julia":
         f.write(Tm('function ${F}(x::${T})::${T}\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
 
