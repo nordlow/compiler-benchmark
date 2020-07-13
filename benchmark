@@ -154,6 +154,7 @@ def main():
 
     # Julia
     results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
     # print('Speedups' + ':')
     # pprint(spans)
@@ -520,7 +521,7 @@ def generate_test_program(lang,
                                                      templated=templated)
         generate_test_main_header(llang, types, f)
         for typ in types:
-            generate_linear_test_function_variable(llang, typ, f)
+            generate_linear_test_function_variable(llang, typ, f, templated=templated)
             for findex in range(0, args.function_count):
                 generate_test_function_call(llang, findex, typ, f, templated=templated)
 
@@ -673,7 +674,10 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         else:
             f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "julia":
-        f.write(Tm('function ${F}(x::${T})::${T}\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        if templated:
+            f.write(Tm('function ${F}(x)\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        else:
+            f.write(Tm('function ${F}(x::${T})::${T}\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
 
 
 def generate_test_main_header(lang, types, f):
@@ -697,7 +701,7 @@ def generate_test_main_header(lang, types, f):
         assert False
 
 
-def generate_linear_test_function_variable(lang, typ, f):
+def generate_linear_test_function_variable(lang, typ, f, templated):
     if lang in ["c", "c++", "d"]:
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang in ["java"]:
@@ -711,7 +715,10 @@ def generate_linear_test_function_variable(lang, typ, f):
     elif lang == "v":
         f.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
     elif lang == "julia":
-        f.write(Tm('    ${T}_sum::${T} = 0;\n').substitute(T=typ))
+        if templated:
+            f.write(Tm('    ${T}_sum = 0;\n').substitute(T=typ))
+        else:
+            f.write(Tm('    ${T}_sum::${T} = 0;\n').substitute(T=typ))
     else:
         assert False
 
