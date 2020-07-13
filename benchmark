@@ -424,12 +424,14 @@ def benchmark_Julia(execs, spans, gpaths, args, gen_obj, templated):
         opId = opIdOf(lang, templated, op, julia_exec)
         print(md_header(lang + ':', 2))
         execs[opId] = julia_exec
+        version_run = subprocess.run([julia_exec, '--version'], stdout=subprocess.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[2]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
                                 args=[julia_exec],
                                 run_count=args.run_count,
                                 op=op)
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, julia_exec, 'unknown', span_min, templated))
+        results.append(row_list(spans, lang, op, julia_exec, version, span_min, templated))
         print_speedup(spans,
                       from_opId=opIdOf('D', templated, op),
                       to_opId=opId)
