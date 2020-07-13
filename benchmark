@@ -402,7 +402,7 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
         opId = opIdOf(lang, templated, op, java_exec)
         print(md_header(lang + ':', 2))
         execs[opId] = java_exec
-        version_run = subprocess.run([java_exec, '--version'], stdout=subprocess.PIPE)
+        version_run = subprocess.run([java_exec, '-version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
                                 args=[java_exec, '-Xdiags:verbose'],
