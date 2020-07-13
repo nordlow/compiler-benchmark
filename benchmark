@@ -110,10 +110,10 @@ def main():
     results = []
 
     # D
-    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
-    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False, use_dips=True)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True, use_dips=True)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False, use_dips=True)
+    results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True, use_dips=True)
 
     # C
     results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
@@ -238,13 +238,13 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_D(execs, spans, gpaths, args, gen_obj, templated):
+def benchmark_D(execs, spans, gpaths, args, gen_obj, templated, use_dips):
 
     results = list()
 
     op = 'Build' if gen_obj else "Check"
     lang = 'D'
-    d_flags = ['-dip25', '-dip1008', '-dip1000']  # use DIPs
+    d_flags = ['-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
     exec_args = '-c' if gen_obj else '-o-'
 
@@ -540,6 +540,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
 
     if lang == "zig" and templated:  # Zig needs explicit template type
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${T}, ${N})').substitute(T=typ, N=str(findex)))
+    elif lang == "v" and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}<${T}>(${N})').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
