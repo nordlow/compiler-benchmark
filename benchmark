@@ -674,13 +674,11 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         else:
             f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "julia":
-        if templated:
-            f.write(Tm('function ${F}(x)\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
-        else:
-            f.write(Tm('function ${F}(x::${T})::${T}\n    return ${X}\nend;\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('function ${F}(x${QT})${QT}\n    return ${X}\nend;\n').substitute(QT=(('::' + typ) if templated else ''),
+                                                                                     F=str(fname), N=str(findex), H=str(fheight), X=expr))
 
 
-def generate_test_main_header(lang, types, f):
+def generate_test_main_header(lang, types, f, templated):
     if lang in ["c", "c++"]:
         f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
     elif lang == "java":
@@ -696,7 +694,7 @@ def generate_test_main_header(lang, types, f):
     elif lang == "v":
         f.write(Tm('fn main() {\n').substitute(T=types[0]))
     elif lang == "julia":
-        f.write(Tm('function main()::${T}\n').substitute(T=types[0]))
+        f.write(Tm('function main()${QT}\n').substitute(QT=(('::' + types[0]) if templated else '')))
     else:
         assert False
 
@@ -715,15 +713,12 @@ def generate_linear_test_function_variable(lang, typ, f, templated):
     elif lang == "v":
         f.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
     elif lang == "julia":
-        if templated:
-            f.write(Tm('    ${T}_sum = 0;\n').substitute(T=typ))
-        else:
-            f.write(Tm('    ${T}_sum::${T} = 0;\n').substitute(T=typ))
+        f.write(Tm('    ${T}_sum${QT} = 0;\n').substitute(QT=(('::' + typ) if templated else '')))
     else:
         assert False
 
 
-def generate_test_program_2(function_count, lang, root_path='generated'):
+def generate_test_program_2(function_count, lang, root_path, templated):
     program_name = "sample2"
 
     lang = lang.lower()
@@ -789,10 +784,10 @@ def generate_test_program_2(function_count, lang, root_path='generated'):
                     f.write(Tm('''fn add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
 ''').substitute(T=typ, N=str(findex)))
                 elif lang == "julia":
-                    f.write(Tm('''function add_${T}_n${N}(x::${T})::${T}
+                    f.write(Tm('''function add_${T}_n${N}(x${QT})${QT}
     return x + ${N}
 end;
-''').substitute(T=typ, N=str(findex)))
+''').substitute(QT=(('::' + typ) if templated else ''), N=str(findex)))
                     f.write('\n')
 
         # MAIN HEADER
@@ -840,8 +835,8 @@ end;
                 f.write(Tm('''    var ${T}_sum ${T} = 0;
 ''').substitute(T=typ))
             elif lang == "julia":
-                f.write(Tm('''    ${T}_sum::${T} = 0;
-''').substitute(T=typ))
+                f.write(Tm('''    ${T}_sum${QT} = 0;
+''').substitute(QT=(('::' + typ) if templated else '')))
             else:
                 assert False
 
