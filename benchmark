@@ -157,9 +157,6 @@ def main():
         results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
         results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
-    # print('Speedups' + ':')
-    # pprint(spans)
-
     print(md_table(TABLE_TITLES, results))
 
 
