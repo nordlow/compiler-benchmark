@@ -153,8 +153,9 @@ def main():
     results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
 
     # Julia
-    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-    results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+    if args.function_count * args.function_depth < 1e4:  # only for small workloads, takes to long otherwise
+        results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+        results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
 
     # print('Speedups' + ':')
     # pprint(spans)
