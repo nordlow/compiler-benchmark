@@ -1,8 +1,17 @@
 # compiler-benchmark
 
 Benchmarks compilation speeds of different combinations of languages and
-compilers, currently C, C++, D, Go, Rust, V, Zig Julia and Java (via object
-compilation).
+compilers, currently
+
+- C (`gcc`),
+- C++ (`g++`),
+- D (`dmd` and `ldmd2`),
+- Go (`gccgo`),
+- Rust (`rustc`),
+- V (`v`),
+- Zig (`zig`),
+- Julia (`julia`) and
+- Java (`javac`).
 
 Note that Julia's JIT-compiler is very memory hungry. A maximum recommended
 `function-count` for Julia is 5000.
