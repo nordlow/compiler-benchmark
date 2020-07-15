@@ -33,8 +33,8 @@ compiler, benchmark the standard way for that compiler to check for lexical,
 syntactic and (in most cases also) semantic errors. For languages that support
 templates and additional source will be generated where the functions are
 templates. This templated source will be benchmarked aswell. The column
-**Templated** in the table below indicates whether the compilation is using
-templated functions or not.
+**Templated** in the table below indicates whether or not the compilation is
+using templated functions.
 
 Note that GCC and Clang doesn't perform all semantic checks for C++ (because
 it's too costly). This is in contrast to D's and Rust's compilers that perform
