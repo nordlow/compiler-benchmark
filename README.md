@@ -48,7 +48,7 @@ Note that GCC and Clang doesn't perform all semantic checks for C++ (because
 it's too costly). This is in contrast to D's and Rust's compilers that perform
 all of them.
 
-## Sample run
+## Sample run output
 
 The output on my laptop for the sample call
 
