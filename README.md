@@ -48,8 +48,8 @@ using templated functions.
 
 ## Noteworthy observations
 
-DMD is still far ahead of all its competition especially when it comes to fast
-default builds.
+D's DMD is still far ahead of all its competition especially when it comes to
+fast default builds.
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
