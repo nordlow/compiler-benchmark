@@ -42,11 +42,13 @@ templated. This templated source will be benchmarked aswell. The column
 **Templated** in the table below indicates whether or not the compilation is
 using templated functions.
 
-Note that for the languages C++ and D the generic version compiles about 1.5 2
-times slower whereas for Rust the templated version interestingly is processed
-faster than the untemplated version.
+## Noteworthy observations
 
-Note that GCC and Clang doesn't perform all semantic checks for C++ (because
+Note that the generic C++ and D versions compiles about 1.5 to 2 times slower
+whereas generic Rust version interestingly is processed faster than the
+untemplated version.
+
+Also Note that GCC and Clang doesn't perform all semantic checks for C++ (because
 it's too costly). This is in contrast to D's and Rust's compilers that perform
 all of them.
 
