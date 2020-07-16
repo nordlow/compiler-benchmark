@@ -205,7 +205,7 @@ def benchmark_GCC(lang, execs, spans, gpaths, args, op, templated):
     results = list()
     print(md_header('GCC:', 1))
     GCC_VERSIONS = range(5, 15)
-    exec_args = [] if op else ['-fsyntax-only']
+    exec_args = [] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
             gcc_exec = shutil.which('gcc-' + str(gcc_version))
@@ -234,7 +234,7 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, op, templated):
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 1))
     CLANG_VERSIONS = range(5, 15)
-    exec_args = [] if op else ['-fsyntax-only']
+    exec_args = [] if op == 'Build' else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
             clang_exec = shutil.which('clang-' + str(clang_version))
@@ -263,7 +263,7 @@ def benchmark_D(execs, spans, gpaths, args, op, templated, use_dips):
     results = list()
     lang = 'D'
     d_flags = ['-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
-    exec_args = '-c' if op else '-o-'
+    exec_args = '-c' if op == 'Build' else '-o-'
 
     # DMD
     dmd_exec = shutil.which('dmd')
@@ -392,7 +392,7 @@ def benchmark_Rust(execs, spans, gpaths, args, op, templated):
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[rustc_exec] if op else [rustc_exec, '-Z', 'no-codegen'],
+                                args=[rustc_exec] if op == 'Build' else [rustc_exec, '-Z', 'no-codegen'],
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
