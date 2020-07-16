@@ -88,7 +88,7 @@ def md_table(header, rows):
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--languages", type=int,
+    parser.add_argument("--languages", type=str,
                         default=','.join(LANGUAGES),
                         help="Languages to benchmark")
 
