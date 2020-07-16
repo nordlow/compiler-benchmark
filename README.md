@@ -46,7 +46,7 @@ templated. This templated source will be benchmarked aswell. The column
 **Templated** in the table below indicates whether or not the compilation is
 using templated functions.
 
-## Conclusions
+## Conclusions (from sample run below)
 
 D's compiler `dmd` is still far ahead of all its competition especially when it
 comes to default build (standard compilation) performance.
