@@ -40,7 +40,7 @@ To understand how the code generation works we can, for instance, do
 
     ./benchmark --function-count=3 --function-depth=2 --run-count=5
 
-and then look in, for the C language, look in `generated/c/linear.c` which will contain
+This will, for the C language case, generate a file `generated/c/linear.c` containing
 
     long add_long_n0_h0(long x) { return x + 0; }
     long add_long_n0(long x) { return x + add_long_n0_h0(x) + 0; }
