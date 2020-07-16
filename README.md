@@ -46,7 +46,7 @@ using templated functions.
 
 Note that the generic C++ and D versions compiles about 1.5 to 2 times slower
 whereas generic Rust version interestingly is processed faster than the
-untemplated version.
+non-generic version.
 
 Also Note that GCC and Clang doesn't perform all semantic checks for C++ (because
 it's too costly). This is in contrast to D's and Rust's compilers that perform
