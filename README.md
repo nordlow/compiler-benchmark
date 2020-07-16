@@ -29,8 +29,9 @@ or simply
 for defaulted values of all the parameters.
 
 This will generate code into the directory `generated` and then, for each
-compiler, benchmark the standard way for that compiler to check for lexical,
-syntactic and (in most cases also) semantic errors.
+combination of language, operation type and compiler, benchmark the standard way
+for that compiler to check for lexical, syntactic and (in most cases also)
+semantic errors.
 
 ## Generics
 
