@@ -22,10 +22,6 @@ Typicall run the benchmark as
 
     ./benchmark --function-count=100 --function-depth=100 --run-count=5
 
-or
-
-    python3 benchmark --function-count=100 --function-depth=100 --run-count=5
-
 or simply
 
     ./benchmark
