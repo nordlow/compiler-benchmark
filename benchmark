@@ -111,6 +111,7 @@ def main():
 
     args = parser.parse_args()
     args.languages = args.languages.split(',')  # make it a list
+    args.ops = args.ops.split(',')              # make it a list
 
     gpaths = generate_code(args=args)
 
@@ -120,10 +121,12 @@ def main():
     results = []
 
     if 'D' in args.languages:
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False, use_dips=True)
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True, use_dips=True)
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
+        if 'Check' in args.ops:
+            results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False, use_dips=True)
+            results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True, use_dips=True)
+        if 'Build' in args.ops:
+            results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
+            results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'C' in args.languages:
         results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
