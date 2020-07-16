@@ -323,7 +323,7 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
         version = version_run.stdout.decode('utf-8').split()[1]
         vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[v_exec, '-backend', vlang_backends[2]],
+                                args=[v_exec, '-cc', 'clang', '-backend', vlang_backends[2]],
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
