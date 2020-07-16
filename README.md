@@ -34,6 +34,32 @@ GCC and Clang doesn't perform all semantic checks for C++ (because it's too
 costly). This is in contrast to D's and Rust's compilers that perform all of
 them.
 
+## Sample generated code
+
+To understand how the code generation works we can, for instance, do
+
+    ./benchmark --function-count=3 --function-depth=2 --run-count=5
+
+and then look in, for the C language, look in `generated/c/linear.c` which will contain
+
+    long add_long_n0_h0(long x) { return x + 0; }
+    long add_long_n0(long x) { return x + add_long_n0_h0(x) + 0; }
+
+    long add_long_n1_h0(long x) { return x + 1; }
+    long add_long_n1(long x) { return x + add_long_n1_h0(x) + 1; }
+
+    long add_long_n2_h0(long x) { return x + 2; }
+    long add_long_n2(long x) { return x + add_long_n2_h0(x) + 2; }
+
+
+    int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
+        long long_sum = 0;
+        long_sum += add_long_n0(0);
+        long_sum += add_long_n1(1);
+        long_sum += add_long_n2(2);
+        return long_sum;
+    }
+
 ## Generics
 
 For each languages that supports generics an additional templated source file
