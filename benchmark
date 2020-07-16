@@ -129,10 +129,12 @@ def main():
             results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'C' in args.languages:
-        results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
-        results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
-        results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
-        results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+        if 'Check' in args.ops:
+            results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        if 'Build' in args.ops:
+            results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
         results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
