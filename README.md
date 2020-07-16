@@ -33,6 +33,10 @@ combination of language, operation type and compiler, run the supported
 benchmarks. At the end a Markdown-formatted table showing the results of the
 benchmark is printed to standard output.
 
+GCC and Clang doesn't perform all semantic checks for C++ (because it's too
+costly). This is in contrast to D's and Rust's compilers that perform all of
+them.
+
 ## Generics
 
 For each languages that supports generics an additional templated source file
@@ -44,14 +48,9 @@ using templated functions.
 
 ## Noteworthy observations
 
-Note that the generic C++ and D versions compiles about 1.5 to 2 times slower
-whereas generic Rust version interestingly is processed faster than the
-non-generic version.
-
-Also Note that GCC and Clang doesn't perform all semantic checks for C++ (because
-it's too costly). This is in contrast to D's and Rust's compilers that perform
-all of them.
-
+The generic C++ and D versions compiles about 1.5 to 2 times slower whereas
+generic Rust version interestingly is processed faster than the non-generic
+version.
 ## Sample run output
 
 The output on my Intel® Core™ i7-4710HQ CPU @ 2.50GHz × 8 with 16 GB of memory
