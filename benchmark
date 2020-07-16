@@ -12,6 +12,7 @@ from timeit import default_timer as timer
 
 SUPPORTED_LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
+SUPPORTED_OPS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
@@ -91,6 +92,10 @@ def main():
     parser.add_argument("--languages", type=str,
                         default=','.join(SUPPORTED_LANGUAGES),
                         help="Languages to benchmark separated by comma")
+
+    parser.add_argument("--ops", type=str,
+                        default=','.join(SUPPORTED_OPS),
+                        help="Operations to perform separated by comma")
 
     parser.add_argument("--function-count", type=int,
                         default=100,
