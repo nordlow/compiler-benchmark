@@ -16,9 +16,9 @@ compilers, currently
 Note that Julia's JIT-compiler is very memory hungry. A maximum recommended
 `function-count` for Julia is 5000.
 
-## Sample run
+## How it works
 
-Just run as, for instance,
+Typicall run the benchmark as
 
     ./benchmark --function-count=100 --function-depth=100 --run-count=5
 
@@ -26,19 +26,26 @@ or
 
     python3 benchmark --function-count=100 --function-depth=100 --run-count=5
 
-.
+or simply
+
+    ./benchmark
+
+for defaulted values of all the parameters.
 
 This will generate code into the directory `generated` and then, for each
 compiler, benchmark the standard way for that compiler to check for lexical,
-syntactic and (in most cases also) semantic errors. For each languages that
-supports generics an additional templated source file `linear_t.$LANG` will be
-generated alongside `linear.$LANG` equivalent to the contents of `linear.$LANG`
-apart from that all functions (except `main`) are templated. This templated
-source will be benchmarked aswell. The column **Templated** in the table below
-indicates whether or not the compilation is using templated functions. Note that
-for the languages C++ and D this slows down the compilation and build whereas
-for Rust the templated version interestingly is processed faster than the
-untemplated version.
+syntactic and (in most cases also) semantic errors.
+
+## Generics
+
+For each languages that supports generics an additional templated source file
+`linear_t.$LANG` will be generated alongside `linear.$LANG` equivalent to the
+contents of `linear.$LANG` apart from that all functions (except `main`) are
+templated. This templated source will be benchmarked aswell. The column
+**Templated** in the table below indicates whether or not the compilation is
+using templated functions. Note that for the languages C++ and D this slows down
+the compilation and build whereas for Rust the templated version interestingly
+is processed faster than the untemplated version.
 
 Note that GCC and Clang doesn't perform all semantic checks for C++ (because
 it's too costly). This is in contrast to D's and Rust's compilers that perform
