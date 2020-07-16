@@ -115,52 +115,52 @@ def main():
     results = []
 
     if 'D' in args.languages:
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False, use_dips=True)
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True, use_dips=True)
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False, use_dips=True)
-        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True, use_dips=True)
+        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False, use_dips=True)
+        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True, use_dips=True)
+        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
+        results += benchmark_D(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'C' in args.languages:
-        results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-        results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-        results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-        results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+        results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        results += benchmark_GCC(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+        results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
+        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Go' in args.languages:
-        results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+        results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
 
     if 'V' in args.languages:
-        results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
+        results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
         # TODO activate when issue https://github.com/vlang/v/issues/5818 has ben fixed:
-        # results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+        # results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
 
     if 'Zig' in args.languages:
-        results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-        results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
+        results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
 
     if 'Rust' in args.languages:
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=False)
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=False, templated=True)
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Java' in args.languages:
-        results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
+        results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Julia' in args.languages:
         if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
-            results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=False)
-            results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, gen_obj=True, templated=True)
+            results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
 
     print(md_table(TABLE_TITLES, results))
 
@@ -182,12 +182,11 @@ def generate_code(args):
     return gpaths
 
 
-def benchmark_GCC(lang, execs, spans, gpaths, args, gen_obj, templated):
+def benchmark_GCC(lang, execs, spans, gpaths, args, op, templated):
     results = list()
-    op = 'Build' if gen_obj else "Check"
     print(md_header('GCC:', 1))
     GCC_VERSIONS = range(5, 15)
-    exec_args = [] if gen_obj else ['-fsyntax-only']
+    exec_args = [] if op else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
             gcc_exec = shutil.which('gcc-' + str(gcc_version))
@@ -211,13 +210,12 @@ def benchmark_GCC(lang, execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
+def benchmark_Clang(lang, execs, spans, gpaths, args, op, templated):
     results = list()
-    op = 'Build' if gen_obj else "Check"
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 1))
     CLANG_VERSIONS = range(5, 15)
-    exec_args = [] if gen_obj else ['-fsyntax-only']
+    exec_args = [] if op else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
             clang_exec = shutil.which('clang-' + str(clang_version))
@@ -242,15 +240,14 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_D(execs, spans, gpaths, args, gen_obj, templated, use_dips):
+def benchmark_D(execs, spans, gpaths, args, op, templated, use_dips):
 
     results = list()
 
-    op = 'Build' if gen_obj else "Check"
     lang = 'D'
     d_flags = ['-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
-    exec_args = '-c' if gen_obj else '-o-'
+    exec_args = '-c' if op else '-o-'
 
     # DMD
     dmd_exec = shutil.which('dmd')
@@ -293,8 +290,7 @@ def benchmark_D(execs, spans, gpaths, args, gen_obj, templated, use_dips):
     return results
 
 
-def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Build' if gen_obj else "Check"
+def benchmark_Go(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     gccgo_exec = shutil.which('gccgo')
@@ -316,8 +312,7 @@ def benchmark_Go(execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Build'
+def benchmark_V(execs, spans, gpaths, args, op, templated):
     results = list()
     # V (vlang.io)
     lang = 'V'
@@ -341,8 +336,7 @@ def benchmark_V(execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Build'
+def benchmark_Zig(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Zig'
     zig_exec = shutil.which('zig')
@@ -364,11 +358,10 @@ def benchmark_Zig(execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
+def benchmark_Rust(execs, spans, gpaths, args, op, templated):
     results = list()
 
     lang = 'Rust'
-    op = 'Build' if gen_obj else "Check"
     rustc_exec = shutil.which('rustc')
     if rustc_exec is not None:
         opId = opIdOf(lang, templated, op, rustc_exec)
@@ -384,7 +377,7 @@ def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
         version_run = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[1]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[rustc_exec] if gen_obj else [rustc_exec, '-Z', 'no-codegen'],
+                                args=[rustc_exec] if op else [rustc_exec, '-Z', 'no-codegen'],
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
@@ -397,8 +390,7 @@ def benchmark_Rust(execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Build'
+def benchmark_Java(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Java'
     javac_exec = shutil.which('javac')
@@ -421,8 +413,7 @@ def benchmark_Java(execs, spans, gpaths, args, gen_obj, templated):
     return results
 
 
-def benchmark_Julia(execs, spans, gpaths, args, gen_obj, templated):
-    op = 'Build'
+def benchmark_Julia(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Julia'
     julia_exec = shutil.which('julia')
