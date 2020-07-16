@@ -30,7 +30,7 @@ for defaulted values of all the parameters.
 
 This will generate code into the directory `generated` and then, for each
 combination of language, operation type and compiler, run the supported
-benchmarks.
+benchmarks. At the end a Markdown-formatted table is printed.
 
 ## Generics
 
