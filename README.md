@@ -55,9 +55,9 @@ The generic C++ and D (`dmd`) versions compiles about 1.5 to 2 times slower
 whereas the generic Rust version interestingly is processed 2-3 times faster
 than the non-generic version.
 
-Julia's JIT-compiler is very memory hungry. A maximum recommended product of
-`function-count` and `function-depth` for Julia is 5000. Julia will therefore be
-excluded from the benchmark when this maximum is reached.
+Julia's JIT-compiler is (currently) very memory hungry. A maximum recommended
+product of `function-count` and `function-depth` for Julia is 5000. Julia will
+therefore be excluded from the benchmark when this maximum is reached.
 
 ## Sample run output
 
