@@ -42,23 +42,25 @@ To understand how the code generation works we can, for instance, do
 
 This will, for the C language case, generate a file `generated/c/linear.c` containing
 
-    long add_long_n0_h0(long x) { return x + 0; }
-    long add_long_n0(long x) { return x + add_long_n0_h0(x) + 0; }
+```C
+long add_long_n0_h0(long x) { return x + 0; }
+long add_long_n0(long x) { return x + add_long_n0_h0(x) + 0; }
 
-    long add_long_n1_h0(long x) { return x + 1; }
-    long add_long_n1(long x) { return x + add_long_n1_h0(x) + 1; }
+long add_long_n1_h0(long x) { return x + 1; }
+long add_long_n1(long x) { return x + add_long_n1_h0(x) + 1; }
 
-    long add_long_n2_h0(long x) { return x + 2; }
-    long add_long_n2(long x) { return x + add_long_n2_h0(x) + 2; }
+long add_long_n2_h0(long x) { return x + 2; }
+long add_long_n2(long x) { return x + add_long_n2_h0(x) + 2; }
 
 
-    int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
-        long long_sum = 0;
-        long_sum += add_long_n0(0);
-        long_sum += add_long_n1(1);
-        long_sum += add_long_n2(2);
-        return long_sum;
-    }
+int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
+    long long_sum = 0;
+    long_sum += add_long_n0(0);
+    long_sum += add_long_n1(1);
+    long_sum += add_long_n2(2);
+    return long_sum;
+}
+```
 
 ## Generics
 
