@@ -137,40 +137,49 @@ def main():
             results += benchmark_Clang(lang='C', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
-        results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
-        results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
+        if 'Check' in args.ops:
+            results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+            results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+        if 'Build' in args.ops:
+            results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_GCC(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
+            results += benchmark_Clang(lang='C++', execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Go' in args.languages:
-        results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        if 'Check' in args.ops:
+            results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
 
     if 'V' in args.languages:
-        results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        if 'Build' in args.ops:
+            results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
         # TODO activate when issue https://github.com/vlang/v/issues/5818 has ben fixed:
         # results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
 
     if 'Zig' in args.languages:
-        results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
-        results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+        if 'Check' in args.ops:
+            results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_Zig(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
 
     if 'Rust' in args.languages:
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
-        results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
+        if 'Check' in args.ops:
+            results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=True)
+        if 'Build' in args.ops:
+            results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Rust(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Java' in args.languages:
-        results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+        if 'Build' in args.ops:
+            results += benchmark_Java(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Julia' in args.languages:
-        if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
-            results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
+        if 'Build' in args.ops:
+            if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
+                results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+                results += benchmark_Julia(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=True)
 
     print(md_table(TABLE_TITLES, results))
 
