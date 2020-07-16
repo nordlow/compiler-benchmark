@@ -13,9 +13,6 @@ compilers. Currently supports
 - Julia (using `julia`) and
 - Java (using `javac`).
 
-Note that Julia's JIT-compiler is very memory hungry. A maximum recommended
-product of `function-count` and `function-depth` for Julia is 5000.
-
 ## How it works
 
 Typicall run the benchmark as
@@ -57,6 +54,9 @@ release (currently 8, 9, 10 in the table below).
 The generic C++ and D (`dmd`) versions compiles about 1.5 to 2 times slower
 whereas the generic Rust version interestingly is processed 2-3 times faster
 than the non-generic version.
+
+Julia's JIT-compiler is very memory hungry. A maximum recommended
+product of `function-count` and `function-depth` for Julia is 5000.
 
 ## Sample run output
 
