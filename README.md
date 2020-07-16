@@ -50,7 +50,8 @@ all of them.
 
 ## Sample run output
 
-The output on my laptop for the sample call
+The output on my Intel® Core™ i7-4710HQ CPU @ 2.50GHz × 8 with 16 GB of memory
+running Ubuntu 20.04, for the sample call
 
     ./benchmark --function-count=200 --function-depth=450 --run-count=10
 
