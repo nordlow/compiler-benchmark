@@ -10,15 +10,15 @@ from pprint import pprint
 from string import Template as Tm
 from timeit import default_timer as timer
 
-LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
-TEMPLATED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
 
 
 def srcIdOf(lang, templated):
-    if lang in TEMPLATED_LANGUAGES:
+    if lang in TEMPLATED_SUPPORTED_LANGUAGES:
         return lang + ('-Templated' if templated else '-Untemplated')
     else:
         return lang
@@ -89,7 +89,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--languages", type=str,
-                        default=','.join(LANGUAGES),
+                        default=','.join(SUPPORTED_LANGUAGES),
                         help="Languages to benchmark separated by comma")
 
     parser.add_argument("--function-count", type=int,
@@ -105,8 +105,9 @@ def main():
                         help="Number of runs for each compilation")
 
     args = parser.parse_args()
+    args.languages = args.languages.split(',')  # make it a list
 
-    gpaths = generate_code(languages=LANGUAGES, args=args)
+    gpaths = generate_code(args=args)
 
     execs = {}                   # execs by language
     spans = {}                  # time spans by compiler path
@@ -164,15 +165,15 @@ def main():
     print(md_table(TABLE_TITLES, results))
 
 
-def generate_code(languages, args):
+def generate_code(args):
     print(md_header('Code-generation:', 1))
     gpaths = {}
-    for lang in languages:
+    for lang in args.languages:
         templated = False
         gpaths[srcIdOf(lang, templated)] = generate_test_program(lang=lang,
                                                                  args=args,
                                                                  templated=templated)
-        if lang in TEMPLATED_LANGUAGES:
+        if lang in TEMPLATED_SUPPORTED_LANGUAGES:
             templated = True
             gpaths[srcIdOf(lang, templated)] = generate_test_program(lang=lang,
                                                                      args=args,
