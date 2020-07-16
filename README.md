@@ -40,9 +40,11 @@ For each languages that supports generics an additional templated source file
 contents of `linear.$LANG` apart from that all functions (except `main`) are
 templated. This templated source will be benchmarked aswell. The column
 **Templated** in the table below indicates whether or not the compilation is
-using templated functions. Note that for the languages C++ and D this slows down
-the compilation and build whereas for Rust the templated version interestingly
-is processed faster than the untemplated version.
+using templated functions.
+
+Note that for the languages C++ and D the generic version compiles about 1.5 2
+times slower whereas for Rust the templated version interestingly is processed
+faster than the untemplated version.
 
 Note that GCC and Clang doesn't perform all semantic checks for C++ (because
 it's too costly). This is in contrast to D's and Rust's compilers that perform
