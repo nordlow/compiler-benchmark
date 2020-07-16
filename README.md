@@ -48,9 +48,13 @@ using templated functions.
 
 ## Noteworthy observations
 
+The performance of both GCC and Clang gets significanly worse with each new
+release (currently 8, 9, 10 in the table below).
+
 The generic C++ and D versions compiles about 1.5 to 2 times slower whereas
 generic Rust version interestingly is processed faster than the non-generic
 version.
+
 ## Sample run output
 
 The output on my Intel® Core™ i7-4710HQ CPU @ 2.50GHz × 8 with 16 GB of memory
