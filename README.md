@@ -14,7 +14,7 @@ compilers. Currently supports
 - Java (using `javac`).
 
 Note that Julia's JIT-compiler is very memory hungry. A maximum recommended
-`function-count` for Julia is 5000.
+product of `function-count` and `function-count` for Julia is 5000.
 
 ## How it works
 
