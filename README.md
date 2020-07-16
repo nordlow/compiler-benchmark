@@ -15,11 +15,11 @@ compilers. Currently supports
 
 ## How it works
 
-Typicall run the benchmark as
+Typically run the benchmark as
 
-    ./benchmark --function-count=100 --function-depth=100 --run-count=5
+    ./benchmark --function-count=$FUNCTION_COUNT --function-depth=$FUNCTION_DEPTH --run-count=5
 
-or simply
+for suitable values of `$FUNCTION_COUNT` and `FUNCTION_DEPTH` or simply
 
     ./benchmark
 
