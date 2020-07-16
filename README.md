@@ -54,8 +54,8 @@ comes to default build (standard compilation) performance.
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
 
-The generic C++ and D versions compiles about 1.5 to 2 times slower whereas
-generic Rust version interestingly is processed faster than the non-generic
+The generic C++ and D versions compiles about 1.5 to 2 times slower whereas the
+generic Rust version interestingly is processed 2-3 times faster than the non-generic
 version.
 
 ## Sample run output
