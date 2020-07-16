@@ -1,7 +1,7 @@
 # compiler-benchmark
 
 Benchmarks compilation speeds of different combinations of languages and
-compilers, currently including
+compilers. Currently supports
 
 - C (using `gcc`),
 - C++ (using `g++`),
