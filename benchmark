@@ -210,22 +210,22 @@ def benchmark_GCC(lang, execs, spans, gpaths, args, op, templated):
     exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
-            gcc_exec = shutil.which('gcc-' + str(gcc_version))
+            cmd = shutil.which('gcc-' + str(gcc_version))
         elif lang == 'C++':
-            gcc_exec = shutil.which('g++-' + str(gcc_version))
+            cmd = shutil.which('g++-' + str(gcc_version))
         else:
             assert(False)
-        if gcc_exec is not None:
-            version_proc = subprocess.run([gcc_exec, '--version'], stdout=subprocess.PIPE)
+        if cmd is not None:
+            version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
             version = version_proc.stdout.decode('utf-8').split()[2].split('-')[0]
             span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[gcc_exec] + C_FLAGS + exec_args,
+                                    args=[cmd] + C_FLAGS + exec_args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            opId = opIdOf(lang, templated, op, gcc_exec)
+            opId = opIdOf(lang, templated, op, cmd)
             spans[opId] = span_min
-            results.append(row_list(spans, lang, op, gcc_exec, version, span_min, templated))
+            results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
             print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
     return results
@@ -239,21 +239,21 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, op, templated):
     exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
-            clang_exec = shutil.which('clang-' + str(clang_version))
+            cmd = shutil.which('clang-' + str(clang_version))
         elif lang == 'C++':
-            clang_exec = shutil.which('clang++-' + str(clang_version))
+            cmd = shutil.which('clang++-' + str(clang_version))
         else:
             assert(False)
-        if clang_exec is not None:
-            version_proc = subprocess.run([clang_exec, '--version'], stdout=subprocess.PIPE)
+        if cmd is not None:
+            version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
             version = version_proc.stdout.decode('utf-8').split()[2].split('-')[0]
             span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                    args=[clang_exec] + C_CLANG_FLAGS + exec_args,
+                                    args=[cmd] + C_CLANG_FLAGS + exec_args,
                                     run_count=args.run_count,
                                     op=op,
                                     compiler_version=version)
-            results.append(row_list(spans, lang, op, clang_exec, version, span_min, templated))
-            opId = opIdOf(lang, templated, op, clang_exec)
+            results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
+            opId = opIdOf(lang, templated, op, cmd)
             print(md_header(opId + ':', 2))
             spans[opId] = span_min
             print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
@@ -268,39 +268,39 @@ def benchmark_D(execs, spans, gpaths, args, op, templated, use_dips):
     exec_args = '-c' if op == 'Build' else '-o-'
 
     # DMD
-    dmd_exec = shutil.which('dmd')
-    if dmd_exec is not None:
+    cmd = shutil.which('dmd')
+    if cmd is not None:
         opId = opIdOf(lang, templated, op, 'dmd')
         print(md_header(opId + ':', 2))
 
-        version_proc = subprocess.run([dmd_exec, '--version'], stdout=subprocess.PIPE)
+        version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[3]
         if opId not in execs:
-            execs[opId] = dmd_exec
+            execs[opId] = cmd
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[dmd_exec, exec_args] + d_flags,
+                                args=[cmd, exec_args] + d_flags,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        results.append(row_list(spans, lang, op, dmd_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         spans[opId] = span_min
 
     # LDC
-    ldc_exec = shutil.which('ldmd2')
-    if ldc_exec is not None:
+    cmd = shutil.which('ldmd2')
+    if cmd is not None:
         opId = opIdOf(lang, templated, op, 'ldmd2')
         print(md_header(opId + ':', 2))
 
-        version_proc = subprocess.run([ldc_exec, '--version'], stdout=subprocess.PIPE)
+        version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
-            execs[opId] = ldc_exec
+            execs[opId] = cmd
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[ldc_exec, exec_args] + d_flags,
+                                args=[cmd, exec_args] + d_flags,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        results.append(row_list(spans, lang, op, ldc_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         spans[opId] = span_min
 
     print()
@@ -311,21 +311,21 @@ def benchmark_D(execs, spans, gpaths, args, op, templated, use_dips):
 def benchmark_Go(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
-    gccgo_exec = shutil.which('gccgo')
+    cmd = shutil.which('gccgo')
     exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only', '-S']
-    if gccgo_exec is not None:
-        execs[lang] = gccgo_exec
-        version_proc = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
+    if cmd is not None:
+        execs[lang] = cmd
+        version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[3]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[gccgo_exec] + exec_args,
+                                args=[cmd] + exec_args,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        opId = opIdOf(lang, templated, op, gccgo_exec)
+        opId = opIdOf(lang, templated, op, cmd)
         print(md_header(opId + ':', 2))
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, gccgo_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
         print()
     return results
@@ -335,21 +335,21 @@ def benchmark_V(execs, spans, gpaths, args, op, templated):
     results = list()
     # V (vlang.io)
     lang = 'V'
-    v_exec = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
-    if v_exec is not None:
-        execs[lang] = v_exec
-        version_proc = subprocess.run([v_exec, '--version'], stdout=subprocess.PIPE)
+    cmd = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
+    if cmd is not None:
+        execs[lang] = cmd
+        version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[1]
         vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[v_exec, '-cc', 'clang', '-backend', vlang_backends[2]],
+                                args=[cmd, '-cc', 'clang', '-backend', vlang_backends[2]],
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
-        opId = opIdOf(lang, templated, op, v_exec)
+        opId = opIdOf(lang, templated, op, cmd)
         print(md_header(opId + ':', 2))
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, v_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
         print()
     return results
@@ -358,20 +358,20 @@ def benchmark_V(execs, spans, gpaths, args, op, templated):
 def benchmark_Zig(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Zig'
-    zig_exec = shutil.which('zig')
-    if zig_exec is not None:
-        execs[lang] = zig_exec
-        version_proc = subprocess.run([zig_exec, 'version'], stdout=subprocess.PIPE)
+    cmd = shutil.which('zig')
+    if cmd is not None:
+        execs[lang] = cmd
+        version_proc = subprocess.run([cmd, 'version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[0]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[zig_exec, 'build-obj', '-fno-emit-bin'],
+                                args=[cmd, 'build-obj', '-fno-emit-bin'],
                                 run_count=args.run_count,  # no syntax flag currently so compile to object file instead
                                 op=op,
                                 compiler_version=version)
-        opId = opIdOf(lang, templated, op, zig_exec)
+        opId = opIdOf(lang, templated, op, cmd)
         print(md_header(opId + ':', 2))
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, zig_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
         print()
     return results
@@ -380,27 +380,27 @@ def benchmark_Zig(execs, spans, gpaths, args, op, templated):
 def benchmark_Rust(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Rust'
-    rustc_exec = shutil.which('rustc')
-    if rustc_exec is not None:
-        opId = opIdOf(lang, templated, op, rustc_exec)
+    cmd = shutil.which('rustc')
+    if cmd is not None:
+        opId = opIdOf(lang, templated, op, cmd)
         print(md_header(opId + ':', 2))
         if opId not in execs:
-            execs[opId] = rustc_exec
+            execs[opId] = cmd
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
             # - `rustc --emit=metadata -Z no-codegen`
             # - Not yet in stable: `rustc -Z no-codegen`
             # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
-        version_proc = subprocess.run([rustc_exec, '--version'], stdout=subprocess.PIPE)
+        version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[1]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[rustc_exec] if op == 'Build' else [rustc_exec, '-Z', 'no-codegen'],
+                                args=[cmd] if op == 'Build' else [cmd, '-Z', 'no-codegen'],
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, rustc_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         print_speedup(spans,
                       from_opId=opIdOf('D', templated, op),
                       to_opId=opId)
@@ -411,19 +411,19 @@ def benchmark_Rust(execs, spans, gpaths, args, op, templated):
 def benchmark_Java(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Java'
-    javac_exec = shutil.which('javac')
-    if javac_exec is not None:
-        opId = opIdOf(lang, templated, op, javac_exec)
+    cmd = shutil.which('javac')
+    if cmd is not None:
+        opId = opIdOf(lang, templated, op, cmd)
         print(md_header(opId + ':', 2))
-        execs[opId] = javac_exec
-        version_proc = subprocess.run([javac_exec, '-version'], stderr=subprocess.PIPE)
+        execs[opId] = cmd
+        version_proc = subprocess.run([cmd, '-version'], stderr=subprocess.PIPE)
         version = version_proc.stderr.decode('utf-8').split()[1]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[javac_exec, '-Xdiags:verbose'],
+                                args=[cmd, '-Xdiags:verbose'],
                                 run_count=args.run_count,
                                 op=op)
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, javac_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         print_speedup(spans,
                       from_opId=opIdOf('D', templated, op),
                       to_opId=opId)
@@ -434,19 +434,19 @@ def benchmark_Java(execs, spans, gpaths, args, op, templated):
 def benchmark_Julia(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Julia'
-    julia_exec = shutil.which('julia')
-    if julia_exec is not None:
-        opId = opIdOf(lang, templated, op, julia_exec)
+    cmd = shutil.which('julia')
+    if cmd is not None:
+        opId = opIdOf(lang, templated, op, cmd)
         print(md_header(opId + ':', 2))
-        execs[opId] = julia_exec
-        version_proc = subprocess.run([julia_exec, '--version'], stdout=subprocess.PIPE)
+        execs[opId] = cmd
+        version_proc = subprocess.run([cmd, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[2]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[julia_exec],
+                                args=[cmd],
                                 run_count=args.run_count,
                                 op=op)
         spans[opId] = span_min
-        results.append(row_list(spans, lang, op, julia_exec, version, span_min, templated))
+        results.append(row_list(spans, lang, op, cmd, version, span_min, templated))
         print_speedup(spans,
                       from_opId=opIdOf('D', templated, op),
                       to_opId=opId)
