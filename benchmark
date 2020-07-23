@@ -151,6 +151,8 @@ def main():
     if 'Go' in args.languages:
         if 'Check' in args.ops:
             results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Check', templated=False)
+        if 'Build' in args.ops:
+            results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'V' in args.languages:
         if 'Build' in args.ops:
@@ -205,7 +207,7 @@ def benchmark_GCC(lang, execs, spans, gpaths, args, op, templated):
     results = list()
     print(md_header('GCC:', 1))
     GCC_VERSIONS = range(5, 15)
-    exec_args = [] if op == 'Build' else ['-fsyntax-only']
+    exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
             gcc_exec = shutil.which('gcc-' + str(gcc_version))
@@ -234,7 +236,7 @@ def benchmark_Clang(lang, execs, spans, gpaths, args, op, templated):
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 1))
     CLANG_VERSIONS = range(5, 15)
-    exec_args = [] if op == 'Build' else ['-fsyntax-only']
+    exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
             clang_exec = shutil.which('clang-' + str(clang_version))
@@ -310,12 +312,13 @@ def benchmark_Go(execs, spans, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     gccgo_exec = shutil.which('gccgo')
+    exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only', '-S']
     if gccgo_exec is not None:
         execs[lang] = gccgo_exec
         version_run = subprocess.run([gccgo_exec, '--version'], stdout=subprocess.PIPE)
         version = version_run.stdout.decode('utf-8').split()[2].split('-')[0]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                args=[gccgo_exec, '-fsyntax-only', '-S'],
+                                args=[gccgo_exec] + exec_args,
                                 run_count=args.run_count,
                                 op=op,
                                 compiler_version=version)
