@@ -68,9 +68,9 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 
 ## Generics
 
-For each languages that supports generics an additional templated source file
-`linear_t.$LANG` will be generated alongside `linear.$LANG` equivalent to the
-contents of `linear.$LANG` apart from that all functions (except `main`) are
+For each languages `$LANG` that supports generics an additional templated source
+file `linear_t.$LANG` will be generated alongside `linear.$LANG` equivalent to
+the contents of `linear.$LANG` apart from that all functions (except `main`) are
 templated. This templated source will be benchmarked aswell. The column
 **Templated** in the table below indicates whether or not the compilation is
 using templated functions.
