@@ -214,7 +214,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     print(md_header('GCC:', 1))
     GCC_VERSIONS = range(5, 15)
-    exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+    exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
             exe = shutil.which('gcc-' + str(gcc_version))
@@ -225,7 +225,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
             dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                   args=[exe] + C_FLAGS + exec_args,
+                                   args=[exe] + C_FLAGS + exe_args,
                                    run_count=args.run_count,
                                    op=op,
                                    compiler_version=version)
@@ -242,7 +242,7 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 1))
     CLANG_VERSIONS = range(5, 15)
-    exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+    exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
             exe = shutil.which('clang-' + str(clang_version))
@@ -253,7 +253,7 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
             dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                   args=[exe] + C_CLANG_FLAGS + exec_args,
+                                   args=[exe] + C_CLANG_FLAGS + exe_args,
                                    run_count=args.run_count,
                                    op=op,
                                    compiler_version=version)
@@ -274,14 +274,14 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     # DMD
     exe = shutil.which('dmd')
     if exe is not None:
-        exec_args = ['-c'] if op == 'Build' else ['-o-']
+        exe_args = ['-c'] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'dmd')
         print(md_header(opId + ':', 2))
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         if opId not in execs:
             execs[opId] = exe
         dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                               args=[exe] + exec_args + d_flags,
+                               args=[exe] + exe_args + d_flags,
                                run_count=args.run_count,
                                op=op,
                                compiler_version=version)
@@ -291,14 +291,14 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     # LDC
     exe = shutil.which('ldmd2')
     if exe is not None:
-        exec_args = ['-c'] if op == 'Build' else ['-o-']
+        exe_args = ['-c'] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'ldmd2')
         print(md_header(opId + ':', 2))
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
             execs[opId] = exe
         dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                               args=[exe] + exec_args + d_flags,
+                               args=[exe] + exe_args + d_flags,
                                run_count=args.run_count,
                                op=op,
                                compiler_version=version)
@@ -308,14 +308,14 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     # GDC
     exe = shutil.which('gdc')
     if exe is not None:
-        exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+        exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
         opId = opIdOf(lang, templated, op, 'gdc')
         print(md_header(opId + ':', 2))
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         if opId not in execs:
             execs[opId] = exe
         # dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-        #                        args=[exe] + exec_args + d_flags,
+        #                        args=[exe] + exe_args + d_flags,
         #                        run_count=args.run_count,
         #                        op=op,
         #                        compiler_version=version)
@@ -331,12 +331,12 @@ def benchmark_Go(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     exe = shutil.which('gccgo')
-    exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only', '-S']
+    exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only', '-S']
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                               args=[exe] + exec_args,
+                               args=[exe] + exe_args,
                                run_count=args.run_count,
                                op=op,
                                compiler_version=version)
