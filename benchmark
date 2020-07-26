@@ -307,6 +307,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
 
     # GDC
     exe = shutil.which('gdc')
+    # TODO activate templated when this has been solved: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
     if exe is not None and not templated:
         exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
         opId = opIdOf(lang, templated, op, 'gdc')
