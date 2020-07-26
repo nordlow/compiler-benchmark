@@ -158,7 +158,7 @@ def main():
     if 'OCaml' in args.languages:
         if 'Build' in args.ops:
             results += benchmark_OCaml(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
- 
+
     if 'V' in args.languages:
         if 'Build' in args.ops:
             results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
@@ -342,7 +342,7 @@ def benchmark_OCaml(execs, spans, gpaths, args, op, templated):
     if exe is not None:
         execs[lang] = exe
         version_proc = subprocess.run([exe, '--version'], stdout=subprocess.PIPE)
-        version = version_proc.stdout.decode('utf-8')
+        version = version_proc.stdout.decode('utf-8').split()[0]
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
                                 args=[exe] + exec_args,
                                 run_count=args.run_count,
@@ -847,7 +847,7 @@ def generate_test_program_2(function_count, lang, root_path, templated):
                     f.write(Tm('''func add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
 ''').substitute(T=typ, N=str(findex)))
                 elif lang == "ocaml":
-                    f.write(Tm('''let add_${T}_n${N} x = x +. ${N}.0 
+                    f.write(Tm('''let add_${T}_n${N} x = x +. ${N}.0
 ''').substitute(T=typ, N=str(findex)))
                 elif lang == "v":
                     f.write(Tm('''fn add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
