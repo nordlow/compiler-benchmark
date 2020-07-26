@@ -307,10 +307,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
 
     # GDC
     exe = shutil.which('gdc')
-    # TODO activate templated when a gdc-11 is released that supports primitive
-    # types assigned to template alias parameters.
-    # See: this has been solved: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
-    if exe is not None and not templated:
+    if exe is not None:
         exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
         opId = opIdOf(lang, templated, op, 'gdc')
         print(md_header(opId + ':', 2))
@@ -722,8 +719,9 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                             X=expr))
         # template<typename T1, typename T2 = int> class A;
     if lang in ["d"]:
+        # See: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
         f.write(Tm('${T} ${F}${M}(${T} x) @safe pure nothrow @nogc { return ${X}; }\n')
-                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(alias T=void)' if templated else '', X=expr))
+                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(T=void)' if templated else '', X=expr))
     elif lang == "rust":
         if templated:
             f.write(Tm('fn ${F}<${T} : ${R}>(x: ${T}) -> ${T} { ${X} }\n').substitute(T='T',
