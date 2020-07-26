@@ -10,7 +10,7 @@ from pprint import pprint
 from string import Template as Tm
 from timeit import default_timer as timer
 
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml' ]
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 SUPPORTED_OPS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
@@ -155,6 +155,10 @@ def main():
         if 'Build' in args.ops:
             results += benchmark_Go(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
 
+    if 'OCaml' in args.languages:
+        if 'Build' in args.ops:
+            results += benchmark_OCaml(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
+ 
     if 'V' in args.languages:
         if 'Build' in args.ops:
             results += benchmark_V(execs=execs, spans=spans, gpaths=gpaths, args=args, op='Build', templated=False)
@@ -316,6 +320,29 @@ def benchmark_Go(execs, spans, gpaths, args, op, templated):
         execs[lang] = exe
         version_proc = subprocess.run([exe, '--version'], stdout=subprocess.PIPE)
         version = version_proc.stdout.decode('utf-8').split()[3]
+        span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                                args=[exe] + exec_args,
+                                run_count=args.run_count,
+                                op=op,
+                                compiler_version=version)
+        opId = opIdOf(lang, templated, op, exe)
+        print(md_header(opId + ':', 2))
+        spans[opId] = span_min
+        results.append(row_list(spans, lang, op, exe, version, span_min, templated))
+        print_speedup(spans, from_opId=opIdOf('D', templated, op), to_opId=opId)
+        print()
+    return results
+
+
+def benchmark_OCaml(execs, spans, gpaths, args, op, templated):
+    results = list()
+    lang = 'OCaml'
+    exe = shutil.which('ocamlopt')
+    exec_args = ['-c'] if op == 'Check' else []
+    if exe is not None:
+        execs[lang] = exe
+        version_proc = subprocess.run([exe, '--version'], stdout=subprocess.PIPE)
+        version = version_proc.stdout.decode('utf-8')
         span_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
                                 args=[exe] + exec_args,
                                 run_count=args.run_count,
@@ -503,6 +530,8 @@ def long_types_of_lang(lang):
         return ['int64']
     elif lang == 'julia':
         return ['Int64']
+    elif lang == 'ocaml':
+        return ['float']
     else:
         return None
 
@@ -512,6 +541,8 @@ def language_file_extension(lang):
         return 'rs'
     elif lang == 'julia':
         return 'jl'
+    elif lang == 'ocaml':
+        return 'ml'
     else:
         return lang
 
@@ -558,10 +589,12 @@ def generate_test_function_call(lang, findex, typ, f, templated):
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${T}, ${N})').substitute(T=typ, N=str(findex)))
     elif lang == "v" and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
         f.write(Tm('    ${T}_sum += add_${T}_n${N}<${T}>(${N})').substitute(T=typ, N=str(findex)))
+    elif lang == "ocaml":
+        f.write(Tm('    let ${T}_sum = ${T}_sum +. (add_${T}_n${N} ${N}.0) in').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
-    if lang not in ["v"]:
+    if lang not in ["v", "ocaml"]:
         f.write(';')
     f.write('\n')
 
@@ -603,6 +636,8 @@ main()
         f.write(Tm('''    return cast(int)${T}_sum;
 }
 ''').substitute(T=types[0]))
+    elif lang == "ocaml":
+        f.write(Tm('    exit (if ${T}_sum = 42.0 then 1 else 0)\n').substitute(T=types[0]))
     else:
         f.write(Tm('''    return ${T}_sum;
 }
@@ -638,6 +673,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     if fheight == 0:
         if lang == 'rust' and templated:
             expr = 'x'          # because Rust is picky
+        elif lang == 'ocaml':
+            expr = 'x +. ' + str(findex) + '.0'
         else:
             expr = 'x + ' + str(findex)
     else:
@@ -651,6 +688,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         elif lang == 'v' and templated:
             call = function_name(typ, findex, fheight - 1) + Tm('<${T}>(x)').substitute(T=typ)
             expr = 'x + ' + call
+        elif lang == 'ocaml':
+            expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + str(findex) + '.0'
         else:
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + str(findex)
 
@@ -689,6 +728,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
             f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
     elif lang == "go":
         f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+    elif lang == "ocaml":
+        f.write(Tm('let ${F} x = ${X}\n').substitute(F=str(fname), X=expr))
     elif lang == "v":
         if templated:
             f.write(Tm('fn ${F}<${T}>(x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=str(findex), H=str(fheight), X=expr))
@@ -716,6 +757,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write(Tm('fn main() {\n').substitute(T=types[0]))
     elif lang == "julia":
         f.write(Tm('function main()${QT}\n').substitute(QT=(('::' + types[0]) if templated else '')))
+    elif lang == "ocaml":
+        f.write('let () = \n')
     else:
         assert False
 
@@ -735,6 +778,8 @@ def generate_linear_test_function_variable(lang, typ, f, templated):
         f.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
     elif lang == "julia":
         f.write(Tm('    ${T}_sum${QT} = 0;\n').substitute(T=typ, QT=(('::' + typ) if templated else '')))
+    elif lang == "ocaml":
+        f.write(Tm('    let ${T}_sum = 0.0 in\n').substitute(T=typ))
     else:
         assert False
 
@@ -800,6 +845,9 @@ def generate_test_program_2(function_count, lang, root_path, templated):
 ''').substitute(T=typ, N=str(findex)))
                 elif lang == "go":
                     f.write(Tm('''func add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
+''').substitute(T=typ, N=str(findex)))
+                elif lang == "ocaml":
+                    f.write(Tm('''let add_${T}_n${N} x = x +. ${N}.0 
 ''').substitute(T=typ, N=str(findex)))
                 elif lang == "v":
                     f.write(Tm('''fn add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
@@ -873,6 +921,8 @@ end;
             f.write(Tm('''
 }
 ''').substitute(T=types[0]))
+        elif lang == 'ocaml':
+            f.write(Tm('''    ${T}_sum''').substitute(T=types[0]))
         elif lang == "julia":
             f.write(Tm('''    return ${T}_sum;
 end
