@@ -180,13 +180,13 @@ def main():
 
     if 'Julia' in args.languages:
         if 'Build' in args.ops:
-            if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
+            if args.function_count * args.function_depth <= 5000:  # only for small workloads, takes to long otherwise
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'OCaml' in args.languages:
         if 'Build' in args.ops:
-            if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
+            if args.function_count * args.function_depth <= 10000:  # only for small workloads, takes to long otherwise
                 results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
             results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
@@ -270,18 +270,18 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     results = list()
     lang = 'D'
     d_flags = ['-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
-    exec_args = '-c' if op == 'Build' else '-o-'
 
     # DMD
     exe = shutil.which('dmd')
     if exe is not None:
+        exec_args = ['-c'] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'dmd')
         print(md_header(opId + ':', 2))
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         if opId not in execs:
             execs[opId] = exe
         dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                               args=[exe, exec_args] + d_flags,
+                               args=[exe] + exec_args + d_flags,
                                run_count=args.run_count,
                                op=op,
                                compiler_version=version)
@@ -291,18 +291,36 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     # LDC
     exe = shutil.which('ldmd2')
     if exe is not None:
+        exec_args = ['-c'] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'ldmd2')
         print(md_header(opId + ':', 2))
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
             execs[opId] = exe
         dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                               args=[exe, exec_args] + d_flags,
+                               args=[exe] + exec_args + d_flags,
                                run_count=args.run_count,
                                op=op,
                                compiler_version=version)
         results.append(row_list(durs, lang, op, exe, version, dur_min, templated))
         durs[opId] = dur_min
+
+    # GDC
+    exe = shutil.which('gdc')
+    if exe is not None:
+        exec_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+        opId = opIdOf(lang, templated, op, 'gdc')
+        print(md_header(opId + ':', 2))
+        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
+        if opId not in execs:
+            execs[opId] = exe
+        # dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        #                        args=[exe] + exec_args + d_flags,
+        #                        run_count=args.run_count,
+        #                        op=op,
+        #                        compiler_version=version)
+        # results.append(row_list(durs, lang, op, exe, version, dur_min, templated))
+        # durs[opId] = dur_min
 
     print()
 
@@ -334,7 +352,6 @@ def benchmark_Go(execs, durs, gpaths, args, op, templated):
 def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
     results = list()
     lang = 'OCaml'
-    exec_args = ['-c']
     if bytecode:
         exe = shutil.which('ocamlc')
     else:
@@ -343,7 +360,7 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                               args=[exe] + exec_args,
+                               args=[exe, '-c'],
                                run_count=args.run_count,
                                op=op,
                                compiler_version=version)
