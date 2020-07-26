@@ -10,6 +10,7 @@ compilers. Supported languages are
 - Rust (using `rustc`),
 - V (using `v`),
 - Zig (using `zig`),
+- OCaml (using `ocamlopt`),
 - Julia (using `julia`) and
 - Java (using `javac`).
 
