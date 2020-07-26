@@ -15,9 +15,12 @@ compilers. Supported languages are
 
 ## How it works
 
-Typically run the benchmark as
+A benchmark is typically performed as
 
-    ./benchmark --function-count=$FUNCTION_COUNT --function-depth=$FUNCTION_DEPTH --run-count=5
+    ./benchmark \
+        --function-count=$FUNCTION_COUNT \
+        --function-depth=$FUNCTION_DEPTH \
+        --run-count=5
 
 for suitable values of `$FUNCTION_COUNT` and `FUNCTION_DEPTH` or simply
 
