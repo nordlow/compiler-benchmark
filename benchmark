@@ -357,8 +357,7 @@ def benchmark_OCaml(execs, spans, gpaths, args, op, templated, bytecode):
 
 def benchmark_V(execs, spans, gpaths, args, op, templated):
     results = list()
-    # V (vlang.io)
-    lang = 'V'
+    lang = 'V'                                   # vlang.io
     exe = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
     if exe is not None:
         execs[lang] = exe
