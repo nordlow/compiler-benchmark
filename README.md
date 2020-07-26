@@ -95,6 +95,10 @@ Julia's JIT-compiler is (currently) very memory hungry. A maximum recommended
 product of `function-count` and `function-depth` for Julia is 5000. Julia will
 therefore be excluded from the benchmark when this maximum is reached.
 
+OCaml's optimizing native compiler `ocamlopt` is very slow for large inputs and
+is therefore disabled when the product of `function-count` and `function-depth`
+exceeds 10000.
+
 ## Sample run output
 
 The output on my Intel® Core™ i7-4710HQ CPU @ 2.50GHz × 8 with 16 GB of memory
