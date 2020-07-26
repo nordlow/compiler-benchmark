@@ -155,11 +155,6 @@ def main():
         if 'Build' in args.ops:
             results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
-    if 'OCaml' in args.languages:
-        if 'Build' in args.ops:
-            results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
-            results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
-
     if 'V' in args.languages:
         if 'Build' in args.ops:
             results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
@@ -188,6 +183,12 @@ def main():
             if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+
+    if 'OCaml' in args.languages:
+        if 'Build' in args.ops:
+            if args.function_count * args.function_depth < 5000:  # only for small workloads, takes to long otherwise
+                results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
+            results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
     print(md_table(TABLE_TITLES, results))
 
