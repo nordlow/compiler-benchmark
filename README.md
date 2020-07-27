@@ -5,7 +5,7 @@ compilers. Supported languages are
 
 - C (using `gcc`),
 - C++ (using `g++`),
-- D (using `dmd` and `ldmd2`),
+- D (using `dmd` `ldmd2`, and `gdc`),
 - Go (using `gccgo`),
 - Rust (using `rustc`),
 - V (using `v`),
