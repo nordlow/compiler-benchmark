@@ -19,6 +19,8 @@ C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown"]
 
 LANG_IX = 0
+TEMPLATED_IX = 1
+OP_IX = 2
 DUR_IX = 5
 SPEEDUP_IX = 6
 
@@ -40,15 +42,20 @@ def fill_in_speedups(results, table_titles, op_ix):
     min_dur = None
 
     for ix, result in enumerate(results):
-        if min_dur is None or min_dur > result[DUR_IX]:
-            min_ix = ix
-            min_dur = result[DUR_IX]
+        if result[OP_IX] == op_ix:
+            if min_dur is None or min_dur > result[DUR_IX]:
+                min_ix = ix
+                min_dur = result[DUR_IX]
+
+    if min_ix is None:
+        return
 
     min_lang = results[min_ix][LANG_IX]
 
-    for result in results:
-        print(result[DUR_IX], " ", min_dur)
-        result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur) + ' [' + min_lang + ']'
+    for ix, result in enumerate(results):
+        if result[OP_IX] == op_ix:
+            print(result[DUR_IX], " ", min_dur)
+            result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur) + ' [' + min_lang + ']'
 
 
 def stringify_speedup(results):
