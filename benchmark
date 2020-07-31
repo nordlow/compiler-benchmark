@@ -82,23 +82,27 @@ def md_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
 
-def md_table(header, rows):
+def md_table(titles, results):
+    fill_in_speedups(results, titles, 'Check')
+    fill_in_speedups(results, titles, 'Build')
+    stringify_speedup(results)
+
     result = ''
 
     result += '| '
-    for col in header:
+    for col in titles:
         result += str(col) + ' | '
     result += '\n'
 
     result += '| '
-    for ix, col in enumerate(range(len(header))):
+    for ix, col in enumerate(range(len(titles))):
         if ix == 2:
             result += '---' + ' | '
         else:
             result += ':---:' + ' | '
     result += '\n'
 
-    for row in rows:
+    for row in results:
         result += '| '
         for col in row:
             result += str(col) + ' | '
@@ -209,9 +213,6 @@ def main():
                 results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
             results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
-    fill_in_speedups(results, TABLE_TITLES, 'Check')
-    fill_in_speedups(results, TABLE_TITLES, 'Build')
-    stringify_speedup(results)
     print(md_table(TABLE_TITLES, results))
 
 
