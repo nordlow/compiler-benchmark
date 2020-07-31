@@ -16,8 +16,11 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia'
 SUPPORTED_OPS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Time vs D"]
+TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown"]
 
+LANG_IX = 0
+DUR_IX = 5
+SPEEDUP_IX = 6
 
 def srcIdOf(lang, templated):
     if lang in TEMPLATED_SUPPORTED_LANGUAGES:
@@ -30,6 +33,21 @@ def opIdOf(lang, templated, op, exec_path=None):
     if lang == 'D' and exec_path is None:
         exec_path = 'dmd'
     return srcIdOf(lang, templated) + '-' + op + '-' + str(exec_path)
+
+
+def fill_in_speedups(results):
+    min_ix = 0
+    min_dur = results[0][DUR_IX]
+    for ix, result in enumerate(results):
+        min_ix = 0
+        if min_dur > result[DUR_IX]:
+            min_ix = ix
+            min_dur = result[DUR_IX]
+    min_lang = results[min_ix][LANG_IX]
+    TABLE_TITLES[SPEEDUP_IX] = 'Slowdown vs ' + min_lang
+    for result in results:
+        result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur)
+        result[DUR_IX] = ms_str(result[DUR_IX])  # convert to string
 
 
 def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
@@ -48,7 +66,7 @@ def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
             op,
             '`' + exec_path + '`',
             exec_version,
-            ms_str(dur),
+            dur,
             speedup_D]
 
 
@@ -191,6 +209,7 @@ def main():
                 results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
             results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
+    fill_in_speedups(results)
     print(md_table(TABLE_TITLES, results))
 
 
