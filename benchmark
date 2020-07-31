@@ -35,18 +35,24 @@ def opIdOf(lang, templated, op, exec_path=None):
     return srcIdOf(lang, templated) + '-' + op + '-' + str(exec_path)
 
 
-def fill_in_speedups(results, table_titles):
-    min_ix = 0
-    min_dur = results[0][DUR_IX]
+def fill_in_speedups(results, table_titles, op_ix):
+    min_ix = None
+    min_dur = None
+
     for ix, result in enumerate(results):
-        min_ix = 0
-        if min_dur > result[DUR_IX]:
+        if min_dur is None or min_dur > result[DUR_IX]:
             min_ix = ix
             min_dur = result[DUR_IX]
+
     min_lang = results[min_ix][LANG_IX]
-    table_titles[SPEEDUP_IX] = 'Slowdown vs ' + min_lang
+
     for result in results:
-        result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur)
+        print(result[DUR_IX], " ", min_dur)
+        result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur) + ' [' + min_lang + ']'
+
+
+def stringify_speedup(results):
+    for result in results:
         result[DUR_IX] = ms_str(result[DUR_IX])  # convert to string
 
 
@@ -203,7 +209,9 @@ def main():
                 results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
             results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
-    fill_in_speedups(results, TABLE_TITLES)
+    fill_in_speedups(results, TABLE_TITLES, 'Check')
+    fill_in_speedups(results, TABLE_TITLES, 'Build')
+    stringify_speedup(results)
     print(md_table(TABLE_TITLES, results))
 
 
