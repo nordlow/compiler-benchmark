@@ -141,8 +141,8 @@ def main():
                         help="Number of runs for each compilation")
 
     args = parser.parse_args()
-    args.languages = args.languages.split(',')  # make it a list
-    args.ops = args.ops.split(',')              # make it a list
+    args.languages = list(map(lambda x: x.capitalize(), args.languages.split(',')))  # into a list
+    args.ops = list(map(lambda x: x.capitalize(), args.ops.split(',')))  # into a list of capitalized names
 
     gpaths = generate_code(args=args)
 
