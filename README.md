@@ -106,6 +106,10 @@ running Ubuntu 20.04 for the sample call
 
     ./benchmark --function-count=200 --function-depth=450 --run-count=10
 
+or using [PyPy](https://www.pypy.org/) 3 (for faster code generation) as
+
+    pypy3 ./benchmark --function-count=200 --function-depth=450 --run-count=10
+
 results in the following table (copied from the output at the end).
 
 | Language | Templated | Oper | Exec Path | Exec Version | Time [s] | Time vs D |
