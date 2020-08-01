@@ -142,7 +142,7 @@ def main():
 
     args = parser.parse_args()
     args.languages = list(map(lambda x: x.capitalize(), args.languages.split(',')))  # into a list
-    args.ops = list(map(lambda x: x.capitalize(), args.ops.split(',')))  # into a list of capitalized names
+    args.operations = list(map(lambda x: x.capitalize(), args.operations.split(',')))  # into a list of capitalized names
 
     gpaths = generate_code(args=args)
 
@@ -152,70 +152,70 @@ def main():
     results = []
 
     if 'D' in args.languages:
-        if 'Check' in args.ops:
+        if 'Check' in args.operations:
             results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False, use_dips=True)
             results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True, use_dips=True)
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
             results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'C' in args.languages:
-        if 'Check' in args.ops:
+        if 'Check' in args.operations:
             results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
-        if 'Check' in args.ops:
+        if 'Check' in args.operations:
             results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
             results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
             results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Go' in args.languages:
-        if 'Check' in args.ops:
+        if 'Check' in args.operations:
             results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'V' in args.languages:
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
         # TODO activate when issue https://github.com/vlang/v/issues/5818 has ben fixed:
         # results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
 
     if 'Zig' in args.languages:
-        if 'Check' in args.ops:
+        if 'Check' in args.operations:
             results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
 
     if 'Rust' in args.languages:
-        if 'Check' in args.ops:
+        if 'Check' in args.operations:
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Java' in args.languages:
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             results += benchmark_Java(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Julia' in args.languages:
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             if args.function_count * args.function_depth <= 5000:  # only for small workloads, takes to long otherwise
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'OCaml' in args.languages:
-        if 'Build' in args.ops:
+        if 'Build' in args.operations:
             if args.function_count * args.function_depth <= 10000:  # only for small workloads, takes to long otherwise
                 results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
             results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
