@@ -16,13 +16,14 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia'
 SUPPORTED_OPS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
-TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown"]
+TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown vs [Best]"]
 
 LANG_IX = 0
 TEMPLATED_IX = 1
 OP_IX = 2
 DUR_IX = 5
 SPEEDUP_IX = 6
+
 
 def srcIdOf(lang, templated):
     if lang in TEMPLATED_SUPPORTED_LANGUAGES:
@@ -54,7 +55,6 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            print(result[DUR_IX], " ", min_dur)
             result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur) + ' [' + min_lang + ']'
 
 
