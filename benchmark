@@ -120,23 +120,23 @@ def md_table(titles, rows):
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--languages", type=str,
+    parser.add_argument("--languages", "--langs", type=str,
                         default=','.join(SUPPORTED_LANGUAGES),
                         help="Languages to benchmark separated by comma")
 
-    parser.add_argument("--ops", type=str,
+    parser.add_argument("--operations", "--ops", type=str,
                         default=','.join(SUPPORTED_OPS),
                         help="Operations to perform separated by comma")
 
-    parser.add_argument("--function-count", type=int,
+    parser.add_argument("--function-count", "--fc", type=int,
                         default=100,
                         help="Number of functions generated and called")
 
-    parser.add_argument("--function-depth", type=int,
+    parser.add_argument("--function-depth", "--fd", type=int,
                         default=100,
                         help="Function call depth")
 
-    parser.add_argument("--run-count", type=int,
+    parser.add_argument("--run-count", "--rc", type=int,
                         default=1,
                         help="Number of runs for each compilation")
 
