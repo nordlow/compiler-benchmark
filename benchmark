@@ -17,8 +17,6 @@ SUPPORTED_OPS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 
-RUST_CHANNELS = ['stable', 'nightly']  # Rust channel to test
-
 TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown vs [Best]"]
 
 LANG_IX = 0
@@ -459,9 +457,19 @@ def set_rustup_channel(channel):
 def benchmark_Rust(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Rust'
-    for channel in RUST_CHANNELS:
-        set_rustup_channel(channel)
+
+    rustup_exe = shutil.which('rustup')
+    if rustup_exe:
+        rustup_channels = ['stable', 'nightly']
+    else:
+        rustup_channels = [None]
+
+    for channel in rustup_channels:
+        if rustup_exe is not None:
+            set_rustup_channel(channel)
+
         exe = shutil.which('rustc')
+
         if exe is not None:
             opId = opIdOf(lang, templated, op, exe)
             print(md_header(opId + ':', 2))
