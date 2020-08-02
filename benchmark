@@ -484,7 +484,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             if op == 'Check':
                 if channel == 'nightly':
-                    check_args = ['-Z', 'no-codegen']
+                    check_args = ['-Zno-codegen']  # TODO why is this not available on stable yet?
                 else:
                     check_args = ['--emit=mir', '-o', '/dev/null']
             dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
