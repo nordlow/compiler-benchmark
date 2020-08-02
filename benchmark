@@ -486,7 +486,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                 if channel == 'nightly':
                     check_args = ['-Z', 'no-codegen']  # TODO why is this not available on stable yet?
                 else:
-                    check_args = ['--emit=mir', '-o', '/dev/null']
+                    check_args = ['--emit=mir', '-o', '/dev/null']  # Used by Flycheck. Twice as slow as `-Z no-codegen`
             dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
                                    args=[exe] if op == 'Build' else [exe] + check_args,  # https://github.com/rust-lang/rfcs/issues/1476
                                    run_count=args.run_count,
