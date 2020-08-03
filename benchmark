@@ -13,7 +13,7 @@ from timeit import default_timer as timer
 
 SUPPORTED_LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
-SUPPORTED_OPS = ['Check', 'Build']
+SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 
@@ -126,7 +126,7 @@ def main():
                         help="Languages to benchmark separated by comma")
 
     parser.add_argument("--operations", "--ops", type=str,
-                        default=','.join(SUPPORTED_OPS),
+                        default=','.join(SUPPORTED_OPERATIONS),
                         help="Operations to perform separated by comma")
 
     parser.add_argument("--function-count", "--fc", type=int,
@@ -142,8 +142,24 @@ def main():
                         help="Number of runs for each compilation")
 
     args = parser.parse_args()
+
     args.languages = list(map(lambda x: x.capitalize(), args.languages.split(',')))  # into a list
+    filtered_languages = []
+    for language in args.languages:
+        if language in SUPPORTED_LANGUAGES:
+            filtered_languages.append(language)
+        else:
+            print('Warning: Ignoring unsupported language ' + language)
+    args.languages = filtered_languages
+
     args.operations = list(map(lambda x: x.capitalize(), args.operations.split(',')))  # into a list of capitalized names
+    filtered_operations = []
+    for operation in args.operations:
+        if operation in SUPPORTED_OPERATIONS:
+            filtered_operations.append(operation)
+        else:
+            print('Warning: Ignoring unsupported operation ' + operation)
+    args.operations = filtered_operations
 
     gpaths = generate_code(args=args)
 
