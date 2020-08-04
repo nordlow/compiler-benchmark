@@ -20,8 +20,8 @@ C_FLAGS = ['-Wall', '-Wextra']
 TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown vs [Best]"]
 
 LANG_IX = 0
-TEMPLATED_IX = 1
-OP_IX = 2
+OP_IX = 1
+TEMPLATED_IX = 2
 DUR_IX = 5
 SPEEDUP_IX = 6
 
@@ -70,8 +70,8 @@ def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
         exec_path = os.path.join("~", exec_path.lstrip(home))
 
     return [lang,
-            'Yes' if templated else 'No',
             op,
+            'Yes' if templated else 'No',
             '`' + exec_path + '`',
             exec_version,
             dur,
