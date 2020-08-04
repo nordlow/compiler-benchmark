@@ -17,7 +17,7 @@ SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 
-TABLE_TITLES = ['Language', 'Templated', 'Oper', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown vs [Best]"]
+TABLE_TITLES = ['Language', 'Oper', 'Templated', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown vs [Best]"]
 
 LANG_IX = 0
 OP_IX = 1
