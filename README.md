@@ -104,69 +104,79 @@ exceeds 10000.
 The output on my Intel® Core™ i7-4710HQ CPU @ 2.50GHz × 8 with 16 GB of memory
 running Ubuntu 20.04 for the sample call
 
-    ./benchmark --function-count=200 --function-depth=450 --run-count=10
+    ./benchmark --function-count=200 --function-depth=450 --run-count=3
 
 or using [PyPy](https://www.pypy.org/) 3 (for faster code generation) as
 
-    pypy3 ./benchmark --function-count=200 --function-depth=450 --run-count=10
+    pypy3 ./benchmark --function-count=200 --function-depth=450 --run-count=3
 
 results in the following table (copied from the output at the end).
 
-| Language | Templated | Oper | Exec Path | Exec Version | Time [s] | Time vs D |
+| Language | Templated | Oper | Exec Path | Exec Version | Time [s] | Slowdown vs [Best] |
 | :---: | :---: | --- | :---: | :---: | :---: | :---: |
-| D | No | Check | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-199-g25a0741cb | 0.645 | N/A |
-| D | No | Check | `~/.local/ldc2-1.22.0-linux-x86_64/bin/ldmd2` | 1.22.0 | 0.714 | N/A |
-| D | Yes | Check | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-199-g25a0741cb | 1.698 | N/A |
-| D | Yes | Check | `~/.local/ldc2-1.22.0-linux-x86_64/bin/ldmd2` | 1.22.0 | 1.894 | N/A |
-| D | No | Build | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-199-g25a0741cb | 1.591 | N/A |
-| D | No | Build | `~/.local/ldc2-1.22.0-linux-x86_64/bin/ldmd2` | 1.22.0 | 16.680 | N/A |
-| D | Yes | Build | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-199-g25a0741cb | 2.583 | N/A |
-| D | Yes | Build | `~/.local/ldc2-1.22.0-linux-x86_64/bin/ldmd2` | 1.22.0 | 17.637 | N/A |
-| C | No | Check | `/usr/bin/gcc-8` | 8.4.0 | 0.716 | 1.1 |
-| C | No | Check | `/usr/bin/gcc-9` | 9.3.0 | 1.020 | 1.6 |
-| C | No | Check | `/usr/bin/gcc-10` | 10 | 1.095 | 1.7 |
-| C | No | Check | `/usr/bin/clang-8` | 8.0.1 | 2.174 | 3.4 |
-| C | No | Check | `/usr/bin/clang-9` | 9.0.1 | 2.353 | 3.7 |
-| C | No | Check | `/usr/bin/clang-10` | 10.0.0 | 2.718 | 4.2 |
-| C | No | Build | `/usr/bin/gcc-8` | 8.4.0 | 32.558 | 20.5 |
-| C | No | Build | `/usr/bin/gcc-9` | 9.3.0 | 38.209 | 24.0 |
-| C | No | Build | `/usr/bin/gcc-10` | 10 | 40.527 | 25.5 |
-| C | No | Build | `/usr/bin/clang-8` | 8.0.1 | 16.224 | 10.2 |
-| C | No | Build | `/usr/bin/clang-9` | 9.0.1 | 16.821 | 10.6 |
-| C | No | Build | `/usr/bin/clang-10` | 10.0.0 | 17.069 | 10.7 |
-| C++ | No | Check | `/usr/bin/g++-8` | 8.4.0 | 1.882 | 2.9 |
-| C++ | No | Check | `/usr/bin/g++-9` | 9.3.0 | 2.993 | 4.6 |
-| C++ | No | Check | `/usr/bin/g++-10` | 10 | 3.217 | 5.0 |
-| C++ | No | Check | `/usr/bin/clang++-8` | 8.0.1 | 3.297 | 5.1 |
-| C++ | No | Check | `/usr/bin/clang++-9` | 9.0.1 | 3.524 | 5.5 |
-| C++ | No | Check | `/usr/bin/clang++-10` | 10.0.0 | 3.689 | 5.7 |
-| C++ | Yes | Check | `/usr/bin/g++-8` | 8.4.0 | 5.880 | 3.5 |
-| C++ | Yes | Check | `/usr/bin/g++-9` | 9.3.0 | 7.501 | 4.4 |
-| C++ | Yes | Check | `/usr/bin/g++-10` | 10 | 7.787 | 4.6 |
-| C++ | Yes | Check | `/usr/bin/clang++-8` | 8.0.1 | 4.997 | 2.9 |
-| C++ | Yes | Check | `/usr/bin/clang++-9` | 9.0.1 | 5.226 | 3.1 |
-| C++ | Yes | Check | `/usr/bin/clang++-10` | 10.0.0 | 5.613 | 3.3 |
-| C++ | No | Build | `/usr/bin/g++-8` | 8.4.0 | 37.041 | 23.3 |
-| C++ | No | Build | `/usr/bin/g++-9` | 9.3.0 | 42.691 | 26.8 |
-| C++ | No | Build | `/usr/bin/g++-10` | 10 | 43.852 | 27.6 |
-| C++ | No | Build | `/usr/bin/clang++-8` | 8.0.1 | 17.529 | 11.0 |
-| C++ | No | Build | `/usr/bin/clang++-9` | 9.0.1 | 16.941 | 10.6 |
-| C++ | No | Build | `/usr/bin/clang++-10` | 10.0.0 | 17.944 | 11.3 |
-| C++ | Yes | Build | `/usr/bin/g++-8` | 8.4.0 | 46.511 | 18.0 |
-| C++ | Yes | Build | `/usr/bin/g++-9` | 9.3.0 | 48.583 | 18.8 |
-| C++ | Yes | Build | `/usr/bin/g++-10` | 10 | 54.327 | 21.0 |
-| C++ | Yes | Build | `/usr/bin/clang++-8` | 8.0.1 | 17.536 | 6.8 |
-| C++ | Yes | Build | `/usr/bin/clang++-9` | 9.0.1 | 18.217 | 7.1 |
-| C++ | Yes | Build | `/usr/bin/clang++-10` | 10.0.0 | 23.706 | 9.2 |
-| Go | No | Check | `/usr/bin/gccgo` | 10 | 2.244 | 3.5 |
-| V | No | Build | `~/ware/vlang/v` | 0.1.28 | 39.465 | 24.8 |
-| Zig | No | Build | `/snap/bin/zig` | 0.6.0+67273cbe7 | 8.375 | 5.3 |
-| Zig | Yes | Build | `/snap/bin/zig` | 0.6.0+67273cbe7 | 10.332 | 4.0 |
-| Rust | No | Check | `~/.cargo/bin/rustc` | 1.46.0-nightly | 22.479 | 34.9 |
-| Rust | Yes | Check | `~/.cargo/bin/rustc` | 1.46.0-nightly | 24.034 | 14.2 |
-| Rust | No | Build | `~/.cargo/bin/rustc` | 1.46.0-nightly | 68.976 | 43.3 |
-| Rust | Yes | Build | `~/.cargo/bin/rustc` | 1.46.0-nightly | 42.522 | 16.5 |
-| Java | No | Build | `/usr/bin/javac` | 1.8.0_171 | 7.854 | 4.9 |
+| D | No | Check | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-320-g61fab1d67 | 0.601 | 1.7 [D] |
+| D | No | Check | `~/.local/ldc2-1.23.0-beta1-linux-x86_64/bin/ldmd2` | 1.23.0-beta1 | 0.698 | 2.0 [D] |
+| D | No | Check | `/usr/bin/gdc` | 10.0.1 | 0.684 | 1.9 [D] |
+| D | Yes | Check | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-320-g61fab1d67 | 1.512 | 4.3 [D] |
+| D | Yes | Check | `~/.local/ldc2-1.23.0-beta1-linux-x86_64/bin/ldmd2` | 1.23.0-beta1 | 1.717 | 4.8 [D] |
+| D | Yes | Check | `/usr/bin/gdc` | 10.0.1 | 0.355 | 1.0 [D] |
+| D | No | Build | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-320-g61fab1d67 | 1.470 | 4.1 [D] |
+| D | No | Build | `~/.local/ldc2-1.23.0-beta1-linux-x86_64/bin/ldmd2` | 1.23.0-beta1 | 16.426 | 46.0 [D] |
+| D | No | Build | `/usr/bin/gdc` | 10.0.1 | 38.032 | 106.6 [D] |
+| D | Yes | Build | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-320-g61fab1d67 | 2.509 | 7.0 [D] |
+| D | Yes | Build | `~/.local/ldc2-1.23.0-beta1-linux-x86_64/bin/ldmd2` | 1.23.0-beta1 | 17.595 | 49.3 [D] |
+| D | Yes | Build | `/usr/bin/gdc` | 10.0.1 | 0.357 | 1.0 [D] |
+| C | No | Check | `/usr/bin/gcc-8` | 8.4.0 | 0.685 | 1.9 [D] |
+| C | No | Check | `/usr/bin/gcc-9` | 9.3.0 | 1.018 | 2.9 [D] |
+| C | No | Check | `/usr/bin/gcc-10` | 10 | 1.075 | 3.0 [D] |
+| C | No | Check | `/usr/bin/clang-8` | 8.0.1 | 2.139 | 6.0 [D] |
+| C | No | Check | `/usr/bin/clang-9` | 9.0.1 | 2.302 | 6.5 [D] |
+| C | No | Check | `/usr/bin/clang-10` | 10.0.0 | 2.448 | 6.9 [D] |
+| C | No | Build | `/usr/bin/gcc-8` | 8.4.0 | 31.561 | 88.4 [D] |
+| C | No | Build | `/usr/bin/gcc-9` | 9.3.0 | 35.744 | 100.2 [D] |
+| C | No | Build | `/usr/bin/gcc-10` | 10 | 36.874 | 103.3 [D] |
+| C | No | Build | `/usr/bin/clang-8` | 8.0.1 | 14.577 | 40.8 [D] |
+| C | No | Build | `/usr/bin/clang-9` | 9.0.1 | 15.063 | 42.2 [D] |
+| C | No | Build | `/usr/bin/clang-10` | 10.0.0 | 15.530 | 43.5 [D] |
+| C++ | No | Check | `/usr/bin/g++-8` | 8.4.0 | 1.748 | 4.9 [D] |
+| C++ | No | Check | `/usr/bin/g++-9` | 9.3.0 | 2.780 | 7.8 [D] |
+| C++ | No | Check | `/usr/bin/g++-10` | 10 | 3.040 | 8.6 [D] |
+| C++ | No | Check | `/usr/bin/clang++-8` | 8.0.1 | 3.014 | 8.5 [D] |
+| C++ | No | Check | `/usr/bin/clang++-9` | 9.0.1 | 3.126 | 8.8 [D] |
+| C++ | No | Check | `/usr/bin/clang++-10` | 10.0.0 | 3.304 | 9.3 [D] |
+| C++ | Yes | Check | `/usr/bin/g++-8` | 8.4.0 | 4.670 | 13.2 [D] |
+| C++ | Yes | Check | `/usr/bin/g++-9` | 9.3.0 | 6.752 | 19.0 [D] |
+| C++ | Yes | Check | `/usr/bin/g++-10` | 10 | 6.985 | 19.7 [D] |
+| C++ | Yes | Check | `/usr/bin/clang++-8` | 8.0.1 | 4.628 | 13.0 [D] |
+| C++ | Yes | Check | `/usr/bin/clang++-9` | 9.0.1 | 4.932 | 13.9 [D] |
+| C++ | Yes | Check | `/usr/bin/clang++-10` | 10.0.0 | 5.060 | 14.3 [D] |
+| C++ | No | Build | `/usr/bin/g++-8` | 8.4.0 | 33.158 | 92.9 [D] |
+| C++ | No | Build | `/usr/bin/g++-9` | 9.3.0 | 38.363 | 107.5 [D] |
+| C++ | No | Build | `/usr/bin/g++-10` | 10 | 39.532 | 110.8 [D] |
+| C++ | No | Build | `/usr/bin/clang++-8` | 8.0.1 | 15.330 | 43.0 [D] |
+| C++ | No | Build | `/usr/bin/clang++-9` | 9.0.1 | 16.179 | 45.3 [D] |
+| C++ | No | Build | `/usr/bin/clang++-10` | 10.0.0 | 16.432 | 46.0 [D] |
+| C++ | Yes | Build | `/usr/bin/g++-8` | 8.4.0 | 39.099 | 109.6 [D] |
+| C++ | Yes | Build | `/usr/bin/g++-9` | 9.3.0 | 45.147 | 126.5 [D] |
+| C++ | Yes | Build | `/usr/bin/g++-10` | 10 | 46.581 | 130.5 [D] |
+| C++ | Yes | Build | `/usr/bin/clang++-8` | 8.0.1 | 16.653 | 46.7 [D] |
+| C++ | Yes | Build | `/usr/bin/clang++-9` | 9.0.1 | 17.621 | 49.4 [D] |
+| C++ | Yes | Build | `/usr/bin/clang++-10` | 10.0.0 | 22.637 | 63.4 [D] |
+| Go | No | Check | `/usr/bin/gccgo` | 10.0.1 | 2.174 | 6.1 [D] |
+| Go | No | Build | `/usr/bin/gccgo` | 10.0.1 | 55.009 | 154.2 [D] |
+| V | No | Build | `~/ware/vlang/v` | 0.1.28 | 16.052 | 45.0 [D] |
+| Zig | No | Check | `/snap/bin/zig` | 0.6.0+6123201f0 | 7.390 | 20.8 [D] |
+| Zig | Yes | Check | `/snap/bin/zig` | 0.6.0+6123201f0 | 9.712 | 27.4 [D] |
+| Rust | No | Check | `~/.cargo/bin/rustc` | 1.45.2 | 36.052 | 101.6 [D] |
+| Rust | No | Check | `~/.cargo/bin/rustc` | 1.47.0-nightly | 21.744 | 61.3 [D] |
+| Rust | Yes | Check | `~/.cargo/bin/rustc` | 1.45.2 | 34.106 | 96.1 [D] |
+| Rust | Yes | Check | `~/.cargo/bin/rustc` | 1.47.0-nightly | 23.413 | 66.0 [D] |
+| Rust | No | Build | `~/.cargo/bin/rustc` | 1.45.2 | 67.687 | 189.7 [D] |
+| Rust | No | Build | `~/.cargo/bin/rustc` | 1.47.0-nightly | 68.045 | 190.7 [D] |
+| Rust | Yes | Build | `~/.cargo/bin/rustc` | 1.45.2 | 43.141 | 120.9 [D] |
+| Rust | Yes | Build | `~/.cargo/bin/rustc` | 1.47.0-nightly | 41.917 | 117.5 [D] |
+| Java | No | Build | `/usr/bin/javac` | 1.8.0_171 | 7.722 | 21.6 [D] |
+| OCaml | No | Build | `/usr/bin/ocamlc` | 4.08.1 | 6.200 | 17.4 [D] |
 
 This is with DMD built with LDC for an additional 15 percent drop in compilation time.
 
