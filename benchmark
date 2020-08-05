@@ -24,8 +24,8 @@ OP_IX = 1
 TEMPLATED_IX = 2
 DUR_IX = 3
 SPEEDUP_IX = 4
-EXEC_VERSION_IX = 5
-EXEC_PATH_IX = 6
+VERSION_IX = 5
+PATH_IX = 6
 
 
 def srcIdOf(lang, templated):
@@ -61,9 +61,9 @@ def fill_in_speedups(results, table_titles, op_ix):
             result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur) + ' [' + min_lang + ']'
 
 
-def stringify_speedup(results):
+def stringify_dur(results):
     for result in results:
-        result[DUR_IX] = ms_str(result[SPEEDUP_IX])  # convert to string
+        result[DUR_IX] = ms_str(result[DUR_IX])  # convert to string
 
 
 def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
@@ -77,7 +77,7 @@ def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
             dur,
             None,
             exec_version,
-            '`' + exec_path + '`',
+            '`' + os.path.basename(exec_path) + '`',
             ]
 
 
@@ -96,7 +96,7 @@ def md_header(text, nr):        # Markdown header
 def md_table(titles, rows):
     fill_in_speedups(rows, titles, 'Check')
     fill_in_speedups(rows, titles, 'Build')
-    stringify_speedup(rows)
+    stringify_dur(rows)
 
     result = ''
 
