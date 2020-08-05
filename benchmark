@@ -17,13 +17,15 @@ SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 
-TABLE_TITLES = ['Language', 'Oper', 'Templated', 'Exec Path', 'Exec Version', "Time [s]", "Slowdown vs [Best]"]
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Time [s]", "Slowdown vs [Best]", 'Exec Version', 'Exec Path']
 
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
-DUR_IX = 5
-SPEEDUP_IX = 6
+DUR_IX = 3
+SPEEDUP_IX = 4
+EXEC_VERSION_IX = 5
+EXEC_PATH_IX = 6
 
 
 def srcIdOf(lang, templated):
@@ -72,10 +74,11 @@ def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
     return [lang,
             op,
             'Yes' if templated else 'No',
-            '`' + exec_path + '`',
-            exec_version,
             dur,
-            None]
+            None,
+            exec_version,
+            '`' + exec_path + '`',
+            ]
 
 
 def ms_str(dur):
