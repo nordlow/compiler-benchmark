@@ -87,10 +87,12 @@ comes to default build (standard compilation) performance.
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
 
-The templated (generic) C++ source checks about 1.5 slower than the non-generic
-one. The corresponding slowdown for generic D (`dmd`) is about 2.5 times. On the
-other hand, the generic Rust version interestingly is processed 2-3 times faster
-than the non-generic version.
+The templated (generic) C++ source checks about 3 times slower than the
+non-generic one using `gcc-8` but only about 2.3 times slower for `gcc-10`. For
+`clang++-10` the slowdown is only about 1.6. The corresponding slowdown for
+generic D (`dmd`) is about 2.5 times. On the other hand, the generic Rust
+version interestingly is processed 2-3 times faster than the non-generic
+version.
 
 Julia's JIT-compiler is (currently) very memory hungry. A maximum recommended
 product of `function-count` and `function-depth` for Julia is 5000. Julia will
