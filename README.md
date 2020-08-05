@@ -112,7 +112,7 @@ or using [PyPy](https://www.pypy.org/) 3 (for faster code generation) as
 
 results in the following table (copied from the output at the end).
 
-| Language | Oper | Templated | Exec Path | Exec Version | Time [s] | Slowdown vs [Best] |
+| Lang-uage | Oper-ation | Temp-lated | Exec Path | Exec Version | Time [s] | Slowdown vs [Best] |
 | :---: | :---: | --- | :---: | :---: | :---: | :---: |
 | D | Check | No | `~/.local/dlang/linux/bin64/dmd` | v2.093.0-344-ga1cb3f44c | 0.608 | 1.0 [D] |
 | D | Check | No | `~/.local/ldc2-1.23.0-beta1-linux-x86_64/bin/ldmd2` | 1.23.0-beta1 | 0.693 | 1.1 [D] |
