@@ -17,7 +17,7 @@ SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Time [s]", "Slowdown vs [Best]", 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Time [s]", "Slowdown vs [Best]", 'Version', 'Exec']
 
 LANG_IX = 0
 OP_IX = 1
@@ -63,7 +63,7 @@ def fill_in_speedups(results, table_titles, op_ix):
 
 def stringify_speedup(results):
     for result in results:
-        result[DUR_IX] = ms_str(result[DUR_IX])  # convert to string
+        result[DUR_IX] = ms_str(result[SPEEDUP_IX])  # convert to string
 
 
 def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
