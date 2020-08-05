@@ -87,8 +87,9 @@ comes to default build (standard compilation) performance.
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
 
-The generic C++ and D (`dmd`) versions compiles about 1.5 to 2 times slower
-whereas the generic Rust version interestingly is processed 2-3 times faster
+The templated (generic) C++ source checks about 1.5 slower than the non-generic
+one. The corresponding slowdown for generic D (`dmd`) is about 2.5 times. On the
+other hand, the generic Rust version interestingly is processed 2-3 times faster
 than the non-generic version.
 
 Julia's JIT-compiler is (currently) very memory hungry. A maximum recommended
