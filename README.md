@@ -70,7 +70,10 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 }
 ```
 
-The numerical constants are randomize using a new seed upon every call.
+The numerical constants are randomize using a new seed upon every call. This
+makes it impossible for any compiler to utilize any caching mechanism upon
+successive calls with same flags that affect the source generation. The purpose
+is to make the comparison between compilers more fair.
 
 ## Generics
 
