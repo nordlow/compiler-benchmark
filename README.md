@@ -70,6 +70,8 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 }
 ```
 
+The numerical constants are randomize using a new seed upon every call.
+
 ## Generics
 
 For each languages `$LANG` that supports generics an additional templated source
