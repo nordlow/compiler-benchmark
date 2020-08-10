@@ -51,14 +51,14 @@ To understand how the code generation works we can, for instance, do
 This will, for the C language case, generate a file `generated/c/linear.c` containing
 
 ```C
-long add_long_n0_h0(long x) { return x + 0; }
-long add_long_n0(long x) { return x + add_long_n0_h0(x) + 0; }
+long add_long_n0_h0(long x) { return x + 15440; }
+long add_long_n0(long x) { return x + add_long_n0_h0(x) + 95485; }
 
-long add_long_n1_h0(long x) { return x + 1; }
-long add_long_n1(long x) { return x + add_long_n1_h0(x) + 1; }
+long add_long_n1_h0(long x) { return x + 37523; }
+long add_long_n1(long x) { return x + add_long_n1_h0(x) + 92492; }
 
-long add_long_n2_h0(long x) { return x + 2; }
-long add_long_n2(long x) { return x + add_long_n2_h0(x) + 2; }
+long add_long_n2_h0(long x) { return x + 39239; }
+long add_long_n2(long x) { return x + add_long_n2_h0(x) + 12248; }
 
 
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {
