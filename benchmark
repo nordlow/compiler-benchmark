@@ -7,6 +7,8 @@ import os
 import shutil
 import time
 from pprint import pprint
+import random
+from datetime import datetime
 
 from string import Template as Tm
 from timeit import default_timer as timer
@@ -756,13 +758,22 @@ def function_name(typ, findex, fheight):
 
 def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                       templated):
+    randomize = True
+
+    random.seed(datetime.now())
+
+    if randomize:
+        nconst = str(random.randint(0, 100000))
+    else:
+        nconst = str(findex)
+
     if fheight == 0:
         if lang == 'rust' and templated:
             expr = 'x'          # because Rust is picky
         elif lang == 'ocaml':
-            expr = 'x +. ' + str(findex) + '.0'
+            expr = 'x +. ' + nconst + '.0'
         else:
-            expr = 'x + ' + str(findex)
+            expr = 'x + ' + nconst
     else:
         if lang == 'zig' and templated:
             xtarg = typ + ', '  # Zig needs explicit template parameter
@@ -775,9 +786,9 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
             call = function_name(typ, findex, fheight - 1) + Tm('<${T}>(x)').substitute(T=typ)
             expr = 'x + ' + call
         elif lang == 'ocaml':
-            expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + str(findex) + '.0'
+            expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + nconst + '.0'
         else:
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + str(findex)
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + nconst
 
     if fheight == args.function_depth - 1:
         fname = function_name(typ, findex, fheight=None)
@@ -785,46 +796,46 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         fname = function_name(typ, findex, fheight)
 
     if lang in ["c"]:
-        f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), X=expr))
+        f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ["java"]:
-        f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang in ["c++"]:
         f.write(Tm('${M}${T} ${F}(${T} x) { return ${X}; }\n')
-                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight),
+                .substitute(T=typ, F=str(fname), N=nconst, H=str(fheight),
                             M='template<typename T=int> ' if templated else '',
                             X=expr))
         # template<typename T1, typename T2 = int> class A;
     if lang in ["d"]:
         # See: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
         f.write(Tm('${T} ${F}${M}(${T} x) @safe pure nothrow @nogc { return ${X}; }\n')
-                .substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), M='(T=void)' if templated else '', X=expr))
+                .substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), M='(T=void)' if templated else '', X=expr))
     elif lang == "rust":
         if templated:
             f.write(Tm('fn ${F}<${T} : ${R}>(x: ${T}) -> ${T} { ${X} }\n').substitute(T='T',
                                                                                       R='Copy + Add<Output = T>',
                                                                                       F=str(fname),
-                                                                                      N=str(findex),
+                                                                                      N=nconst,
                                                                                       H=str(fheight),
                                                                                       X=expr))
         else:
-            f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+            f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == "zig":
         if templated:
-            f.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+            f.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
         else:
-            f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+            f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == "go":
-        f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+        f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == "ocaml":
         f.write(Tm('let ${F} x = ${X}\n').substitute(F=str(fname), X=expr))
     elif lang == "v":
         if templated:
-            f.write(Tm('fn ${F}<${T}>(x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=str(findex), H=str(fheight), X=expr))
+            f.write(Tm('fn ${F}<${T}>(x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
         else:
-            f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=str(findex), H=str(fheight), X=expr))
+            f.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == "julia":
         f.write(Tm('function ${F}(x${QT})${QT}\n    return ${X}\nend;\n').substitute(QT=(('::' + typ) if templated else ''),
-                                                                                     F=str(fname), N=str(findex), H=str(fheight), X=expr))
+                                                                                     F=str(fname), N=nconst, H=str(fheight), X=expr))
 
 
 def generate_test_main_header(lang, types, f, templated):
