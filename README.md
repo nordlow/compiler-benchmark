@@ -189,7 +189,7 @@ This is with DMD built with LDC for an additional 15 percent drop in compilation
 ## TODO
 
 - Put check and build time in separate columns on same line
-- Measure link and run-time
+- Measure link and run-time and add to columns
 - Track memory usage of compilations using ideas at [Subprocess memory usage in python](https://stackoverflow.com/questions/13607391/subprocess-memory-usage-in-python/13607392).
 - Parallelize calls to checkers and builders.
 - Add language Fortran.
