@@ -13,7 +13,7 @@ from datetime import datetime
 from string import Template as Tm
 from timeit import default_timer as timer
 
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'C#', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
@@ -227,6 +227,10 @@ def main():
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
+    if 'C#' in args.languages:
+        if 'Build' in args.operations:
+            results += benchmark_Mono(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+
     if 'Java' in args.languages:
         if 'Build' in args.operations:
             results += benchmark_Java(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
@@ -378,6 +382,28 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
 
     print()
 
+    return results
+
+
+def benchmark_Mono(execs, durs, gpaths, args, op, templated):
+    results = list()
+    lang = 'C#'
+    exe = shutil.which('mcs')
+    exe_args = [] if op == 'Build' else ['']  # TODO: is checker supported?
+    if exe is not None:
+        execs[lang] = exe
+        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
+        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                               args=[exe] + exe_args,
+                               run_count=args.run_count,
+                               op=op,
+                               compiler_version=version)
+        opId = opIdOf(lang, templated, op, exe)
+        print(md_header(opId + ':', 2))
+        durs[opId] = dur_min
+        results.append(row_list(durs, lang, op, exe, version, dur_min, templated))
+        print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+        print()
     return results
 
 
@@ -608,7 +634,7 @@ def compile_file(path, args, run_count=1,
 
 
 def long_types_of_lang(lang):
-    if lang in ['c', 'c++', 'java']:
+    if lang in ['c', 'c++', 'c#', 'java']:
         return ['long']
     elif lang in ['d']:
         return ['long']
@@ -631,6 +657,8 @@ def language_file_extension(lang):
         return 'jl'
     elif lang == 'ocaml':
         return 'ml'
+    elif lang == 'c#':
+        return 'cs'
     else:
         return lang
 
@@ -670,7 +698,7 @@ def generate_test_program(lang,
 
 
 def generate_test_function_call(lang, findex, typ, f, templated):
-    if lang in ["java"]:
+    if lang in ("c#", "java"):
         f.write('    ')
 
     if lang == "zig" and templated:  # Zig needs explicit template type
@@ -701,6 +729,9 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
             f.write('use std::ops::Add;\n')
 
     # special class wrapping
+    if lang == "c#":
+        f.write('using System;\n\n')
+        f.write('public class HelloWorld {\n')
     if lang == "java":
         f.write('class HelloWorld {\n')
 
@@ -710,6 +741,8 @@ def generate_test_language_specific_postfix(lang, types, f):
         f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
     elif lang == "v":
         f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
+    elif lang == "c#":
+        f.write(Tm('        Environment.Exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
     elif lang == "java":
         f.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
     elif lang == "zig":
@@ -731,7 +764,7 @@ main()
 }
 ''').substitute(T=types[0]))
 
-    if lang == "java":
+    if lang in ("c#", "java"):
         f.write('}\n')            # one extra closing brace for class
 
 
@@ -797,6 +830,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
 
     if lang in ["c"]:
         f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
+    if lang in ["c#"]:
+        f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang in ["java"]:
         f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang in ["c++"]:
@@ -841,6 +876,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
 def generate_test_main_header(lang, types, f, templated):
     if lang in ["c", "c++"]:
         f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
+    elif lang == "c#":
+        f.write('    public static void Main(string[] args) {\n')
     elif lang == "java":
         f.write('    public static void main(String args[]) {\n')
     elif lang == "d":
@@ -864,6 +901,8 @@ def generate_test_main_header(lang, types, f, templated):
 def generate_linear_test_function_variable(lang, typ, f, templated):
     if lang in ["c", "c++", "d"]:
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
+    elif lang in ["c#"]:
+        f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang in ["java"]:
         f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang == "rust":
