@@ -187,6 +187,8 @@ This is with DMD built with LDC for an additional 15 percent drop in compilation
 
 ## TODO
 
+- Add language C# via `mono`
+- Measure link and run-time
 - Track memory usage of compilations using ideas at [Subprocess memory usage in python](https://stackoverflow.com/questions/13607391/subprocess-memory-usage-in-python/13607392).
 - Parallelize calls to checkers and builders.
 - Add language Fortran.
