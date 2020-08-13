@@ -19,15 +19,16 @@ SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_FLAGS = ['-Wall', '-Wextra']
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Time [s]", "Slowdown vs [Best]", 'Version', 'Exec']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Check [s]", "Build [s]", "Slowdown vs [Best]", 'Version', 'Exec']
 
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
-DUR_IX = 3
-SPEEDUP_IX = 4
-VERSION_IX = 5
-PATH_IX = 6
+CHECK_DUR_IX = 3
+BUILD_DUR_IX = 4
+SPEEDUP_IX = 5
+VERSION_IX = 6
+PATH_IX = 7
 
 
 def srcIdOf(lang, templated):
@@ -49,9 +50,9 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            if min_dur is None or min_dur > result[DUR_IX]:
+            if min_dur is None or min_dur > result[CHECK_DUR_IX]:
                 min_ix = ix
-                min_dur = result[DUR_IX]
+                min_dur = result[CHECK_DUR_IX]
 
     if min_ix is None:
         return
@@ -60,12 +61,13 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            result[SPEEDUP_IX] = factor_str(result[DUR_IX] / min_dur) + ' [' + min_lang + ']'
+            result[SPEEDUP_IX] = factor_str(result[CHECK_DUR_IX] / min_dur) + ' [' + min_lang + ']'
 
 
 def stringify_dur(results):
     for result in results:
-        result[DUR_IX] = ms_str(result[DUR_IX])  # convert to string
+        result[CHECK_DUR_IX] = ms_str(result[CHECK_DUR_IX])  # convert to string
+        result[BUILD_DUR_IX] = ms_str(result[BUILD_DUR_IX])  # convert to string
 
 
 def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
@@ -76,7 +78,8 @@ def row_list(durs, lang, op, exec_path, exec_version, dur, templated):
     return [lang,
             op,
             'Yes' if templated else 'No',
-            dur,
+            dur if (dur is not None) else 'N/A',  # TODO check-dur
+            dur if (dur is not None) else 'N/A',  # TODO build-dur
             None,
             exec_version,
             '`' + os.path.basename(exec_path) + '`',
@@ -183,12 +186,8 @@ def main():
             results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'C' in args.languages:
-        if 'Check' in args.operations:
-            results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-        if 'Build' in args.operations:
-            results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+        results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, ops=args.operations, templated=False)
+        results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, ops=args.operations, templated=False)
 
     if 'C++' in args.languages:
         if 'Check' in args.operations:
@@ -267,11 +266,10 @@ def generate_code(args):
     return gpaths
 
 
-def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
+def benchmark_GCC(lang, execs, durs, gpaths, args, ops, templated):
     results = list()
     print(md_header('GCC:', 1))
     GCC_VERSIONS = range(5, 15)
-    exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
             exe = shutil.which('gcc-' + str(gcc_version))
@@ -281,20 +279,24 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
             assert(False)
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
-            dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                   args=[exe] + C_FLAGS + exe_args,
-                                   run_count=args.run_count,
-                                   op=op,
-                                   compiler_version=version)
-            opId = opIdOf(lang, templated, op, exe)
-            durs[opId] = dur_min
-            results.append(row_list(durs, lang, op, exe, version, dur_min, templated))
-            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            dur_by_op = {}
+            for op in ops:
+                exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+                dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+                                       args=[exe] + C_FLAGS + exe_args,
+                                       run_count=args.run_count,
+                                       op=op,
+                                       compiler_version=version)
+                opId = opIdOf(lang, templated, op, exe)
+                durs[opId] = dur_min
+                dur_by_op[op] = dur_min
+                print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            results.append(row_list(durs, lang, ops, exe, version, dur_by_op, templated))
     print()
     return results
 
 
-def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
+def benchmark_Clang(lang, execs, durs, gpaths, args, ops, templated):
     results = list()
     C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 1))
