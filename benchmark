@@ -17,7 +17,7 @@ SUPPORTED_LANGUAGES = ['C', 'C++', 'C#', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
-C_FLAGS = ['-Wall', '-Wextra']
+C_WARN_FLAGS = ['-Wall', '-Wextra']
 
 TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Time [s/fn]", "Slowdown vs [Best]", 'Version', 'Exec']
 
@@ -282,7 +282,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
             dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
-                                   exe_and_args=[exe] + C_FLAGS + exe_args,
+                                   exe_and_args=[exe] + C_WARN_FLAGS + exe_args,
                                    args=args,
                                    op=op,
                                    compiler_version=version)
@@ -296,7 +296,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
 
 def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
     results = list()
-    C_CLANG_FLAGS = C_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
+    C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     print(md_header('Clang:', 1))
     CLANG_VERSIONS = range(5, 15)
     exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
