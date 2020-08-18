@@ -326,7 +326,7 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
 def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     results = list()
     lang = 'D'
-    d_flags = ['-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
+    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
     # DMD
     exe = shutil.which('dmd')
