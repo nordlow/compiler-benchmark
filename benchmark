@@ -338,7 +338,7 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
 def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     results = list()
     lang = 'D'
-    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
+    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000', '-betterC'] if use_dips else []  # use DIPs
 
     paths = [gpaths[srcIdOf(lang, templated)], create_D_object_file()]
 
@@ -708,7 +708,7 @@ def generate_test_program(lang,
     print("- Generating {} took {:1.3f} seconds ({})".format(path, dur, lang))
     # print("Generated {} source file: {}".format(llang.upper(), path))
 
-    return path  # "-betterC"
+    return path
 
 
 def generate_test_function_call(lang, findex, typ, f, templated):
@@ -1095,7 +1095,7 @@ main()
 
     # print("Generated {} source file: {}".format(lang.upper(), path))
 
-    return path  # "-betterC"
+    return path
 
 
 def print_speedup(durs, from_opId, to_opId):
