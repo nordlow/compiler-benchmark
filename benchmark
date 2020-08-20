@@ -2,8 +2,8 @@
 
 import argparse
 import subprocess as sp
-import os.path
 import os
+import os.path
 import shutil
 import time
 from pprint import pprint
@@ -18,6 +18,7 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia'
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'linear'
 C_WARN_FLAGS = ['-Wall', '-Wextra']
+ROOT_PATH = 'generated'
 
 TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', "Time [s/fn]", "Slowdown vs [Best]", 'Version', 'Exec']
 
@@ -28,6 +29,17 @@ DUR_IX = 3
 SPEEDUP_IX = 4
 VERSION_IX = 5
 PATH_IX = 6
+
+
+def touchFile(path):
+    with open(path, 'a'):
+        os.utime(path, None)
+
+
+def create_D_object_file():
+    path = os.path.join(ROOT_PATH, 'd', 'object.d')
+    touchFile(path=path)
+    return path
 
 
 def srcIdOf(lang, templated):
@@ -281,7 +293,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
             assert(False)
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
-            dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+            dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                    exe_and_args=[exe] + C_WARN_FLAGS + exe_args,
                                    args=args,
                                    op=op,
@@ -309,7 +321,7 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
             assert(False)
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
-            dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+            dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                    exe_and_args=[exe] + C_CLANG_FLAGS + exe_args,
                                    args=args,
                                    op=op,
@@ -328,6 +340,8 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
+    paths = [gpaths[srcIdOf(lang, templated)], create_D_object_file()]
+
     # DMD
     exe = shutil.which('dmd')
     if exe is not None:
@@ -337,7 +351,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         if opId not in execs:
             execs[opId] = exe
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=paths,
                                exe_and_args=[exe] + exe_args + d_flags,
                                args=args,
                                op=op,
@@ -354,7 +368,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
             execs[opId] = exe
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=paths,
                                exe_and_args=[exe] + exe_args + d_flags,
                                args=args,
                                op=op,
@@ -372,7 +386,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             if opId not in execs:
                 execs[opId] = exe
-            dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+            dur_min = compile_file(paths=paths,
                                    exe_and_args=[exe] + exe_args,
                                    args=args,
                                    op=op,
@@ -393,7 +407,7 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe] + exe_args,
                                args=args,
                                op=op,
@@ -415,7 +429,7 @@ def benchmark_Go(execs, durs, gpaths, args, op, templated):
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe] + exe_args,
                                args=args,
                                op=op,
@@ -439,7 +453,7 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, '-c'],
                                args=args,
                                op=op,
@@ -461,7 +475,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
         vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, '-cc', 'clang', '-backend', vlang_backends[2]],
                                args=args,
                                op=op,
@@ -482,7 +496,7 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, 'build-obj', '-fno-emit-bin'],
                                args=args,  # no syntax flag currently so compile to object file instead
                                op=op,
@@ -536,7 +550,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                     check_args = ['-Z', 'no-codegen']  # TODO why is this not available on stable yet?
                 else:
                     check_args = ['--emit=mir', '-o', '/dev/null']  # Used by Flycheck. Twice as slow as `-Z no-codegen`
-            dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+            dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                    exe_and_args=[exe] if op == 'Build' else [exe] + check_args,  # https://github.com/rust-lang/rfcs/issues/1476
                                    args=args,
                                    op=op,
@@ -559,7 +573,7 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         print(md_header(opId + ':', 2))
         execs[opId] = exe
         version = sp.run([exe, '-version'], stderr=sp.PIPE).stderr.decode('utf-8').split()[1]
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, '-Xdiags:verbose'],
                                args=args,
                                op=op)
@@ -581,7 +595,7 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
         print(md_header(opId + ':', 2))
         execs[opId] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
-        dur_min = compile_file(path=gpaths[srcIdOf(lang, templated)],
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe],
                                args=args,
                                op=op)
@@ -594,7 +608,7 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
     return results
 
 
-def compile_file(path, exe_and_args, args,
+def compile_file(paths, exe_and_args, args,
                  op='Check',
                  compiler_version=None):
 
@@ -607,7 +621,7 @@ def compile_file(path, exe_and_args, args,
     for _ in range(0, args.run_count):
         start = timer()
         # print(exe_and_args + [path])
-        with sp.Popen(exe_and_args + [path],
+        with sp.Popen(exe_and_args + paths,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as proc:
             results = proc.communicate()
@@ -665,15 +679,15 @@ def language_file_extension(lang):
 
 def generate_test_program(lang,
                           args,
-                          templated,
-                          root_path='generated'):
+                          templated):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()        # lowered language
     types = long_types_of_lang(llang)
     ext = language_file_extension(llang)
-    dir_path = os.path.join(root_path, llang)
+    dir_path = os.path.join(ROOT_PATH, llang)
     os.makedirs(dir_path, exist_ok=True)
+
     path = os.path.join(dir_path, program_name + ('_t' if templated else '') + '.' + ext)
 
     start = timer()
@@ -881,7 +895,7 @@ def generate_test_main_header(lang, types, f, templated):
     elif lang == "java":
         f.write('    public static void main(String args[]) {\n')
     elif lang == "d":
-        f.write('int main(string[] args) {\n')
+        f.write('int main() {\n')
     elif lang == "rust":
         f.write(Tm('fn main() {\n').substitute(T=types[0]))
     elif lang == "zig":
@@ -921,13 +935,13 @@ def generate_linear_test_function_variable(lang, typ, f, templated):
         assert False
 
 
-def generate_test_program_2(function_count, lang, root_path, templated):
+def generate_test_program_2(function_count, lang, templated):
     program_name = "sample2"
 
     lang = lang.lower()
     types = long_types_of_lang(lang)
     ext = language_file_extension(lang)
-    dir_path = os.path.join(root_path, lang)
+    dir_path = os.path.join(ROOT_PATH, lang)
     os.makedirs(dir_path, exist_ok=True)
     path = os.path.join(dir_path, program_name + "." + ext)
 
