@@ -11,6 +11,9 @@ sudo apt install clangxx-10
 # C#
 sudo apt install mono-mcs
 
+# D dmd
+./install-dmd.sh
+
 # Go
 sudo apt install gccgo-10
 
