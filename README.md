@@ -20,6 +20,8 @@ compilers. Supported languages are:
 - C# (using `mcs`), and
 - Java (using `javac`).
 
+A subset of these can be install via the script `./install-compilers.sh` in this repo.
+
 ## How it works
 
 A benchmark is typically performed as
