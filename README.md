@@ -1,18 +1,23 @@
 # compiler-benchmark
 
 Benchmarks compilation speeds of different combinations of languages and
-compilers. Supported languages are
+compilers. Supported languages are:
+
+## Languages with Natives Compilers
 
 - C (using `gcc`),
 - C++ (using `g++`),
-- C# (using `mcs`),
 - D (using `dmd` `ldmd2`, and `gdc`),
 - Go (using `go` or `gccgo`),
 - Rust (using `rustc`),
 - V (using `v`),
-- Zig (using `zig`),
+- Zig (using `zig`), and
+- Julia (using `julia`).
+
+## Languages with Bytecode Compilers:
+
 - OCaml (using `ocamlopt`),
-- Julia (using `julia`) and
+- C# (using `mcs`), and
 - Java (using `javac`).
 
 ## How it works
