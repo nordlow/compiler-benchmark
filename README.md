@@ -21,7 +21,7 @@ compilers. Supported languages are:
 - Java (using `javac`).
 
 A subset of these can be installed on Ubuntu (tested on 20.04) via the script
-`./install-compilers.sh` in this repo.
+`./install-compilers-on-ubuntu-20.04.sh` in this repo.
 
 ## How it works
 
