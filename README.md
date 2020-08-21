@@ -7,7 +7,7 @@ compilers. Supported languages are
 - C++ (using `g++`),
 - C# (using `mcs`),
 - D (using `dmd` `ldmd2`, and `gdc`),
-- Go (using `gccgo`),
+- Go (using `go` or `gccgo`),
 - Rust (using `rustc`),
 - V (using `v`),
 - Zig (using `zig`),
