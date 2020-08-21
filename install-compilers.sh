@@ -18,3 +18,6 @@ sudo apt install golang-go
 
 # Julia
 sudo apt install julia
+
+# C#
+sudo apt install mono-mcs
