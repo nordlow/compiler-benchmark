@@ -195,3 +195,7 @@ This is with DMD built with LDC for an additional 15 percent drop in compilation
 - Parallelize calls to checkers and builders.
 - Add language Fortran.
 - Add language Ada and do syntax checking using `-gnats`. See: https://gcc.gnu.org/onlinedocs/gcc-4.7.4/gnat_ugn_unw/Using-gcc-for-Syntax-Checking.html
+
+## References
+
+- [Go compilation times compared to C++, D, Rust, Pascal (cross-posted)](https://www.reddit.com/r/golang/comments/55k7n4/go_compilation_times_compared_to_c_d_rust_pascal/)
