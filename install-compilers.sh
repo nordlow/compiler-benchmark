@@ -8,6 +8,9 @@ sudo apt install clang-10
 sudo apt install g++-10
 sudo apt install clangxx-10
 
+# C#
+sudo apt install mono-mcs
+
 # Go
 sudo apt install gccgo-10
 
@@ -18,6 +21,3 @@ sudo apt install golang-go
 
 # Julia
 sudo apt install julia
-
-# C#
-sudo apt install mono-mcs
