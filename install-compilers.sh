@@ -14,13 +14,13 @@ sudo apt install mono-mcs
 # D dmd
 ./install-dmd.sh
 
-# Go
+# Go: `gccgo`
 sudo apt install gccgo-10
 
-# Go
+# Go: `go` `gotype`
 sudo add-apt-repository ppa:longsleep/golang-backports
 sudo apt update
-sudo apt install golang-go
+sudo apt install golang-go golang-golang-x-tools
 
 # Julia
 sudo apt install julia
