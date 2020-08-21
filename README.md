@@ -20,7 +20,8 @@ compilers. Supported languages are:
 - C# (using `mcs`), and
 - Java (using `javac`).
 
-A subset of these can be install via the script `./install-compilers.sh` in this repo.
+A subset of these can be installed on Ubuntu (tested on 20.04) via the script
+`./install-compilers.sh` in this repo.
 
 ## How it works
 
