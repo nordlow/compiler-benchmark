@@ -7,6 +7,7 @@ compilers. Supported languages are:
 
 - C (using `gcc`),
 - C++ (using `g++`),
+- Ada (using `gnatgcc`),
 - D (using `dmd` `ldmd2`, and `gdc`),
 - Go (using `go` or `gccgo`),
 - Rust (using `rustc`),
