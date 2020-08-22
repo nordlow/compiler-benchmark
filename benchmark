@@ -215,11 +215,11 @@ def main():
             results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
             results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
-    # if 'Ada' in args.languages:
+    if 'Ada' in args.languages:
         # if 'Check' in args.operations:
         #     results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-        # if 'Build' in args.operations:
-        #     results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+        if 'Build' in args.operations:
+            results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Go' in args.languages:
         if 'Check' in args.operations:
@@ -324,7 +324,8 @@ def benchmark_Ada_GCC(lang, execs, durs, gpaths, args, op, templated):
                                    exe_and_args=[exe] + exe_args,
                                    args=args,
                                    op=op,
-                                   compiler_version=version)
+                                   compiler_version=version,
+                                   lang=lang)
             opId = opIdOf(lang, templated, op, exe)
             durs[opId] = dur_min
             results.append(row_list(durs, lang, op, exe, version, dur_min, templated))
@@ -673,7 +674,8 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
 
 def compile_file(paths, exe_and_args, args,
                  op='Check',
-                 compiler_version=None):
+                 compiler_version=None,
+                 lang=None):
 
     compiler = shutil.which(exe_and_args[0])
     if compiler is None:
@@ -693,7 +695,7 @@ def compile_file(paths, exe_and_args, args,
             durs.append(dur)
             if results[0]:
                 print('stdout:', results[0])
-            if results[1]:
+            if results[1] and lang != 'Ada':
                 print('stderr:', results[1])
 
     dur_min = min(durs)
