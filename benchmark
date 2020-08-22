@@ -16,7 +16,7 @@ from timeit import default_timer as timer
 SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Java', 'D', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Rust', 'Zig', 'V', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
-DEFAULT_PROGRAM_NAME = 'linear'
+DEFAULT_PROGRAM_NAME = 'main'
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 ROOT_PATH = 'generated'
 GCC_VERSIONS = range(5, 15)
@@ -761,17 +761,17 @@ def generate_test_program(lang,
     with open(path, 'w') as f:
         generate_test_language_specific_prefix(llang, program_name, f, templated=templated)
 
-        generate_linear_test_function_definition_set(llang, types, args, f,
-                                                     templated=templated)
-
-        if llang == "ada":
-            f.write('begin\n')
-            f.write('end Benchmark;\n')
-
-        generate_test_main_header(llang, types, f, templated)
+        if llang == 'ada':
+            generate_test_main_header(llang, types, f, templated)
+            generate_main_test_function_definition_set(llang, types, args, f,
+                                                         templated=templated)
+        else:
+            generate_main_test_function_definition_set(llang, types, args, f,
+                                                         templated=templated)
+            generate_test_main_header(llang, types, f, templated)
 
         for typ in types:
-            generate_linear_test_function_variable(llang, typ, f, templated=templated)
+            generate_main_test_function_variable(llang, typ, f, templated=templated)
 
         generate_test_main_middle(llang, types, f, templated)
 
@@ -828,7 +828,8 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
     elif lang == "java":
         f.write('class HelloWorld {\n')
     elif lang == "ada":
-        f.write('procedure Benchmark is\n')
+        f.write('with System;\n\n')
+        f.write('with GNAT.OS_Lib;\n\n')
 
 
 def generate_test_language_specific_postfix(lang, types, f):
@@ -853,7 +854,7 @@ main()
 }
 ''').substitute(T=types[0]))
     elif lang == "ada":
-        f.write(Tm('''   Exit(${T}_sum);
+        f.write(Tm('''   GNAT.OS_Lib.OS_Exit(if ${T}_sum > 100 then 1 else 0);
 end Main;
 ''').substitute(T=types[0]))
     elif lang == "ocaml":
@@ -867,7 +868,7 @@ end Main;
         f.write('}\n')            # one extra closing brace for class
 
 
-def generate_linear_test_function_definition_set(lang, types, args, f,
+def generate_main_test_function_definition_set(lang, types, args, f,
                                                  templated):
     for typ in types:
         for findex in range(0, args.function_count):
@@ -1007,7 +1008,7 @@ def generate_test_main_middle(lang, types, f, templated):
         f.write('begin\n')
 
 
-def generate_linear_test_function_variable(lang, typ, f, templated):
+def generate_main_test_function_variable(lang, typ, f, templated):
     if lang in ["c", "c++", "d"]:
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang in ["ada"]:
