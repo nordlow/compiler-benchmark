@@ -763,6 +763,11 @@ def generate_test_program(lang,
 
         generate_linear_test_function_definition_set(llang, types, args, f,
                                                      templated=templated)
+
+        if llang == "ada":
+            f.write('begin\n')
+            f.write('end Benchmark;\n')
+
         generate_test_main_header(llang, types, f, templated)
 
         for typ in types:
@@ -811,17 +816,19 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
     #     f.write('import os\n\n')
 
     # special modules
-    if lang == "rust":
+    elif lang == "rust":
         f.write('use std::process::exit;\n')
         if templated:
             f.write('use std::ops::Add;\n')
 
     # special class wrapping
-    if lang == "c#":
+    elif lang == "c#":
         f.write('using System;\n\n')
         f.write('public class HelloWorld {\n')
-    if lang == "java":
+    elif lang == "java":
         f.write('class HelloWorld {\n')
+    elif lang == "ada":
+        f.write('procedure Benchmark is\n')
 
 
 def generate_test_language_specific_postfix(lang, types, f):
@@ -923,10 +930,7 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     if lang in ["c"]:
         f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ["ada"]:
-        f.write(Tm('''function ${F} (x: ${T}) return ${T} is
-begin
-   return ${X};
-end ${F};
+        f.write(Tm('''   function ${F} (x: ${T}) return ${T} is (${X});
 ''').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ["c#"]:
         f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
