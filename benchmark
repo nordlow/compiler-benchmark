@@ -216,8 +216,8 @@ def main():
             results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Ada' in args.languages:
-        if 'Check' in args.operations:
-            results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+        # if 'Check' in args.operations:
+        #     results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
@@ -315,13 +315,13 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
 def benchmark_Ada_GCC(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     print(md_header('Ada:', 1))
-    exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+    exe_args = ['compile'] if op == 'Build' else ['check']
     for gcc_version in GCC_VERSIONS:
-        exe = shutil.which('gnatgcc-' + str(gcc_version))
+        exe = shutil.which('gnat-' + str(gcc_version))
         if exe is not None:
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
+            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
-                                   exe_and_args=[exe] + C_WARN_FLAGS + exe_args,
+                                   exe_and_args=[exe] + exe_args,
                                    args=args,
                                    op=op,
                                    compiler_version=version)
@@ -723,6 +723,8 @@ def long_types_of_lang(lang):
         return ['Int64']
     elif lang == 'ocaml':
         return ['float']
+    elif lang == 'ada':
+        return ['Long_Integer']  # gnat
     else:
         return None
 
@@ -736,6 +738,8 @@ def language_file_extension(lang):
         return 'ml'
     elif lang == 'c#':
         return 'cs'
+    elif lang == 'ada':
+        return 'adb'
     else:
         return lang
 
@@ -760,8 +764,13 @@ def generate_test_program(lang,
         generate_linear_test_function_definition_set(llang, types, args, f,
                                                      templated=templated)
         generate_test_main_header(llang, types, f, templated)
+
         for typ in types:
             generate_linear_test_function_variable(llang, typ, f, templated=templated)
+
+        generate_test_main_middle(llang, types, f, templated)
+
+        for typ in types:
             for findex in range(0, args.function_count):
                 generate_test_function_call(llang, findex, typ, f, templated=templated)
 
@@ -784,6 +793,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
         f.write(Tm('    ${T}_sum += add_${T}_n${N}<${T}>(${N})').substitute(T=typ, N=str(findex)))
     elif lang == "ocaml":
         f.write(Tm('    let ${T}_sum = ${T}_sum +. (add_${T}_n${N} ${N}.0) in').substitute(T=typ, N=str(findex)))
+    elif lang == "ada":
+        f.write(Tm('   ${T}_sum := ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
@@ -833,6 +844,10 @@ main()
     elif lang == "d":
         f.write(Tm('''    return cast(int)${T}_sum;
 }
+''').substitute(T=types[0]))
+    elif lang == "ada":
+        f.write(Tm('''   Exit(${T}_sum);
+end Main;
 ''').substitute(T=types[0]))
     elif lang == "ocaml":
         f.write(Tm('    exit (if ${T}_sum = 42.0 then 1 else 0)\n').substitute(T=types[0]))
@@ -907,7 +922,13 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
 
     if lang in ["c"]:
         f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
-    if lang in ["c#"]:
+    elif lang in ["ada"]:
+        f.write(Tm('''function ${F} (x: ${T}) return ${T} is
+begin
+   return ${X};
+end ${F};
+''').substitute(T=typ, F=str(fname), N=nconst, X=expr))
+    elif lang in ["c#"]:
         f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang in ["java"]:
         f.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
@@ -917,7 +938,7 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                             M='template<typename T=int> ' if templated else '',
                             X=expr))
         # template<typename T1, typename T2 = int> class A;
-    if lang in ["d"]:
+    elif lang in ["d"]:
         # See: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
         f.write(Tm('${T} ${F}${M}(${T} x) @safe pure nothrow @nogc { return ${X}; }\n')
                 .substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), M='(T=void)' if templated else '', X=expr))
@@ -953,6 +974,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
 def generate_test_main_header(lang, types, f, templated):
     if lang in ["c", "c++"]:
         f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
+    elif lang == "ada":
+        f.write('procedure Main is\n')
     elif lang == "c#":
         f.write('    public static void Main(string[] args) @safe {\n')
     elif lang == "java":
@@ -975,9 +998,16 @@ def generate_test_main_header(lang, types, f, templated):
         assert False
 
 
+def generate_test_main_middle(lang, types, f, templated):
+    if lang == "ada":
+        f.write('begin\n')
+
+
 def generate_linear_test_function_variable(lang, typ, f, templated):
     if lang in ["c", "c++", "d"]:
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
+    if lang in ["ada"]:
+        f.write(Tm('   ${T}_sum : ${T} := 0;\n').substitute(T=typ))
     elif lang in ["c#"]:
         f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang in ["java"]:
