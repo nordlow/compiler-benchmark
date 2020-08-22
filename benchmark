@@ -218,8 +218,8 @@ def main():
     if 'Ada' in args.languages:
         # if 'Check' in args.operations:
         #     results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-        if 'Build' in args.operations:
-            results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+        # if 'Build' in args.operations:
+        #     results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Go' in args.languages:
         if 'Check' in args.operations:
