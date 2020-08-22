@@ -1006,7 +1006,7 @@ def generate_test_main_middle(lang, types, f, templated):
 def generate_linear_test_function_variable(lang, typ, f, templated):
     if lang in ["c", "c++", "d"]:
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
-    if lang in ["ada"]:
+    elif lang in ["ada"]:
         f.write(Tm('   ${T}_sum : ${T} := 0;\n').substitute(T=typ))
     elif lang in ["c#"]:
         f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
