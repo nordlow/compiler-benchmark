@@ -46,7 +46,10 @@ A specific subset of support languages can be chosen as, for instance,
 This will generate code into the directory `generated` and then, for each
 combination of language, operation type and compiler, run the supported
 benchmarks. At the end a Markdown-formatted table showing the results of the
-benchmark is printed to standard output.
+benchmark is printed to standard output. Note that the compilation times in this
+table are titled `Time [ns/#funcs]` meaning normalized with number of test
+functions generated, that is divided by `args.function_count *
+args.function_depth`).
 
 GCC and Clang doesn't perform all semantic checks for C++ (because it's too
 costly). This is in contrast to D's and Rust's compilers that perform all of
@@ -135,7 +138,7 @@ or using [PyPy](https://www.pypy.org/) 3 (for faster code generation) as
 
 results in the following table (copied from the output at the end).
 
-| Lang-uage | Oper-ation | Temp-lated | Time [s/fn] | Slowdown vs [Best] | Version | Exec |
+| Lang-uage | Oper-ation | Temp-lated | Time [us/#fn] | Slowdown vs [Best] | Version | Exec |
 | :---: | :---: | --- | :---: | :---: | :---: | :---: |
 | D | Check | No | 0.610 | 1.0 [D] | v2.093.1-399-g4d2ee79c7 | `dmd` |
 | D | Check | No | 0.683 | 1.1 [D] | 1.23.0 | `ldmd2` |
