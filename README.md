@@ -47,8 +47,8 @@ This will generate code into the directory `generated` and then, for each
 combination of language, operation type and compiler, run the supported
 benchmarks. At the end a Markdown-formatted table showing the results of the
 benchmark is printed to standard output. Note that the compilation times in this
-table are titled `Time [ns/#funcs]` meaning normalized with number of test
-functions generated, that is divided by `args.function_count *
+table are titled `Time [us/#fn]` meaning in unit microseconds normalized with
+number of test functions generated, that is divided by `args.function_count *
 args.function_depth`).
 
 GCC and Clang doesn't perform all semantic checks for C++ (because it's too
