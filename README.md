@@ -97,8 +97,12 @@ using templated functions.
 
 ## Conclusions (from sample run shown below)
 
-D's compiler `dmd` is still far ahead of all its competition especially when it
-comes to default build (standard compilation) performance.
+D's reference compiler `dmd` and Go's reference compiler `go` are still far
+ahead of all its competition especially when it comes to default build (standard
+compilation) performance. Further,
+
+- Go's checker `gotype` is 2.5 times slower than D's builtin (`dmd -o-`) while
+- D's `dmd` is 1.2 times slower on builds than Go's `go`
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
@@ -133,66 +137,71 @@ results in the following table (copied from the output at the end).
 
 | Lang-uage | Oper-ation | Temp-lated | Time [s/fn] | Slowdown vs [Best] | Version | Exec |
 | :---: | :---: | --- | :---: | :---: | :---: | :---: |
-| D | Check | No | 0.586 | 1.0 [D] | v2.093.1-beta.1-376-gbdaf4703c | `dmd` |
-| D | Check | No | 0.683 | 1.2 [D] | 1.23.0-beta1 | `ldmd2` |
-| D | Check | Yes | 1.526 | 2.6 [D] | v2.093.1-beta.1-376-gbdaf4703c | `dmd` |
-| D | Check | Yes | 1.682 | 2.9 [D] | 1.23.0-beta1 | `ldmd2` |
-| D | Build | No | 1.447 | 1.0 [D] | v2.093.1-beta.1-376-gbdaf4703c | `dmd` |
-| D | Build | No | 16.960 | 11.7 [D] | 1.23.0-beta1 | `ldmd2` |
-| D | Build | Yes | 2.585 | 1.8 [D] | v2.093.1-beta.1-376-gbdaf4703c | `dmd` |
-| D | Build | Yes | 18.352 | 12.7 [D] | 1.23.0-beta1 | `ldmd2` |
-| C | Check | No | 0.790 | 1.3 [D] | 8.4.0 | `gcc-8` |
-| C | Check | No | 1.109 | 1.9 [D] | 9.3.0 | `gcc-9` |
-| C | Check | No | 1.157 | 2.0 [D] | 10 | `gcc-10` |
-| C | Check | No | 2.211 | 3.8 [D] | 8.0.1 | `clang-8` |
-| C | Check | No | 2.422 | 4.1 [D] | 9.0.1 | `clang-9` |
-| C | Check | No | 2.598 | 4.4 [D] | 10.0.0 | `clang-10` |
-| C | Build | No | 32.750 | 22.6 [D] | 8.4.0 | `gcc-8` |
-| C | Build | No | 36.760 | 25.4 [D] | 9.3.0 | `gcc-9` |
-| C | Build | No | 38.480 | 26.6 [D] | 10 | `gcc-10` |
-| C | Build | No | 15.074 | 10.4 [D] | 8.0.1 | `clang-8` |
-| C | Build | No | 15.718 | 10.9 [D] | 9.0.1 | `clang-9` |
-| C | Build | No | 15.913 | 11.0 [D] | 10.0.0 | `clang-10` |
-| C++ | Check | No | 1.821 | 3.1 [D] | 8.4.0 | `g++-8` |
-| C++ | Check | No | 3.009 | 5.1 [D] | 9.3.0 | `g++-9` |
-| C++ | Check | No | 3.186 | 5.4 [D] | 10 | `g++-10` |
-| C++ | Check | No | 3.098 | 5.3 [D] | 8.0.1 | `clang++-8` |
-| C++ | Check | No | 3.277 | 5.6 [D] | 9.0.1 | `clang++-9` |
-| C++ | Check | No | 3.374 | 5.8 [D] | 10.0.0 | `clang++-10` |
-| C++ | Check | Yes | 5.083 | 8.7 [D] | 8.4.0 | `g++-8` |
-| C++ | Check | Yes | 6.993 | 11.9 [D] | 9.3.0 | `g++-9` |
-| C++ | Check | Yes | 7.289 | 12.4 [D] | 10 | `g++-10` |
-| C++ | Check | Yes | 4.784 | 8.2 [D] | 8.0.1 | `clang++-8` |
-| C++ | Check | Yes | 4.887 | 8.3 [D] | 9.0.1 | `clang++-9` |
-| C++ | Check | Yes | 5.264 | 9.0 [D] | 10.0.0 | `clang++-10` |
-| C++ | Build | No | 34.533 | 23.9 [D] | 8.4.0 | `g++-8` |
-| C++ | Build | No | 39.583 | 27.4 [D] | 9.3.0 | `g++-9` |
-| C++ | Build | No | 40.962 | 28.3 [D] | 10 | `g++-10` |
-| C++ | Build | No | 16.074 | 11.1 [D] | 8.0.1 | `clang++-8` |
-| C++ | Build | No | 16.762 | 11.6 [D] | 9.0.1 | `clang++-9` |
-| C++ | Build | No | 16.940 | 11.7 [D] | 10.0.0 | `clang++-10` |
-| C++ | Build | Yes | 714.725 | 494.1 [D] | 8.4.0 | `g++-8` |
-| C++ | Build | Yes | 722.095 | 499.2 [D] | 9.3.0 | `g++-9` |
-| C++ | Build | Yes | 725.300 | 501.4 [D] | 10 | `g++-10` |
-| C++ | Build | Yes | 17.097 | 11.8 [D] | 8.0.1 | `clang++-8` |
-| C++ | Build | Yes | 17.991 | 12.4 [D] | 9.0.1 | `clang++-9` |
-| C++ | Build | Yes | 23.222 | 16.1 [D] | 10.0.0 | `clang++-10` |
-| Go | Check | No | 2.241 | 3.8 [D] | 10.0.1 | `gccgo` |
-| Go | Build | No | 56.780 | 39.3 [D] | 10.0.1 | `gccgo` |
-| V | Build | No | 16.307 | 11.3 [D] | 0.1.29 | `v` |
-| Zig | Check | No | 7.636 | 13.0 [D] | 0.6.0+6e0fb0601 | `zig` |
-| Zig | Check | Yes | 9.997 | 17.1 [D] | 0.6.0+6e0fb0601 | `zig` |
-| Rust | Check | No | 37.826 | 64.5 [D] | 1.45.2 | `rustc` |
-| Rust | Check | No | 23.063 | 39.3 [D] | 1.47.0-nightly | `rustc` |
-| Rust | Check | Yes | 35.276 | 60.2 [D] | 1.45.2 | `rustc` |
-| Rust | Check | Yes | 24.744 | 42.2 [D] | 1.47.0-nightly | `rustc` |
-| Rust | Build | No | 73.037 | 50.5 [D] | 1.45.2 | `rustc` |
-| Rust | Build | No | 73.920 | 51.1 [D] | 1.47.0-nightly | `rustc` |
-| Rust | Build | Yes | 45.968 | 31.8 [D] | 1.45.2 | `rustc` |
-| Rust | Build | Yes | 45.797 | 31.7 [D] | 1.47.0-nightly | `rustc` |
-| C# | Build | No | 2.254 | 1.6 [D] | 6.8.0.105 | `mcs` |
-| Java | Build | No | 8.295 | 5.7 [D] | 1.8.0_171 | `javac` |
-| OCaml | Build | No | 6.464 | 4.5 [D] | 4.08.1 | `ocamlc` |
+| D | Check | No | 0.610 | 1.0 [D] | v2.093.1-399-g4d2ee79c7 | `dmd` |
+| D | Check | No | 0.683 | 1.1 [D] | 1.23.0 | `ldmd2` |
+| D | Check | Yes | 1.491 | 2.4 [D] | v2.093.1-399-g4d2ee79c7 | `dmd` |
+| D | Check | Yes | 1.642 | 2.7 [D] | 1.23.0 | `ldmd2` |
+| D | Build | No | 1.509 | 1.2 [Go] | v2.093.1-399-g4d2ee79c7 | `dmd` |
+| D | Build | No | 17.022 | 13.9 [Go] | 1.23.0 | `ldmd2` |
+| D | Build | Yes | 2.627 | 2.1 [Go] | v2.093.1-399-g4d2ee79c7 | `dmd` |
+| D | Build | Yes | 18.559 | 15.2 [Go] | 1.23.0 | `ldmd2` |
+| C | Check | No | 0.815 | 1.3 [D] | 8.4.0 | `gcc-8` |
+| C | Check | No | 1.075 | 1.8 [D] | 9.3.0 | `gcc-9` |
+| C | Check | No | 1.213 | 2.0 [D] | 10.2.0 | `gcc-10` |
+| C | Check | No | 2.277 | 3.7 [D] | 8.0.1 | `clang-8` |
+| C | Check | No | 2.476 | 4.1 [D] | 9.0.1 | `clang-9` |
+| C | Check | No | 2.680 | 4.4 [D] | 10.0.0 | `clang-10` |
+| C | Build | No | 32.603 | 26.7 [Go] | 8.4.0 | `gcc-8` |
+| C | Build | No | 36.307 | 29.7 [Go] | 9.3.0 | `gcc-9` |
+| C | Build | No | 38.210 | 31.3 [Go] | 10.2.0 | `gcc-10` |
+| C | Build | No | 15.469 | 12.7 [Go] | 8.0.1 | `clang-8` |
+| C | Build | No | 16.224 | 13.3 [Go] | 9.0.1 | `clang-9` |
+| C | Build | No | 16.835 | 13.8 [Go] | 10.0.0 | `clang-10` |
+| C++ | Check | No | 1.819 | 3.0 [D] | 8.4.0 | `g++-8` |
+| C++ | Check | No | 2.980 | 4.9 [D] | 9.3.0 | `g++-9` |
+| C++ | Check | No | 3.094 | 5.1 [D] | 10.2.0 | `g++-10` |
+| C++ | Check | No | 3.166 | 5.2 [D] | 8.0.1 | `clang++-8` |
+| C++ | Check | No | 3.717 | 6.1 [D] | 9.0.1 | `clang++-9` |
+| C++ | Check | No | 3.516 | 5.8 [D] | 10.0.0 | `clang++-10` |
+| C++ | Check | Yes | 5.438 | 8.9 [D] | 8.4.0 | `g++-8` |
+| C++ | Check | Yes | 6.901 | 11.3 [D] | 9.3.0 | `g++-9` |
+| C++ | Check | Yes | 7.505 | 12.3 [D] | 10.2.0 | `g++-10` |
+| C++ | Check | Yes | 4.973 | 8.2 [D] | 8.0.1 | `clang++-8` |
+| C++ | Check | Yes | 5.370 | 8.8 [D] | 9.0.1 | `clang++-9` |
+| C++ | Check | Yes | 5.518 | 9.0 [D] | 10.0.0 | `clang++-10` |
+| C++ | Build | No | 35.732 | 29.2 [Go] | 8.4.0 | `g++-8` |
+| C++ | Build | No | 39.840 | 32.6 [Go] | 9.3.0 | `g++-9` |
+| C++ | Build | No | 41.310 | 33.8 [Go] | 10.2.0 | `g++-10` |
+| C++ | Build | No | 15.924 | 13.0 [Go] | 8.0.1 | `clang++-8` |
+| C++ | Build | No | 17.004 | 13.9 [Go] | 9.0.1 | `clang++-9` |
+| C++ | Build | No | 17.256 | 14.1 [Go] | 10.0.0 | `clang++-10` |
+| C++ | Build | Yes | 761.314 | 623.1 [Go] | 8.4.0 | `g++-8` |
+| C++ | Build | Yes | 742.962 | 608.0 [Go] | 9.3.0 | `g++-9` |
+| C++ | Build | Yes | 801.357 | 655.8 [Go] | 10.2.0 | `g++-10` |
+| C++ | Build | Yes | 17.591 | 14.4 [Go] | 8.0.1 | `clang++-8` |
+| C++ | Build | Yes | 17.990 | 14.7 [Go] | 9.0.1 | `clang++-9` |
+| C++ | Build | Yes | 24.632 | 20.2 [Go] | 10.0.0 | `clang++-10` |
+| Ada | Build | No | 504.430 | 412.8 [Go] | 10.2.0 | `gnat-10` |
+| Go | Check | No | 1.610 | 2.6 [D] | 1.15 | `gotype` |
+| Go | Check | No | 2.230 | 3.7 [D] | 9.3.0 | `gccgo-9` |
+| Go | Check | No | 2.259 | 3.7 [D] | 10.2.0 | `gccgo-10` |
+| Go | Build | No | 1.222 | 1.0 [Go] | 1.15 | `go` |
+| Go | Build | No | 2.952 | 2.4 [Go] | 9.3.0 | `gccgo-9` |
+| Go | Build | No | 3.161 | 2.6 [Go] | 10.2.0 | `gccgo-10` |
+| V | Build | No | 16.520 | 13.5 [Go] | 0.1.29 | `v` |
+| Zig | Check | No | 10.459 | 17.1 [D] | 0.6.0+4e63cae36 | `zig` |
+| Zig | Check | Yes | 10.151 | 16.6 [D] | 0.6.0+4e63cae36 | `zig` |
+| Rust | Check | No | 38.084 | 62.4 [D] | 1.45.2 | `rustc` |
+| Rust | Check | No | 23.585 | 38.7 [D] | 1.47.0-nightly | `rustc` |
+| Rust | Check | Yes | 35.203 | 57.7 [D] | 1.45.2 | `rustc` |
+| Rust | Check | Yes | 25.275 | 41.4 [D] | 1.47.0-nightly | `rustc` |
+| Rust | Build | No | 73.393 | 60.1 [Go] | 1.45.2 | `rustc` |
+| Rust | Build | No | 76.754 | 62.8 [Go] | 1.47.0-nightly | `rustc` |
+| Rust | Build | Yes | 45.864 | 37.5 [Go] | 1.45.2 | `rustc` |
+| Rust | Build | Yes | 46.673 | 38.2 [Go] | 1.47.0-nightly | `rustc` |
+| C# | Build | No | 2.287 | 1.9 [Go] | 6.8.0.105 | `mcs` |
+| Java | Build | No | 9.023 | 7.4 [Go] | 1.8.0_171 | `javac` |
+| OCaml | Build | No | 6.684 | 5.5 [Go] | 4.08.1 | `ocamlc` |
 
 This is with DMD built with LDC for an additional 15 percent drop in compilation time.
 
