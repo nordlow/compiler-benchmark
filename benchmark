@@ -689,14 +689,17 @@ def compile_file(paths, exe_and_args, args,
         with sp.Popen(exe_and_args + paths,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as proc:
-            results = proc.communicate()
+            outs, errs = proc.communicate()
             end = timer()
             dur = end - start
             durs.append(dur)
-            if results[0]:
-                print('stdout:', results[0])
-            if results[1] and lang != 'Ada':
-                print('stderr:', results[1])
+            if outs:
+                print('stdout:', outs)
+            if errs:
+                if lang == 'Ada':
+                    errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
+                if len(errs):
+                    print('output:', errs)
 
     dur_min = min(durs)
 
