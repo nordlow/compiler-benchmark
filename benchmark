@@ -871,7 +871,7 @@ end Main;
 
 
 def generate_main_test_function_definition_set(lang, types, args, f,
-                                                 templated):
+                                               templated):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
