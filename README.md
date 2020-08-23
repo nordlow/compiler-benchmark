@@ -58,7 +58,7 @@ To understand how the code generation works we can, for instance, do
 
     ./benchmark --function-count=3 --function-depth=2 --run-count=5
 
-This will, for the C language case, generate a file `generated/c/linear.c` containing
+This will, for the C language case, generate a file `generated/c/main.c` containing
 
 ```C
 long add_long_n0_h0(long x) { return x + 15440; }
@@ -89,8 +89,8 @@ caching more fair.
 ## Generics
 
 For each languages `$LANG` that supports generics an additional templated source
-file `linear_t.$LANG` will be generated alongside `linear.$LANG` equivalent to
-the contents of `linear.$LANG` apart from that all functions (except `main`) are
+file `main_t.$LANG` will be generated alongside `main.$LANG` equivalent to
+the contents of `main.$LANG` apart from that all functions (except `main`) are
 templated. This templated source will be benchmarked aswell. The column
 **Templated** in the table below indicates whether or not the compilation is
 using templated functions.
