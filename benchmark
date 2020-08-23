@@ -685,7 +685,6 @@ def compile_file(paths, exe_and_args, args,
     durs = []
     for _ in range(0, args.run_count):
         start = timer()
-        # print(exe_and_args + [path])
         with sp.Popen(exe_and_args + paths,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as proc:
