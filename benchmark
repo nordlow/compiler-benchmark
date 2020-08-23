@@ -984,11 +984,11 @@ def generate_test_main_header(lang, types, f, templated):
     elif lang == "ada":
         f.write('procedure Main is\n')
     elif lang == "c#":
-        f.write('    public static void Main(string[] args) @safe {\n')
+        f.write('    public static void Main(string[] args) {\n')
     elif lang == "java":
         f.write('    public static void main(String args[]) {\n')
     elif lang == "d":
-        f.write('int main() {\n')
+        f.write('int main() @safe {\n')
     elif lang == "rust":
         f.write(Tm('fn main() {\n').substitute(T=types[0]))
     elif lang == "zig":
