@@ -856,7 +856,7 @@ main()
 }
 ''').substitute(T=types[0]))
     elif lang == "ada":
-        f.write(Tm('''   GNAT.OS_Lib.OS_Exit(if ${T}_sum > 100 then 1 else 0);
+        f.write(Tm('''   GNAT.OS_Lib.OS_Exit(Integer(${T}));
 end Main;
 ''').substitute(T=types[0]))
     elif lang == "ocaml":
