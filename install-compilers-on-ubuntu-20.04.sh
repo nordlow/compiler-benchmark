@@ -11,8 +11,11 @@ sudo apt install clangxx-10
 # Ada
 sudo apt install gnat-10
 
-# D dmd
+# D `dmd`
 ./install-dmd.sh
+
+# D `gdc`
+sudo apt install gdc-10
 
 # Go: `gccgo`
 sudo apt install gccgo-10
