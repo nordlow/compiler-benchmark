@@ -405,22 +405,21 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
         durs[opId] = dur_min
 
     # GDC
-    if False:                   # disable for now until it supports larger input
-        exe = shutil.which('gdc')
-        if exe is not None:
-            exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
-            opId = opIdOf(lang, templated, op, 'gdc')
-            print(md_header(opId + ':', 2))
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
-            if opId not in execs:
-                execs[opId] = exe
-            dur_min = compile_file(paths=paths,
-                                   exe_and_args=[exe] + exe_args,
-                                   args=args,
-                                   op=op,
-                                   compiler_version=version)
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-            durs[opId] = dur_min
+    exe = shutil.which('gdc')
+    if exe is not None:
+        exe_args = ['-c'] if op == 'Build' else ['-fsyntax-only']
+        opId = opIdOf(lang, templated, op, 'gdc')
+        print(md_header(opId + ':', 2))
+        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
+        if opId not in execs:
+            execs[opId] = exe
+        dur_min = compile_file(paths=paths,
+                               exe_and_args=[exe] + exe_args,
+                               args=args,
+                               op=op,
+                               compiler_version=version)
+        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+        durs[opId] = dur_min
 
     print()
 
