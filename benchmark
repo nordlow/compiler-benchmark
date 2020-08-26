@@ -435,20 +435,18 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
 def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
     results = list()
     lang = 'Vox'
-    vox_flags = []
 
-    paths = [gpaths[srcIdOf(lang, templated)], create_D_object_file()]
+    paths = [gpaths[srcIdOf(lang, templated)]]
 
     exe = shutil.which('vox')
     if exe is not None:
-        exe_args = ['']
-        opId = opIdOf(lang, templated, op, 'dmd')
+        opId = opIdOf(lang, templated, op, 'vox')
         print(md_header(opId + ':', 2))
-        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
+        version = 'master'      # TODO lookup Git version
         if opId not in execs:
             execs[opId] = exe
         dur_min = compile_file(paths=paths,
-                               exe_and_args=[exe] + exe_args + vox_flags,
+                               exe_and_args=[exe],
                                args=args,
                                op=op,
                                compiler_version=version)
