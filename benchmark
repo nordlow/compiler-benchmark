@@ -198,7 +198,7 @@ def main():
     if 'Vox' in args.languages:
         if 'Build' in args.operations:
             results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
-            # TODO: results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
+            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'C' in args.languages:
         if 'Check' in args.operations:
@@ -837,6 +837,10 @@ def generate_test_function_call(lang, findex, typ, f, templated):
         f.write(Tm('    let ${T}_sum = ${T}_sum +. (add_${T}_n${N} ${N}.0) in').substitute(T=typ, N=str(findex)))
     elif lang == 'ada':
         f.write(Tm('   ${T}_sum := ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+    elif lang == 'vox':
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}${X}(${N})').substitute(T=typ,
+                                                                          N=str(findex),
+                                                                          X='[' + typ + ']' if templated else ''))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
@@ -956,6 +960,9 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
         elif lang == 'v' and templated:
             call = function_name(typ, findex, fheight - 1) + Tm('<${T}>(x)').substitute(T=typ)
             expr = 'x + ' + call
+        elif lang == 'vox' and templated:
+            call = function_name(typ, findex, fheight - 1) + Tm('[${T}](x)').substitute(T=typ)
+            expr = 'x + ' + call
         elif lang == 'ocaml':
             expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + nconst + '.0'
         else:
@@ -984,11 +991,11 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     elif lang in ('d', 'vox'):
         # See: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
         f.write(Tm('${T} ${F}${M}(${T} x)${Q} { return ${X}; }\n')
-                .substitute(T=typ,
+                .substitute(T='T' if templated else typ,
                             F=str(fname),
                             N=nconst,
                             H=str(fheight),
-                            M='(T=void)' if templated else '',
+                            M=('(T)' if lang == 'd' else '[T]') if templated else '',
                             Q=' @safe pure nothrow @nogc' if lang == 'd' else '',
                             X=expr))
     elif lang == 'rust':
