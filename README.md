@@ -9,6 +9,7 @@ compilers. Supported languages are:
 - C++ (using `g++`),
 - Ada (using `gnatgcc`),
 - D (using `dmd` `ldmd2`, and `gdc`),
+- Vox (using `vox`),
 - Go (using `go` or `gccgo`),
 - Rust (using `rustc`),
 - V (using `v`),
