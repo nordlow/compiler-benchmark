@@ -667,7 +667,10 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         opId = opIdOf(lang, templated, op, exe)
         print(md_header(opId + ':', 2))
         execs[opId] = exe
-        version = sp.run([exe, '-version'], stderr=sp.PIPE).stderr.decode('utf-8').split()[1]
+        try:
+            version = sp.run([exe, '-version'], stderr=sp.PIPE).stderr.decode('utf-8').split()[1]
+        except:
+            version = 'unknown'
         dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, '-Xdiags:verbose'],
                                args=args,
