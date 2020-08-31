@@ -671,7 +671,7 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         version_stderr = ""
         try:
             version_stderr = sp.run([exe, '-version'], stderr=sp.PIPE).stderr
-            version = version_stderr.decode('utf-8').split()[11]
+            version = version_stderr.decode('utf-8').split()[1]
         except:
             print("WARNING: Failed to decode result " + str(version_stderr) + " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
                   file=sys.stderr)
