@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import argparse
 import subprocess as sp
 import os
@@ -667,10 +668,13 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         opId = opIdOf(lang, templated, op, exe)
         print(md_header(opId + ':', 2))
         execs[opId] = exe
+        version_stderr = ""
         try:
-            version = sp.run([exe, '-version'], stderr=sp.PIPE).stderr.decode('utf-8').split()[1]
+            version_stderr = sp.run([exe, '-version'], stderr=sp.PIPE).stderr
+            version = version_stderr.decode('utf-8').split()[11]
         except:
-            print("WARNING: Command " + str([exe, '-version']) + " failed, defaulting version to `none`")
+            print("WARNING: Failed to decode result " + str(version_stderr) + " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
+                  file=sys.stderr)
             version = 'unknown'
         dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, '-Xdiags:verbose'],
