@@ -670,6 +670,7 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         try:
             version = sp.run([exe, '-version'], stderr=sp.PIPE).stderr.decode('utf-8').split()[1]
         except:
+            print("WARNING: Command " + str([exe, '-version']) + " failed, defaulting version to `none`")
             version = 'unknown'
         dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
                                exe_and_args=[exe, '-Xdiags:verbose'],
