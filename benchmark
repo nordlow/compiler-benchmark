@@ -540,7 +540,6 @@ def benchmark_Go_gccgo(execs, durs, gpaths, args, op, templated):
             except:
                 print("Ignoring result from compilation " +
                       str([exe] + exe_args + [gpaths[srcIdOf(lang, templated)]]))
-                pass
     return results
 
 
@@ -681,16 +680,20 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
             print("WARNING: Failed to decode result " + str(version_stderr) + " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
                   file=sys.stderr)
             version = 'unknown'
-        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
-                               exe_and_args=[exe, '-Xdiags:verbose'],
-                               args=args,
-                               op=op)
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs,
-                      from_opId=opIdOf('D', templated, op),
-                      to_opId=opId)
-        print()
+        try:
+            dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
+                                   exe_and_args=[exe, '-Xdiags:verbose'],
+                                   args=args,
+                                   op=op)
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs,
+                          from_opId=opIdOf('D', templated, op),
+                          to_opId=opId)
+            print()
+        except:
+            print("Ignoring result from compilation " +
+                  str([exe, '-Xdiags:verbose'] + [gpaths[srcIdOf(lang, templated)]]))
     return results
 
 
