@@ -205,29 +205,29 @@ def main():
 
     if 'C' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_GCC(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
-            results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
-            results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_GCC(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
-            results += benchmark_Clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Ada' in args.languages:
         # if 'Check' in args.operations:
-        #     results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+        #     results += benchmark_Ada_using_gcc(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_Ada_GCC(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Ada_using_gcc(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Go' in args.languages:
         if 'Check' in args.operations:
@@ -296,7 +296,7 @@ def generate_code(args):
     return gpaths
 
 
-def benchmark_Ada_GCC(lang, execs, durs, gpaths, args, op, templated):
+def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     exe_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in GCC_VERSIONS:
@@ -316,7 +316,7 @@ def benchmark_Ada_GCC(lang, execs, durs, gpaths, args, op, templated):
     return results
 
 
-def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
+def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
@@ -341,7 +341,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
     return results
 
 
-def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
+def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     CLANG_VERSIONS = range(5, 15)
@@ -482,14 +482,13 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
 
 
 def benchmark_Go(execs, durs, gpaths, args, op, templated):
-    lang = 'Go'
     results = list()
-    results += benchmark_Go_go(execs, durs, gpaths, args, op, templated)
-    results += benchmark_Go_gccgo(execs, durs, gpaths, args, op, templated)
+    results += benchmark_Go_using_go(execs, durs, gpaths, args, op, templated)
+    results += benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated)
     return results
 
 
-def benchmark_Go_go(execs, durs, gpaths, args, op, templated):
+def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     if op == 'Build':
@@ -516,7 +515,7 @@ def benchmark_Go_go(execs, durs, gpaths, args, op, templated):
     return results
 
 
-def benchmark_Go_gccgo(execs, durs, gpaths, args, op, templated):
+def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     for gccgo_version in GCC_VERSIONS:
