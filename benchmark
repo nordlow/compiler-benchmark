@@ -310,10 +310,12 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
                                    args=args,
                                    op=op,
                                    compiler_version=version)
-            opId = opIdOf(lang, templated, op, exe)
-            durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            if dur_min is not None:
+                opId = opIdOf(lang, templated, op, exe)
+                durs[opId] = dur_min
+                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+
     print()
     return results
 
@@ -332,10 +334,11 @@ def benchmark_Ada_GCC(lang, execs, durs, gpaths, args, op, templated):
                                    op=op,
                                    compiler_version=version,
                                    lang=lang)
-            opId = opIdOf(lang, templated, op, exe)
-            durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            if dur_min is not None:
+                opId = opIdOf(lang, templated, op, exe)
+                durs[opId] = dur_min
+                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
     return results
 
@@ -360,11 +363,12 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
                                    args=args,
                                    op=op,
                                    compiler_version=version)
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-            opId = opIdOf(lang, templated, op, exe)
-            print(md_header(opId + ':', 2))
-            durs[opId] = dur_min
-            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            if dur_min is not None:
+                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                opId = opIdOf(lang, templated, op, exe)
+                print(md_header(opId + ':', 2))
+                durs[opId] = dur_min
+                print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
     return results
 
@@ -390,8 +394,9 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                                args=args,
                                op=op,
                                compiler_version=version)
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        durs[opId] = dur_min
+        if dur_min is not None:
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            durs[opId] = dur_min
 
     # LDC
     exe = shutil.which('ldmd2')
@@ -407,8 +412,9 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                                args=args,
                                op=op,
                                compiler_version=version)
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        durs[opId] = dur_min
+        if dur_min is not None:
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            durs[opId] = dur_min
 
     # GDC
     if args.function_count * args.function_depth <= 10000:
@@ -425,8 +431,9 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                                    args=args,
                                    op=op,
                                    compiler_version=version)
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-            durs[opId] = dur_min
+            if dur_min is not None:
+                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                durs[opId] = dur_min
 
     print()
 
@@ -451,8 +458,9 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
                                args=args,
                                op=op,
                                compiler_version=version)
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        durs[opId] = dur_min
+        if dur_min is not None:
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            durs[opId] = dur_min
 
     print()
 
@@ -472,12 +480,13 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
                                args=args,
                                op=op,
                                compiler_version=version)
-        opId = opIdOf(lang, templated, op, exe)
-        print(md_header(opId + ':', 2))
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
-        print()
+        if dur_min is not None:
+            opId = opIdOf(lang, templated, op, exe)
+            print(md_header(opId + ':', 2))
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            print()
     return results
 
 
@@ -507,12 +516,13 @@ def benchmark_Go_go(execs, durs, gpaths, args, op, templated):
                                args=args,
                                op=op,
                                compiler_version=version)
-        opId = opIdOf(lang, templated, op, exe)
-        print(md_header(opId + ':', 2))
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
-        print()
+        if dur_min is not None:
+            opId = opIdOf(lang, templated, op, exe)
+            print(md_header(opId + ':', 2))
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            print()
     return results
 
 
@@ -525,21 +535,18 @@ def benchmark_Go_gccgo(execs, durs, gpaths, args, op, templated):
         if exe is not None:
             execs[lang] = exe
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
-            try:
-                dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
-                                       exe_and_args=[exe] + exe_args,
-                                       args=args,
-                                       op=op,
-                                       compiler_version=version)
+            dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
+                                   exe_and_args=[exe] + exe_args,
+                                   args=args,
+                                   op=op,
+                                   compiler_version=version)
+            if dur_min is not None:
                 opId = opIdOf(lang, templated, op, exe)
                 print(md_header(opId + ':', 2))
                 durs[opId] = dur_min
                 results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
                 print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
                 print()
-            except:
-                print("Ignoring result from compilation " +
-                      str([exe] + exe_args + [gpaths[srcIdOf(lang, templated)]]))
     return results
 
 
@@ -558,12 +565,13 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
                                args=args,
                                op=op,
                                compiler_version=version)
-        opId = opIdOf(lang, templated, op, exe)
-        print(md_header(opId + ':', 2))
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs, from_opId=opIdOf('D', templated, 'Build'), to_opId=opId)
-        print()
+        if dur_min is not None:
+            opId = opIdOf(lang, templated, op, exe)
+            print(md_header(opId + ':', 2))
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs, from_opId=opIdOf('D', templated, 'Build'), to_opId=opId)
+            print()
     return results
 
 
@@ -580,12 +588,13 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
                                args=args,
                                op=op,
                                compiler_version=version)
-        opId = opIdOf(lang, templated, op, exe)
-        print(md_header(opId + ':', 2))
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
-        print()
+        if dur_min is not None:
+            opId = opIdOf(lang, templated, op, exe)
+            print(md_header(opId + ':', 2))
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            print()
     return results
 
 
@@ -601,12 +610,13 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
                                args=args,  # no syntax flag currently so compile to object file instead
                                op=op,
                                compiler_version=version)
-        opId = opIdOf(lang, templated, op, exe)
-        print(md_header(opId + ':', 2))
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
-        print()
+        if dur_min is not None:
+            opId = opIdOf(lang, templated, op, exe)
+            print(md_header(opId + ':', 2))
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
+            print()
     return results
 
 
@@ -655,12 +665,13 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                                    args=args,
                                    op=op,
                                    compiler_version=version)
-            durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-            print_speedup(durs,
-                          from_opId=opIdOf('D', templated, op),
-                          to_opId=opId)
-            print()
+            if dur_min is not None:
+                durs[opId] = dur_min
+                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                print_speedup(durs,
+                              from_opId=opIdOf('D', templated, op),
+                              to_opId=opId)
+                print()
     return results
 
 
@@ -680,20 +691,17 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
             print("WARNING: Failed to decode result " + str(version_stderr) + " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
                   file=sys.stderr)
             version = 'unknown'
-        try:
-            dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
-                                   exe_and_args=[exe, '-Xdiags:verbose'],
-                                   args=args,
-                                   op=op)
+        dur_min = compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
+                               exe_and_args=[exe, '-Xdiags:verbose'],
+                               args=args,
+                               op=op)
+        if dur_min is not None:
             durs[opId] = dur_min
             results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
             print_speedup(durs,
                           from_opId=opIdOf('D', templated, op),
                           to_opId=opId)
             print()
-        except:
-            print("Ignoring result from compilation " +
-                  str([exe, '-Xdiags:verbose'] + [gpaths[srcIdOf(lang, templated)]]))
     return results
 
 
@@ -710,12 +718,13 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
                                exe_and_args=[exe],
                                args=args,
                                op=op)
-        durs[opId] = dur_min
-        results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
-        print_speedup(durs,
-                      from_opId=opIdOf('D', templated, op),
-                      to_opId=opId)
-        print()
+        if dur_min is not None:
+            durs[opId] = dur_min
+            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            print_speedup(durs,
+                          from_opId=opIdOf('D', templated, op),
+                          to_opId=opId)
+            print()
     return results
 
 
@@ -737,7 +746,9 @@ def compile_file(paths, exe_and_args, args,
                       stderr=sp.PIPE) as proc:
             outs, errs = proc.communicate()
             if proc.returncode != 0:
-                raise Exception("Compilation exited with return code " + str(proc.returncode))
+                print("WARNING: Compilation " + str(exe_and_args) + " of source files " + str(paths) + " exited with return code " + str(proc.returncode),
+                      file=sys.stderr)
+                return None
             end = timer()
             dur = end - start
             durs.append(dur)
