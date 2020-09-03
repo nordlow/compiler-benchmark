@@ -82,7 +82,7 @@ def stringify_durs(results):
         result[DUR_PER_FUNC_IX] = to_str_in_microseconds(result[DUR_PER_FUNC_IX])  # convert to string
 
 
-def row_list(args, durs, lang, op, exec_path, exec_version, dur, templated):
+def row_list(args, lang, op, exec_path, exec_version, dur, templated):
     home = os.getenv('HOME')
     if exec_path.startswith(home):
         exec_path = os.path.join('~', exec_path.lstrip(home))
@@ -311,7 +311,7 @@ def benchmark_Ada_GCC(lang, execs, durs, gpaths, args, op, templated):
             if dur_min is not None:
                 opId = opIdOf(lang, templated, op, exe)
                 durs[opId] = dur_min
-                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                results.append(row_list(args, lang, op, exe, version, dur_min, templated))
                 print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
     print()
     return results
@@ -341,7 +341,7 @@ def benchmark_GCC(lang, execs, durs, gpaths, args, op, templated):
             if dur_min is not None:
                 opId = opIdOf(lang, templated, op, exe)
                 durs[opId] = dur_min
-                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                results.append(row_list(args, lang, op, exe, version, dur_min, templated))
                 print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
 
     print()
@@ -372,7 +372,7 @@ def benchmark_Clang(lang, execs, durs, gpaths, args, op, templated):
                                    lang=lang,
                                    templated=templated)
             if dur_min is not None:
-                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                results.append(row_list(args, lang, op, exe, version, dur_min, templated))
                 opId = opIdOf(lang, templated, op, exe)
                 durs[opId] = dur_min
                 print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
@@ -405,7 +405,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                                lang=lang,
                                templated=templated)
         if dur_min is not None:
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             durs[opId] = dur_min
 
     # LDC
@@ -425,7 +425,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                                lang=lang,
                                templated=templated)
         if dur_min is not None:
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             durs[opId] = dur_min
 
     # GDC
@@ -446,7 +446,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                                    lang=lang,
                                    templated=templated)
             if dur_min is not None:
-                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                results.append(row_list(args, lang, op, exe, version, dur_min, templated))
                 durs[opId] = dur_min
 
     print()
@@ -476,7 +476,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
                                lang=lang,
                                templated=templated)
         if dur_min is not None:
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             durs[opId] = dur_min
 
     print()
@@ -504,7 +504,7 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
         if dur_min is not None:
             opId = opIdOf(lang, templated, op, exe)
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
             print()
     return results
@@ -544,7 +544,7 @@ def benchmark_Go_go(execs, durs, gpaths, args, op, templated):
         if dur_min is not None:
             opId = opIdOf(lang, templated, op, exe)
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
             print()
     return results
@@ -571,7 +571,7 @@ def benchmark_Go_gccgo(execs, durs, gpaths, args, op, templated):
                 opId = opIdOf(lang, templated, op, exe)
                 print(md_header(opId + ':', 2))
                 durs[opId] = dur_min
-                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                results.append(row_list(args, lang, op, exe, version, dur_min, templated))
                 print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
                 print()
     return results
@@ -599,7 +599,7 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
         if dur_min is not None:
             opId = opIdOf(lang, templated, op, exe)
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs, from_opId=opIdOf('D', templated, 'Build'), to_opId=opId)
             print()
     return results
@@ -625,7 +625,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
         if dur_min is not None:
             opId = opIdOf(lang, templated, op, exe)
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
             print()
     return results
@@ -650,7 +650,7 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
         if dur_min is not None:
             opId = opIdOf(lang, templated, op, exe)
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs, from_opId=opIdOf('D', templated, op), to_opId=opId)
             print()
     return results
@@ -706,7 +706,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                                    templated=templated)
             if dur_min is not None:
                 durs[opId] = dur_min
-                results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+                results.append(row_list(args, lang, op, exe, version, dur_min, templated))
                 print_speedup(durs,
                               from_opId=opIdOf('D', templated, op),
                               to_opId=opId)
@@ -740,7 +740,7 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
                                templated=templated)
         if dur_min is not None:
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs,
                           from_opId=opIdOf('D', templated, op),
                           to_opId=opId)
@@ -767,7 +767,7 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
                                templated=templated)
         if dur_min is not None:
             durs[opId] = dur_min
-            results.append(row_list(args, durs, lang, op, exe, version, dur_min, templated))
+            results.append(row_list(args, lang, op, exe, version, dur_min, templated))
             print_speedup(durs,
                           from_opId=opIdOf('D', templated, op),
                           to_opId=opId)
