@@ -660,12 +660,14 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
     if exe is not None:
         opId = opIdOf(lang, templated, op, exe)
         execs[opId] = exe
-        version_stderr = ""
         try:
-            version_stderr = sp.run([exe, '-version'], stderr=sp.PIPE).stderr
-            version = version_stderr.decode('utf-8').split()[1]
+            task = sp.run([exe, '-version'],
+                          stdout=sp.PIPE,
+                          stderr=sp.PIPE)
+            version = (task.stdout or task.stderr).decode('utf-8').split()[1]
         except:
-            print("WARNING: Failed to decode result " + str(version_stderr) + " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
+            print("WARNING: Failed to decode version from neither stdout:" + str(task.stdout) + " nor stderr:" + str(task.stderr) +
+                  " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
                   file=sys.stderr)
             version = 'unknown'
         compile_file(paths=[gpaths[srcIdOf(lang, templated)]],
