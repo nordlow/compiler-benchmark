@@ -588,10 +588,10 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
-                     runner=([None] if  # TODO instead of `None` set to the way you run and ocamlc byte-code file
+                     runner=(False if  # TODO: specify way to run a bytecode file
                              bytecode else
-                             None),
-                     comp_flags=['-c'],
+                             True),
+                     comp_flags=['-c'] if bytecode else [],
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -780,7 +780,7 @@ def compile_file(src_paths,
     cdurs = []                  # compilation durations
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
-        # print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
+        print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
         with sp.Popen([exe] + comp_flags + out_flag_and_exe + src_paths,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as comp_proc:
