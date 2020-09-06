@@ -22,15 +22,16 @@ C_WARN_FLAGS = ['-Wall', '-Wextra']
 ROOT_PATH = 'generated'
 GCC_VERSIONS = range(5, 15)
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Time [us/#fn]', 'Slowdown vs [Best]', 'Version', 'Exec']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Slowdown vs [Best]', 'Run Time [us/#fn]', 'Version', 'Exec']
 
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
-DUR_PER_FUNC_IX = 3
-SPEEDUP_IX = 4
-VERSION_IX = 5
-PATH_IX = 6
+CDUR_PER_FUNC_IX = 3
+CDUR_SPEEDUP_IX = 4
+RDUR_PER_FUNC_IX = 5
+VERSION_IX = 6
+PATH_IX = 7
 
 
 def touchFile(path):
@@ -69,9 +70,9 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            if min_dur is None or min_dur > result[DUR_PER_FUNC_IX]:
+            if min_dur is None or min_dur > result[CDUR_PER_FUNC_IX]:
                 min_ix = ix
-                min_dur = result[DUR_PER_FUNC_IX]
+                min_dur = result[CDUR_PER_FUNC_IX]
 
     if min_ix is None:
         return
@@ -80,15 +81,16 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            result[SPEEDUP_IX] = factor_str(result[DUR_PER_FUNC_IX] / min_dur) + ' [' + min_lang + ']'
+            result[CDUR_SPEEDUP_IX] = factor_str(result[CDUR_PER_FUNC_IX] / min_dur) + ' [' + min_lang + ']'
 
 
 def stringify_durs(results):
     for result in results:
-        result[DUR_PER_FUNC_IX] = to_str_in_microseconds(result[DUR_PER_FUNC_IX])  # convert to string
+        result[CDUR_PER_FUNC_IX] = to_str_in_microseconds(result[CDUR_PER_FUNC_IX])  # convert to string
+        result[RDUR_PER_FUNC_IX] = to_str_in_nanoseconds(result[RDUR_PER_FUNC_IX])  # convert to string
 
 
-def row_list(args, lang, op, exec_path, exec_version, dur, templated):
+def row_list(args, lang, op, exec_path, exec_version, cdur, rdur, templated):
     home = os.getenv('HOME')
     if exec_path.startswith(home):
         exec_path = os.path.join('~', exec_path.lstrip(home))
@@ -96,8 +98,9 @@ def row_list(args, lang, op, exec_path, exec_version, dur, templated):
     return [lang,
             op,
             'Yes' if templated else 'No',
-            dur / (args.function_count * args.function_depth),
+            cdur / (args.function_count * args.function_depth),
             None,
+            rdur / (args.function_count * args.function_depth) if rdur is not None else rdur,
             exec_version,
             '`' + os.path.basename(exec_path) + '`',
             ]
@@ -105,6 +108,10 @@ def row_list(args, lang, op, exec_path, exec_version, dur, templated):
 
 def to_str_in_microseconds(dur):
     return '{:.1f}'.format(1e6 * dur)
+
+
+def to_str_in_nanoseconds(dur):
+    return '{:.1f}'.format(1e9 * dur) if dur is not None else 'N/A'
 
 
 def factor_str(factor):
@@ -307,7 +314,7 @@ def generate_code(args):
 
 def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
-    exe_flags = ['compile'] if op == 'Build' else ['check']
+    comp_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in GCC_VERSIONS:
         exe = which('gnat-' + str(gcc_version))
         if exe is not None:
@@ -315,8 +322,8 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=None,
-                         exe_flags=exe_flags,
+                         runner=False,  # TODO: activate ru
+                         comp_flags=comp_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -329,7 +336,7 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
 
 def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
-    exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
+    comp_flags = [] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
             exe = which('gcc-' + str(gcc_version))
@@ -342,8 +349,8 @@ def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=None,
-                         exe_flags=C_WARN_FLAGS + exe_flags,
+                         runner=True,
+                         comp_flags=C_WARN_FLAGS + comp_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -358,7 +365,7 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
     results = list()
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     CLANG_VERSIONS = range(5, 15)
-    exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
+    comp_flags = [] if op == 'Build' else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
             exe = which('clang-' + str(clang_version))
@@ -371,8 +378,8 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=None,
-                         exe_flags=C_CLANG_FLAGS + exe_flags,
+                         runner=True,
+                         comp_flags=C_CLANG_FLAGS + comp_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -386,14 +393,16 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
 def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     results = list()
     lang = 'D'
-    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000', '-betterC'] if use_dips else []  # use DIPs
+    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
-    src_paths = [gpaths[srcIdOf(lang, templated)], create_D_object_file()]
+    src_paths = [gpaths[srcIdOf(lang, templated)]# ,
+                 # create_D_object_file() # TODO: add later
+                 ]
 
     # DMD
     exe = which('dmd')
     if exe is not None:
-        exe_flags = ['-c'] if op == 'Build' else ['-o-']
+        comp_flags = [] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'dmd')
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         if opId not in execs:
@@ -401,8 +410,8 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['-of=' + out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=exe_flags + d_flags,
+                     runner=True,
+                     comp_flags=comp_flags + d_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -414,7 +423,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     # LDC
     exe = which('ldmd2')
     if exe is not None:
-        exe_flags = ['-c'] if op == 'Build' else ['-o-']
+        comp_flags = [] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'ldmd2')
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
@@ -422,8 +431,8 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['-of=' + out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=exe_flags + d_flags,
+                     runner=True,
+                     comp_flags=comp_flags + d_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -436,7 +445,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     if args.function_count * args.function_depth <= 10000:
         exe = which('gdc')
         if exe is not None:
-            exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
+            comp_flags = [] if op == 'Build' else ['-fsyntax-only']
             opId = opIdOf(lang, templated, op, 'gdc')
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             if opId not in execs:
@@ -444,8 +453,8 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
             compile_file(src_paths=src_paths,
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=None,
-                         exe_flags=exe_flags,
+                         runner=True,
+                         comp_flags=comp_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -471,8 +480,8 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=[],
+                     runner=False,  # vox can only output Windows binaries now. TODO: https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
+                     comp_flags=[],
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -487,15 +496,15 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'C#'
     exe = which('mcs')
-    exe_flags = [] if op == 'Build' else ['']  # TODO: is checker supported?
+    comp_flags = [] if op == 'Build' else ['']  # TODO: is checker supported?
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['-out:' + out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=exe_flags,
+                     runner=True,
+                     comp_flags=comp_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -518,11 +527,11 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
     lang = 'Go'
     if op == 'Build':
         exe = which('go')
-        exe_flags = ['build']
+        comp_flags = ['build']
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
     else:
         exe = which('gotype')
-        exe_flags = []
+        comp_flags = []
         go_exe = which('go')  # guess it be same as `go`
         version = sp.run([go_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
     if exe is not None:
@@ -530,8 +539,8 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=exe_flags,
+                     runner=True,
+                     comp_flags=comp_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -547,15 +556,15 @@ def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
     lang = 'Go'
     for gccgo_version in GCC_VERSIONS:
         exe = which('gccgo-' + str(gccgo_version))
-        exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only', '-S']
+        comp_flags = [] if op == 'Build' else ['-fsyntax-only', '-S']
         if exe is not None:
             execs[lang] = exe
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=[],  # TODO: this fails out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=None,
-                         exe_flags=exe_flags,
+                         runner=True,
+                         comp_flags=comp_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -582,7 +591,7 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
                      runner=([None] if  # TODO instead of `None` set to the way you run and ocamlc byte-code file
                              bytecode else
                              None),
-                     exe_flags=['-c'],
+                     comp_flags=['-c'],
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -604,8 +613,8 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=['-cc', 'clang', '-backend', vlang_backends[2]],
+                     runner=True,
+                     comp_flags=['-cc', 'clang', '-backend', vlang_backends[2]],
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -620,15 +629,15 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Zig'
     exe = which('zig')
-    exe_flags = ['build-exe'] if op == 'Build' else ['build-obj', '-fno-emit-bin']
+    comp_flags = ['build-exe'] if op == 'Build' else ['build-obj', '-fno-emit-bin']
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['--name', out_binary(lang)],
                      exe=exe,
-                     runner=None,
-                     exe_flags=exe_flags,
+                     runner=True,
+                     comp_flags=comp_flags,
                      args=args,  # no syntax flag currently so compile to object file instead
                      op=op,
                      compiler_version=version,
@@ -681,8 +690,8 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=None,
-                         exe_flags=[] if op == 'Build' else check_args,  # https://github.com/rust-lang/rfcs/issues/1476
+                         runner=True,
+                         comp_flags=[] if op == 'Build' else check_args,  # https://github.com/rust-lang/rfcs/issues/1476
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -713,8 +722,8 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=[],
                      exe=exe,
-                     runner=None,
-                     exe_flags=['-Xdiags:verbose'],
+                     runner=True,
+                     comp_flags=['-Xdiags:verbose'],
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -736,8 +745,8 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=[],
                      exe=exe,
-                     runner=None,
-                     exe_flags=[],
+                     runner=True,
+                     comp_flags=[],
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -752,7 +761,7 @@ def compile_file(src_paths,
                  out_flag_and_exe,
                  exe,
                  runner,
-                 exe_flags,
+                 comp_flags,
                  args,
                  op='Check',
                  compiler_version=None,
@@ -767,20 +776,22 @@ def compile_file(src_paths,
               file=sys.stderr)
         return None
 
-    dursx = []
+    # op
+    cdurs = []                  # compilation durations
     for _ in range(0, args.run_count):
-        start = timer()
-        with sp.Popen([exe] + exe_flags + out_flag_and_exe + src_paths,
+        cstart = timer()        # compilation start
+        # print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
+        with sp.Popen([exe] + comp_flags + out_flag_and_exe + src_paths,
                       stdout=sp.PIPE,
-                      stderr=sp.PIPE) as proc:
-            outs, errs = proc.communicate()
-            if proc.returncode != 0:
-                print("WARNING: Compilation " + str([exe] + exe_flags) + " of source files " + str(src_paths) + " exited with return code " + str(proc.returncode),
+                      stderr=sp.PIPE) as comp_proc:
+            outs, errs = comp_proc.communicate()
+            if comp_proc.returncode != 0:
+                print("WARNING: Compilation `" + ' '.join([exe] + comp_flags) +
+                      "` of source files `" + ' '.join(src_paths) +
+                      "` exited with return code " + str(comp_proc.returncode),
                       file=sys.stderr)
                 return None
-            end = timer()
-            dur = end - start
-            dursx.append(dur)
+            cdurs.append(timer() - cstart)
             if outs:
                 print('stdout:', outs)
             if errs:
@@ -788,8 +799,15 @@ def compile_file(src_paths,
                     errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
                 if len(errs):
                     print('output:', errs)
+    cdur_min = min(cdurs)       # compilation duration minimum
 
-    dur_min = min(dursx)
+    # run
+    rdur_min = None             # run duration minimum
+    if out_flag_and_exe and op == 'Build':
+        if runner is True:      # binary should be runnable
+            rdur_min = run_compiled_file(out_binary(lang))
+        else:
+            print("TODO: run " + out_binary(lang) + " using runner " + str(runner))
 
     opId = opIdOf(lang, templated, op, exe)
 
@@ -798,18 +816,34 @@ def compile_file(src_paths,
     show_file = False
     compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
     if show_file:
-        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(op, src_paths, dur_min, exe,
+        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(op, src_paths, cdur_min, exe,
                                                                       compiler_version_str))
     else:
-        print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, dur_min, exe,
+        print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, cdur_min, exe,
                                                                 compiler_version_str))
 
-    results.append(row_list(args, lang, op, exe, compiler_version, dur_min, templated))
-    durs[opId] = dur_min
+    results.append(row_list(args, lang, op, exe, compiler_version, cdur_min, rdur_min, templated))
+    durs[opId] = cdur_min
     print_speedup(durs,
                   from_opId=opIdOf('D', templated, op),
                   to_opId=opId)
 
+
+def run_compiled_file(exe, run_count=1):
+    durs = []                  # compilation durations
+    for _ in range(0, run_count):
+        cstart = timer()        # compilation start
+        with sp.Popen([exe],
+                      stdout=sp.PIPE,
+                      stderr=sp.PIPE) as comp_proc:
+            outs, errs = comp_proc.communicate()
+            if comp_proc.returncode != 0:
+                print("WARNING: Run of compiled exec `" + str(exe) +
+                      "` exited with return code " + str(comp_proc.returncode),
+                      file=sys.stderr)
+                return None
+            durs.append(timer() - cstart)
+    dur_min = min(durs)         # running duration minimum
     return dur_min
 
 
