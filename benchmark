@@ -588,7 +588,7 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
-                     runner=(False if  # TODO: specify way to run a bytecode file
+                     runner=(which('ocamlrun') if
                              bytecode else
                              True),
                      comp_flags=['-c'] if bytecode else [],
@@ -722,7 +722,7 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=[],
                      exe=exe,
-                     runner=True,
+                     runner=which('java'),
                      comp_flags=['-Xdiags:verbose'],
                      args=args,
                      op=op,
@@ -780,7 +780,6 @@ def compile_file(src_paths,
     cdurs = []                  # compilation durations
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
-        print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
         with sp.Popen([exe] + comp_flags + out_flag_and_exe + src_paths,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as comp_proc:
@@ -806,7 +805,10 @@ def compile_file(src_paths,
     rdur_min = None             # run duration minimum
     if out_flag_and_exe and op == 'Build':
         if runner is True:      # binary should be runnable
-            rdur_min = run_compiled_file(out_binary(lang))
+            rdur_min = run_compiled_file([out_binary(lang)])
+        elif type(runner) is str:  # binary should be runnable
+            rdur_min = run_compiled_file([runner,
+                                          out_binary(lang)])
         else:
             print("TODO: run " + out_binary(lang) + " using runner " + str(runner))
 
@@ -830,17 +832,17 @@ def compile_file(src_paths,
                   to_opId=opId)
 
 
-def run_compiled_file(exe, run_count=1):
+def run_compiled_file(args, run_count=1):
     durs = []                  # compilation durations
     for _ in range(0, run_count):
         cstart = timer()        # compilation start
-        with sp.Popen([exe],
+        with sp.Popen(args,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as comp_proc:
             outs, errs = comp_proc.communicate()
             # TODO: forget about return code for n
             # if comp_proc.returncode != 0:
-            #     print("WARNING: Run of compiled exec `" + str(exe) +
+            #     print("WARNING: Run of compiled exec `" + str(args) +
             #           "` exited with return code " + str(comp_proc.returncode),
             #           file=sys.stderr)
             #     return None
