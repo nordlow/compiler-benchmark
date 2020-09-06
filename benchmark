@@ -251,6 +251,9 @@ def main():
         if 'Check' in args.operations:
             results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+        if 'Build' in args.operations:
+            results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Rust' in args.languages:
         if 'Check' in args.operations:
@@ -617,6 +620,7 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Zig'
     exe = shutil.which('zig')
+    exe_flags = ['build-exe'] if op == 'Build' else ['build-obj', '-fno-emit-bin']
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
@@ -624,7 +628,7 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
                      out_flag_and_exe=['--name', out_binary(lang)],
                      exe=exe,
                      runner=None,
-                     exe_flags=['build-obj', '-fno-emit-bin'],
+                     exe_flags=exe_flags,
                      args=args,  # no syntax flag currently so compile to object file instead
                      op=op,
                      compiler_version=version,
