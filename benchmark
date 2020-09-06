@@ -5,7 +5,7 @@ import argparse
 import subprocess as sp
 import os
 import os.path
-import shutil
+from shutil import which
 import time
 from pprint import pprint
 import random
@@ -309,7 +309,7 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     exe_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in GCC_VERSIONS:
-        exe = shutil.which('gnat-' + str(gcc_version))
+        exe = which('gnat-' + str(gcc_version))
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -332,9 +332,9 @@ def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated
     exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in GCC_VERSIONS:
         if lang == 'C':
-            exe = shutil.which('gcc-' + str(gcc_version))
+            exe = which('gcc-' + str(gcc_version))
         elif lang == 'C++':
-            exe = shutil.which('g++-' + str(gcc_version))
+            exe = which('g++-' + str(gcc_version))
         else:
             assert(False)
         if exe is not None:
@@ -361,9 +361,9 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
     exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
     for clang_version in CLANG_VERSIONS:
         if lang == 'C':
-            exe = shutil.which('clang-' + str(clang_version))
+            exe = which('clang-' + str(clang_version))
         elif lang == 'C++':
-            exe = shutil.which('clang++-' + str(clang_version))
+            exe = which('clang++-' + str(clang_version))
         else:
             assert(False)
         if exe is not None:
@@ -391,7 +391,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     src_paths = [gpaths[srcIdOf(lang, templated)], create_D_object_file()]
 
     # DMD
-    exe = shutil.which('dmd')
+    exe = which('dmd')
     if exe is not None:
         exe_flags = ['-c'] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'dmd')
@@ -412,7 +412,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                      durs=durs)
 
     # LDC
-    exe = shutil.which('ldmd2')
+    exe = which('ldmd2')
     if exe is not None:
         exe_flags = ['-c'] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'ldmd2')
@@ -434,7 +434,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
 
     # GDC
     if args.function_count * args.function_depth <= 10000:
-        exe = shutil.which('gdc')
+        exe = which('gdc')
         if exe is not None:
             exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only']
             opId = opIdOf(lang, templated, op, 'gdc')
@@ -462,7 +462,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
 
     src_paths = [gpaths[srcIdOf(lang, templated)]]
 
-    exe = shutil.which('vox')
+    exe = which('vox')
     if exe is not None:
         opId = opIdOf(lang, templated, op, 'vox')
         version = 'master'      # TODO lookup Git version
@@ -486,7 +486,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
 def benchmark_Mono(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'C#'
-    exe = shutil.which('mcs')
+    exe = which('mcs')
     exe_flags = [] if op == 'Build' else ['']  # TODO: is checker supported?
     if exe is not None:
         execs[lang] = exe
@@ -517,13 +517,13 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     if op == 'Build':
-        exe = shutil.which('go')
+        exe = which('go')
         exe_flags = ['build']
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
     else:
-        exe = shutil.which('gotype')
+        exe = which('gotype')
         exe_flags = []
-        go_exe = shutil.which('go')  # guess it be same as `go`
+        go_exe = which('go')  # guess it be same as `go`
         version = sp.run([go_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
     if exe is not None:
         execs[lang] = exe
@@ -546,7 +546,7 @@ def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
     for gccgo_version in GCC_VERSIONS:
-        exe = shutil.which('gccgo-' + str(gccgo_version))
+        exe = which('gccgo-' + str(gccgo_version))
         exe_flags = ['-c'] if op == 'Build' else ['-fsyntax-only', '-S']
         if exe is not None:
             execs[lang] = exe
@@ -570,9 +570,9 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
     results = list()
     lang = 'OCaml'
     if bytecode:
-        exe = shutil.which('ocamlc')
+        exe = which('ocamlc')
     else:
-        exe = shutil.which('ocamlopt')
+        exe = which('ocamlopt')
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
@@ -596,7 +596,7 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
 def benchmark_V(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'V'                                   # vlang.io
-    exe = shutil.which('/home/per/ware/vlang/v')  # shutil.which('v')
+    exe = which('/home/per/ware/vlang/v')  # which('v')
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
@@ -619,7 +619,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
 def benchmark_Zig(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Zig'
-    exe = shutil.which('zig')
+    exe = which('zig')
     exe_flags = ['build-exe'] if op == 'Build' else ['build-obj', '-fno-emit-bin']
     if exe is not None:
         execs[lang] = exe
@@ -650,7 +650,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Rust'
 
-    rustup_exe = shutil.which('rustup')
+    rustup_exe = which('rustup')
     if rustup_exe:
         rustup_channels = ['stable', 'nightly']
     else:
@@ -660,7 +660,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
         if rustup_exe is not None:
             set_rustup_channel(channel)
 
-        exe = shutil.which('rustc')
+        exe = which('rustc')
 
         if exe is not None:
             opId = opIdOf(lang, templated, op, exe)
@@ -679,7 +679,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                 else:
                     check_args = ['--emit=mir', '-o', '/dev/null']  # Used by Flycheck. Twice as slow as `-Z no-codegen`
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
-                         out_flag_and_exe=None,
+                         out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
                          runner=None,
                          exe_flags=[] if op == 'Build' else check_args,  # https://github.com/rust-lang/rfcs/issues/1476
@@ -696,7 +696,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
 def benchmark_Java(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Java'
-    exe = shutil.which('javac')
+    exe = which('javac')
     if exe is not None:
         opId = opIdOf(lang, templated, op, exe)
         execs[opId] = exe
@@ -728,7 +728,7 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
 def benchmark_Julia(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Julia'
-    exe = shutil.which('julia')
+    exe = which('julia')
     if exe is not None:
         opId = opIdOf(lang, templated, op, exe)
         execs[opId] = exe
@@ -761,7 +761,7 @@ def compile_file(src_paths,
                  results=None,
                  durs=None):
 
-    compiler = shutil.which(exe)
+    compiler = which(exe)
     if compiler is None:
         print('WARNING: Could not find compiler:', exe,
               file=sys.stderr)
