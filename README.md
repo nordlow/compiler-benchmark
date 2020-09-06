@@ -144,72 +144,70 @@ or using [PyPy](https://www.pypy.org/) 3 (for faster code generation) as
 
 results in the following table (copied from the output at the end).
 
-| Lang-uage | Oper-ation | Temp-lated | Time [us/#fn] | Slowdown vs [Best] | Version | Exec |
-| :---: | :---: | --- | :---: | :---: | :---: | :---: |
-| D | Check | No | 7.1 | 1.0 [D] | v2.093.1-612-gfcac985ce | `dmd` |
-| D | Check | No | 8.0 | 1.1 [D] | 1.23.0 | `ldmd2` |
-| D | Check | Yes | 19.5 | 2.8 [D] | v2.093.1-612-gfcac985ce | `dmd` |
-| D | Check | Yes | 19.9 | 2.8 [D] | 1.23.0 | `ldmd2` |
-| D | Build | No | 17.7 | 2.4 [Vox] | v2.093.1-612-gfcac985ce | `dmd` |
-| D | Build | No | 187.8 | 25.4 [Vox] | 1.23.0 | `ldmd2` |
-| D | Build | Yes | 30.1 | 4.1 [Vox] | v2.093.1-612-gfcac985ce | `dmd` |
-| D | Build | Yes | 200.8 | 27.2 [Vox] | 1.23.0 | `ldmd2` |
-| Vox | Build | No | 7.4 | 1.0 [Vox] | master | `vox` |
-| Vox | Build | Yes | 7.9 | 1.1 [Vox] | master | `vox` |
-| C | Check | No | 8.9 | 1.3 [D] | 8.4.0 | `gcc-8` |
-| C | Check | No | 11.7 | 1.7 [D] | 9.3.0 | `gcc-9` |
-| C | Check | No | 12.4 | 1.8 [D] | 10.2.0 | `gcc-10` |
-| C | Check | No | 24.4 | 3.4 [D] | 8.0.1 | `clang-8` |
-| C | Check | No | 27.0 | 3.8 [D] | 9.0.1 | `clang-9` |
-| C | Check | No | 26.9 | 3.8 [D] | 10.0.0 | `clang-10` |
-| C | Build | No | 358.5 | 48.6 [Vox] | 8.4.0 | `gcc-8` |
-| C | Build | No | 404.9 | 54.9 [Vox] | 9.3.0 | `gcc-9` |
-| C | Build | No | 416.3 | 56.4 [Vox] | 10.2.0 | `gcc-10` |
-| C | Build | No | 165.5 | 22.4 [Vox] | 8.0.1 | `clang-8` |
-| C | Build | No | 177.2 | 24.0 [Vox] | 9.0.1 | `clang-9` |
-| C | Build | No | 177.8 | 24.1 [Vox] | 10.0.0 | `clang-10` |
-| C++ | Check | No | 20.1 | 2.8 [D] | 8.4.0 | `g++-8` |
-| C++ | Check | No | 33.9 | 4.8 [D] | 9.3.0 | `g++-9` |
-| C++ | Check | No | 34.8 | 4.9 [D] | 10.2.0 | `g++-10` |
-| C++ | Check | No | 34.3 | 4.8 [D] | 8.0.1 | `clang++-8` |
-| C++ | Check | No | 37.1 | 5.2 [D] | 9.0.1 | `clang++-9` |
-| C++ | Check | No | 37.8 | 5.3 [D] | 10.0.0 | `clang++-10` |
-| C++ | Check | Yes | 55.2 | 7.8 [D] | 8.4.0 | `g++-8` |
-| C++ | Check | Yes | 76.5 | 10.8 [D] | 9.3.0 | `g++-9` |
-| C++ | Check | Yes | 78.6 | 11.1 [D] | 10.2.0 | `g++-10` |
-| C++ | Check | Yes | 51.8 | 7.3 [D] | 8.0.1 | `clang++-8` |
-| C++ | Check | Yes | 54.0 | 7.6 [D] | 9.0.1 | `clang++-9` |
-| C++ | Check | Yes | 57.7 | 8.2 [D] | 10.0.0 | `clang++-10` |
-| C++ | Build | No | 379.6 | 51.4 [Vox] | 8.4.0 | `g++-8` |
-| C++ | Build | No | 432.9 | 58.6 [Vox] | 9.3.0 | `g++-9` |
-| C++ | Build | No | 449.2 | 60.9 [Vox] | 10.2.0 | `g++-10` |
-| C++ | Build | No | 181.6 | 24.6 [Vox] | 8.0.1 | `clang++-8` |
-| C++ | Build | No | 183.8 | 24.9 [Vox] | 9.0.1 | `clang++-9` |
-| C++ | Build | No | 185.3 | 25.1 [Vox] | 10.0.0 | `clang++-10` |
-| C++ | Build | Yes | 8472.4 | 1148.0 [Vox] | 8.4.0 | `g++-8` |
-| C++ | Build | Yes | 8715.5 | 1180.9 [Vox] | 9.3.0 | `g++-9` |
-| C++ | Build | Yes | 8830.5 | 1196.5 [Vox] | 10.2.0 | `g++-10` |
-| C++ | Build | Yes | 194.5 | 26.4 [Vox] | 8.0.1 | `clang++-8` |
-| C++ | Build | Yes | 206.2 | 27.9 [Vox] | 9.0.1 | `clang++-9` |
-| C++ | Build | Yes | 261.3 | 35.4 [Vox] | 10.0.0 | `clang++-10` |
-| Ada | Build | No | 5583.8 | 756.6 [Vox] | 10.2.0 | `gnat-10` |
-| Go | Check | No | 17.7 | 2.5 [D] | 1.15 | `gotype` |
-| Go | Check | No | 25.0 | 3.5 [D] | 9.3.0 | `gccgo-9` |
-| Go | Build | No | 144.8 | 19.6 [Vox] | 1.15 | `go` |
-| Go | Build | No | 602.9 | 81.7 [Vox] | 9.3.0 | `gccgo-9` |
-| Go | Build | No | 637.9 | 86.4 [Vox] | 10.2.0 | `gccgo-10` |
-| V | Build | No | 180.3 | 24.4 [Vox] | 0.1.29 | `v` |
-| Zig | Check | No | 87.8 | 12.4 [D] | 0.6.0+c86108dd6 | `zig` |
-| Zig | Check | Yes | 115.2 | 16.3 [D] | 0.6.0+c86108dd6 | `zig` |
-| Rust | Check | No | 431.9 | 61.0 [D] | 1.46.0 | `rustc` |
-| Rust | Check | No | 263.6 | 37.2 [D] | 1.48.0-nightly | `rustc` |
-| Rust | Check | Yes | 383.4 | 54.2 [D] | 1.46.0 | `rustc` |
-| Rust | Check | Yes | 288.5 | 40.8 [D] | 1.48.0-nightly | `rustc` |
-| Rust | Build | No | 792.2 | 107.3 [Vox] | 1.46.0 | `rustc` |
-| Rust | Build | No | 661.2 | 89.6 [Vox] | 1.48.0-nightly | `rustc` |
-| Rust | Build | Yes | 488.1 | 66.1 [Vox] | 1.46.0 | `rustc` |
-| Rust | Build | Yes | 433.3 | 58.7 [Vox] | 1.48.0-nightly | `rustc` |
-| C# | Build | No | 25.7 | 3.5 [Vox] | 6.8.0.105 | `mcs` |
+| Lang-uage | Oper-ation | Temp-lated | Op Time [us/#fn] | Slowdown vs [Best] | Run Time [ns/#fn] | Version | Exec |
+| :---: | :---: | --- | :---: | :---: | :---: | :---: | :---: |
+| D | Check | No | 7.3 | 1.0 [D] | N/A | v2.093.1-657-g02c6484cb | `dmd` |
+| D | Check | No | 7.8 | 1.1 [D] | N/A | 1.23.0 | `ldmd2` |
+| D | Check | Yes | 18.6 | 2.5 [D] | N/A | v2.093.1-657-g02c6484cb | `dmd` |
+| D | Check | Yes | 20.1 | 2.7 [D] | N/A | 1.23.0 | `ldmd2` |
+| D | Build | No | 25.2 | 3.4 [Vox] | 82 | v2.093.1-657-g02c6484cb | `dmd` |
+| D | Build | No | 200.4 | 27.2 [Vox] | 108 | 1.23.0 | `ldmd2` |
+| D | Build | Yes | 38.5 | 5.2 [Vox] | 41 | v2.093.1-657-g02c6484cb | `dmd` |
+| D | Build | Yes | 217.8 | 29.5 [Vox] | 42 | 1.23.0 | `ldmd2` |
+| Vox | Build | No | 7.4 | 1.0 [Vox] | N/A | master | `vox` |
+| Vox | Build | Yes | 8.2 | 1.1 [Vox] | N/A | master | `vox` |
+| C | Check | No | 9.8 | 1.3 [D] | N/A | 8.4.0 | `gcc-8` |
+| C | Check | No | 11.8 | 1.6 [D] | N/A | 9.3.0 | `gcc-9` |
+| C | Check | No | 12.7 | 1.7 [D] | N/A | 10.2.0 | `gcc-10` |
+| C | Check | No | 24.5 | 3.3 [D] | N/A | 8.0.1 | `clang-8` |
+| C | Check | No | 26.7 | 3.6 [D] | N/A | 9.0.1 | `clang-9` |
+| C | Check | No | 28.5 | 3.9 [D] | N/A | 10.0.0 | `clang-10` |
+| C | Build | No | 371.3 | 50.4 [Vox] | 82 | 8.4.0 | `gcc-8` |
+| C | Build | No | 413.1 | 56.0 [Vox] | 90 | 9.3.0 | `gcc-9` |
+| C | Build | No | 430.2 | 58.4 [Vox] | 76 | 10.2.0 | `gcc-10` |
+| C | Build | No | 170.6 | 23.1 [Vox] | 103 | 8.0.1 | `clang-8` |
+| C | Build | No | 179.9 | 24.4 [Vox] | 108 | 9.0.1 | `clang-9` |
+| C | Build | No | 178.5 | 24.2 [Vox] | 105 | 10.0.0 | `clang-10` |
+| C++ | Check | No | 21.0 | 2.9 [D] | N/A | 8.4.0 | `g++-8` |
+| C++ | Check | No | 33.6 | 4.6 [D] | N/A | 9.3.0 | `g++-9` |
+| C++ | Check | No | 35.3 | 4.8 [D] | N/A | 10.2.0 | `g++-10` |
+| C++ | Check | No | 34.6 | 4.7 [D] | N/A | 8.0.1 | `clang++-8` |
+| C++ | Check | No | 36.5 | 5.0 [D] | N/A | 9.0.1 | `clang++-9` |
+| C++ | Check | No | 39.3 | 5.4 [D] | N/A | 10.0.0 | `clang++-10` |
+| C++ | Check | Yes | 57.8 | 7.9 [D] | N/A | 8.4.0 | `g++-8` |
+| C++ | Check | Yes | 79.7 | 10.9 [D] | N/A | 9.3.0 | `g++-9` |
+| C++ | Check | Yes | 82.6 | 11.3 [D] | N/A | 10.2.0 | `g++-10` |
+| C++ | Check | Yes | 53.4 | 7.3 [D] | N/A | 8.0.1 | `clang++-8` |
+| C++ | Check | Yes | 55.5 | 7.6 [D] | N/A | 9.0.1 | `clang++-9` |
+| C++ | Check | Yes | 56.8 | 7.8 [D] | N/A | 10.0.0 | `clang++-10` |
+| C++ | Build | No | 389.9 | 52.9 [Vox] | 81 | 8.4.0 | `g++-8` |
+| C++ | Build | No | 442.8 | 60.1 [Vox] | 79 | 9.3.0 | `g++-9` |
+| C++ | Build | No | 463.7 | 62.9 [Vox] | 75 | 10.2.0 | `g++-10` |
+| C++ | Build | No | 183.9 | 25.0 [Vox] | 111 | 8.0.1 | `clang++-8` |
+| C++ | Build | No | 194.2 | 26.3 [Vox] | 110 | 9.0.1 | `clang++-9` |
+| C++ | Build | No | 191.2 | 25.9 [Vox] | 118 | 10.0.0 | `clang++-10` |
+| C++ | Build | Yes | 8391.6 | 1138.3 [Vox] | 51 | 8.4.0 | `g++-8` |
+| C++ | Build | Yes | 8197.4 | 1112.0 [Vox] | 51 | 9.3.0 | `g++-9` |
+| C++ | Build | Yes | 8125.7 | 1102.3 [Vox] | 49 | 10.2.0 | `g++-10` |
+| C++ | Build | Yes | 196.1 | 26.6 [Vox] | 51 | 8.0.1 | `clang++-8` |
+| C++ | Build | Yes | 210.9 | 28.6 [Vox] | 56 | 9.0.1 | `clang++-9` |
+| C++ | Build | Yes | 263.0 | 35.7 [Vox] | 56 | 10.0.0 | `clang++-10` |
+| Ada | Build | No | 5164.8 | 700.6 [Vox] | N/A | 10.2.0 | `gnat-10` |
+| Go | Check | No | 30.1 | 4.1 [D] | N/A | 8.4.0 | `gccgo-8` |
+| Go | Check | No | 24.2 | 3.3 [D] | N/A | 9.3.0 | `gccgo-9` |
+| Go | Build | No | 141.7 | 19.2 [Vox] | 43 | 1.15 | `go` |
+| V | Build | No | 182.9 | 24.8 [Vox] | 45 | 0.1.29 | `v` |
+| Zig | Check | No | 85.4 | 11.7 [D] | N/A | 0.6.0+32a77a604 | `zig` |
+| Zig | Check | Yes | 111.8 | 15.2 [D] | N/A | 0.6.0+32a77a604 | `zig` |
+| Zig | Build | No | 401.7 | 54.5 [Vox] | 71 | 0.6.0+32a77a604 | `zig` |
+| Zig | Build | Yes | 430.7 | 58.4 [Vox] | 67 | 0.6.0+32a77a604 | `zig` |
+| Rust | Check | No | 255.0 | 34.8 [D] | N/A | 1.48.0-nightly | `rustc` |
+| Rust | Check | Yes | 271.0 | 37.0 [D] | N/A | 1.48.0-nightly | `rustc` |
+| Rust | Build | No | 778.7 | 105.6 [Vox] | 120 | 1.46.0 | `rustc` |
+| Rust | Build | No | 652.7 | 88.5 [Vox] | 121 | 1.48.0-nightly | `rustc` |
+| Rust | Build | Yes | 486.3 | 66.0 [Vox] | 88 | 1.46.0 | `rustc` |
+| Rust | Build | Yes | 429.9 | 58.3 [Vox] | 88 | 1.48.0-nightly | `rustc` |
+| C# | Build | No | 26.1 | 3.5 [Vox] | 36766 | 6.8.0.105 | `mcs` |
 
 This is with DMD built with LDC for an additional 15 percent drop in compilation time.
 
