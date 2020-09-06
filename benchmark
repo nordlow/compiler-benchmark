@@ -599,7 +599,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
         vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
-                     out_flag_and_exe=None,
+                     out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
                      runner=None,
                      exe_flags=['-cc', 'clang', '-backend', vlang_backends[2]],
@@ -621,7 +621,7 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
         execs[lang] = exe
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
-                     out_flag_and_exe=None,
+                     out_flag_and_exe=['--name', out_binary(lang)],
                      exe=exe,
                      runner=None,
                      exe_flags=['build-obj', '-fno-emit-bin'],
