@@ -5,22 +5,22 @@ compilers. Supported languages are:
 
 ## Languages with Natives Compilers
 
-- C (using `gcc`),
-- C++ (using `g++`),
-- Ada (using `gnatgcc`),
-- D (using `dmd` `ldmd2`, and `gdc`),
-- Vox (using `vox`),
-- Go (using `go` or `gccgo`),
-- Rust (using `rustc`),
-- V (using `v`),
-- Zig (using `zig`), and
-- Julia (using `julia`).
+- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`),
+- [C\+\+](http://www.cplusplus.org/) (using `g++`),
+- [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
+- [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
+- [Vox](https://github.com/MrSmith33/tiny_jit) (using `vox`),
+- [Go](https://golang.org/) (using `go` or `gccgo`),
+- [Rust](https://www.rust-lang.org/) (using `rustc`),
+- [V](https://vlang.io/) (using `v`),
+- [Zig](https://ziglang.org/) (using `zig`), and
+- [Julia](https://julialang.org/) (using `julia`).
 
 ## Languages with Bytecode Compilers:
 
-- OCaml (using `ocamlopt`),
-- C# (using `mcs`), and
-- Java (using `javac`).
+- [OCaml](https://ocaml.org/) (using `ocamlopt`),
+- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) (using `mcs`), and
+- [Java](https://www.oracle.com/java/) (using `javac`).
 
 A subset of these can be installed on Ubuntu (tested on 20.04) via the script
 `./install-compilers-on-ubuntu-20.04.sh` in this repo.
