@@ -20,7 +20,9 @@ SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
+
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
+RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 
 ROOT_PATH = 'generated'
 GCC_VERSIONS = range(5, 15)
@@ -398,7 +400,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
-    src_paths = [gpaths[srcIdOf(lang, templated)]# ,
+    src_paths = [gpaths[srcIdOf(lang, templated)]  # ,
                  # create_D_object_file() # TODO: add later
                  ]
 
@@ -690,8 +692,7 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                     check_args = ['-Z', 'no-codegen']  # TODO why is this not available on stable yet?
                 else:
                     check_args = ['--emit=mir', '-o', '/dev/null']  # Used by Flycheck. Twice as slow as `-Z no-codegen`
-            comp_flags = [] if op == 'Build' else check_args
-            # comp_flags += RUSTC_NO_WARNINGS_FLAGS
+            comp_flags = ([] if op == 'Build' else check_args) + RUSTC_FLAGS
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
