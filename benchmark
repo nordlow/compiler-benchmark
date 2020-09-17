@@ -690,11 +690,13 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                     check_args = ['-Z', 'no-codegen']  # TODO why is this not available on stable yet?
                 else:
                     check_args = ['--emit=mir', '-o', '/dev/null']  # Used by Flycheck. Twice as slow as `-Z no-codegen`
+            comp_flags = [] if op == 'Build' else check_args
+            # comp_flags += RUSTC_NO_WARNINGS_FLAGS
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
                          runner=True,
-                         comp_flags=[] if op == 'Build' else check_args,  # https://github.com/rust-lang/rfcs/issues/1476
+                         comp_flags=comp_flags,  # https://github.com/rust-lang/rfcs/issues/1476
                          args=args,
                          op=op,
                          compiler_version=version,
