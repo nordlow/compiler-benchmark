@@ -18,7 +18,10 @@ SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Java', 'D', 'Vox', 'Rust', 'Zig
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'V', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
+
 C_WARN_FLAGS = ['-Wall', '-Wextra']
+RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
+
 ROOT_PATH = 'generated'
 GCC_VERSIONS = range(5, 15)
 
