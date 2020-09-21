@@ -225,10 +225,11 @@ def main():
         if 'Check' in args.operations:
             results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
         if 'Check' in args.operations:
@@ -369,12 +370,21 @@ def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated
 
 def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
-    comp_flags = ['-c'] if op == 'Build' else ['-c']
+
     exe = which('cproc')
+    if op == 'Check':
+        comp_flags = ['-emit-qbe']
+        out_flag_and_exe = ['-o', '/dev/null']
+    elif op == 'Build':
+        comp_flags = ['-c']     # skip linking for now
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        assert(False)
+
     if exe is not None:
         version = 'unknown'
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
-                     out_flag_and_exe=['-o', out_binary(lang)],
+                     out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
                      runner=False,
                      comp_flags=comp_flags,
