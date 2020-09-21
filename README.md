@@ -5,8 +5,8 @@ compilers. Supported languages are:
 
 ## Languages with Natives Compilers
 
-- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`),
-- [C\+\+](http://www.cplusplus.org/) (using `g++`),
+- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`, `clang` and [`cproc`](https://github.com/michaelforney/cproc),
+- [C\+\+](http://www.cplusplus.org/) (using `g++` and `clang++`),
 - [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
 - [Vox](https://github.com/MrSmith33/tiny_jit) (using `vox`),
