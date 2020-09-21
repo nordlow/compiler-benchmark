@@ -226,6 +226,7 @@ def main():
             results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
+            results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
@@ -363,6 +364,27 @@ def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated
                          templated=templated,
                          results=results,
                          durs=durs)
+    return results
+
+
+def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
+    results = list()
+    comp_flags = ['-c'] if op == 'Build' else ['-c']
+    exe = which('cproc')
+    if exe is not None:
+        version = 'unknown'
+        compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
+                     out_flag_and_exe=['-o', out_binary(lang)],
+                     exe=exe,
+                     runner=False,
+                     comp_flags=comp_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results,
+                     durs=durs)
     return results
 
 
