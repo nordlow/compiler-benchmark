@@ -4,6 +4,7 @@ import sys
 import argparse
 import subprocess as sp
 import os
+import stat
 import os.path
 from shutil import which
 import time
@@ -386,7 +387,7 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
-                     runner=False,
+                     runner=(op == 'Build'),
                      comp_flags=comp_flags,
                      args=args,
                      op=op,
@@ -844,14 +845,18 @@ def compile_file(src_paths,
     # run
     rdur_min = None             # run duration minimum
     if op == 'Build':
+        outb = out_binary(lang)
         if runner:
             if runner is True:      # binary should be runnable
-                rdur_min = run_compiled_file([out_binary(lang)])
+                if (exe.endswith('cproc')):  # cproc forgets to set executable bit
+                    st = os.stat(exe)
+                    os.chmod(outb, st.st_mode | stat.S_IEXEC)
+                rdur_min = run_compiled_file(exe)
             elif type(runner) is list:
-                rdur_min = run_compiled_file(runner + [out_binary(lang)])
+                rdur_min = run_compiled_file(runner + [outb])
         elif out_flag_and_exe:
             if runner is not False:
-                print("TODO: run " + out_binary(lang) + " using runner " + str(runner))
+                print("TODO: run " + outb + " using runner " + str(runner))
 
     opId = opIdOf(lang, templated, op, exe)
 
@@ -1176,7 +1181,9 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
 
 def generate_test_main_header(lang, types, f, templated):
     if lang in ['c', 'c++']:
-        f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
+        # `cproc` cannot handle this skip for now:
+        # f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
+        f.write('int main(void) {\n')
     elif lang == 'ada':
         f.write('procedure Main is\n')
     elif lang == 'c#':
