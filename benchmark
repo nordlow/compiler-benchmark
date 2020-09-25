@@ -622,7 +622,8 @@ def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
 def benchmark_Swift(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Swift'
-    exe = which('/home/per/.local/swift-5.3-RELEASE-ubuntu20.04/usr/bin/swiftc')
+    exe = (which('swiftc') or
+           which('/home/per/.local/swift-5.3-RELEASE-ubuntu20.04/usr/bin/swiftc'))
     print(exe)
     version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
     if op == 'Build':
