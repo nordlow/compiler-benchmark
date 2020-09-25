@@ -15,8 +15,8 @@ from datetime import datetime
 from string import Template as Tm
 from timeit import default_timer as timer
 
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'V', 'Julia']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
@@ -255,6 +255,12 @@ def main():
             results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+
+    if 'Swift' in args.languages:
+        if 'Check' in args.operations:
+            results += benchmark_Swift(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+        if 'Build' in args.operations:
+            results += benchmark_Swift(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'V' in args.languages:
         if 'Build' in args.operations:
@@ -613,6 +619,33 @@ def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
     return results
 
 
+def benchmark_Swift(execs, durs, gpaths, args, op, templated):
+    results = list()
+    lang = 'Swift'
+    exe = which('/home/per/.local/swift-5.3-RELEASE-ubuntu20.04/usr/bin/swiftc')
+    print(exe)
+    version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
+    if op == 'Build':
+        comp_flags = ['']
+    else:
+        comp_flags = ['-typecheck']
+    if exe is not None:
+        execs[lang] = exe
+        compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
+                     out_flag_and_exe=['-o', out_binary(lang)],
+                     exe=exe,
+                     runner=True,
+                     comp_flags=comp_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results,
+                     durs=durs)
+    return results
+
+
 def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
     results = list()
     lang = 'OCaml'
@@ -902,6 +935,8 @@ def long_types_of_lang(lang):
         return ['long']
     elif lang in ('rust', 'zig', 'v', 'vox'):
         return ['i64']
+    elif lang in 'swift':
+        return ['Int64']
     elif lang == 'd':
         return ['long']
     elif lang == 'go':
@@ -993,6 +1028,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
         f.write(Tm('    ${T}_sum += add_${T}_n${N}${X}(${N})').substitute(T=typ,
                                                                           N=str(findex),
                                                                           X='[' + typ + ']' if templated else ''))
+    elif lang == 'swift':
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
@@ -1009,6 +1046,8 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
         f.write('use std::process::exit;\n')
         if templated:
             f.write('use std::ops::Add;\n')
+    elif lang == 'swift':
+        f.write('import Foundation\n\n')
     elif lang == 'c#':
         f.write('using System;\n\n')
         f.write('public class HelloWorld {\n')
@@ -1024,6 +1063,8 @@ def generate_test_language_specific_postfix(lang, types, f):
         f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
     elif lang == 'v':
         f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
+    elif lang == 'swift':
+        f.write(Tm('    exit(Int32(${T}_sum))\n}\n').substitute(T=types[0]))
     elif lang == 'go':
         f.write(Tm('    // os.Exit(int(${T}_sum));\n').substitute(T=types[0]))
         f.write(Tm('}\n').substitute(T=types[0]))
@@ -1117,6 +1158,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
             expr = 'x + ' + call
         elif lang == 'ocaml':
             expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + nconst + '.0'
+        elif lang == 'swift':
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x: ' + xtarg + 'x) + ' + nconst
         else:
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + nconst
 
@@ -1160,6 +1203,15 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                                                                       X=expr))
         else:
             f.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
+    elif lang == 'swift':
+        if templated:
+            f.write(Tm('func ${F}<${T}>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
+                                                                                        F=str(fname),
+                                                                                        N=nconst,
+                                                                                        H=str(fheight),
+                                                                                        X=expr))
+        else:
+            f.write(Tm('func ${F}(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'zig':
         if templated:
             f.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
@@ -1196,6 +1248,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write('i32 main() {\n')
     elif lang == 'rust':
         f.write(Tm('fn main() {\n').substitute(T=types[0]))
+    elif lang == 'swift':
+        f.write(Tm('func main() {\n').substitute(T=types[0]))
     elif lang == 'zig':
         f.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
     elif lang == 'go':
@@ -1226,6 +1280,8 @@ def generate_main_test_function_variable(lang, typ, f, templated):
         f.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang == 'rust':
         f.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
+    elif lang == 'swift':
+        f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
     elif lang == 'zig':
         f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
     elif lang == 'go':
