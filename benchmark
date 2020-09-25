@@ -677,7 +677,8 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
 def benchmark_V(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'V'                                   # vlang.io
-    exe = which('/home/per/ware/vlang/v')  # which('v')
+    exe = (which('v') or
+           which('/home/per/ware/vlang/v'))
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
