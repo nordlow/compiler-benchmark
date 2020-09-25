@@ -7,14 +7,15 @@ compilers. Supported languages are:
 
 - [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`, `clang` and [`cproc`](https://github.com/michaelforney/cproc),
 - [C\+\+](http://www.cplusplus.org/) (using `g++` and `clang++`),
-- [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
-- [Vox](https://github.com/MrSmith33/tiny_jit) (using `vox`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
+- [Swift](https://swift.org/) (using `swiftc`),
 - [Rust](https://www.rust-lang.org/) (using `rustc`),
-- [V](https://vlang.io/) (using `v`),
-- [Zig](https://ziglang.org/) (using `zig`), and
 - [Julia](https://julialang.org/) (using `julia`).
+- [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
+- [Zig](https://ziglang.org/) (using `zig`), and
+- [V](https://vlang.io/) (using `v`),
+- [Vox](https://github.com/MrSmith33/tiny_jit) (using `vox`),
 
 ## Languages with Bytecode Compilers:
 
