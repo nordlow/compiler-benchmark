@@ -107,7 +107,7 @@ using templated functions.
 
 ## Conclusions (from sample run shown below)
 
-Vox, D's reference compiler `dmd` are far ahead of all its competition
+Vox and D's reference compiler `dmd` are far ahead of all its competition
 especially when it comes to check and default build (standard compilation)
 performance. Specifically,
 
