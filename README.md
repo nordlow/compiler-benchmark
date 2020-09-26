@@ -107,9 +107,9 @@ using templated functions.
 
 ## Conclusions (from sample run shown below)
 
-Vox, D's reference compiler `dmd` and Go's reference compiler `go` are still far
-ahead of all its competition especially when it comes to default build (standard
-compilation) performance. Further,
+Vox, D's reference compiler `dmd` are far ahead of all its competition
+especially when it comes to check and default build (standard compilation)
+performance. Specifically,
 
 - Vox's builds are, by a large margin, the fastest. 3.4 times faster than its
   closers competitor, `dmd`.
