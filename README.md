@@ -114,7 +114,8 @@ compilation) performance. Further,
 - Vox's builds are, by a large margin, the fastest. 3.4 times faster than its
   closers competitor, `dmd`.
 - D's `dmd` performs the fastest check. If and when Vox gets a separate check
-  phase, it's likely gonna be faster.
+  phase, it's likely gonna be signifcantly faster aswell because its build is
+  only a couple of percent slower than `dmd`'s check.
 - Go's checker `gotype` is 2.5 times slower than D's builtin (`dmd -o-`) while
 
 The performance of both GCC and Clang gets significanly worse with each new
