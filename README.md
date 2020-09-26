@@ -117,6 +117,10 @@ performance. Specifically,
   phase, it's likely gonna be signifcantly faster aswell because its build is
   only a couple of percent slower than `dmd`'s check.
 
+Note that Vox, however, is an experimental language with no official release
+status, a Windows-only backend, and less language features than most other
+languages benchmarked.
+
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
 
