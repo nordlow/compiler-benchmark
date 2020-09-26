@@ -107,12 +107,15 @@ using templated functions.
 
 ## Conclusions (from sample run shown below)
 
-D's reference compiler `dmd` and Go's reference compiler `go` are still far
+Vox, D's reference compiler `dmd` and Go's reference compiler `go` are still far
 ahead of all its competition especially when it comes to default build (standard
 compilation) performance. Further,
 
+- Vox's builds are, by a large margin, the fastest. 3.4 times faster than its
+  closers competitor, `dmd`.
+- D's `dmd` performs the fastest check. If and when Vox gets a separate check
+  phase, it's likely gonna be faster.
 - Go's checker `gotype` is 2.5 times slower than D's builtin (`dmd -o-`) while
-- D's `dmd` is 1.2 times slower on builds than Go's `go`
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
