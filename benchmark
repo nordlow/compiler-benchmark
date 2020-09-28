@@ -524,7 +524,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
-                     runner=False,  # vox can only output Windows binaries now. TODO: https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
+                     runner=True,  # Vox only outputs Windows binaries but Linux can run that. TODO: https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
                      comp_flags=[],
                      args=args,
                      op=op,
