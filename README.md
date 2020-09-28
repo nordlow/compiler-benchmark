@@ -5,7 +5,7 @@ compilers. Supported languages are:
 
 ## Languages with Natives Compilers
 
-- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`, `clang` and [`cproc`](https://github.com/michaelforney/cproc),
+- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`, `clang` and [`cproc`](https://github.com/michaelforney/cproc)),
 - [C\+\+](http://www.cplusplus.org/) (using `g++` and `clang++`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
@@ -108,7 +108,7 @@ using templated functions.
 ## Conclusions (from sample run shown below)
 
 Vox and D's reference compiler `dmd` are far ahead of all its competition
-especially when it comes to check and default build (standard compilation)
+(except `cproc`) especially when it comes to check and default build (standard compilation)
 performance. Specifically,
 
 - Vox's builds are, by a large margin, the fastest. 3.4 times faster than its
