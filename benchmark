@@ -336,7 +336,7 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
-                         runner=False,  # TODO: activate ru
+                         runner=True,
                          comp_flags=comp_flags,
                          args=args,
                          op=op,
