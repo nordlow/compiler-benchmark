@@ -221,8 +221,6 @@ results in the following table (copied from the output at the end).
 | Rust | Build | Yes | 438.4 | 63.3 [Vox] | 198 | 1.48.0-nightly | `rustc` |
 | C# | Build | No | 27.4 | 4.0 [Vox] | 333 | 6.12.0.90 | `mcs` |
 
-This is with DMD built with LDC for an additional 15 percent drop in compilation time.
-
 ## TODO
 
 - Put check and build time in separate columns on same line
