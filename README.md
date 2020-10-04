@@ -219,7 +219,7 @@ results in the following table (copied from the output at the end).
 | Rust | Build | No | 660.4 | 95.3 [Vox] | 200 | 1.48.0-nightly | `rustc` |
 | Rust | Build | Yes | 486.8 | 70.3 [Vox] | 424 | 1.46.0 | `rustc` |
 | Rust | Build | Yes | 438.4 | 63.3 [Vox] | 198 | 1.48.0-nightly | `rustc` |
-| C# | Build | No | 27.4 | 4.0 [Vox] | 262 | 6.8.0.105 | `mcs` |
+| C# | Build | No | 27.4 | 4.0 [Vox] | 333 | 6.12.0.90 | `mcs` |
 
 This is with DMD built with LDC for an additional 15 percent drop in compilation time.
 
