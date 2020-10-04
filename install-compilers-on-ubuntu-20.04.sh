@@ -29,6 +29,8 @@ sudo apt install golang-go golang-golang-x-tools
 sudo apt install julia
 
 # C#
+./install-mono.sh
+
 sudo apt install mono-mcs
 
 # Java
