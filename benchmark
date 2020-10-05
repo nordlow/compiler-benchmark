@@ -218,9 +218,12 @@ def main():
             results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'Vox' in args.languages:
+        if 'Check' in args.operations:
+            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
-            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
-            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
+            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C' in args.languages:
         if 'Check' in args.operations:
@@ -509,10 +512,11 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     return results
 
 
-def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
+def benchmark_Vox(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Vox'
 
+    comp_flags = [] if op == 'Build' else ['--check-only']
     src_paths = [gpaths[srcIdOf(lang, templated)]]
 
     exe = which('vox')
@@ -525,7 +529,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated, use_dips):
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
                      runner=True,  # Vox only outputs Windows binaries but Linux can run that. TODO: https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
-                     comp_flags=[],
+                     comp_flags=comp_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
