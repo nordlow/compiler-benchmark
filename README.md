@@ -162,8 +162,8 @@ results in the following table (copied from the output at the end).
 | D | Build | No | 190.6 | 27.5 [Vox] | 115 | 1.23.0 | `ldmd2` |
 | D | Build | Yes | 36.6 | 5.3 [Vox] | 32 | v2.094.0-rc.1-75-ga0875a7e0 | `dmd` |
 | D | Build | Yes | 207.8 | 30.0 [Vox] | 114 | 1.23.0 | `ldmd2` |
-| Vox | Build | No | 6.9 | 1.0 [Vox] | N/A | master | `vox` |
-| Vox | Build | Yes | 7.7 | 1.1 [Vox] | N/A | master | `vox` |
+| Vox | Build | No | 6.9 | 1.0 [Vox] | 21 | master | `vox` |
+| Vox | Build | Yes | 7.7 | 1.1 [Vox] | 22 | master | `vox` |
 | C | Check | No | 10.4 | 1.5 [D] | N/A | 8.4.0 | `gcc-8` |
 | C | Check | No | 12.4 | 1.8 [D] | N/A | 9.3.0 | `gcc-9` |
 | C | Check | No | 13.5 | 2.0 [D] | N/A | 10.2.0 | `gcc-10` |
