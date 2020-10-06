@@ -223,6 +223,7 @@ results in the following table (copied from the output at the end).
 
 ## TODO
 
+- Add support for language [C3](https://www.c3-lang.org/setup/)
 - Put check and build time in separate columns on same line
 - Track memory usage of compilations using ideas at [Subprocess memory usage in python](https://stackoverflow.com/questions/13607391/subprocess-memory-usage-in-python/13607392).
 - Parallelize calls to checkers and builders.
