@@ -544,7 +544,7 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'C#'
     exe = which('mcs')
-    comp_flags = [] if op == 'Build' else ['']  # TODO: is checker supported?
+    comp_flags = [] if op == 'Build' else ['']
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
