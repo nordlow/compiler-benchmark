@@ -15,8 +15,8 @@ from datetime import datetime
 from string import Template as Tm
 from timeit import default_timer as timer
 
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'Go', 'V', 'Julia', 'OCaml']
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'Julia']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml']
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
@@ -270,6 +270,10 @@ def main():
             results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
         # TODO activate when issue https://github.com/vlang/v/issues/5818 has ben fixed:
         # results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+
+    if 'C3' in args.languages:
+        if 'Build' in args.operations:
+            results += benchmark_C3(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Zig' in args.languages:
         if 'Check' in args.operations:
@@ -693,6 +697,29 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
                      exe=exe,
                      runner=True,
                      comp_flags=['-cc', 'clang', '-backend', vlang_backends[2]],
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results,
+                     durs=durs)
+    return results
+
+
+def benchmark_C3(execs, durs, gpaths, args, op, templated):
+    results = list()
+    lang = 'V'
+    exe = (which('c3c') or
+           which('/home/per/ware/c3c/build/c3c'))
+    if exe is not None:
+        execs[lang] = exe
+        version = 'unknown'
+        compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
+                     out_flag_and_exe=['-o', out_binary(lang)],
+                     exe=exe,
+                     runner=True,
+                     comp_flags=['compile'],
                      args=args,
                      op=op,
                      compiler_version=version,
