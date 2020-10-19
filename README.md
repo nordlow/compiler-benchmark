@@ -15,7 +15,8 @@ compilers. Supported languages are:
 - [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
 - [Zig](https://ziglang.org/) (using `zig`), and
 - [V](https://vlang.io/) (using `v`),
-- [Vox](https://github.com/MrSmith33/tiny_jit) (using `vox`),
+- [Vox](https://github.com/MrSmith33/vox) (using `vox`),
+- [C3](https://github.com/c3lang/c3c) (using `c3c`),
 
 ## Languages with Bytecode Compilers:
 
