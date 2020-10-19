@@ -1206,8 +1206,10 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     else:
         fname = function_name(typ, findex, fheight)
 
-    if lang in ('c', 'c3'):
+    if lang in ('c'):
         f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
+    elif lang in ('c3'):
+        f.write(Tm('func ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ['ada']:
         f.write(Tm('''   function ${F} (x: ${T}) return ${T} is (${X});
 ''').substitute(T=typ, F=str(fname), N=nconst, X=expr))
