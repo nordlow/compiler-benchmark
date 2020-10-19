@@ -45,7 +45,7 @@ def touchFile(path):
         os.utime(path, None)
 
 
-def create_D_object_file():
+def ate_D_object_file():
     path = os.path.join(ROOT_PATH, 'd', 'object.d')
     touchFile(path=path)
     return path
@@ -709,7 +709,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
 
 def benchmark_C3(execs, durs, gpaths, args, op, templated):
     results = list()
-    lang = 'V'
+    lang = 'C3'
     exe = (which('c3c') or
            which('/home/per/ware/c3c/build/c3c'))
     if exe is not None:
@@ -967,9 +967,9 @@ def run_compiled_file(args, run_count=1):
 
 
 def long_types_of_lang(lang):
-    if lang in ('c', 'c++', 'c#', 'java'):
+    if lang in ('c', 'c3', 'c++', 'c#', 'java'):
         return ['long']
-    elif lang in ('rust', 'zig', 'v', 'vox'):
+    elif lang in ('rust', 'zig', 'v', 'vox', 'c3'):
         return ['i64']
     elif lang in 'swift':
         return ['Int64']
@@ -1110,6 +1110,8 @@ def generate_test_language_specific_postfix(lang, types, f):
         f.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
     elif lang == 'zig':
         f.write(Tm('\n}\n').substitute(T=types[0]))
+    elif lang == 'c3':
+        f.write(Tm('\n}\n').substitute(T=types[0]))  # TODO: exit
     elif lang == 'julia':
         f.write(Tm('''    return ${T}_sum;
 end
@@ -1204,7 +1206,7 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     else:
         fname = function_name(typ, findex, fheight)
 
-    if lang in ['c']:
+    if lang in ('c', 'c3'):
         f.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ['ada']:
         f.write(Tm('''   function ${F} (x: ${T}) return ${T} is (${X});
@@ -1248,6 +1250,15 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                                                                         X=expr))
         else:
             f.write(Tm('func ${F}(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
+    elif lang == 'c3':
+        if templated:
+            f.write(Tm('func ${F}<${T}>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
+                                                                                        F=str(fname),
+                                                                                        N=nconst,
+                                                                                        H=str(fheight),
+                                                                                        X=expr))
+        else:
+            f.write(Tm('func ${T} ${F}(${T} x) { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'zig':
         if templated:
             f.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
@@ -1288,6 +1299,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write(Tm('func main() {\n').substitute(T=types[0]))
     elif lang == 'zig':
         f.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
+    elif lang == 'c3':
+        f.write(Tm('func void main() {\n').substitute(T=types[0]))
     elif lang == 'go':
         f.write(Tm('func main() {\n').substitute(T=types[0]))
     elif lang == 'v':
@@ -1306,7 +1319,7 @@ def generate_test_main_middle(lang, types, f, templated):
 
 
 def generate_main_test_function_variable(lang, typ, f, templated):
-    if lang in ('c', 'c++', 'd', 'vox'):
+    if lang in ('c', 'c3', 'c++', 'd', 'vox'):
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang in ['ada']:
         f.write(Tm('   ${T}_sum : ${T} := 0;\n').substitute(T=typ))
@@ -1364,6 +1377,9 @@ def generate_test_program_2(function_count, lang, templated):
         if lang == 'rust':
             f.write('''use std::io;
 ''')
+        if lang == 'c3':
+            f.write('''import std::io;
+''')
         if lang == 'go':
             f.write('''import "fmt";
 
@@ -1379,7 +1395,7 @@ def generate_test_program_2(function_count, lang, templated):
 
         for typ in types:
             for findex in range(0, function_count):
-                if lang in ('c', 'c++'):
+                if lang in ('c', 'c3', 'c++'):
                     f.write(Tm('''${T} add_${T}_n${N}(${T} x) { return x + ${N}; }
 ''').substitute(T=typ, N=str(findex)))
                 if lang in ('d', 'vox'):
@@ -1436,7 +1452,7 @@ end;
 
         # CALCULATE
         for typ in types:
-            if lang in ('c', 'c++', 'd', 'vox'):
+            if lang in ('c', 'c3', 'c++', 'd', 'vox'):
                 f.write(Tm('''    ${T} ${T}_sum = 0;
 ''').substitute(T=typ))
             elif lang == 'rust':
