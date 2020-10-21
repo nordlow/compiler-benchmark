@@ -112,15 +112,10 @@ Vox and D's reference compiler `dmd` are far ahead of all its competition
 (except `cproc`) especially when it comes to check and default build (standard compilation)
 performance. Specifically,
 
-- Vox's builds are, by a large margin, the fastest. 3.4 times faster than its
-  closers competitor, `dmd`.
-- D's `dmd` performs the fastest check. If and when Vox gets a separate check
-  phase, it's likely gonna be signifcantly faster aswell because its build is
-  only a couple of percent slower than `dmd`'s check.
-
-Note that Vox, however, is an experimental language with no official release
-status, a Windows-only backend, and less language features than most other
-languages benchmarked.
+Vox's check and build are, by a large margin, the fastest. 3-4 times faster than
+its closers competitor, `dmd`. Note that Vox, however, is a highly experimental
+language with no official release status, a Windows-only backend, and less
+language features than most other languages benchmarked.
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
