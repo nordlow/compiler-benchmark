@@ -26,7 +26,8 @@ RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for 
 RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 
 ROOT_PATH = 'generated'
-GCC_VERSIONS = range(5, 15)
+RANGE = range(5, 15)
+VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Slowdown vs [Best]', 'Run Time [us/#fn]', 'Version', 'Exec']
 
@@ -336,8 +337,8 @@ def generate_code(args):
 def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     comp_flags = ['compile'] if op == 'Build' else ['check']
-    for gcc_version in GCC_VERSIONS:
-        exe = which('gnat-' + str(gcc_version))
+    for gcc_version in VERSIONS:
+        exe = which('gnat' + str(gcc_version))
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -358,11 +359,11 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
 def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     comp_flags = [] if op == 'Build' else ['-fsyntax-only']
-    for gcc_version in GCC_VERSIONS:
+    for gcc_version in VERSIONS:
         if lang == 'C':
-            exe = which('gcc-' + str(gcc_version))
+            exe = which('gcc' + str(gcc_version))
         elif lang == 'C++':
-            exe = which('g++-' + str(gcc_version))
+            exe = which('g++' + str(gcc_version))
         else:
             assert(False)
         if exe is not None:
