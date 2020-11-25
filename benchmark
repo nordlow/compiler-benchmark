@@ -20,13 +20,14 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zi
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
-C_WARN_FLAGS = ['-Wall', '-Wextra']
+C_WARN_FLAGS = ['-Wall', '-Wextra','-Wno-c++11-extensions']
 
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
 RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 
 ROOT_PATH = 'generated'
-GCC_VERSIONS = range(5, 15)
+RANGE = range(5, 15)
+VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Slowdown vs [Best]', 'Run Time [us/#fn]', 'Version', 'Exec']
 
@@ -124,6 +125,9 @@ def factor_str(factor):
     return '{:.1f}'.format(factor)
 
 
+def repeat_to_length(string_to_expand, length):
+    return (string_to_expand * (int(length/len(string_to_expand))+1))[:length]
+
 def md_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
@@ -143,15 +147,16 @@ def md_table(titles, rows):
     result += '| '
     for ix, col in enumerate(range(len(titles))):
         if ix == 2:
-            result += '---' + ' | '
+            result += repeat_to_length("-",len(titles[ix])) + ' | '
         else:
-            result += ':---:' + ' | '
+            result += ':' + repeat_to_length("-",len(titles[ix])-2) + ':' + ' | '
     result += '\n'
 
     for row in rows:
         result += '| '
-        for col in row:
-            result += str(col) + ' | '
+        for ix, cl in enumerate(range(len(titles))):
+            col = row[ix]
+            result += str(col) + repeat_to_length(" ",len(titles[ix])-len(str(col))) + ' | '
         result += '\n'
     return result
 
@@ -336,8 +341,8 @@ def generate_code(args):
 def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     comp_flags = ['compile'] if op == 'Build' else ['check']
-    for gcc_version in GCC_VERSIONS:
-        exe = which('gnat-' + str(gcc_version))
+    for gcc_version in VERSIONS:
+        exe = which('gnat' + str(gcc_version))
         if exe is not None:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -358,11 +363,11 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
 def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     comp_flags = [] if op == 'Build' else ['-fsyntax-only']
-    for gcc_version in GCC_VERSIONS:
+    for gcc_version in VERSIONS:
         if lang == 'C':
-            exe = which('gcc-' + str(gcc_version))
+            exe = which('gcc' + str(gcc_version))
         elif lang == 'C++':
-            exe = which('g++-' + str(gcc_version))
+            exe = which('g++' + str(gcc_version))
         else:
             assert(False)
         if exe is not None:
@@ -415,13 +420,12 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
 def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templated):
     results = list()
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    CLANG_VERSIONS = range(5, 15)
     comp_flags = [] if op == 'Build' else ['-fsyntax-only']
-    for clang_version in CLANG_VERSIONS:
+    for clang_version in VERSIONS:
         if lang == 'C':
-            exe = which('clang-' + str(clang_version))
+            exe = which('clang' + str(clang_version))
         elif lang == 'C++':
-            exe = which('clang++-' + str(clang_version))
+            exe = which('clang++' + str(clang_version))
         else:
             assert(False)
         if exe is not None:
@@ -607,8 +611,8 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
 def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
-    for gccgo_version in GCC_VERSIONS:
-        exe = which('gccgo-' + str(gccgo_version))
+    for gccgo_version in VERSIONS:
+        exe = which('gccgo' + str(gccgo_version))
         comp_flags = [] if op == 'Build' else ['-fsyntax-only', '-S']
         if exe is not None:
             execs[lang] = exe
