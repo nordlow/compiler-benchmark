@@ -20,8 +20,7 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zi
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
-#C_WARN_FLAGS = ['-Wall', '-Wextra']
-C_WARN_FLAGS = ['-w']
+C_WARN_FLAGS = ['-Wall', '-Wextra','-Wno-c++11-extensions']
 
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
 RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
@@ -430,7 +429,6 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
         else:
             assert(False)
         if exe is not None:
-            print(f"Clang version {clang_version}")
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
