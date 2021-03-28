@@ -232,10 +232,12 @@ def main():
 
     if 'C' in args.languages:
         if 'Check' in args.operations:
+            results += benchmark_C_using_tcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
             results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
+            results += benchmark_C_using_tcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
@@ -416,6 +418,34 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
                      durs=durs)
     return results
 
+def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
+    results = list()
+
+    exe = which('tcc')
+    if op == 'Check':
+        comp_flags = ['-c']    # same as build for now
+        out_flag_and_exe = ['-o', '/dev/null']
+    elif op == 'Build':
+        comp_flags = ['-c']     # skip linking for now
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        assert(False)
+
+    if exe is not None:
+        version = sp.run([exe, '-v'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
+        compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
+                     out_flag_and_exe=out_flag_and_exe,
+                     exe=exe,
+                     runner=(op == 'Build'),
+                     comp_flags=comp_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results,
+                     durs=durs)
+    return results
 
 def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templated):
     results = list()

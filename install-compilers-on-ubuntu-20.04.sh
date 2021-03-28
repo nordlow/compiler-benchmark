@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # C
+sudo apt install tcc
 sudo apt install gcc-10
 sudo apt install clang-10
 

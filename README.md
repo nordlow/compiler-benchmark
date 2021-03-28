@@ -5,7 +5,7 @@ compilers. Supported languages are:
 
 ## Languages with Natives Compilers
 
-- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`, `clang` and [`cproc`](https://github.com/michaelforney/cproc)),
+- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using `gcc`, `clang`, [`cproc`](https://github.com/michaelforney/cproc), and [`tcc`](https://bellard.org/tcc/)),
 - [C\+\+](http://www.cplusplus.org/) (using `g++` and `clang++`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
