@@ -11,6 +11,7 @@ import time
 from pprint import pprint
 import random
 from datetime import datetime
+from os.path import expanduser
 
 from string import Template as Tm
 from timeit import default_timer as timer
@@ -39,6 +40,8 @@ CDUR_SPEEDUP_IX = 4
 RDUR_PER_FUNC_IX = 5
 VERSION_IX = 6
 PATH_IX = 7
+
+home = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
 
 def touchFile(path):
@@ -98,7 +101,6 @@ def stringify_durs(results):
 
 
 def row_list(args, lang, op, exec_path, exec_version, cdur, rdur, templated):
-    home = os.getenv('HOME')
     if exec_path.startswith(home):
         exec_path = os.path.join('~', exec_path.lstrip(home))
 
@@ -666,7 +668,7 @@ def benchmark_Swift(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Swift'
     exe = (which('swiftc') or
-           which('/home/per/.local/swift-5.3-RELEASE-ubuntu20.04/usr/bin/swiftc'))
+           which(os.path.join(home, '.local/swift-5.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
     print(exe)
     version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
     if op == 'Build':
@@ -721,7 +723,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'V'                                   # vlang.io
     exe = (which('v') or
-           which('/home/per/ware/vlang/v'))
+           which(os.path.join(home, 'ware/vlang/v')))
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
@@ -745,7 +747,7 @@ def benchmark_C3(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'C3'
     exe = (which('c3c') or
-           which('/home/per/ware/c3c/build/c3c'))
+           which(os.path.join(home, 'ware/c3c/build/c3c')))
     if exe is not None:
         execs[lang] = exe
         version = 'unknown'
