@@ -668,8 +668,7 @@ def benchmark_Swift(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Swift'
     exe = (which('swiftc') or
-           which(os.path.join(home, '.local/swift-5.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
-    print(exe)
+           which(os.path.join(home, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
     version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
     if op == 'Build':
         comp_flags = ['']
