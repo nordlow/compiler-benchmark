@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-MAJOR_VERSION="2.094.0"
+MAJOR_VERSION="2.096.1-beta1"
 VERSION="${MAJOR_VERSION}"
 
 UNAME=$(uname -i)
