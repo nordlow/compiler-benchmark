@@ -317,7 +317,7 @@ def main():
 
     if 'Julia' in args.languages:
         if 'Build' in args.operations:
-            if args.function_count * args.function_depth <= 5000:  # only for small workloads, takes to long otherwise
+            if args.function_count * args.function_depth <= 10000:  # only for small workloads, takes to long otherwise
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
                 results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
