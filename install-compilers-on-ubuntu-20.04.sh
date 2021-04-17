@@ -39,3 +39,6 @@ sudo apt install openjdk-14-jdk
 
 # Nim
 sudo apt install nim
+
+# OCaml
+sudo apt install ocaml-nox
