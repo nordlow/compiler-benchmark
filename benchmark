@@ -304,10 +304,8 @@ def main():
     if 'Nim' in args.languages:
         if 'Check' in args.operations:
             results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
             results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C#' in args.languages:
         if 'Build' in args.operations:
@@ -805,7 +803,12 @@ def benchmark_Nim(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Nim'
     exe = which('nim')
-    comp_flags = ['c', '--gc:arc']
+    if op == 'Check':
+        comp_flags = ['check']
+    elif op == 'Build':
+        comp_flags = ['c', '--gc:arc']
+    else:
+        assert False
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
@@ -1164,7 +1167,7 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
         f.write('with System;\n\n')
         f.write('with GNAT.OS_Lib;\n\n')
     elif lang == 'nim':
-        f.write('import system\n')
+        f.write('import system\n\n')
 
 
 def generate_test_language_specific_postfix(lang, types, f):
@@ -1329,6 +1332,15 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                                                                         X=expr))
         else:
             f.write(Tm('func ${F}(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
+    elif lang == 'nim':
+        if templated:
+            f.write(Tm('proc ${F}<${T}>(x: ${T}): ${T} =\n  return ${X}\n').substitute(T='T',
+                                                                                       F=str(fname),
+                                                                                       N=nconst,
+                                                                                       H=str(fheight),
+                                                                                       X=expr))
+        else:
+            f.write(Tm('proc ${F}(x: ${T}): ${T} = \n  return ${X}\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'c3':
         if templated:
             f.write(Tm('func ${F}<${T}>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
