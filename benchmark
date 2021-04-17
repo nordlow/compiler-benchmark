@@ -21,7 +21,7 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zi
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
-C_WARN_FLAGS = ['-Wall', '-Wextra','-Wno-c++11-extensions']
+C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
 
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
 RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
@@ -128,7 +128,8 @@ def factor_str(factor):
 
 
 def repeat_to_length(string_to_expand, length):
-    return (string_to_expand * (int(length/len(string_to_expand))+1))[:length]
+    return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
+
 
 def md_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
@@ -149,16 +150,16 @@ def md_table(titles, rows):
     result += '| '
     for ix, col in enumerate(range(len(titles))):
         if ix == 2:
-            result += repeat_to_length("-",len(titles[ix])) + ' | '
+            result += repeat_to_length("-", len(titles[ix])) + ' | '
         else:
-            result += ':' + repeat_to_length("-",len(titles[ix])-2) + ':' + ' | '
+            result += ':' + repeat_to_length("-", len(titles[ix]) - 2) + ':' + ' | '
     result += '\n'
 
     for row in rows:
         result += '| '
         for ix, cl in enumerate(range(len(titles))):
             col = row[ix]
-            result += str(col) + repeat_to_length(" ",len(titles[ix])-len(str(col))) + ' | '
+            result += str(col) + repeat_to_length(" ", len(titles[ix]) - len(str(col))) + ' | '
         result += '\n'
     return result
 
@@ -420,6 +421,7 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
                      durs=durs)
     return results
 
+
 def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
     results = list()
 
@@ -448,6 +450,7 @@ def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
                      results=results,
                      durs=durs)
     return results
+
 
 def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templated):
     results = list()
