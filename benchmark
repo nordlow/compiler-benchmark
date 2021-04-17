@@ -617,6 +617,7 @@ def benchmark_Go(execs, durs, gpaths, args, op, templated):
 def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Go'
+    version = None              # unknown
     if op == 'Build':
         exe = which('go')
         comp_flags = ['build']
@@ -624,8 +625,9 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
     else:
         exe = which('gotype')
         comp_flags = []
-        go_exe = which('go')  # guess it be same as `go`
-        version = sp.run([go_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
+        version_exe = which('go')  # guess it be same as `go`
+        if version_exe is not None:
+            version = sp.run([version_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
     if exe is not None:
         execs[lang] = exe
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
