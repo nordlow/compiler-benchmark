@@ -36,3 +36,6 @@ sudo apt install mono-mcs
 
 # Java
 sudo apt install openjdk-14-jdk
+
+# Nim
+sudo apt install nim
