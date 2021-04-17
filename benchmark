@@ -628,16 +628,18 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
         exe = which('go')
         comp_flags = ['build']
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
+        out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         exe = which('gotype')
         comp_flags = []
         version_exe = which('go')  # guess it be same as `go`
         if version_exe is not None:
             version = sp.run([version_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
+        out_flag_and_exe = []
     if exe is not None:
         execs[lang] = exe
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
-                     out_flag_and_exe=['-o', out_binary(lang)],
+                     out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
                      runner=True,
                      comp_flags=comp_flags,
@@ -961,7 +963,7 @@ def compile_file(src_paths,
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
         args_ = [exe] + comp_flags + out_flag_and_exe + src_paths
-        # print(' '.join(args_))
+        print(' '.join(args_))
         with sp.Popen(args=args_,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as comp_proc:
