@@ -806,7 +806,7 @@ def benchmark_Nim(execs, durs, gpaths, args, op, templated):
     if op == 'Check':
         comp_flags = ['check']
     elif op == 'Build':
-        comp_flags = ['c', '--gc:arc', '--opt:none']
+        comp_flags = ['c', '--gc:refc', '--opt:none']  # TODO: detect when --gc:arc is available
     else:
         assert False
     if exe is not None:
