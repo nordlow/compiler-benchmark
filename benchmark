@@ -963,7 +963,7 @@ def compile_file(src_paths,
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
         args_ = [exe] + comp_flags + out_flag_and_exe + src_paths
-        print(' '.join(args_))
+        # print("args:", ' '.join(args_))
         with sp.Popen(args=args_,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as comp_proc:
