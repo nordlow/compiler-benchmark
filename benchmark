@@ -809,7 +809,6 @@ def benchmark_Nim(execs, durs, gpaths, args, op, templated):
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
-        print("Nim version:", version)
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['--out:' + out_binary(lang)],
                      exe=exe,
@@ -1046,7 +1045,7 @@ def long_types_of_lang(lang):
         return ['Int64']
     elif lang == 'd':
         return ['long']
-    elif lang == 'go':
+    elif lang in ('go', 'nim'):
         return ['int64']
     elif lang == 'julia':
         return ['Int64']
@@ -1140,8 +1139,9 @@ def generate_test_function_call(lang, findex, typ, f, templated):
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
-    if lang not in ['v', 'ocaml']:
-        f.write(';')
+    if lang not in ['v', 'ocaml', 'nim']:
+        f.write(';')            # statement terminator
+
     f.write('\n')
 
 
@@ -1181,6 +1181,8 @@ def generate_test_language_specific_postfix(lang, types, f):
         f.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
     elif lang == 'zig':
         f.write(Tm('\n}\n').substitute(T=types[0]))
+    elif lang == 'nim':
+        f.write(Tm('\n\n').substitute(T=types[0]))
     elif lang == 'c3':
         f.write(Tm('\n}\n').substitute(T=types[0]))  # TODO: exit
     elif lang == 'julia':
@@ -1382,6 +1384,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write(Tm('function main()${QT}\n').substitute(QT=(('::' + types[0]) if templated else '')))
     elif lang == 'ocaml':
         f.write('let () = \n')
+    elif lang == 'nim':
+        f.write('when isMainModule:\n')
     else:
         assert False
 
@@ -1403,6 +1407,8 @@ def generate_main_test_function_variable(lang, typ, f, templated):
     elif lang == 'rust':
         f.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
     elif lang == 'swift':
+        f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
+    elif lang == 'nim':
         f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
     elif lang == 'zig':
         f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
