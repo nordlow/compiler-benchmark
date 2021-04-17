@@ -317,14 +317,19 @@ def main():
 
     if 'Julia' in args.languages:
         if 'Build' in args.operations:
-            if args.function_count * args.function_depth <= 10000:  # only for small workloads, takes to long otherwise
-                results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-                results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            if args.function_count * args.function_depth >= 10000: # takes too long otherwise
+                # participate by truncating size because ops/function are measured
+                args.function_count = 100
+                args.function_depth = 100
+            results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'OCaml' in args.languages:
         if 'Build' in args.operations:
-            if args.function_count * args.function_depth <= 10000:  # only for small workloads, takes to long otherwise
-                results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
+            if args.function_count * args.function_depth >= 10000: # takes too long otherwise
+                # participate by truncating size because ops/function are measured
+                args.function_count = 100
+                args.function_depth = 100
             results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
     print()
@@ -744,7 +749,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
                      runner=True,
-                     comp_flags=['-cc', 'clang', '-backend', vlang_backends[2]],
+                     comp_flags=['-backend', vlang_backends[2]], # skip '-cc clang' for now
                      args=args,
                      op=op,
                      compiler_version=version,
