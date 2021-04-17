@@ -16,7 +16,7 @@ from os.path import expanduser
 from string import Template as Tm
 from timeit import default_timer as timer
 
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Nim', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
@@ -300,6 +300,14 @@ def main():
         if 'Build' in args.operations:
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
             results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+
+    if 'Nim' in args.languages:
+        if 'Check' in args.operations:
+            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+        if 'Build' in args.operations:
+            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C#' in args.languages:
         if 'Build' in args.operations:
@@ -793,6 +801,30 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
     return results
 
 
+def benchmark_Nim(execs, durs, gpaths, args, op, templated):
+    results = list()
+    lang = 'Nim'
+    exe = which('nim')
+    comp_flags = ['c', '--gc:arc']
+    if exe is not None:
+        execs[lang] = exe
+        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
+        print("Nim version:", version)
+        compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
+                     out_flag_and_exe=['--out:' + out_binary(lang)],
+                     exe=exe,
+                     runner=True,
+                     comp_flags=comp_flags,
+                     args=args,  # no syntax flag currently so compile to object file instead
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results,
+                     durs=durs)
+    return results
+
+
 def set_rustup_channel(channel):
     with sp.Popen(['rustup', 'default', channel],
                   stdout=sp.PIPE,
@@ -846,7 +878,6 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                          results=results,
                          durs=durs)
     return results
-
 
 def benchmark_Java(execs, durs, gpaths, args, op, templated):
     results = list()
