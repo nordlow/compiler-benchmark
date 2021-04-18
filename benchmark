@@ -437,7 +437,7 @@ def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
 
     exe = which('tcc')
     if op == 'Check':
-        comp_flags = ['-c']    # same as build for now
+        comp_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
     elif op == 'Build':
         comp_flags = [] # TODO add version that skips linking via: comp_flags = ['-c']
