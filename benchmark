@@ -1174,8 +1174,6 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
     elif lang == 'ada':
         f.write('with System;\n\n')
         f.write('with GNAT.OS_Lib;\n\n')
-    elif lang == 'nim':
-        f.write('import system\n\n')
 
 
 def generate_test_language_specific_postfix(lang, types, f):
