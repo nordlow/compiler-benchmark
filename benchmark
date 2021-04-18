@@ -410,7 +410,7 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
         comp_flags = ['-emit-qbe']
         out_flag_and_exe = ['-o', '/dev/null']
     elif op == 'Build':
-        comp_flags = ['-c']     # skip linking for now
+        comp_flags = [] # TODO add version that skips linking via: comp_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         assert(False)
@@ -440,7 +440,7 @@ def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
         comp_flags = ['-c']    # same as build for now
         out_flag_and_exe = ['-o', '/dev/null']
     elif op == 'Build':
-        comp_flags = ['-c']     # skip linking for now
+        comp_flags = [] # TODO add version that skips linking via: comp_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         assert(False)
@@ -967,7 +967,7 @@ def compile_file(src_paths,
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
         args_ = [exe] + comp_flags + out_flag_and_exe + src_paths
-        # print("args:", ' '.join(args_))
+        print("args:", ' '.join(args_))
         with sp.Popen(args=args_,
                       stdout=sp.PIPE,
                       stderr=sp.PIPE) as comp_proc:
