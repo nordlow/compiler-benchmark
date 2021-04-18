@@ -38,7 +38,7 @@ sudo apt install mono-mcs
 sudo apt install openjdk-14-jdk
 
 # Nim
-sudo apt install nim
+curl https://nim-lang.org/choosenim/init.sh -sSf | sh
 
 # OCaml
 sudo apt install ocaml-nox
