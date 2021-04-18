@@ -278,8 +278,7 @@ def main():
     if 'V' in args.languages:
         if 'Build' in args.operations:
             results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-        # TODO activate when issue https://github.com/vlang/v/issues/5818 has ben fixed:
-        # results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C3' in args.languages:
         if 'Build' in args.operations:
