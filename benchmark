@@ -496,7 +496,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
     src_paths = [gpaths[srcIdOf(lang, templated)]  # ,
-                 # create_D_object_file() # TODO: add later
+                 # create_D_object_file() # TODO add later
                  ]
 
     # DMD
@@ -581,7 +581,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
-                     runner=os.name == 'nt',  # only on Windows for now. TODO: https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
+                     runner=os.name == 'nt',  # only on Windows for now. TODO https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
                      comp_flags=comp_flags,
                      args=args,
                      op=op,
@@ -667,7 +667,7 @@ def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
             execs[lang] = exe
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
-                         out_flag_and_exe=[],  # TODO: this fails out_flag_and_exe=['-o', out_binary(lang)],
+                         out_flag_and_exe=[],  # TODO this fails out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
                          runner=True,
                          comp_flags=comp_flags,
@@ -812,7 +812,7 @@ def benchmark_Nim(execs, durs, gpaths, args, op, templated):
     if op == 'Check':
         comp_flags = ['check']
     elif op == 'Build':
-        comp_flags = ['c', '--gc:refc', '--opt:none']  # TODO: detect when --gc:arc is available
+        comp_flags = ['c', '--gc:refc', '--opt:none']  # TODO detect when --gc:arc is available
     else:
         assert False
     if exe is not None:
@@ -1004,7 +1004,7 @@ def compile_file(src_paths,
                 rdur_min = run_compiled_file(runner + [outb])
         elif out_flag_and_exe:
             if runner is not False:
-                print("TODO: run " + outb + " using runner " + str(runner))
+                print("TODO run " + outb + " using runner " + str(runner))
 
     opId = opIdOf(lang, templated, op, exe)
 
@@ -1197,7 +1197,7 @@ def generate_test_language_specific_postfix(lang, types, f):
     elif lang == 'nim':
         f.write(Tm('\n\n').substitute(T=types[0]))
     elif lang == 'c3':
-        f.write(Tm('\n}\n').substitute(T=types[0]))  # TODO: exit
+        f.write(Tm('\n}\n').substitute(T=types[0]))  # TODO exit
     elif lang == 'julia':
         f.write(Tm('''    return ${T}_sum;
 end
