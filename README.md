@@ -137,85 +137,71 @@ exceeds 10000.
 
 ## Sample run output
 
-The output on my Intel® Core™ i7-4710HQ CPU @ 2.50GHz × 8 with 16 GB of memory
-running Ubuntu 20.04 for the sample call
+The output on my AMD Ryzen Threadripper 3960X 24-Core Processor running Ubuntu
+20.04 for the sample call
 
-    ./benchmark --function-count=200 --function-depth=450 --run-count=3
-
-or using [PyPy](https://www.pypy.org/) 3 (for faster code generation) as
-
-    pypy3 ./benchmark --function-count=200 --function-depth=450 --run-count=3
+    ./benchmark --function-count=200 --function-depth=400 --run-count=1
 
 results in the following table (copied from the output at the end).
 
 | Lang-uage | Oper-ation | Temp-lated | Op Time [us/#fn] | Slowdown vs [Best] | Run Time [us/#fn] | Version | Exec |
-| :---: | :---: | --- | :---: | :---: | :---: | :---: | :---: |
-| D | Check | No | 6.7 | 1.0 [D] | N/A | v2.094.0-rc.1-75-ga0875a7e0 | `dmd` |
-| D | Check | No | 7.9 | 1.2 [D] | N/A | 1.23.0 | `ldmd2` |
-| D | Check | Yes | 17.8 | 2.6 [D] | N/A | v2.094.0-rc.1-75-ga0875a7e0 | `dmd` |
-| D | Check | Yes | 19.7 | 2.9 [D] | N/A | 1.23.0 | `ldmd2` |
-| D | Build | No | 23.8 | 3.4 [Vox] | 32 | v2.094.0-rc.1-75-ga0875a7e0 | `dmd` |
-| D | Build | No | 190.6 | 27.5 [Vox] | 115 | 1.23.0 | `ldmd2` |
-| D | Build | Yes | 36.6 | 5.3 [Vox] | 32 | v2.094.0-rc.1-75-ga0875a7e0 | `dmd` |
-| D | Build | Yes | 207.8 | 30.0 [Vox] | 114 | 1.23.0 | `ldmd2` |
-| Vox | Build | No | 6.9 | 1.0 [Vox] | 21 | master | `vox` |
-| Vox | Build | Yes | 7.7 | 1.1 [Vox] | 22 | master | `vox` |
-| C | Check | No | 10.4 | 1.5 [D] | N/A | 8.4.0 | `gcc-8` |
-| C | Check | No | 12.4 | 1.8 [D] | N/A | 9.3.0 | `gcc-9` |
-| C | Check | No | 13.5 | 2.0 [D] | N/A | 10.2.0 | `gcc-10` |
-| C | Check | No | 25.1 | 3.7 [D] | N/A | 8.0.1 | `clang-8` |
-| C | Check | No | 26.6 | 4.0 [D] | N/A | 9.0.1 | `clang-9` |
-| C | Check | No | 27.3 | 4.1 [D] | N/A | 10.0.0 | `clang-10` |
-| C | Check | No | 7.4 | 1.1 [D] | N/A | unknown | `cproc` |
-| C | Build | No | 377.2 | 54.4 [Vox] | 19 | 8.4.0 | `gcc-8` |
-| C | Build | No | 416.0 | 60.1 [Vox] | 22 | 9.3.0 | `gcc-9` |
-| C | Build | No | 424.6 | 61.3 [Vox] | 19 | 10.2.0 | `gcc-10` |
-| C | Build | No | 167.6 | 24.2 [Vox] | 367 | 8.0.1 | `clang-8` |
-| C | Build | No | 173.5 | 25.1 [Vox] | 407 | 9.0.1 | `clang-9` |
-| C | Build | No | 177.8 | 25.7 [Vox] | 421 | 10.0.0 | `clang-10` |
-| C | Build | No | 63.7 | 9.2 [Vox] | 12 | unknown | `cproc` |
-| C++ | Check | No | 20.3 | 3.0 [D] | N/A | 8.4.0 | `g++-8` |
-| C++ | Check | No | 32.4 | 4.8 [D] | N/A | 9.3.0 | `g++-9` |
-| C++ | Check | No | 33.9 | 5.1 [D] | N/A | 10.2.0 | `g++-10` |
-| C++ | Check | No | 33.9 | 5.0 [D] | N/A | 8.0.1 | `clang++-8` |
-| C++ | Check | No | 35.4 | 5.3 [D] | N/A | 9.0.1 | `clang++-9` |
-| C++ | Check | No | 36.9 | 5.5 [D] | N/A | 10.0.0 | `clang++-10` |
-| C++ | Check | Yes | 58.2 | 8.7 [D] | N/A | 8.4.0 | `g++-8` |
-| C++ | Check | Yes | 74.6 | 11.1 [D] | N/A | 9.3.0 | `g++-9` |
-| C++ | Check | Yes | 80.5 | 12.0 [D] | N/A | 10.2.0 | `g++-10` |
-| C++ | Check | Yes | 51.5 | 7.7 [D] | N/A | 8.0.1 | `clang++-8` |
-| C++ | Check | Yes | 54.7 | 8.2 [D] | N/A | 9.0.1 | `clang++-9` |
-| C++ | Check | Yes | 56.7 | 8.4 [D] | N/A | 10.0.0 | `clang++-10` |
-| C++ | Build | No | 378.8 | 54.7 [Vox] | 19 | 8.4.0 | `g++-8` |
-| C++ | Build | No | 431.9 | 62.3 [Vox] | 25 | 9.3.0 | `g++-9` |
-| C++ | Build | No | 443.2 | 64.0 [Vox] | 18 | 10.2.0 | `g++-10` |
-| C++ | Build | No | 172.8 | 24.9 [Vox] | 400 | 8.0.1 | `clang++-8` |
-| C++ | Build | No | 183.3 | 26.5 [Vox] | 425 | 9.0.1 | `clang++-9` |
-| C++ | Build | No | 187.6 | 27.1 [Vox] | 410 | 10.0.0 | `clang++-10` |
-| C++ | Build | Yes | 8226.6 | 1187.5 [Vox] | 25 | 8.4.0 | `g++-8` |
-| C++ | Build | Yes | 8571.2 | 1237.3 [Vox] | 21 | 9.3.0 | `g++-9` |
-| C++ | Build | Yes | 8469.7 | 1222.6 [Vox] | 24 | 10.2.0 | `g++-10` |
-| C++ | Build | Yes | 202.2 | 29.2 [Vox] | 419 | 8.0.1 | `clang++-8` |
-| C++ | Build | Yes | 211.1 | 30.5 [Vox] | 452 | 9.0.1 | `clang++-9` |
-| C++ | Build | Yes | 279.5 | 40.3 [Vox] | 418 | 10.0.0 | `clang++-10` |
-| Ada | Build | No | 5746.1 | 829.5 [Vox] | N/A | 10.2.0 | `gnat-10` |
-| Go | Check | No | 35.7 | 5.3 [D] | N/A | 8.4.0 | `gccgo-8` |
-| Go | Check | No | 28.3 | 4.2 [D] | N/A | 9.3.0 | `gccgo-9` |
-| Go | Build | No | 170.8 | 24.7 [Vox] | 116 | 1.15.2 | `go` |
-| Swift | Check | No | 477.3 | 71.1 [D] | N/A | 5.3 | `swiftc` |
-| Swift | Build | No | 1108.8 | 160.1 [Vox] | 78 | 5.3 | `swiftc` |
-| V | Build | No | 186.7 | 27.0 [Vox] | 31 | 0.1.29 | `v` |
-| Zig | Check | No | 113.6 | 16.9 [D] | N/A | 0.6.0+a50260470 | `zig` |
-| Zig | Check | Yes | 110.5 | 16.5 [D] | N/A | 0.6.0+a50260470 | `zig` |
-| Zig | Build | No | 438.8 | 63.3 [Vox] | 384 | 0.6.0+a50260470 | `zig` |
-| Zig | Build | Yes | 437.3 | 63.1 [Vox] | 390 | 0.6.0+a50260470 | `zig` |
-| Rust | Check | No | 265.0 | 39.5 [D] | N/A | 1.48.0-nightly | `rustc` |
-| Rust | Check | Yes | 285.5 | 42.5 [D] | N/A | 1.48.0-nightly | `rustc` |
-| Rust | Build | No | 787.9 | 113.7 [Vox] | 409 | 1.46.0 | `rustc` |
-| Rust | Build | No | 660.4 | 95.3 [Vox] | 200 | 1.48.0-nightly | `rustc` |
-| Rust | Build | Yes | 486.8 | 70.3 [Vox] | 424 | 1.46.0 | `rustc` |
-| Rust | Build | Yes | 438.4 | 63.3 [Vox] | 198 | 1.48.0-nightly | `rustc` |
-| C# | Build | No | 27.4 | 4.0 [Vox] | 333 | 6.12.0.90 | `mcs` |
+| :-------: | :--------: | ---------- | :--------------: | :----------------: | :---------------: | :-----: | :--: |
+| D         | Check      | No         | 6.5              | 5.5 [Vox]          | N/A               | v2.096.1-beta.1-183-g640bc3abf | `dmd` |
+| D         | Check      | No         | 7.5              | 6.3 [Vox]          | N/A               | 1.26.0-beta1 | `ldmd2` |
+| D         | Check      | Yes        | 13.8             | 11.5 [Vox]         | N/A               | v2.096.1-beta.1-183-g640bc3abf | `dmd` |
+| D         | Check      | Yes        | 15.7             | 13.1 [Vox]         | N/A               | 1.26.0-beta1 | `ldmd2` |
+| D         | Build      | No         | 48.6             | 30.7 [C]           | 41                | v2.096.1-beta.1-183-g640bc3abf | `dmd` |
+| D         | Build      | No         | 99.9             | 63.2 [C]           | 136               | 1.26.0-beta1 | `ldmd2` |
+| D         | Build      | Yes        | 58.5             | 37.1 [C]           | 36                | v2.096.1-beta.1-183-g640bc3abf | `dmd` |
+| D         | Build      | Yes        | 108.1            | 68.5 [C]           | 151               | 1.26.0-beta1 | `ldmd2` |
+| Vox       | Check      | No         | 1.2              | 1.0 [Vox]          | N/A               | master  | `vox` |
+| Vox       | Check      | Yes        | 2.0              | 1.7 [Vox]          | N/A               | master  | `vox` |
+| Vox       | Build      | No         | 5.1              | 3.3 [C]            | N/A               | master  | `vox` |
+| Vox       | Build      | Yes        | 5.6              | 3.6 [C]            | N/A               | master  | `vox` |
+| C         | Check      | No         | 1.6              | 1.3 [Vox]          | N/A               | 0.9.27  | `tcc` |
+| C         | Check      | No         | 8.5              | 7.1 [Vox]          | N/A               | 9.3.0   | `gcc` |
+| C         | Check      | No         | 8.4              | 7.0 [Vox]          | N/A               | 9.3.0   | `gcc-9` |
+| C         | Check      | No         | 8.5              | 7.1 [Vox]          | N/A               | 10.2.0  | `gcc-10` |
+| C         | Check      | No         | 15.8             | 13.2 [Vox]         | N/A               | 10.0.0  | `clang-10` |
+| C         | Build      | No         | 1.6              | 1.0 [C]            | 22                | 0.9.27  | `tcc` |
+| C         | Build      | No         | 283.8            | 179.7 [C]          | 27                | 9.3.0   | `gcc` |
+| C         | Build      | No         | 287.8            | 182.2 [C]          | 30                | 9.3.0   | `gcc-9` |
+| C         | Build      | No         | 294.3            | 186.3 [C]          | 25                | 10.2.0  | `gcc-10` |
+| C         | Build      | No         | 132.3            | 83.8 [C]           | 200               | 10.0.0  | `clang-10` |
+| C++       | Check      | No         | 20.2             | 16.9 [Vox]         | N/A               | 9.3.0   | `g++` |
+| C++       | Check      | No         | 20.4             | 17.0 [Vox]         | N/A               | 9.3.0   | `g++-9` |
+| C++       | Check      | No         | 22.3             | 18.6 [Vox]         | N/A               | 10.2.0  | `g++-10` |
+| C++       | Check      | No         | 21.0             | 17.5 [Vox]         | N/A               | 10.0.0  | `clang++-10` |
+| C++       | Check      | Yes        | 57.5             | 47.9 [Vox]         | N/A               | 9.3.0   | `g++` |
+| C++       | Check      | Yes        | 53.8             | 44.8 [Vox]         | N/A               | 9.3.0   | `g++-9` |
+| C++       | Check      | Yes        | 54.8             | 45.7 [Vox]         | N/A               | 10.2.0  | `g++-10` |
+| C++       | Check      | Yes        | 34.8             | 29.0 [Vox]         | N/A               | 10.0.0  | `clang++-10` |
+| C++       | Build      | No         | 301.1            | 190.6 [C]          | 27                | 9.3.0   | `g++` |
+| C++       | Build      | No         | 304.0            | 192.5 [C]          | 25                | 9.3.0   | `g++-9` |
+| C++       | Build      | No         | 319.0            | 202.0 [C]          | 26                | 10.2.0  | `g++-10` |
+| C++       | Build      | No         | 137.8            | 87.2 [C]           | 199               | 10.0.0  | `clang++-10` |
+| C++       | Build      | Yes        | 392.0            | 248.2 [C]          | 26                | 9.3.0   | `g++` |
+| C++       | Build      | Yes        | 388.3            | 245.8 [C]          | 26                | 9.3.0   | `g++-9` |
+| C++       | Build      | Yes        | 404.4            | 256.0 [C]          | 25                | 10.2.0  | `g++-10` |
+| C++       | Build      | Yes        | 213.8            | 135.3 [C]          | 474               | 10.0.0  | `clang++-10` |
+| Ada       | Build      | No         | 1898.1           | 1201.8 [C]         | 43                | 10.2.0  | `gnat` |
+| Ada       | Build      | No         | 1904.4           | 1205.8 [C]         | 45                | 10.2.0  | `gnat-10` |
+| Go        | Check      | No         | 12.8             | 10.7 [Vox]         | N/A               | 1.16.3  | `gotype` |
+| Go        | Build      | No         | 115.0            | 72.8 [C]           | 65                | 1.16.3  | `go` |
+| Go        | Build      | No         | 450.7            | 285.4 [C]          | 24                | 10.2.0  | `gccgo-10` |
+| Swift     | Check      | No         | 343.9            | 286.7 [Vox]        | N/A               | 5.3.3   | `swiftc` |
+| Swift     | Build      | No         | 822.4            | 520.7 [C]          | 77                | 5.3.3   | `swiftc` |
+| V         | Build      | No         | 18.2             | 11.5 [C]           | 188               | 0.2.2   | `v`  |
+| V         | Build      | Yes        | 22.0             | 13.9 [C]           | 189               | 0.2.2   | `v`  |
+| Zig       | Check      | No         | 63.1             | 52.6 [Vox]         | N/A               | 0.7.1   | `zig` |
+| Zig       | Check      | Yes        | 80.4             | 67.0 [Vox]         | N/A               | 0.7.1   | `zig` |
+| Rust      | Build      | No         | 547.1            | 346.4 [C]          | 75                | 1.47.0  | `rustc` |
+| Rust      | Build      | Yes        | 369.6            | 234.0 [C]          | 74                | 1.47.0  | `rustc` |
+| Nim       | Check      | No         | 35.1             | 29.3 [Vox]         | N/A               | 1.4.6   | `nim` |
+| Nim       | Build      | No         | 1051.3           | 665.6 [C]          | 50                | 1.4.6   | `nim` |
+| C#        | Build      | No         | 22.3             | 14.1 [C]           | 284               | 6.12.0.122 | `mcs` |
+| Julia     | Build      | No         | 719209.5         | 455354.5 [C]       | N/A               | 1.7.0-DEV | `julia` |
+| Julia     | Build      | Yes        | 560722.7         | 355011.5 [C]       | N/A               | 1.7.0-DEV | `julia` |
 
 ## TODO
 
