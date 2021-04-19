@@ -205,10 +205,11 @@ results in the following table (copied from the output at the end).
 
 ## TODO
 
+
 - Fix Zig output file
 
-    /snap/bin/zig build-exe --name generated/zig/main generated/zig/main.zig
-    LLVM failed to emit file: No such file or directory
+/snap/bin/zig build-exe --name generated/zig/main generated/zig/main.zig
+LLVM failed to emit file: No such file or directory
 
 - Put check and build time in separate columns on same line
 - Track memory usage of compilations using ideas at [Subprocess memory usage in python](https://stackoverflow.com/questions/13607391/subprocess-memory-usage-in-python/13607392).
