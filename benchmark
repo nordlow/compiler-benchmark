@@ -1150,7 +1150,7 @@ def generate_test_function_call(lang, findex, typ, f, templated):
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
-    if lang not in ['v', 'ocaml', 'nim']:
+    if lang not in ('ocaml', 'nim', 'v'):
         f.write(';')            # statement terminator
 
     f.write('\n')
@@ -1195,7 +1195,7 @@ def generate_test_language_specific_postfix(lang, types, f):
     if lang == 'rust':
         f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
     elif lang == 'd':
-        f.write(Tm('    exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
+        f.write(Tm('    return cast(int)${T}_sum;\n}\n').substitute(T=types[0]))
     elif lang == 'nim':
         f.write(Tm('    quit(int(${T}_sum))\n\n').substitute(T=types[0]))
     elif lang == 'swift':
@@ -1235,10 +1235,10 @@ end Main;
 ''').substitute(T=types[0]))
     elif lang == 'ocaml':
         f.write(Tm('    exit (if ${T}_sum = 42.0 then 1 else 0)\n').substitute(T=types[0]))
+    elif lang == 'v':
+        f.write(Tm('''    exit(int(${T}_sum >> 32))\n}\n''').substitute(T=types[0]))
     else:
-        f.write(Tm('''    return ${T}_sum;
-}
-''').substitute(T=types[0]))
+        f.write(Tm('''    return ${T}_sum;\n}\n''').substitute(T=types[0]))
 
     if lang in ('c#', 'java'):
         f.write('}\n')            # one extra closing brace for class
