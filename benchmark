@@ -581,7 +581,7 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated):
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
-                     runner=os.name == 'nt',  # only on Windows for now. TODO https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
+                     runner=True,  # os.name == 'nt', # only on Windows for now. TODO https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
                      comp_flags=comp_flags,
                      args=args,
                      op=op,
