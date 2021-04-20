@@ -367,7 +367,7 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
     for gcc_version in VERSIONS:
         exe = which('gnat' + str(gcc_version))
         if exe is not None:
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
+            version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
