@@ -44,6 +44,14 @@ PATH_IX = 7
 home = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
 
+def get_version(version_run):
+    return next(part
+                for part
+                in version_run.stdout.decode('utf-8').split()
+                if (part[0].isdigit() or
+                    part[0] == 'v' and part[0].isdigit())) # v2.096.1-beta.1-187-gb25be89b3
+
+
 def touchFile(path):
     with open(path, 'a'):
         os.utime(path, None)
@@ -474,10 +482,6 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
         else:
             assert(False)
         if exe is not None:
-            version = next(part
-                           for part
-                           in sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()
-                           if part[0].isdigit())
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
@@ -485,7 +489,7 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
                          comp_flags=C_CLANG_FLAGS + comp_flags,
                          args=args,
                          op=op,
-                         compiler_version=version,
+                         compiler_version=get_version(sp.run([exe, '--version'], stdout=sp.PIPE)),
                          lang=lang,
                          templated=templated,
                          results=results,
