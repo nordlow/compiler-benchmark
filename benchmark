@@ -474,7 +474,10 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
         else:
             assert(False)
         if exe is not None:
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
+            version = next(part
+                           for part
+                           in sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()
+                           if part[0].isdigit())
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
