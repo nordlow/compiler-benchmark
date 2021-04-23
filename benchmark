@@ -131,7 +131,7 @@ def to_str_in_microseconds(dur):
 
 
 def to_str_in_nanoseconds(dur):
-    return '{:.0f}'.format(1e9 * dur) if dur is not None else 'N/A'
+    return '{:.0f}'.format(1e9 * dur) if dur is not None else ''
 
 
 def factor_str(factor):
