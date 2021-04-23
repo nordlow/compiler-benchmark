@@ -76,9 +76,7 @@ def srcIdOf(lang, templated):
         return lang
 
 
-def opIdOf(lang, templated, op, exec_path=None):
-    if lang == 'D' and exec_path is None:
-        exec_path = 'dmd'
+def opIdOf(lang, templated, op, exec_path):
     return srcIdOf(lang, templated) + '-' + op + '-' + str(exec_path)
 
 
@@ -1039,7 +1037,7 @@ def compile_file(src_paths,
     results.append(row_list(args, lang, op, exe, compiler_version, cdur_min, rdur_min, templated))
     durs[opId] = cdur_min
     print_speedup(durs,
-                  from_opId=opIdOf('D', templated, op),
+                  from_opId=opIdOf('D', templated, op, 'dmd'),
                   to_opId=opId)
 
 
