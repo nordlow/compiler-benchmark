@@ -43,6 +43,11 @@ PATH_IX = 7
 
 home = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
+RANDOMIZE_FLAG = True
+
+if RANDOMIZE_FLAG:
+    random.seed(str(datetime.now()))
+
 
 def get_version(version_run):
     return next(part
@@ -1282,11 +1287,7 @@ def function_name(typ, findex, fheight):
 
 def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                       templated):
-    randomize = True
-
-    random.seed(datetime.now())
-
-    if randomize:
+    if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
         nconst = str(findex)
