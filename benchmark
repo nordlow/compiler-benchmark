@@ -34,10 +34,9 @@ TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Sl
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
-CDUR_PER_FUNC_IX = 3            # check duration
-# BDUR_PER_FUNC_IX = 4            # build duration
-CDUR_SPEEDUP_IX = 4
-RDUR_PER_FUNC_IX = 5
+CHECK_DUR_PER_FUNC_IX = 3            # check duration
+CHECK_DUR_SPEEDUP_IX = 4
+RUN_DUR_PER_FUNC_IX = 5
 EXEC_VERSION_IX = 6
 EXEC_PATH_IX = 7
 
@@ -93,9 +92,9 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            if min_dur is None or min_dur > result[CDUR_PER_FUNC_IX]:
+            if min_dur is None or min_dur > result[CHECK_DUR_PER_FUNC_IX]:
                 min_ix = ix
-                min_dur = result[CDUR_PER_FUNC_IX]
+                min_dur = result[CHECK_DUR_PER_FUNC_IX]
 
     if min_ix is None:
         return
@@ -104,16 +103,16 @@ def fill_in_speedups(results, table_titles, op_ix):
 
     for ix, result in enumerate(results):
         if result[OP_IX] == op_ix:
-            result[CDUR_SPEEDUP_IX] = factor_str(result[CDUR_PER_FUNC_IX] / min_dur) + ' [' + min_lang + ']'
+            result[CHECK_DUR_SPEEDUP_IX] = factor_str(result[CHECK_DUR_PER_FUNC_IX] / min_dur) + ' [' + min_lang + ']'
 
 
 def stringify_durs(results):
     for result in results:
         print(result)
-        print(CDUR_PER_FUNC_IX, result[CDUR_PER_FUNC_IX])
-        print(RDUR_PER_FUNC_IX, result[RDUR_PER_FUNC_IX])
-        result[CDUR_PER_FUNC_IX] = to_str_in_microseconds(result[CDUR_PER_FUNC_IX])  # convert to string
-        result[RDUR_PER_FUNC_IX] = to_str_in_nanoseconds(result[RDUR_PER_FUNC_IX])  # convert to string
+        print(CHECK_DUR_PER_FUNC_IX, result[CHECK_DUR_PER_FUNC_IX])
+        print(RUN_DUR_PER_FUNC_IX, result[RUN_DUR_PER_FUNC_IX])
+        result[CHECK_DUR_PER_FUNC_IX] = to_str_in_microseconds(result[CHECK_DUR_PER_FUNC_IX])  # convert to string
+        result[RUN_DUR_PER_FUNC_IX] = to_str_in_nanoseconds(result[RUN_DUR_PER_FUNC_IX])  # convert to string
 
 
 def row_list(args, lang, op, exec_path, exec_version, cdur, rdur, templated):
