@@ -30,16 +30,18 @@ ROOT_PATH = 'generated'
 RANGE = range(5, 15)
 VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Slowdown vs [Best]', 'Run Time [us/#fn]', 'Version', 'Exec']
-
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Slowdown vs [Best]', 'Run Time [us/#fn]', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
-CDUR_PER_FUNC_IX = 3
+CDUR_PER_FUNC_IX = 3            # check duration
+# BDUR_PER_FUNC_IX = 4            # build duration
 CDUR_SPEEDUP_IX = 4
 RDUR_PER_FUNC_IX = 5
-VERSION_IX = 6
-PATH_IX = 7
+EXEC_VERSION_IX = 6
+EXEC_PATH_IX = 7
+
+assert len(TABLE_TITLES) == EXEC_PATH_IX + 1
 
 home = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
@@ -107,6 +109,9 @@ def fill_in_speedups(results, table_titles, op_ix):
 
 def stringify_durs(results):
     for result in results:
+        print(result)
+        print(CDUR_PER_FUNC_IX, result[CDUR_PER_FUNC_IX])
+        print(RDUR_PER_FUNC_IX, result[RDUR_PER_FUNC_IX])
         result[CDUR_PER_FUNC_IX] = to_str_in_microseconds(result[CDUR_PER_FUNC_IX])  # convert to string
         result[RDUR_PER_FUNC_IX] = to_str_in_nanoseconds(result[RDUR_PER_FUNC_IX])  # convert to string
 
@@ -131,6 +136,7 @@ def to_str_in_microseconds(dur):
 
 
 def to_str_in_nanoseconds(dur):
+    print(dur)
     return '{:.0f}'.format(1e9 * dur) if dur is not None else ''
 
 
@@ -160,7 +166,7 @@ def md_table(titles, rows):
 
     result += '| '
     for ix, col in enumerate(range(len(titles))):
-        if ix == 2:
+        if ix == TEMPLATED_IX:
             result += repeat_to_length("-", len(titles[ix])) + ' | '
         else:
             result += ':' + repeat_to_length("-", len(titles[ix]) - 2) + ':' + ' | '
