@@ -507,10 +507,19 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                  # create_D_object_file() # TODO add later
                  ]
 
+    if op == 'Build':
+        if which('ld.lld') is not None:
+            comp_flags = ["-Xcc=-fuse-ld=lld"]
+        elif which('ld.gold') is not None:
+            comp_flags = ["-Xcc=-fuse-ld=gold"]
+        else:
+            comp_flags = []
+    else:
+        comp_flags = ['-o-']
+
     # DMD
     exe = which('dmd')
     if exe is not None:
-        comp_flags = [] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'dmd')
         version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
         if opId not in execs:
@@ -519,7 +528,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                      out_flag_and_exe=['-of=' + out_binary(lang)],
                      exe=exe,
                      runner=True,
-                     comp_flags=comp_flags + d_flags,
+                     comp_flags=d_flags + comp_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -531,7 +540,6 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
     # LDC
     exe = which('ldmd2')
     if exe is not None:
-        comp_flags = [] if op == 'Build' else ['-o-']
         opId = opIdOf(lang, templated, op, 'ldmd2')
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
@@ -540,7 +548,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                      out_flag_and_exe=['-of=' + out_binary(lang)],
                      exe=exe,
                      runner=True,
-                     comp_flags=comp_flags + d_flags,
+                     comp_flags=d_flags + comp_flags,
                      args=args,
                      op=op,
                      compiler_version=version,
