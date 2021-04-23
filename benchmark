@@ -32,7 +32,7 @@ VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Run Time [us/#fn]', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
@@ -130,7 +130,7 @@ def stringify_durs(abs_dur, rel_dur, column_ix, min_lang):
 
 
 def to_str_in_microseconds(dur):
-    return '{:.1f}'.format(1e6 * dur)
+    return '{:6.1f}'.format(1e6 * dur)
 
 
 def to_str_in_nanoseconds(dur):
@@ -138,18 +138,18 @@ def to_str_in_nanoseconds(dur):
 
 
 def factor_str(factor):
-    return '{:.1f}'.format(factor)
+    return '{:5.1f}'.format(factor)
 
 
 def repeat_to_length(string_to_expand, length):
     return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
 
 
-def md_header(text, nr):        # Markdown header
+def markdown_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
 
-def md_table(titles, rows):
+def markdown_table(titles, rows):
     fill_in_speedups(results=rows, column_ix=CDUR_PER_FUNC_IX)
     fill_in_speedups(results=rows, column_ix=RDUR_PER_FUNC_IX)
 
@@ -228,7 +228,7 @@ def main():
 
     results = []
 
-    print(md_header('Benchmark:', 1))
+    print(markdown_header('Benchmark:', 1))
 
     if 'D' in args.languages:
         if 'Check' in args.operations:
@@ -346,11 +346,11 @@ def main():
 
     print()
 
-    print(md_table(TABLE_TITLES, results))
+    print(markdown_table(TABLE_TITLES, results))
 
 
 def generate_code(args):
-    print(md_header('Code-generation:', 1))
+    print(markdown_header('Code-generation:', 1))
     gpaths = {}
     for lang in args.languages:
         templated = False
@@ -1030,7 +1030,7 @@ def compile_file(src_paths,
 
     opId = opIdOf(lang, templated, op, exe)
 
-    print(md_header(opId + ':', 2))
+    print(markdown_header(opId + ':', 2))
 
     show_file = False
     compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
