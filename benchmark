@@ -30,19 +30,34 @@ ROOT_PATH = 'generated'
 RANGE = range(5, 15)
 VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Slowdown vs [Best]', 'Run Time [us/#fn]', 'Exec Version', 'Exec Path']
+HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
+
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Op Time [us/#fn]', 'Run Time [us/#fn]', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
-CHECK_DUR_PER_FUNC_IX = 3            # check duration
-CHECK_DUR_SPEEDUP_IX = 4
-RUN_DUR_PER_FUNC_IX = 5
-EXEC_VERSION_IX = 6
-EXEC_PATH_IX = 7
+CDUR_PER_FUNC_IX = 3       # compiler duration
+RDUR_PER_FUNC_IX = 4       # run duration
+EXE_VERSION_IX = 5
+EXE_PATH_IX = 6
+TABLE_LENGTH = EXE_PATH_IX + 1
 
-assert len(TABLE_TITLES) == EXEC_PATH_IX + 1
+assert len(TABLE_TITLES) == TABLE_LENGTH
 
-home = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
+def table_row(args, lang, op, exe_path, compiler_version, cdur, rdur, templated):
+    if exe_path.startswith(HOME):
+        exe_path = os.path.join('~', exe_path.lstrip(HOME))
+    row = [None] * TABLE_LENGTH  # preallocate
+    row[LANG_IX] = lang
+    row[OP_IX] = op
+    row[TEMPLATED_IX] = 'Yes' if templated else 'No'
+    if cdur is not None:
+        row[CDUR_PER_FUNC_IX] = cdur / (args.function_count * args.function_depth)
+    if rdur is not None:
+        row[RDUR_PER_FUNC_IX] = rdur / (args.function_count * args.function_depth)
+    row[EXE_VERSION_IX] = compiler_version
+    row[EXE_PATH_IX] = '`' + os.path.basename(exe_path) + '`'
+    return row
 
 RANDOMIZE_FLAG = True
 
@@ -82,52 +97,36 @@ def srcIdOf(lang, templated):
         return lang
 
 
-def opIdOf(lang, templated, op, exec_path):
-    return srcIdOf(lang, templated) + '-' + op + '-' + str(exec_path)
+def opIdOf(lang, templated, op, exe_path):
+    return srcIdOf(lang, templated) + '-' + op + '-' + str(exe_path)
 
 
-def fill_in_speedups(results, table_titles, op_ix):
-    min_ix = None
-    min_dur = None
+def fill_in_speedups(results, column_ix):
+    # calculate minimum
+    min_ix = None               # index of minimum
+    min_dur = None              # duration of minimum
+    for ix, result in enumerate(results):
+        if min_dur is None or (result[column_ix] is not None and
+                               min_dur > result[column_ix]):
+            min_ix = ix
+            min_dur = result[column_ix]
+    min_lang = results[min_ix][LANG_IX]  # language of minimum
 
     for ix, result in enumerate(results):
-        if result[OP_IX] == op_ix:
-            if min_dur is None or min_dur > result[CHECK_DUR_PER_FUNC_IX]:
-                min_ix = ix
-                min_dur = result[CHECK_DUR_PER_FUNC_IX]
-
-    if min_ix is None:
-        return
-
-    min_lang = results[min_ix][LANG_IX]
-
-    for ix, result in enumerate(results):
-        if result[OP_IX] == op_ix:
-            result[CHECK_DUR_SPEEDUP_IX] = factor_str(result[CHECK_DUR_PER_FUNC_IX] / min_dur) + ' [' + min_lang + ']'
+        if result[column_ix] is None:
+            result[column_ix] = ''
+        else:
+            result[column_ix] = stringify_durs(abs_dur=result[column_ix],
+                                               rel_dur=result[column_ix] / min_dur,
+                                               column_ix=column_ix,
+                                               min_lang=min_lang)
 
 
-def stringify_durs(results):
-    for result in results:
-        print(result)
-        print(CHECK_DUR_PER_FUNC_IX, result[CHECK_DUR_PER_FUNC_IX])
-        print(RUN_DUR_PER_FUNC_IX, result[RUN_DUR_PER_FUNC_IX])
-        result[CHECK_DUR_PER_FUNC_IX] = to_str_in_microseconds(result[CHECK_DUR_PER_FUNC_IX])  # convert to string
-        result[RUN_DUR_PER_FUNC_IX] = to_str_in_nanoseconds(result[RUN_DUR_PER_FUNC_IX])  # convert to string
-
-
-def row_list(args, lang, op, exec_path, exec_version, cdur, rdur, templated):
-    if exec_path.startswith(home):
-        exec_path = os.path.join('~', exec_path.lstrip(home))
-
-    return [lang,
-            op,
-            'Yes' if templated else 'No',
-            cdur / (args.function_count * args.function_depth),
-            None,
-            rdur / (args.function_count * args.function_depth) if rdur is not None else rdur,
-            exec_version,
-            '`' + os.path.basename(exec_path) + '`',
-            ]
+def stringify_durs(abs_dur, rel_dur, column_ix, min_lang):
+    if column_ix == CDUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_dur) + " (" + factor_str(rel_dur) + " " + min_lang + ")"
+    elif column_ix == RDUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_dur) + " (" + factor_str(rel_dur) + " " + min_lang + ")"
 
 
 def to_str_in_microseconds(dur):
@@ -135,7 +134,6 @@ def to_str_in_microseconds(dur):
 
 
 def to_str_in_nanoseconds(dur):
-    print(dur)
     return '{:.0f}'.format(1e9 * dur) if dur is not None else ''
 
 
@@ -152,9 +150,8 @@ def md_header(text, nr):        # Markdown header
 
 
 def md_table(titles, rows):
-    fill_in_speedups(rows, titles, 'Check')
-    fill_in_speedups(rows, titles, 'Build')
-    stringify_durs(rows)
+    fill_in_speedups(results=rows, column_ix=CDUR_PER_FUNC_IX)
+    fill_in_speedups(results=rows, column_ix=RDUR_PER_FUNC_IX)
 
     result = ''
 
@@ -709,7 +706,7 @@ def benchmark_Swift(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Swift'
     exe = (which('swiftc') or
-           which(os.path.join(home, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
+           which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
     version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
     if op == 'Build':
         comp_flags = ['']
@@ -763,7 +760,7 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'V'                                   # vlang.io
     exe = (which('v') or
-           which(os.path.join(home, 'ware/vlang/v')))
+           which(os.path.join(HOME, 'ware/vlang/v')))
     if exe is not None:
         execs[lang] = exe
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
@@ -787,7 +784,7 @@ def benchmark_C3(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'C3'
     exe = (which('c3c') or
-           which(os.path.join(home, 'ware/c3c/build/c3c')))
+           which(os.path.join(HOME, 'ware/c3c/build/c3c')))
     if exe is not None:
         execs[lang] = exe
         version = 'unknown'
@@ -1044,7 +1041,14 @@ def compile_file(src_paths,
         print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, cdur_min, exe,
                                                                 compiler_version_str))
 
-    results.append(row_list(args, lang, op, exe, compiler_version, cdur_min, rdur_min, templated))
+    results.append(table_row(args=args,
+                             lang=lang,
+                             op=op,
+                             exe_path=exe,
+                             compiler_version=compiler_version,
+                             cdur=cdur_min,
+                             rdur=rdur_min,
+                             templated=templated))
     durs[opId] = cdur_min
     print_speedup(durs,
                   from_opId=opIdOf('D', templated, op, 'dmd'),
