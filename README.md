@@ -211,7 +211,11 @@ results in the following table (copied from the output at the end).
 
 ## TODO
 
-
+- Merge columns
+  - Op Time [us/#fn]
+  - Slowdown vs [Best]
+  into tuple (ABS, REL) with title
+    Op Time [us/#fn]
 - Fix Zig output file
 
 /snap/bin/zig build-exe --name generated/zig/main generated/zig/main.zig
