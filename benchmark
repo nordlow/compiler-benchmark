@@ -34,7 +34,7 @@ VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'RSS Memory Usage', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'RSS Mem Max Usage', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
