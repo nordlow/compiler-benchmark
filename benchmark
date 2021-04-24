@@ -130,7 +130,7 @@ def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
     if column_ix == CDUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
     elif column_ix == RDUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
+        return to_str_in_nanoseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
 
 
 def to_str_in_microseconds(dur):
