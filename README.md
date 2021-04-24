@@ -28,6 +28,10 @@ compilers. Supported languages are:
 A subset of these can be installed on Ubuntu (tested on 20.04) via the script
 `./install-compilers-on-ubuntu-20.04.sh` in this repo.
 
+## Install Python 3 packages
+
+./install_python-packages.sh
+
 ## How it works
 
 A benchmark is typically performed as
