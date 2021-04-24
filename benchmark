@@ -147,7 +147,7 @@ def factor_str(factor):
 
 def memory_usage_str(mu):
     if mu is None:
-        return '{:>12}'.format('unavailable')
+        return '{:>12}'.format('sample miss')
     return '{:12d}'.format(mu)
 
 
