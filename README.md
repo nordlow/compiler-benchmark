@@ -11,7 +11,7 @@ compilers. Supported languages are:
 - [Go](https://golang.org/) (using `go` or `gccgo`),
 - [Swift](https://swift.org/) (using `swiftc`),
 - [Rust](https://www.rust-lang.org/) (using `rustc`),
-- [Nim](https://nim-lang.org) (using `nim`),
+- [Nim](https://nim-lang.org/) (using `nim`),
 - [Julia](https://julialang.org/) (using `julia`),
 - [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
 - [Zig](https://ziglang.org/) (using `zig`), and
