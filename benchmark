@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# TODO remove durs
+# TODO use class Row
+# TODO remove OP_IX, op=op,
+
 import sys
 import argparse
 import subprocess as sp
@@ -34,37 +38,83 @@ VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
-TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/func]', 'Build Time [us/func]', 'Run Time [us/func]', 'RSS Mem Max Usage', 'Exec Version', 'Exec Path']
+
+class Row:                      # TODO use
+    __slots__ = ['lang',
+                 'templated',
+                 'check_dur_per_func',
+                 'build_dur_per_func',
+                 'run_dur_per_func',
+                 'rss_mu',
+                 'exe_version',
+                 'exe_path']
+    def __init__(self,
+                 lang,
+                 templated,
+                 check_dur_per_func,
+                 build_dur_per_func,
+                 run_dur_per_func,
+                 rss_mu,
+                 exe_version,
+                 exe_path):
+        self.lang = lang
+        self.templated=templated
+        self.check_dur_per_func=check_dur_per_func
+        self.build_dur_per_func=build_dur_per_func
+        self.run_dur_per_func=run_dur_per_func
+        self.rss_mu=rss_mu
+        self.exe_version=exe_version
+        self.exe_pat=exe_path
+
+
+class Row(object):
+    """Result row."""
+    def __init__(self, args):
+        self.args = args
+
+
+TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/func]', 'Build Time [us/func]', 'Run Time [us/func]', 'Check Peak RSS [bytes/func]', 'Build Peak RSS [bytes/func]', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 TEMPLATED_IX = 1
-CDUR_PER_FUNC_IX = 2       # check duration
-BDUR_PER_FUNC_IX = 3       # build duration
-RDUR_PER_FUNC_IX = 4       # run duration
-RSS_MU_IX = 5              # RSS memory usage
-EXE_VERSION_IX = 6
-EXE_PATH_IX = 7
+CHECK_DUR_PER_FUNC_IX = 2       # check duration
+BUILD_DUR_PER_FUNC_IX = 3       # build duration
+RUN_DUR_PER_FUNC_IX = 4       # run duration
+CHECK_RSS_MU_IX = 5        # check RSS memory usage
+BUILD_RSS_MU_IX = 6        # build RSS memory usage
+EXE_VERSION_IX = 7
+EXE_PATH_IX = 8
 TABLE_LENGTH = EXE_PATH_IX + 1
 
 assert len(TABLE_TITLES) == TABLE_LENGTH
 
-def table_row(args, lang, op, exe_path, compiler_version, cdur, bdur, rdur, rss_mu, templated):
+def table_row(row,
+              args,
+              lang,
+              op,
+              exe_path,
+              compiler_version,
+              check_dur,
+              build_dur,
+              run_dur,
+              check_rss_mu,
+              build_rss_mu,
+              templated):
     if exe_path.startswith(HOME):
         exe_path = os.path.join('~', exe_path.lstrip(HOME))
 
-    row = [None] * TABLE_LENGTH  # preallocate
     row[LANG_IX] = lang
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
 
-    if cdur is not None:
-        row[CDUR_PER_FUNC_IX] = cdur / (args.function_count * args.function_depth)
-
-    if bdur is not None:
-        row[BDUR_PER_FUNC_IX] = bdur / (args.function_count * args.function_depth)
-
-    if rdur is not None:
-        row[RDUR_PER_FUNC_IX] = rdur / (args.function_count * args.function_depth)
-
-    row[RSS_MU_IX] = memory_usage_str(rss_mu)
+    if check_dur is not None:
+        row[CHECK_DUR_PER_FUNC_IX] = check_dur / (args.function_count * args.function_depth)
+    if build_dur is not None:
+        row[BUILD_DUR_PER_FUNC_IX] = build_dur / (args.function_count * args.function_depth)
+    if run_dur is not None:
+        row[RUN_DUR_PER_FUNC_IX] = run_dur / (args.function_count * args.function_depth)
+    if check_rss_mu is not None:
+        row[CHECK_RSS_MU_IX] = check_rss_mu / (args.function_count * args.function_depth)
+    if build_rss_mu is not None:
+        row[BUILD_RSS_MU_IX] = build_rss_mu / (args.function_count * args.function_depth)
 
     row[EXE_VERSION_IX] = compiler_version
     row[EXE_PATH_IX] = '`' + os.path.basename(exe_path) + '`'
@@ -113,18 +163,18 @@ def opIdOf(lang, templated, op, exe_path):
     return srcIdOf(lang, templated) + '-' + op + '-' + str(exe_path)
 
 
-def fill_in_speedups(results, column_ix):
+def fill_in_speedups(results_map, column_ix):
     # calculate minimum
-    min_ix = None               # index of minimum
+    min_key = None               # index of minimum
     min_dur = None              # duration of minimum
-    for ix, result in enumerate(results):
+    for key, result in results_map.items():
         if min_dur is None or (result[column_ix] is not None and
                                min_dur > result[column_ix]):
-            min_ix = ix
+            min_key = key
             min_dur = result[column_ix]
-    min_lang = results[min_ix][LANG_IX]  # language of minimum
+    min_lang = results_map[min_key][LANG_IX]  # language of minimum
 
-    for ix, result in enumerate(results):
+    for key, result in results_map.items():
         result[column_ix] = stringify_metrics(abs_n=result[column_ix],
                                               min_dur=min_dur,
                                               column_ix=column_ix,
@@ -135,12 +185,17 @@ def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
     if abs_n is None:
         return '{:>6}'.format('N/A')
     rel_n = abs_n / min_dur
-    if column_ix == CDUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
-    elif column_ix == BDUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
-    elif column_ix == RDUR_PER_FUNC_IX:
-        return to_str_in_nanoseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
+    rel_str = " (" + factor_str(rel_n) + " " + min_lang + ")"
+    if column_ix == CHECK_DUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_n) + rel_str
+    elif column_ix == BUILD_DUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_n) + rel_str
+    elif column_ix == RUN_DUR_PER_FUNC_IX:
+        return to_str_in_nanoseconds(abs_n) + rel_str
+    elif column_ix == CHECK_RSS_MU_IX:
+        return to_str_memory_usage(abs_n) + rel_str
+    elif column_ix == BUILD_RSS_MU_IX:
+        return to_str_memory_usage(abs_n) + rel_str
 
 
 def to_str_in_microseconds(dur):
@@ -155,10 +210,10 @@ def factor_str(factor):
     return '{:5.1f}'.format(factor)
 
 
-def memory_usage_str(mu):
+def to_str_memory_usage(mu):
     if mu is None:
         return '{:>16}'.format('sample miss')
-    return '{:16,}'.format(mu)
+    return '{:5.0f}'.format(mu)
 
 
 def repeat_to_length(string_to_expand, length):
@@ -169,10 +224,12 @@ def markdown_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
 
-def markdown_table(titles, rows):
-    fill_in_speedups(results=rows, column_ix=CDUR_PER_FUNC_IX)
-    fill_in_speedups(results=rows, column_ix=BDUR_PER_FUNC_IX)
-    fill_in_speedups(results=rows, column_ix=RDUR_PER_FUNC_IX)
+def markdown_table(titles, results_map):
+    fill_in_speedups(results_map=results_map, column_ix=CHECK_DUR_PER_FUNC_IX)
+    fill_in_speedups(results_map=results_map, column_ix=BUILD_DUR_PER_FUNC_IX)
+    fill_in_speedups(results_map=results_map, column_ix=RUN_DUR_PER_FUNC_IX)
+    fill_in_speedups(results_map=results_map, column_ix=CHECK_RSS_MU_IX)
+    fill_in_speedups(results_map=results_map, column_ix=BUILD_RSS_MU_IX)
 
     result = ''
 
@@ -189,7 +246,7 @@ def markdown_table(titles, rows):
             result += ':' + repeat_to_length("-", len(titles[ix]) - 2) + ':' + ' | '
     result += '\n'
 
-    for row in rows:
+    for key, row in results_map.items():
         result += '| '
         for ix, cl in enumerate(range(len(titles))):
             col = row[ix]
@@ -247,106 +304,106 @@ def main():
     execs = {}                  # execs by language
     durs = {}                   # time durs by compiler path
 
-    results = []
+    results_map = {}            # tuple(LANGUAGE, TEMPLATEFLAG) => list
 
     print(markdown_header('Benchmark:', 1))
 
     if 'D' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False, use_dips=True)
-            results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True, use_dips=True)
+            benchmark_D(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False, use_dips=True)
+            benchmark_D(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True, use_dips=True)
         if 'Build' in args.operations:
-            results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
-            results += benchmark_D(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
+            benchmark_D(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, use_dips=True)
+            benchmark_D(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True, use_dips=True)
 
     if 'Vox' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            benchmark_Vox(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_Vox(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
-            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Vox(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_Vox(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Vox(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_C_using_tcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_C_using_tcc(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_C_and_Cxx_using_gcc(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_C_and_Cxx_using_clang(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_C_using_cproc(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_C_using_tcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_C_and_Cxx_using_gcc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_C_and_Cxx_using_clang(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_C_using_cproc(lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C_using_tcc(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C_and_Cxx_using_gcc(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C_and_Cxx_using_clang(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C_using_cproc(results_map=results_map, lang='C', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C++' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
-            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            benchmark_C_and_Cxx_using_gcc(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_C_and_Cxx_using_clang(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_C_and_Cxx_using_gcc(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            benchmark_C_and_Cxx_using_clang(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
-            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_C_and_Cxx_using_gcc(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
-            results += benchmark_C_and_Cxx_using_clang(lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_C_and_Cxx_using_gcc(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C_and_Cxx_using_clang(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C_and_Cxx_using_gcc(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_C_and_Cxx_using_clang(results_map=results_map, lang='C++', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Ada' in args.languages:
         # if 'Check' in args.operations:
-        #     results += benchmark_Ada_using_gcc(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+        #     benchmark_Ada_using_gcc(results_map=results_map,lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_Ada_using_gcc(lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Ada_using_gcc(results_map=results_map, lang='Ada', execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Go' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_Go(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_Go(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Go(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Swift' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_Swift(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_Swift(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_Swift(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Swift(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'V' in args.languages:
         if 'Build' in args.operations:
-            results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_V(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_V(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_V(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C3' in args.languages:
         if 'Build' in args.operations:
-            results += benchmark_C3(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_C3(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Zig' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            benchmark_Zig(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_Zig(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
-            results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Zig(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_Zig(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Zig(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Rust' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
-            results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
+            benchmark_Rust(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_Rust(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=True)
         if 'Build' in args.operations:
-            results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Rust(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_Rust(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Rust(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'Nim' in args.languages:
         if 'Check' in args.operations:
-            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
+            benchmark_Nim(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Nim(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'C#' in args.languages:
         if 'Build' in args.operations:
-            results += benchmark_Mono(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Mono(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Java' in args.languages:
         if 'Build' in args.operations:
-            results += benchmark_Java(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Java(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
 
     if 'Julia' in args.languages:
         if 'Build' in args.operations:
@@ -354,8 +411,8 @@ def main():
                 # participate by truncating size because ops/function are measured
                 args.function_count = 100
                 args.function_depth = 100
-            results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-            results += benchmark_Julia(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+            benchmark_Julia(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Julia(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'OCaml' in args.languages:
         if 'Build' in args.operations:
@@ -363,11 +420,11 @@ def main():
                 # participate by truncating size because ops/function are measured
                 args.function_count = 100
                 args.function_depth = 100
-            results += benchmark_OCaml(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
+            benchmark_OCaml(results_map=results_map, execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
 
     print()
 
-    print(markdown_table(TABLE_TITLES, results))
+    print(markdown_table(TABLE_TITLES, results_map))
 
 
 def generate_code(args):
@@ -404,7 +461,7 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
                          compiler_version=version,
                          lang=lang,
                          templated=templated,
-                         results=results,
+                         results_map=results_map,
                          durs=durs)
     return results
 
@@ -431,7 +488,7 @@ def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated
                          compiler_version=version,
                          lang=lang,
                          templated=templated,
-                         results=results,
+                         results_map=results_map,
                          durs=durs)
     return results
 
@@ -461,7 +518,7 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
     return results
 
@@ -491,13 +548,12 @@ def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
     return results
 
 
 def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templated):
-    results = list()
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     comp_flags = [] if op == 'Build' else ['-fsyntax-only']
     for clang_version in VERSIONS:
@@ -519,13 +575,12 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
                          compiler_version=version,
                          lang=lang,
                          templated=templated,
-                         results=results,
+                         results_map=results_map,
                          durs=durs)
     return results
 
 
-def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
-    results = list()
+def benchmark_D(results_map, execs, durs, gpaths, args, op, templated, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
@@ -560,7 +615,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
 
     # LDC
@@ -580,7 +635,7 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
 
     # GDC
@@ -602,13 +657,11 @@ def benchmark_D(execs, durs, gpaths, args, op, templated, use_dips):
                          compiler_version=version,
                          lang=lang,
                          templated=templated,
-                         results=results,
+                         results_map=results_map,
                          durs=durs)
-    return results
 
 
-def benchmark_Vox(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Vox(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Vox'
 
     comp_flags = [] if op == 'Build' else ['--check-only']
@@ -630,13 +683,11 @@ def benchmark_Vox(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_Mono(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Mono(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'C#'
     exe = which('mcs')
     comp_flags = ['-target:exe']
@@ -654,20 +705,16 @@ def benchmark_Mono(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_Go(execs, durs, gpaths, args, op, templated):
-    results = list()
-    results += benchmark_Go_using_go(execs, durs, gpaths, args, op, templated)
-    results += benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated)
-    return results
+def benchmark_Go(results_map, execs, durs, gpaths, args, op, templated):
+    benchmark_Go_using_go(results_map, execs, durs, gpaths, args, op, templated)
+    benchmark_Go_using_gccgo(results_map, execs, durs, gpaths, args, op, templated)
 
 
-def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Go_using_go(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Go'
     version = None              # unknown
     if op == 'Build':
@@ -694,13 +741,11 @@ def benchmark_Go_using_go(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Go_using_gccgo(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Go'
     for gccgo_version in VERSIONS:
         exe = which('gccgo' + str(gccgo_version))
@@ -718,13 +763,11 @@ def benchmark_Go_using_gccgo(execs, durs, gpaths, args, op, templated):
                          compiler_version=version,
                          lang=lang,
                          templated=templated,
-                         results=results,
+                         results_map=results_map,
                          durs=durs)
-    return results
 
 
-def benchmark_Swift(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Swift(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Swift'
     exe = (which('swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
@@ -745,13 +788,11 @@ def benchmark_Swift(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
-    results = list()
+def benchmark_OCaml(results_map, execs, durs, gpaths, args, op, templated, bytecode):
     lang = 'OCaml'
     if bytecode:
         exe = which('ocamlc')
@@ -772,13 +813,11 @@ def benchmark_OCaml(execs, durs, gpaths, args, op, templated, bytecode):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_V(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_V(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'V'                                   # vlang.io
     exe = (which('v') or
            which(os.path.join(HOME, 'ware/vlang/v')))
@@ -796,13 +835,11 @@ def benchmark_V(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_C3(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_C3(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'C3'
     exe = (which('c3c') or
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
@@ -819,13 +856,11 @@ def benchmark_C3(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_Zig(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Zig(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Zig'
     exe = which('zig')
     comp_flags = ['build-exe'] if op == 'Build' else ['build-obj', '-fno-emit-bin']
@@ -842,13 +877,11 @@ def benchmark_Zig(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_Nim(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Nim(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Nim'
     exe = which('nim')
     comp_flags = ['--hints:off']
@@ -871,9 +904,8 @@ def benchmark_Nim(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
 def set_rustup_channel(channel):
@@ -883,8 +915,7 @@ def set_rustup_channel(channel):
         proc.communicate()
 
 
-def benchmark_Rust(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Rust(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Rust'
 
     rustup_exe = which('rustup')
@@ -926,12 +957,10 @@ def benchmark_Rust(execs, durs, gpaths, args, op, templated):
                          compiler_version=version,
                          lang=lang,
                          templated=templated,
-                         results=results,
+                         results_map=results_map,
                          durs=durs)
-    return results
 
-def benchmark_Java(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Java(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Java'
     exe = which('javac')
     if exe is not None:
@@ -958,13 +987,11 @@ def benchmark_Java(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
-def benchmark_Julia(execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Julia(results_map, execs, durs, gpaths, args, op, templated):
     lang = 'Julia'
     exe = which('julia')
     if exe is not None:
@@ -981,9 +1008,8 @@ def benchmark_Julia(execs, durs, gpaths, args, op, templated):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results,
+                     results_map=results_map,
                      durs=durs)
-    return results
 
 
 def compile_file(src_paths,
@@ -996,7 +1022,7 @@ def compile_file(src_paths,
                  compiler_version=None,
                  lang=None,
                  templated=None,
-                 results=None,
+                 results_map=None,
                  durs=None):
 
     compiler = which(exe)
@@ -1006,7 +1032,7 @@ def compile_file(src_paths,
         return None
 
     # op
-    cdurs = []                  # compilation durations
+    check_durs = []                  # compilation durations
     rss_mu = None               # RSS memory usage
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
@@ -1030,7 +1056,7 @@ def compile_file(src_paths,
                   file=sys.stderr)
             return None
 
-        cdurs.append(timer() - cstart)
+        check_durs.append(timer() - cstart)
 
         if outs:
             if not outs.startswith(b'/usr/bin/ld: warning'):
@@ -1040,10 +1066,10 @@ def compile_file(src_paths,
                 errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
             if len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
                 print('output:', errs)
-    cdur_min = min(cdurs)       # compilation duration minimum
+    check_dur_min = min(check_durs)       # compilation duration minimum
 
     # run
-    rdur_min = None             # run duration minimum
+    run_dur_min = None             # run duration minimum
     if op == 'Build':
         outb = out_binary(lang)
         if runner:
@@ -1051,9 +1077,9 @@ def compile_file(src_paths,
                 if (exe.endswith('cproc')):  # cproc forgets to set executable bit
                     st = os.stat(exe)
                     os.chmod(outb, st.st_mode | stat.S_IEXEC)
-                rdur_min = run_compiled_file(exe)
+                run_dur_min = run_compiled_file(exe)
             elif type(runner) is list:
-                rdur_min = run_compiled_file(runner + [outb])
+                run_dur_min = run_compiled_file(runner + [outb])
         elif out_flag_and_exe:
             if runner is not False:
                 print("TODO run " + outb + " using runner " + str(runner))
@@ -1065,23 +1091,34 @@ def compile_file(src_paths,
     show_file = False
     compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
     if show_file:
-        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(op, src_paths, cdur_min, exe,
+        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(op, src_paths, check_dur_min, exe,
                                                                       compiler_version_str))
     else:
-        print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, cdur_min, exe,
+        print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, check_dur_min, exe,
                                                                 compiler_version_str))
 
-    results.append(table_row(args=args,
-                             lang=lang,
-                             op=op,
-                             exe_path=exe,
-                             compiler_version=compiler_version,
-                             cdur=cdur_min if op == 'Check' else None,
-                             bdur=cdur_min if op == 'Build' else None,
-                             rdur=rdur_min,
-                             rss_mu=rss_mu,
-                             templated=templated))
-    durs[opId] = cdur_min
+    key = (lang, templated, exe)
+
+    if key not in results_map:
+        row = [None] * TABLE_LENGTH  # preallocate
+        results_map[key] = row
+    else:
+        row = results_map[key]
+
+    table_row(row=row,
+              args=args,
+              lang=lang,
+              op=op,
+              exe_path=exe,
+              compiler_version=compiler_version,
+              check_dur=check_dur_min if op == 'Check' else None,
+              build_dur=check_dur_min if op == 'Build' else None,
+              run_dur=run_dur_min,
+              check_rss_mu=rss_mu if op == 'Check' else None,
+              build_rss_mu=rss_mu if op == 'Build' else None,
+              templated=templated)
+
+    durs[opId] = check_dur_min
 
     print_speedup(durs,
                   from_opId=opIdOf('D', templated, op, 'dmd'),
