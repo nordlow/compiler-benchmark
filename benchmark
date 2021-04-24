@@ -16,6 +16,8 @@ from os.path import expanduser
 from string import Template as Tm
 from timeit import default_timer as timer
 
+from process_timer import ProcessTimer
+
 SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Nim', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Build']
@@ -32,19 +34,20 @@ VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'RSS Mem Usage', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
 CDUR_PER_FUNC_IX = 3       # compiler duration
 RDUR_PER_FUNC_IX = 4       # run duration
-EXE_VERSION_IX = 5
-EXE_PATH_IX = 6
+RSS_MU_IX = 5              # RSS memory usage
+EXE_VERSION_IX = 6
+EXE_PATH_IX = 7
 TABLE_LENGTH = EXE_PATH_IX + 1
 
 assert len(TABLE_TITLES) == TABLE_LENGTH
 
-def table_row(args, lang, op, exe_path, compiler_version, cdur, rdur, templated):
+def table_row(args, lang, op, exe_path, compiler_version, cdur, rdur, rss_mu, templated):
     if exe_path.startswith(HOME):
         exe_path = os.path.join('~', exe_path.lstrip(HOME))
     row = [None] * TABLE_LENGTH  # preallocate
@@ -55,6 +58,7 @@ def table_row(args, lang, op, exe_path, compiler_version, cdur, rdur, templated)
         row[CDUR_PER_FUNC_IX] = cdur / (args.function_count * args.function_depth)
     if rdur is not None:
         row[RDUR_PER_FUNC_IX] = rdur / (args.function_count * args.function_depth)
+    row[RSS_MU_IX] = memory_usage_str(rss_mu)
     row[EXE_VERSION_IX] = compiler_version
     row[EXE_PATH_IX] = '`' + os.path.basename(exe_path) + '`'
     return row
@@ -113,20 +117,20 @@ def fill_in_speedups(results, column_ix):
     min_lang = results[min_ix][LANG_IX]  # language of minimum
 
     for ix, result in enumerate(results):
-        if result[column_ix] is None:
-            result[column_ix] = ''
-        else:
-            result[column_ix] = stringify_durs(abs_dur=result[column_ix],
-                                               rel_dur=result[column_ix] / min_dur,
-                                               column_ix=column_ix,
-                                               min_lang=min_lang)
+        result[column_ix] = stringify_metrics(abs_n=result[column_ix],
+                                              min_dur=min_dur,
+                                              column_ix=column_ix,
+                                              min_lang=min_lang)
 
 
-def stringify_durs(abs_dur, rel_dur, column_ix, min_lang):
+def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
+    if abs_n is None:
+        return '{:>6}'.format('N/A')
+    rel_n = abs_n / min_dur
     if column_ix == CDUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_dur) + " (" + factor_str(rel_dur) + " " + min_lang + ")"
+        return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
     elif column_ix == RDUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_dur) + " (" + factor_str(rel_dur) + " " + min_lang + ")"
+        return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
 
 
 def to_str_in_microseconds(dur):
@@ -139,6 +143,12 @@ def to_str_in_nanoseconds(dur):
 
 def factor_str(factor):
     return '{:5.1f}'.format(factor)
+
+
+def memory_usage_str(mu):
+    if mu is None:
+        return '{:>12}'.format('unavailable')
+    return '{:12d}'.format(mu)
 
 
 def repeat_to_length(string_to_expand, length):
@@ -986,30 +996,39 @@ def compile_file(src_paths,
 
     # op
     cdurs = []                  # compilation durations
+    rss_mu = None               # RSS memory usage
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
-        args_ = [exe] + comp_flags + out_flag_and_exe + src_paths
-        # print("args:", ' '.join(args_))
-        with sp.Popen(args=args_,
-                      stdout=sp.PIPE,
-                      stderr=sp.PIPE) as comp_proc:
-            outs, errs = comp_proc.communicate()
-            # print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
-            if comp_proc.returncode != 0:
-                print("WARNING: Compilation `" + ' '.join([exe] + comp_flags) +
-                      "` of source files `" + ' '.join(src_paths) +
-                      "` exited with return code " + str(comp_proc.returncode),
-                      file=sys.stderr)
-                return None
-            cdurs.append(timer() - cstart)
-            if outs:
-                if not outs.startswith(b'/usr/bin/ld: warning'):
-                    print('stdout:', outs)
-            if errs:
-                if lang == 'Ada':
-                    errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
-                if len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
-                    print('output:', errs)
+        p_args = [exe] + comp_flags + out_flag_and_exe + src_paths
+        # print("p_args:", ' '.join(p_args))
+        pt = ProcessTimer(args=p_args)
+        try:
+            while pt.poll():
+                time.sleep(0.01)  # poll as often as possible
+        finally:
+            outs, errs = pt.comp_proc.communicate()
+            if rss_mu is None and pt.max_rss_mu != 0:
+                rss_mu = pt.max_rss_mu
+            # TODO pt.assertClosed()
+
+        # print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
+        if pt.comp_proc.returncode != 0:
+            print("WARNING: Compilation `" + ' '.join([exe] + comp_flags) +
+                  "` of source files `" + ' '.join(src_paths) +
+                  "` exited with return code " + str(pt.comp_proc.returncode),
+                  file=sys.stderr)
+            return None
+
+        cdurs.append(timer() - cstart)
+
+        if outs:
+            if not outs.startswith(b'/usr/bin/ld: warning'):
+                print('stdout:', outs)
+        if errs:
+            if lang == 'Ada':
+                errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
+            if len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
+                print('output:', errs)
     cdur_min = min(cdurs)       # compilation duration minimum
 
     # run
@@ -1048,6 +1067,7 @@ def compile_file(src_paths,
                              compiler_version=compiler_version,
                              cdur=cdur_min,
                              rdur=rdur_min,
+                             rss_mu=rss_mu,
                              templated=templated))
     durs[opId] = cdur_min
     print_speedup(durs,
