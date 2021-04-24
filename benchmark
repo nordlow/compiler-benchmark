@@ -34,11 +34,11 @@ VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'RSS Mem Max Usage', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/func]', 'Build Time [us/func]', 'Run Time [us/func]', 'RSS Mem Max Usage', 'Exec Version', 'Exec Path']
 LANG_IX = 0
-OP_IX = 1
-TEMPLATED_IX = 2
-CDUR_PER_FUNC_IX = 3       # compiler duration
+TEMPLATED_IX = 1
+CDUR_PER_FUNC_IX = 2       # check duration
+BDUR_PER_FUNC_IX = 3       # build duration
 RDUR_PER_FUNC_IX = 4       # run duration
 RSS_MU_IX = 5              # RSS memory usage
 EXE_VERSION_IX = 6
@@ -47,20 +47,28 @@ TABLE_LENGTH = EXE_PATH_IX + 1
 
 assert len(TABLE_TITLES) == TABLE_LENGTH
 
-def table_row(args, lang, op, exe_path, compiler_version, cdur, rdur, rss_mu, templated):
+def table_row(args, lang, op, exe_path, compiler_version, cdur, bdur, rdur, rss_mu, templated):
     if exe_path.startswith(HOME):
         exe_path = os.path.join('~', exe_path.lstrip(HOME))
+
     row = [None] * TABLE_LENGTH  # preallocate
     row[LANG_IX] = lang
-    row[OP_IX] = op
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
+
     if cdur is not None:
         row[CDUR_PER_FUNC_IX] = cdur / (args.function_count * args.function_depth)
+
+    if bdur is not None:
+        row[BDUR_PER_FUNC_IX] = bdur / (args.function_count * args.function_depth)
+
     if rdur is not None:
         row[RDUR_PER_FUNC_IX] = rdur / (args.function_count * args.function_depth)
+
     row[RSS_MU_IX] = memory_usage_str(rss_mu)
+
     row[EXE_VERSION_IX] = compiler_version
     row[EXE_PATH_IX] = '`' + os.path.basename(exe_path) + '`'
+
     return row
 
 RANDOMIZE_FLAG = True
@@ -129,6 +137,8 @@ def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
     rel_n = abs_n / min_dur
     if column_ix == CDUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
+    elif column_ix == BDUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
     elif column_ix == RDUR_PER_FUNC_IX:
         return to_str_in_nanoseconds(abs_n) + " (" + factor_str(rel_n) + " " + min_lang + ")"
 
@@ -161,6 +171,7 @@ def markdown_header(text, nr):        # Markdown header
 
 def markdown_table(titles, rows):
     fill_in_speedups(results=rows, column_ix=CDUR_PER_FUNC_IX)
+    fill_in_speedups(results=rows, column_ix=BDUR_PER_FUNC_IX)
     fill_in_speedups(results=rows, column_ix=RDUR_PER_FUNC_IX)
 
     result = ''
@@ -234,7 +245,7 @@ def main():
     gpaths = generate_code(args=args)
 
     execs = {}                  # execs by language
-    durs = {}                  # time durs by compiler path
+    durs = {}                   # time durs by compiler path
 
     results = []
 
@@ -1065,11 +1076,13 @@ def compile_file(src_paths,
                              op=op,
                              exe_path=exe,
                              compiler_version=compiler_version,
-                             cdur=cdur_min,
+                             cdur=cdur_min if op == 'Check' else None,
+                             bdur=cdur_min if op == 'Build' else None,
                              rdur=rdur_min,
                              rss_mu=rss_mu,
                              templated=templated))
     durs[opId] = cdur_min
+
     print_speedup(durs,
                   from_opId=opIdOf('D', templated, op, 'dmd'),
                   to_opId=opId)
