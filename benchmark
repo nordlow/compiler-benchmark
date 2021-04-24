@@ -339,7 +339,7 @@ def main():
             results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=False)
-	    results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
+	        results += benchmark_Nim(execs=execs, durs=durs, gpaths=gpaths, args=args, op='Build', templated=True)
 
     if 'C#' in args.languages:
         if 'Build' in args.operations:
