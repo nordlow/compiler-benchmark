@@ -282,7 +282,13 @@ def main():
     args.languages = list(map(lambda x: 'OCaml' if x.lower() == 'ocaml' else x.capitalize(),
                               args.languages.split(',')))  # into a list
     filtered_languages = []
+    args.language_exe = {}
     for language in args.languages:
+        split = language.split(':')
+        if len(split) == 2:
+            language = split[0]
+            exes = split[1]
+            args.language_exe[language] = tuple(exes.split())
         if language in SUPPORTED_LANGUAGES:
             filtered_languages.append(language)
         else:
@@ -442,6 +448,15 @@ def generate_code(args):
     return gpaths
 
 
+def match_lang(args, lang, exe_name):
+    try:
+        if exe_name not in args.language_exe[lang]:
+            return None
+    except KeyError:
+        pass
+    return which(exe_name)
+
+
 def benchmark_Ada_using_gcc(results_map, lang, execs, gpaths, args, op, templated):
     comp_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in VERSIONS:
@@ -583,9 +598,9 @@ def benchmark_D(results_map, execs, gpaths, args, op, templated, use_dips):
         comp_flags = ['-o-']
 
     # DMD
-    exe = which('dmd')
-    if exe is not None:
-        opId = opIdOf(lang, templated, op, 'dmd')
+    exe = match_lang(args, lang, 'dmd')
+    if exe:
+        opId = opIdOf(lang, templated, op, exe)
         version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
         if opId not in execs:
             execs[opId] = exe
@@ -602,9 +617,9 @@ def benchmark_D(results_map, execs, gpaths, args, op, templated, use_dips):
                      results_map=results_map)
 
     # LDC
-    exe = which('ldmd2')
-    if exe is not None:
-        opId = opIdOf(lang, templated, op, 'ldmd2')
+    exe = match_lang(args, lang, 'ldmd2')
+    if exe:
+        opId = opIdOf(lang, templated, op, exe)
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         if opId not in execs:
             execs[opId] = exe
@@ -621,25 +636,28 @@ def benchmark_D(results_map, execs, gpaths, args, op, templated, use_dips):
                      results_map=results_map)
 
     # GDC
-    if args.function_count * args.function_depth <= 10000:
-        exe = which('gdc')
-        if exe is not None:
-            comp_flags = [] if op == 'Build' else ['-fsyntax-only']
-            opId = opIdOf(lang, templated, op, 'gdc')
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
-            if opId not in execs:
-                execs[opId] = exe
-            compile_file(src_paths=src_paths,
-                         out_flag_and_exe=['-o', out_binary(lang)],
-                         exe=exe,
-                         runner=True,
-                         comp_flags=comp_flags,
-                         args=args,
-                         op=op,
-                         compiler_version=version,
-                         lang=lang,
-                         templated=templated,
-                         results_map=results_map)
+    if args.function_count * args.function_depth >= 10000: # takes too long otherwise
+        # participate by truncating size because ops/function are measured
+        args.function_count = 100
+        args.function_depth = 100
+    exe = match_lang(args, lang, 'gdc')
+    if exe:
+        comp_flags = [] if op == 'Build' else ['-fsyntax-only']
+        opId = opIdOf(lang, templated, op, exe)
+        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
+        if opId not in execs:
+            execs[opId] = exe
+        compile_file(src_paths=src_paths,
+                     out_flag_and_exe=['-o', out_binary(lang)],
+                     exe=exe,
+                     runner=True,
+                     comp_flags=comp_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results_map=results_map)
 
 
 def benchmark_Vox(results_map, execs, gpaths, args, op, templated):
