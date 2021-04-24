@@ -34,7 +34,7 @@ VERSIONS = [""] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
-TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'RSS Mem Usage', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Oper-ation', 'Temp-lated', 'Oper Time [us/func]', 'Run Time [us/func]', 'RSS Memory Usage', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 OP_IX = 1
 TEMPLATED_IX = 2
@@ -147,8 +147,8 @@ def factor_str(factor):
 
 def memory_usage_str(mu):
     if mu is None:
-        return '{:>12}'.format('sample miss')
-    return '{:12d}'.format(mu)
+        return '{:>16}'.format('sample miss')
+    return '{:16,}'.format(mu)
 
 
 def repeat_to_length(string_to_expand, length):
