@@ -442,8 +442,7 @@ def generate_code(args):
     return gpaths
 
 
-def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_Ada_using_gcc(results_map, lang, execs, gpaths, args, op, templated):
     comp_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in VERSIONS:
         exe = which('gnat' + str(gcc_version))
@@ -460,11 +459,9 @@ def benchmark_Ada_using_gcc(lang, execs, durs, gpaths, args, op, templated):
                          lang=lang,
                          templated=templated,
                          results_map=results_map)
-    return results
 
 
-def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_C_and_Cxx_using_gcc(results_map, lang, execs, gpaths, args, op, templated):
     comp_flags = [] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in VERSIONS:
         if lang == 'C':
@@ -486,11 +483,9 @@ def benchmark_C_and_Cxx_using_gcc(lang, execs, durs, gpaths, args, op, templated
                          lang=lang,
                          templated=templated,
                          results_map=results_map)
-    return results
 
 
-def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_C_using_cproc(results_map, lang, execs, gpaths, args, op, templated):
 
     exe = which('cproc')
     if op == 'Check':
@@ -515,11 +510,9 @@ def benchmark_C_using_cproc(lang, execs, durs, gpaths, args, op, templated):
                      lang=lang,
                      templated=templated,
                      results_map=results_map)
-    return results
 
 
-def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
-    results = list()
+def benchmark_C_using_tcc(results_map, lang, execs, gpaths, args, op, templated):
 
     exe = which('tcc')
     if op == 'Check':
@@ -544,10 +537,9 @@ def benchmark_C_using_tcc(lang, execs, durs, gpaths, args, op, templated):
                      lang=lang,
                      templated=templated,
                      results_map=results_map)
-    return results
 
 
-def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templated):
+def benchmark_C_and_Cxx_using_clang(results_map, lang, execs, gpaths, args, op, templated):
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     comp_flags = [] if op == 'Build' else ['-fsyntax-only']
     for clang_version in VERSIONS:
@@ -570,7 +562,6 @@ def benchmark_C_and_Cxx_using_clang(lang, execs, durs, gpaths, args, op, templat
                          lang=lang,
                          templated=templated,
                          results_map=results_map)
-    return results
 
 
 def benchmark_D(results_map, execs, gpaths, args, op, templated, use_dips):
