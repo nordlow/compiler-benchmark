@@ -874,10 +874,11 @@ def benchmark_Zig(results_map, execs, gpaths, args, op, templated):
 def benchmark_Nim(results_map, execs, gpaths, args, op, templated):
     lang = 'Nim'
     exe = which('nim')
-    comp_flags = ['--hints:off']
+    comp_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
     if op == 'Check':
         comp_flags += ['check']
     elif op == 'Build':
+        # the bottleneck is clang compilation
         comp_flags += ['c', '--gc:refc', '--opt:none']  # TODO detect when --gc:arc is available
     else:
         assert False
