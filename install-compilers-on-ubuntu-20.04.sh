@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Install faster linker
+if ! type -f ld.lld &>/dev/null; then
+    sudo apt install lld
+fi
+
 # C
 sudo apt install tcc
 sudo apt install gcc-10

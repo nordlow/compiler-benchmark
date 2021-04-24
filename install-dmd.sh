@@ -22,6 +22,11 @@ on_exit() {
 }
 trap on_exit EXIT
 
+# Install faster linker
+if ! type -f ld.lld &>/dev/null; then
+    sudo apt install lld
+fi
+
 # get it
 wget -O "${PPATH}" "http://downloads.dlang.org/releases/2.x/${MAJOR_VERSION}/${PNAME}" && \
     exec sudo dpkg -i "${PPATH}"
