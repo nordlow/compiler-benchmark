@@ -851,10 +851,11 @@ def benchmark_Nim(execs, durs, gpaths, args, op, templated):
     results = list()
     lang = 'Nim'
     exe = which('nim')
-    comp_flags = ['--hints:off']
+    comp_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
     if op == 'Check':
         comp_flags += ['check']
     elif op == 'Build':
+        # the bottleneck is clang compilation
         comp_flags += ['c', '--gc:refc', '--opt:none']  # TODO detect when --gc:arc is available
     else:
         assert False
