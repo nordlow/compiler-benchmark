@@ -30,7 +30,7 @@ A subset of these can be installed on Ubuntu (tested on 20.04) via the script
 
 ## Install Python 3 packages
 
-./install_python-packages.sh
+./install-python-packages.sh
 
 ## How it works
 
