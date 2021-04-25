@@ -1032,14 +1032,13 @@ def compile_file(src_paths,
             #     rss_mu = pt.max_rss_mu
             # if rss_mu is None:
             #     rss_mu = "unavailable"
-            rss_mu = "sampling error"
+            rss_mu = "sampling error"  # precision of maximum is uncertain
         finally:
             if rss_mu is None and pt.max_rss_mu != 0:
                 rss_mu = pt.max_rss_mu
             if rss_mu is None:
                 rss_mu = "sampling miss"
-        print(rss_mu)
-        # TODO pt.assertClosed()
+        # TODO pt.assertClosed() needed?
         outs, errs = pt.comp_proc.communicate()
 
         # print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
