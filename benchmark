@@ -72,7 +72,7 @@ class Row(object):
         self.args = args
 
 
-TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/func]', 'Build Time [us/func]', 'Run Time [us/func]', 'Check Peak RSS [bytes/func]', 'Build Peak RSS [bytes/func]', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/func]', 'Build Time [us/func]', 'Run Time [us/func]', 'Check Peak RSS [kB/func]', 'Build Peak RSS [kB/func]', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 TEMPLATED_IX = 1
 CHECK_DUR_PER_FUNC_IX = 2       # check duration
@@ -191,7 +191,7 @@ def fill_in_speedups(results_map, column_ix):
 
 def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
     if isinstance(abs_n, str):
-        return abs_n            # propagate as is
+        return '{:>18}'.format(abs_n)            # propagate as is
     if abs_n is None:
         return '{:>6}'.format('not applicable')  # https://en.wikipedia.org/wiki/N/A
     if abs_n == min_val:
@@ -216,7 +216,7 @@ def to_str_in_microseconds(dur):
 
 
 def to_str_in_nanoseconds(dur):
-    return '{:.0f}'.format(1e9 * dur) if dur is not None else ''
+    return '{:6.0f}'.format(1e9 * dur) if dur is not None else ''
 
 
 def factor_str(factor):
@@ -224,7 +224,7 @@ def factor_str(factor):
 
 
 def to_str_memory_usage(mu):
-    return '{:5.0f}'.format(mu)
+    return '{:6.1f}'.format(mu / 1e3)
 
 
 def repeat_to_length(string_to_expand, length):
