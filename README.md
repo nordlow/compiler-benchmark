@@ -163,7 +163,7 @@ results in the following table (copied from the output at the end).
 | C         | No         |   67.4 (9.9x)    | 2322.5 (181.1x)   |    190 (1.1x) |   22.4 (8.2x)        |  104.7 (36.0x)        | 10.2.0       | gcc-10    |
 | C         | No         |  115.5 (16.9x)    |  995.1 (77.6x)    |   1889 (10.7x) |   10.7 (3.9x)        |   67.9 (23.3x)        | 10.0.0 | clang-10  |
 | C         | No         |  122.2 (17.9x)    | 1008.3 (78.6x)    |   1556 (8.8x) |   11.1 (4.0x)        |   67.5 (23.2x)        | 11.0.0-2 | clang-11  |
-| C         | No         |   40.8 (6.0x)    | not applicable       | not applicable     |   11.8 (4.3x)        | not applicable           | unknown      | cproc     |
+| C         | No         |   40.8 (6.0x)    | N/A       | N/A     |   11.8 (4.3x)        | N/A           | unknown      | cproc     |
 | C++       | No         |  161.9 (23.7x)    | 2399.1 (187.1x)   |    199 (1.1x) |   34.6 (12.6x)        |  143.7 (49.4x)        | 9.3.0        | g++       |
 | C++       | No         |  164.0 (24.0x)    | 2392.4 (186.6x)   |    205 (1.2x) |   34.6 (12.6x)        |  143.7 (49.4x)        | 9.3.0        | g++-9     |
 | C++       | No         |  163.5 (24.0x)    | 2493.6 (194.5x)   |    218 (1.2x) |   32.8 (11.9x)        |  144.6 (49.7x)        | 10.2.0       | g++-10    |
@@ -174,22 +174,22 @@ results in the following table (copied from the output at the end).
 | C++       | Yes        |  470.0 (68.9x)    | 3245.7 (253.1x)   |    214 (1.2x) |   54.3 (19.8x)        |  175.1 (60.2x)        | 10.2.0       | g++-10    |
 | C++       | Yes        |  273.6 (40.1x)    | 1644.6 (128.3x)   |   3841 (21.8x) |   25.9 (9.4x)        |  105.6 (36.3x)        | 10.0.0 | clang++-10 |
 | C++       | Yes        |  283.7 (41.6x)    | 1382.3 (107.8x)   |   1411 (8.0x) |   26.5 (9.6x)        |  106.2 (36.5x)        | 11.0.0-2 | clang++-11 |
-| Ada       | No         | not applicable       | 15276.9 (1191.4x) |    391 (2.2x) | not applicable           |  250.1 (86.0x)        | 10.2.0       | gnat      |
-| Ada       | No         | not applicable       | 15271.1 (1191.0x) |    345 (2.0x) | not applicable           |  250.2 (86.0x)        | 10.2.0       | gnat-10   |
-| Go        | No         |  109.5 (16.1x)    | not applicable       | not applicable     |   28.3 (10.3x)        | not applicable           | 1.16.3       | gotype    |
-| Go        | No         | not applicable       |  897.4 (70.0x)    |    375 (2.1x) | not applicable           |  213.0 (73.3x)        | 1.16.3       | go        |
-| Go        | No         | not applicable       | 3492.3 (272.4x)   |    176  (best)  | not applicable           |  194.8 (67.0x)        | 10.2.0       | gccgo-10  |
+| Ada       | No         | N/A       | 15276.9 (1191.4x) |    391 (2.2x) | N/A           |  250.1 (86.0x)        | 10.2.0       | gnat      |
+| Ada       | No         | N/A       | 15271.1 (1191.0x) |    345 (2.0x) | N/A           |  250.2 (86.0x)        | 10.2.0       | gnat-10   |
+| Go        | No         |  109.5 (16.1x)    | N/A       | N/A     |   28.3 (10.3x)        | N/A           | 1.16.3       | gotype    |
+| Go        | No         | N/A       |  897.4 (70.0x)    |    375 (2.1x) | N/A           |  213.0 (73.3x)        | 1.16.3       | go        |
+| Go        | No         | N/A       | 3492.3 (272.4x)   |    176  (best)  | N/A           |  194.8 (67.0x)        | 10.2.0       | gccgo-10  |
 | Swift     | No         | 2728.9 (399.9x)   | 6573.7 (512.7x)   |    553 (3.1x) |   42.8 (15.6x)        |  128.2 (44.1x)        | 5.3.3        | swiftc    |
-| V         | No         | not applicable       |  151.1 (11.8x)    |   1880 (10.7x) | not applicable           |   92.6 (31.9x)        | 0.2.2        | v         |
-| V         | Yes        | not applicable       |  182.6 (14.2x)    |   1673 (9.5x) | not applicable           |  102.8 (35.3x)        | 0.2.2        | v         |
-| Zig       | No         |  484.8 (71.0x)    | not applicable       | not applicable     |  171.9 (62.6x)        | not applicable           | 0.7.1        | zig       |
-| Zig       | Yes        |  631.0 (92.5x)    | not applicable       | not applicable     |  243.2 (88.6x)        | not applicable           | 0.7.1        | zig       |
-| Rust      | No         | not applicable       | 4302.7 (335.6x)   |    901 (5.1x) | not applicable           |  257.8 (88.7x)        | 1.47.0       | rustc     |
-| Rust      | Yes        | not applicable       | 2917.8 (227.6x)   |    932 (5.3x) | not applicable           |  180.8 (62.2x)        | 1.47.0       | rustc     |
+| V         | No         | N/A       |  151.1 (11.8x)    |   1880 (10.7x) | N/A           |   92.6 (31.9x)        | 0.2.2        | v         |
+| V         | Yes        | N/A       |  182.6 (14.2x)    |   1673 (9.5x) | N/A           |  102.8 (35.3x)        | 0.2.2        | v         |
+| Zig       | No         |  484.8 (71.0x)    | N/A       | N/A     |  171.9 (62.6x)        | N/A           | 0.7.1        | zig       |
+| Zig       | Yes        |  631.0 (92.5x)    | N/A       | N/A     |  243.2 (88.6x)        | N/A           | 0.7.1        | zig       |
+| Rust      | No         | N/A       | 4302.7 (335.6x)   |    901 (5.1x) | N/A           |  257.8 (88.7x)        | 1.47.0       | rustc     |
+| Rust      | Yes        | N/A       | 2917.8 (227.6x)   |    932 (5.3x) | N/A           |  180.8 (62.2x)        | 1.47.0       | rustc     |
 | Nim       | No         |  277.5 (40.7x)    | 3559.7 (277.6x)   |    274 (1.6x) |   31.3 (11.4x)        |  253.7 (87.2x)        | 1.4.6        | nim       |
-| C#        | No         | not applicable       |  175.6 (13.7x)    |   2480 (14.1x) | not applicable           |   29.8 (10.3x)        | 6.12.0.122   | mcs       |
-| Julia     | No         | not applicable       | 723116.5 (56395.7x) | not applicable     | not applicable           |  333.7 (114.7x)       | 1.7.0-DEV    | julia     |
-| Julia     | Yes        | not applicable       | 551241.1 (42991.2x) | not applicable     | not applicable           |  377.2 (129.7x)       | 1.7.0-DEV    | julia     |
+| C#        | No         | N/A       |  175.6 (13.7x)    |   2480 (14.1x) | N/A           |   29.8 (10.3x)        | 6.12.0.122   | mcs       |
+| Julia     | No         | N/A       | 723116.5 (56395.7x) | N/A     | N/A           |  333.7 (114.7x)       | 1.7.0-DEV    | julia     |
+| Julia     | Yes        | N/A       | 551241.1 (42991.2x) | N/A     | N/A           |  377.2 (129.7x)       | 1.7.0-DEV    | julia     |
 
 ## TODO
 

@@ -194,7 +194,7 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
     if isinstance(abs_n, str):
         return '{:>13}'.format(abs_n)            # propagate as is
     if abs_n is None:
-        return '{:>6}'.format('not applicable')  # https://en.wikipedia.org/wiki/N/A
+        return '{:>6}'.format('N/A')  # https://en.wikipedia.org/wiki/N/A
     if abs_n == min_val:
         rel_str = " (best)"
     else:
