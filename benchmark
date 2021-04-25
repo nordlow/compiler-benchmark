@@ -284,6 +284,10 @@ def main():
                         default=100,
                         help='Function call depth')
 
+    parser.add_argument('--sample-rate', '--sr', type=int,
+                        default=100,
+                        help='Rate of memory usage sampling. Unit is samples per second.')
+
     parser.add_argument('--run-count', '--rc', type=int,
                         default=1,
                         help='Number of runs for each compilation')
@@ -1026,7 +1030,7 @@ def compile_file(src_paths,
         pt = ProcessTimer(args=p_args)
         try:
             while pt.poll():
-                time.sleep(0.01)  # poll as often as possible
+                time.sleep(1 / args.sample_rate)  # poll as often as possible
         except:
             # if rss_mu is None and pt.max_rss_mu != 0:
             #     rss_mu = pt.max_rss_mu
