@@ -113,19 +113,13 @@ using templated functions.
 
 ## Conclusions (from sample run shown below)
 
-TCC is superior in all regards because of its single-pass architecture possible
-when parsing the C programming language that doesn’t have to deal with forward
-declarations and thereby limiting the parsing (and memory allocation) scope to a
-single function.
+TCC build speed is varstly superior because of its single-pass code-generation
+architecture. Partly because parsing the C programming language that doesn’t
+have to deal with forward declarations and thereby limiting the parsing (and
+memory allocation) scope to a single function.
 
-Vox's check and build are, by a large margin, the fastest. 3-4 times faster than
-its closers competitor, `dmd`. Note that Vox, however, is a highly experimental
-language with no official release status, a Windows-only backend, and less
-language features than most other languages benchmarked.
-
-In second place comes D's reference compiler `dmd` and `cproc`. However, note
-that `cproc` is a highly experimental C compiler with no builtin support for the
-C preprocessor.
+The compilers `vox` `dmd` are, by a large margin, the fastest. 2 times faster
+than its closers competitor, `tcc`. Note that Vox is an experimental language.
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
@@ -154,70 +148,48 @@ The output on my AMD Ryzen Threadripper 3960X 24-Core Processor running Ubuntu
 
 results in the following table (copied from the output at the end).
 
-| Lang-uage | Oper-ation | Temp-lated | Op Time [us/#fn] | Slowdown vs [Best] | Run Time [us/#fn] | Version | Exec |
-| :-------: | :--------: | ---------- | :--------------: | :----------------: | :---------------: | :-----: | :--: |
-| D         | Check      | No         | 6.0              | 4.6 [Vox]          | N/A               | v2.096.1-beta.1-187-gb25be89b3 | `dmd` |
-| D         | Check      | No         | 7.5              | 5.7 [Vox]          | N/A               | 1.26.0-beta1 | `ldmd2` |
-| D         | Check      | Yes        | 13.7             | 10.5 [Vox]         | N/A               | v2.096.1-beta.1-187-gb25be89b3 | `dmd` |
-| D         | Check      | Yes        | 14.6             | 11.2 [Vox]         | N/A               | 1.26.0-beta1 | `ldmd2` |
-| D         | Build      | No         | 51.0             | 29.8 [C]           | 43                | v2.096.1-beta.1-187-gb25be89b3 | `dmd` |
-| D         | Build      | No         | 98.3             | 57.3 [C]           | 120               | 1.26.0-beta1 | `ldmd2` |
-| D         | Build      | Yes        | 55.9             | 32.6 [C]           | 28                | v2.096.1-beta.1-187-gb25be89b3 | `dmd` |
-| D         | Build      | Yes        | 108.5            | 63.2 [C]           | 153               | 1.26.0-beta1 | `ldmd2` |
-| Vox       | Check      | No         | 1.3              | 1.0 [Vox]          | N/A               | master  | `vox` |
-| Vox       | Check      | Yes        | 2.2              | 1.7 [Vox]          | N/A               | master  | `vox` |
-| Vox       | Build      | No         | 5.3              | 3.1 [C]            | 31                | master  | `vox` |
-| Vox       | Build      | Yes        | 5.7              | 3.3 [C]            | 23                | master  | `vox` |
-| C         | Check      | No         | 1.6              | 1.2 [Vox]          | N/A               | 0.9.27  | `tcc` |
-| C         | Check      | No         | 8.3              | 6.4 [Vox]          | N/A               | 9.3.0   | `gcc` |
-| C         | Check      | No         | 8.2              | 6.3 [Vox]          | N/A               | 9.3.0   | `gcc-9` |
-| C         | Check      | No         | 8.2              | 6.3 [Vox]          | N/A               | 10.2.0  | `gcc-10` |
-| C         | Check      | No         | 14.6             | 11.2 [Vox]         | N/A               | 10.0.0  | `clang-10` |
-| C         | Check      | No         | 15.4             | 11.8 [Vox]         | N/A               | 11.0.0-2~ubuntu20.04.1 | `clang-11` |
-| C         | Build      | No         | 1.7              | 1.0 [C]            | 25                | 0.9.27  | `tcc` |
-| C         | Build      | No         | 279.3            | 162.8 [C]          | 26                | 9.3.0   | `gcc` |
-| C         | Build      | No         | 279.2            | 162.7 [C]          | 25                | 9.3.0   | `gcc-9` |
-| C         | Build      | No         | 291.1            | 169.7 [C]          | 24                | 10.2.0  | `gcc-10` |
-| C         | Build      | No         | 128.5            | 74.9 [C]           | 211               | 10.0.0  | `clang-10` |
-| C         | Build      | No         | 126.2            | 73.6 [C]           | 172               | 11.0.0-2~ubuntu20.04.1 | `clang-11` |
-| C++       | Check      | No         | 20.8             | 15.9 [Vox]         | N/A               | 9.3.0   | `g++` |
-| C++       | Check      | No         | 19.9             | 15.2 [Vox]         | N/A               | 9.3.0   | `g++-9` |
-| C++       | Check      | No         | 21.4             | 16.4 [Vox]         | N/A               | 10.2.0  | `g++-10` |
-| C++       | Check      | No         | 21.2             | 16.2 [Vox]         | N/A               | 10.0.0  | `clang++-10` |
-| C++       | Check      | No         | 21.8             | 16.7 [Vox]         | N/A               | 11.0.0-2~ubuntu20.04.1 | `clang++-11` |
-| C++       | Check      | Yes        | 55.4             | 42.4 [Vox]         | N/A               | 9.3.0   | `g++` |
-| C++       | Check      | Yes        | 56.0             | 42.9 [Vox]         | N/A               | 9.3.0   | `g++-9` |
-| C++       | Check      | Yes        | 53.0             | 40.6 [Vox]         | N/A               | 10.2.0  | `g++-10` |
-| C++       | Check      | Yes        | 33.8             | 25.9 [Vox]         | N/A               | 10.0.0  | `clang++-10` |
-| C++       | Check      | Yes        | 35.4             | 27.1 [Vox]         | N/A               | 11.0.0-2~ubuntu20.04.1 | `clang++-11` |
-| C++       | Build      | No         | 300.3            | 175.0 [C]          | 26                | 9.3.0   | `g++` |
-| C++       | Build      | No         | 300.8            | 175.4 [C]          | 25                | 9.3.0   | `g++-9` |
-| C++       | Build      | No         | 307.8            | 179.4 [C]          | 25                | 10.2.0  | `g++-10` |
-| C++       | Build      | No         | 139.7            | 81.4 [C]           | 445               | 10.0.0  | `clang++-10` |
-| C++       | Build      | No         | 139.1            | 81.1 [C]           | 185               | 11.0.0-2~ubuntu20.04.1 | `clang++-11` |
-| C++       | Build      | Yes        | 389.3            | 226.9 [C]          | 26                | 9.3.0   | `g++` |
-| C++       | Build      | Yes        | 391.9            | 228.4 [C]          | 26                | 9.3.0   | `g++-9` |
-| C++       | Build      | Yes        | 395.9            | 230.8 [C]          | 27                | 10.2.0  | `g++-10` |
-| C++       | Build      | Yes        | 211.2            | 123.1 [C]          | 177               | 10.0.0  | `clang++-10` |
-| C++       | Build      | Yes        | 179.0            | 104.3 [C]          | 204               | 11.0.0-2~ubuntu20.04.1 | `clang++-11` |
-| Ada       | Build      | No         | 1870.7           | 1090.5 [C]         | 32                | 10.2.0  | `gnat` |
-| Ada       | Build      | No         | 1901.5           | 1108.4 [C]         | 45                | 10.2.0  | `gnat-10` |
-| Go        | Check      | No         | 12.6             | 9.7 [Vox]          | N/A               | 1.16.3  | `gotype` |
-| Go        | Build      | No         | 112.3            | 65.5 [C]           | 75                | 1.16.3  | `go` |
-| Go        | Build      | No         | 451.0            | 262.9 [C]          | 28                | 10.2.0  | `gccgo-10` |
-| Swift     | Check      | No         | 345.4            | 264.5 [Vox]        | N/A               | 5.3.3   | `swiftc` |
-| Swift     | Build      | No         | 827.9            | 482.6 [C]          | 62                | 5.3.3   | `swiftc` |
-| V         | Build      | No         | 18.2             | 10.6 [C]           | 225               | 0.2.2   | `v`  |
-| V         | Build      | Yes        | 22.7             | 13.3 [C]           | 216               | 0.2.2   | `v`  |
-| Zig       | Check      | No         | 60.2             | 46.1 [Vox]         | N/A               | 0.7.1   | `zig` |
-| Zig       | Check      | Yes        | 82.9             | 63.5 [Vox]         | N/A               | 0.7.1   | `zig` |
-| Rust      | Build      | No         | 544.6            | 317.4 [C]          | 75                | 1.47.0  | `rustc` |
-| Rust      | Build      | Yes        | 362.4            | 211.2 [C]          | 117               | 1.47.0  | `rustc` |
-| Nim       | Check      | No         | 35.3             | 27.1 [Vox]         | N/A               | 1.4.6   | `nim` |
-| Nim       | Build      | No         | 1051.5           | 613.0 [C]          | 38                | 1.4.6   | `nim` |
-| C#        | Build      | No         | 22.1             | 12.9 [C]           | 290               | 6.12.0.122 | `mcs` |
-| Julia     | Build      | No         | 714206.9         | 416321.3 [C]       | N/A               | 1.7.0-DEV | `julia` |
-| Julia     | Build      | Yes        | 565871.4         | 329854.4 [C]       | N/A               | 1.7.0-DEV | `julia` |
+| Lang-uage | Temp-lated | Check Time [us/func] | Build Time [us/func] | Run Time [us/func] | Check Peak RSS [kB/func] | Build Peak RSS [kB/func] | Exec Version | Exec Path |
+| :-------: | ---------- | :------------------: | :------------------: | :----------------: | :----------------------: | :----------------------: | :----------: | :-------: |
+| D         | No         |    6.8  (minimum)    |  149.3 (11.6 tcc)    |    244 ( 1.4 gccgo-10) |    4.3 ( 1.6 tcc)        |   91.6 (31.5 tcc)        | v2.096.0     | dmd       |
+| D         | No         |    7.4 ( 1.1 dmd)    |  867.1 (67.6 tcc)    |   1197 ( 6.8 gccgo-10) |    5.4 ( 2.0 tcc)        |  148.6 (51.1 tcc)        | 1.26.0-beta1 | ldmd2     |
+| D         | No         |   52.1 ( 7.6 dmd)    | 2417.5 (188.5 tcc)   |    203 ( 1.1 gccgo-10) |   35.1 (12.8 tcc)        |  147.0 (50.6 tcc)        | 10.2.0       | gdc       |
+| D         | Yes        |  109.7 (16.1 dmd)    |  221.4 (17.3 tcc)    |    341 ( 1.9 gccgo-10) |  105.1 (38.3 tcc)        |  165.1 (56.8 tcc)        | v2.096.0     | dmd       |
+| D         | Yes        |  119.5 (17.5 dmd)    |  958.0 (74.7 tcc)    |   1105 ( 6.3 gccgo-10) |  117.3 (42.7 tcc)        |  226.0 (77.7 tcc)        | 1.26.0-beta1 | ldmd2     |
+| Vox       | No         |   11.3 ( 1.7 dmd)    |   43.2 ( 3.4 tcc)    |    181 ( 1.0 gccgo-10) |    8.6 ( 3.1 tcc)        |   28.5 ( 9.8 tcc)        | master       | vox       |
+| Vox       | Yes        |   19.2 ( 2.8 dmd)    |   46.2 ( 3.6 tcc)    |    221 ( 1.3 gccgo-10) |   15.7 ( 5.7 tcc)        |   34.2 (11.7 tcc)        | master       | vox       |
+| C         | No         |   15.0 ( 2.2 dmd)    |   12.8  (minimum)    |    206 ( 1.2 gccgo-10) |    2.7  (minimum)        |    2.9  (minimum)        | 0.9.27       | tcc       |
+| C         | No         |   64.5 ( 9.5 dmd)    | 2205.9 (172.0 tcc)   |    221 ( 1.3 gccgo-10) |   21.9 ( 8.0 tcc)        |  104.3 (35.9 tcc)        | 9.3.0        | gcc       |
+| C         | No         |   69.7 (10.2 dmd)    | 2188.9 (170.7 tcc)   |    205 ( 1.2 gccgo-10) |   22.0 ( 8.0 tcc)        |  104.3 (35.9 tcc)        | 9.3.0        | gcc-9     |
+| C         | No         |   67.4 ( 9.9 dmd)    | 2322.5 (181.1 tcc)   |    190 ( 1.1 gccgo-10) |   22.4 ( 8.2 tcc)        |  104.7 (36.0 tcc)        | 10.2.0       | gcc-10    |
+| C         | No         |  115.5 (16.9 dmd)    |  995.1 (77.6 tcc)    |   1889 (10.7 gccgo-10) |   10.7 ( 3.9 tcc)        |   67.9 (23.3 tcc)        | 10.0.0-4ubuntu1 | clang-10  |
+| C         | No         |  122.2 (17.9 dmd)    | 1008.3 (78.6 tcc)    |   1556 ( 8.8 gccgo-10) |   11.1 ( 4.0 tcc)        |   67.5 (23.2 tcc)        | 11.0.0-2~ubuntu20.04.1 | clang-11  |
+| C         | No         |   40.8 ( 6.0 dmd)    | not applicable       | not applicable     |   11.8 ( 4.3 tcc)        | not applicable           | unknown      | cproc     |
+| C++       | No         |  161.9 (23.7 dmd)    | 2399.1 (187.1 tcc)   |    199 ( 1.1 gccgo-10) |   34.6 (12.6 tcc)        |  143.7 (49.4 tcc)        | 9.3.0        | g++       |
+| C++       | No         |  164.0 (24.0 dmd)    | 2392.4 (186.6 tcc)   |    205 ( 1.2 gccgo-10) |   34.6 (12.6 tcc)        |  143.7 (49.4 tcc)        | 9.3.0        | g++-9     |
+| C++       | No         |  163.5 (24.0 dmd)    | 2493.6 (194.5 tcc)   |    218 ( 1.2 gccgo-10) |   32.8 (11.9 tcc)        |  144.6 (49.7 tcc)        | 10.2.0       | g++-10    |
+| C++       | No         |  167.0 (24.5 dmd)    | 1107.2 (86.3 tcc)    |   3631 (20.6 gccgo-10) |   11.4 ( 4.2 tcc)        |   68.7 (23.6 tcc)        | 10.0.0-4ubuntu1 | clang++-10 |
+| C++       | No         |  169.5 (24.8 dmd)    | 1107.7 (86.4 tcc)    |   1524 ( 8.6 gccgo-10) |   11.8 ( 4.3 tcc)        |   68.7 (23.6 tcc)        | 11.0.0-2~ubuntu20.04.1 | clang++-11 |
+| C++       | Yes        |  455.3 (66.7 dmd)    | 3177.0 (247.8 tcc)   |    214 ( 1.2 gccgo-10) |   57.0 (20.8 tcc)        |  168.4 (57.9 tcc)        | 9.3.0        | g++       |
+| C++       | Yes        |  445.0 (65.2 dmd)    | 3157.0 (246.2 tcc)   |    198 ( 1.1 gccgo-10) |   57.0 (20.8 tcc)        |  168.3 (57.9 tcc)        | 9.3.0        | g++-9     |
+| C++       | Yes        |  470.0 (68.9 dmd)    | 3245.7 (253.1 tcc)   |    214 ( 1.2 gccgo-10) |   54.3 (19.8 tcc)        |  175.1 (60.2 tcc)        | 10.2.0       | g++-10    |
+| C++       | Yes        |  273.6 (40.1 dmd)    | 1644.6 (128.3 tcc)   |   3841 (21.8 gccgo-10) |   25.9 ( 9.4 tcc)        |  105.6 (36.3 tcc)        | 10.0.0-4ubuntu1 | clang++-10 |
+| C++       | Yes        |  283.7 (41.6 dmd)    | 1382.3 (107.8 tcc)   |   1411 ( 8.0 gccgo-10) |   26.5 ( 9.6 tcc)        |  106.2 (36.5 tcc)        | 11.0.0-2~ubuntu20.04.1 | clang++-11 |
+| Ada       | No         | not applicable       | 15276.9 (1191.4 tcc) |    391 ( 2.2 gccgo-10) | not applicable           |  250.1 (86.0 tcc)        | 10.2.0       | gnat      |
+| Ada       | No         | not applicable       | 15271.1 (1191.0 tcc) |    345 ( 2.0 gccgo-10) | not applicable           |  250.2 (86.0 tcc)        | 10.2.0       | gnat-10   |
+| Go        | No         |  109.5 (16.1 dmd)    | not applicable       | not applicable     |   28.3 (10.3 tcc)        | not applicable           | 1.16.3       | gotype    |
+| Go        | No         | not applicable       |  897.4 (70.0 tcc)    |    375 ( 2.1 gccgo-10) | not applicable           |  213.0 (73.3 tcc)        | 1.16.3       | go        |
+| Go        | No         | not applicable       | 3492.3 (272.4 tcc)   |    176  (minimum)  | not applicable           |  194.8 (67.0 tcc)        | 10.2.0       | gccgo-10  |
+| Swift     | No         | 2728.9 (399.9 dmd)   | 6573.7 (512.7 tcc)   |    553 ( 3.1 gccgo-10) |   42.8 (15.6 tcc)        |  128.2 (44.1 tcc)        | 5.3.3        | swiftc    |
+| V         | No         | not applicable       |  151.1 (11.8 tcc)    |   1880 (10.7 gccgo-10) | not applicable           |   92.6 (31.9 tcc)        | 0.2.2        | v         |
+| V         | Yes        | not applicable       |  182.6 (14.2 tcc)    |   1673 ( 9.5 gccgo-10) | not applicable           |  102.8 (35.3 tcc)        | 0.2.2        | v         |
+| Zig       | No         |  484.8 (71.0 dmd)    | not applicable       | not applicable     |  171.9 (62.6 tcc)        | not applicable           | 0.7.1        | zig       |
+| Zig       | Yes        |  631.0 (92.5 dmd)    | not applicable       | not applicable     |  243.2 (88.6 tcc)        | not applicable           | 0.7.1        | zig       |
+| Rust      | No         | not applicable       | 4302.7 (335.6 tcc)   |    901 ( 5.1 gccgo-10) | not applicable           |  257.8 (88.7 tcc)        | 1.47.0       | rustc     |
+| Rust      | Yes        | not applicable       | 2917.8 (227.6 tcc)   |    932 ( 5.3 gccgo-10) | not applicable           |  180.8 (62.2 tcc)        | 1.47.0       | rustc     |
+| Nim       | No         |  277.5 (40.7 dmd)    | 3559.7 (277.6 tcc)   |    274 ( 1.6 gccgo-10) |   31.3 (11.4 tcc)        |  253.7 (87.2 tcc)        | 1.4.6        | nim       |
+| C#        | No         | not applicable       |  175.6 (13.7 tcc)    |   2480 (14.1 gccgo-10) | not applicable           |   29.8 (10.3 tcc)        | 6.12.0.122   | mcs       |
+| Julia     | No         | not applicable       | 723116.5 (56395.7 tcc) | not applicable     | not applicable           |  333.7 (114.7 tcc)       | 1.7.0-DEV    | julia     |
+| Julia     | Yes        | not applicable       | 551241.1 (42991.2 tcc) | not applicable     | not applicable           |  377.2 (129.7 tcc)       | 1.7.0-DEV    | julia     |
 
 ## TODO
 
