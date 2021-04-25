@@ -172,7 +172,6 @@ def fill_in_speedups(results_map, column_ix):
             min_key = key
             min_dur = result[column_ix]
     min_lang = results_map[min_key][LANG_IX]  # language of minimum
-
     for key, result in results_map.items():
         result[column_ix] = stringify_metrics(abs_n=result[column_ix],
                                               min_dur=min_dur,
@@ -182,7 +181,7 @@ def fill_in_speedups(results_map, column_ix):
 
 def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
     if type(abs_n) == str:
-        return "unavailable"
+        return abs_n            # propagate as is
     if abs_n is None:
         return '{:>6}'.format('N/A')
     rel_n = abs_n / min_dur
