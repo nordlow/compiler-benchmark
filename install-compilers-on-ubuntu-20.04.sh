@@ -21,7 +21,7 @@ sudo apt install gnat-10
 ./install-dmd.sh
 
 # D `gdc`
-sudo apt install gdc-10
+sudo apt install gdc gdc-10
 
 # Go: `gccgo`
 sudo apt install gccgo-10
