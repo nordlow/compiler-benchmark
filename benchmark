@@ -110,9 +110,9 @@ def table_row(row,
         row[BUILD_DUR_PER_FUNC_IX] = build_dur / (args.function_count * args.function_depth)
     if run_dur is not None:
         row[RUN_DUR_PER_FUNC_IX] = run_dur / (args.function_count * args.function_depth)
-    if check_rss_mu is not None:
+    if isinstance(check_rss_mu, (int, float)):
         row[CHECK_RSS_MU_IX] = check_rss_mu / (args.function_count * args.function_depth)
-    if build_rss_mu is not None:
+    if isinstance(build_rss_mu, (int, float)):
         row[BUILD_RSS_MU_IX] = build_rss_mu / (args.function_count * args.function_depth)
 
     row[EXE_VERSION_IX] = compiler_version
@@ -181,6 +181,8 @@ def fill_in_speedups(results_map, column_ix):
 
 
 def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
+    if type(abs_n) == str:
+        return "unavailable"
     if abs_n is None:
         return '{:>6}'.format('N/A')
     rel_n = abs_n / min_dur
@@ -1007,7 +1009,7 @@ def compile_file(src_paths,
 
     # op
     check_durs = []                  # compilation durations
-    rss_mu = None               # RSS memory usage
+    rss_mu = None                    # RSS memory usage
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
         p_args = [exe] + comp_flags + out_flag_and_exe + src_paths
@@ -1016,11 +1018,18 @@ def compile_file(src_paths,
         try:
             while pt.poll():
                 time.sleep(0.01)  # poll as often as possible
-        finally:
-            outs, errs = pt.comp_proc.communicate()
+        except:
             if rss_mu is None and pt.max_rss_mu != 0:
                 rss_mu = pt.max_rss_mu
-            # TODO pt.assertClosed()
+            else:
+                rss_mu = "unavailable"
+        finally:
+            if rss_mu is None and pt.max_rss_mu != 0:
+                rss_mu = pt.max_rss_mu
+            else:
+                rss_mu = "missing"
+        # TODO pt.assertClosed()
+        outs, errs = pt.comp_proc.communicate()
 
         # print('Compilation:', ' '.join([exe] + comp_flags + out_flag_and_exe + src_paths))
         if pt.comp_proc.returncode != 0:
