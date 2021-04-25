@@ -106,14 +106,22 @@ def table_row(row,
 
     if check_dur is not None:
         row[CHECK_DUR_PER_FUNC_IX] = check_dur / (args.function_count * args.function_depth)
+
     if build_dur is not None:
         row[BUILD_DUR_PER_FUNC_IX] = build_dur / (args.function_count * args.function_depth)
+
     if run_dur is not None:
         row[RUN_DUR_PER_FUNC_IX] = run_dur / (args.function_count * args.function_depth)
+
     if isinstance(check_rss_mu, (int, float)):
         row[CHECK_RSS_MU_IX] = check_rss_mu / (args.function_count * args.function_depth)
+    else:
+        row[CHECK_RSS_MU_IX] = check_rss_mu
+
     if isinstance(build_rss_mu, (int, float)):
         row[BUILD_RSS_MU_IX] = build_rss_mu / (args.function_count * args.function_depth)
+    else:
+        row[BUILD_RSS_MU_IX] = build_rss_mu
 
     row[EXE_VERSION_IX] = compiler_version
     row[EXE_PATH_IX] = '`' + os.path.basename(exe_path) + '`'
@@ -167,10 +175,10 @@ def fill_in_speedups(results_map, column_ix):
     min_key = None               # index of minimum
     min_dur = None              # duration of minimum
     for key, result in results_map.items():
-        if min_dur is None or (result[column_ix] is not None and
-                               min_dur > result[column_ix]):
-            min_key = key
-            min_dur = result[column_ix]
+        if isinstance(result[column_ix], (int, float)):
+            if min_dur is None or (min_dur > result[column_ix]):
+                min_key = key
+                min_dur = result[column_ix]
     min_lang = results_map[min_key][LANG_IX]  # language of minimum
     for key, result in results_map.items():
         result[column_ix] = stringify_metrics(abs_n=result[column_ix],
@@ -183,7 +191,7 @@ def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
     if isinstance(abs_n, str):
         return abs_n            # propagate as is
     if abs_n is None:
-        return '{:>6}'.format('N/A')
+        return '{:>6}'.format('not applicable')  # https://en.wikipedia.org/wiki/N/A
     rel_n = abs_n / min_dur
     rel_str = " (" + factor_str(rel_n) + " " + min_lang + ")"
     if column_ix == CHECK_DUR_PER_FUNC_IX:
@@ -1018,15 +1026,18 @@ def compile_file(src_paths,
             while pt.poll():
                 time.sleep(0.01)  # poll as often as possible
         except:
-            if rss_mu is None and pt.max_rss_mu != 0:
-                rss_mu = pt.max_rss_mu
-            else:
-                rss_mu = "unavailable"
+            # print("xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+            # print("pt.max_rss_mu:", pt.max_rss_mu)
+            # if rss_mu is None and pt.max_rss_mu != 0:
+            #     rss_mu = pt.max_rss_mu
+            # if rss_mu is None:
+            #     rss_mu = "unavailable"
+            rss_mu = "unavailable"
         finally:
             if rss_mu is None and pt.max_rss_mu != 0:
                 rss_mu = pt.max_rss_mu
-            else:
-                rss_mu = "missing"
+            if rss_mu is None:
+                rss_mu = "missed sample window"
         # TODO pt.assertClosed()
         outs, errs = pt.comp_proc.communicate()
 
@@ -1060,7 +1071,7 @@ def compile_file(src_paths,
                     st = os.stat(exe)
                     os.chmod(outb, st.st_mode | stat.S_IEXEC)
                 run_dur_min = run_compiled_file(exe)
-            elif type(runner) is list:
+            elif isinstance(runner, list):
                 run_dur_min = run_compiled_file(runner + [outb])
         elif out_flag_and_exe:
             if runner is not False:
