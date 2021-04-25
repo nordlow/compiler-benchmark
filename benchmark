@@ -179,12 +179,13 @@ def fill_in_speedups(results_map, column_ix):
             if min_dur is None or (min_dur > result[column_ix]):
                 min_key = key
                 min_dur = result[column_ix]
-    min_lang = results_map[min_key][LANG_IX]  # language of minimum
-    for key, result in results_map.items():
-        result[column_ix] = stringify_metrics(abs_n=result[column_ix],
-                                              min_dur=min_dur,
-                                              column_ix=column_ix,
-                                              min_lang=min_lang)
+    if min_key is not None:
+        min_lang = results_map[min_key][LANG_IX]  # language of minimum
+        for key, result in results_map.items():
+            result[column_ix] = stringify_metrics(abs_n=result[column_ix],
+                                                  min_dur=min_dur,
+                                                  column_ix=column_ix,
+                                                  min_lang=min_lang)
 
 
 def stringify_metrics(abs_n, min_dur, column_ix, min_lang):
@@ -1026,8 +1027,6 @@ def compile_file(src_paths,
             while pt.poll():
                 time.sleep(0.01)  # poll as often as possible
         except:
-            # print("xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            # print("pt.max_rss_mu:", pt.max_rss_mu)
             # if rss_mu is None and pt.max_rss_mu != 0:
             #     rss_mu = pt.max_rss_mu
             # if rss_mu is None:
@@ -1037,7 +1036,7 @@ def compile_file(src_paths,
             if rss_mu is None and pt.max_rss_mu != 0:
                 rss_mu = pt.max_rss_mu
             if rss_mu is None:
-                rss_mu = "missed sample window"
+                rss_mu = "missed sampling"
         # TODO pt.assertClosed()
         outs, errs = pt.comp_proc.communicate()
 
