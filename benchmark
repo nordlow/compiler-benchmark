@@ -491,7 +491,7 @@ def benchmark_C_and_Cxx_using_gcc(results_map, lang, execs, gpaths, args, op, te
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
                          runner=True,
-                         comp_flags=C_WARN_FLAGS + ([] if op == 'Build' else ['-fsyntax-only']),
+                         comp_flags=C_WARN_FLAGS + (['-fsyntax-only'] if op == 'Check' else []),
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -554,7 +554,7 @@ def benchmark_C_using_tcc(results_map, lang, execs, gpaths, args, op, templated)
 
 def benchmark_C_and_Cxx_using_clang(results_map, lang, execs, gpaths, args, op, templated):
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    comp_flags = [] if op == 'Build' else ['-fsyntax-only']
+    comp_flags = ['-fsyntax-only'] if op == 'Check' else []
     for clang_version in VERSIONS:
         if lang == 'C':
             exe = match_lang(args, lang, 'clang' + str(clang_version))
@@ -640,7 +640,7 @@ def benchmark_D(results_map, execs, gpaths, args, op, templated, use_dips):
         args.function_depth = 100
     exe = match_lang(args, lang, 'gdc')
     if exe:
-        comp_flags = [] if op == 'Build' else ['-fsyntax-only']
+        comp_flags = ['-fsyntax-only'] if op == 'Check' else []
         opId = opIdOf(lang, templated, op, exe)
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         if opId not in execs:
@@ -669,7 +669,7 @@ def benchmark_Vox(results_map, execs, gpaths, args, op, templated):
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
                      runner=True,  # os.name == 'nt', # only on Windows for now. TODO https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
-                     comp_flags=[] if op == 'Build' else ['--check-only'],
+                     comp_flags=['--check-only'] if op == 'Check' else [],
                      args=args,
                      op=op,
                      compiler_version='master',  # TODO lookup Git version
