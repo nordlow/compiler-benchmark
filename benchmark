@@ -1031,12 +1031,13 @@ def compile_file(src_paths,
             #     rss_mu = pt.max_rss_mu
             # if rss_mu is None:
             #     rss_mu = "unavailable"
-            rss_mu = "unavailable"
+            rss_mu = "sampling error"
         finally:
             if rss_mu is None and pt.max_rss_mu != 0:
                 rss_mu = pt.max_rss_mu
             if rss_mu is None:
-                rss_mu = "missed sampling"
+                rss_mu = "sampling miss"
+        print(rss_mu)
         # TODO pt.assertClosed()
         outs, errs = pt.comp_proc.communicate()
 
