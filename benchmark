@@ -429,21 +429,23 @@ def main():
 
     if 'Julia' in args.languages:
         if 'Build' in args.operations:
+            args_dup = args.copy()
             if args.function_count * args.function_depth >= 10000: # takes too long otherwise
                 # participate by truncating size because ops/function are measured
-                args.function_count = 100
-                args.function_depth = 100
-            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False)
-            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=True)
+                args_dup.function_count = 100
+                args_dup.function_depth = 100
+            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=False)
+            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=True)
 
     if 'OCaml' in args.languages:
         if 'Build' in args.operations:
+            args_dup = args.copy()
             if args.function_count * args.function_depth >= 10000: # takes too long otherwise
                 # participate by truncating size because ops/function are measured
-                args.function_count = 100
-                args.function_depth = 100
-            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
-            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
+                args_dup.function_count = 100
+                args_dup.function_depth = 100
+            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=False, bytecode=False)
+            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=False, bytecode=True)
 
     print()
 
@@ -652,10 +654,6 @@ def benchmark_D(results_map, execs, gpaths, args, op, templated, use_dips):
                      results_map=results_map)
 
     # GDC
-    if args.function_count * args.function_depth >= 10000: # takes too long otherwise
-        # participate by truncating size because ops/function are measured
-        args.function_count = 100
-        args.function_depth = 100
     exe = match_lang(args, lang, 'gdc')
     if exe:
         comp_flags = ['-fsyntax-only'] if op == 'Check' else []
@@ -1017,14 +1015,8 @@ def compile_file(src_paths,
                  templated=None,
                  results_map=None):
 
-    compiler = which(exe)
-    if compiler is None:
-        print('WARNING: Could not find compiler:', exe,
-              file=sys.stderr)
-        return None
-
     # op
-    check_durs = []                  # compilation durations
+    durs = []                  # compilation durations
     rss_mu = None                    # RSS memory usage
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
@@ -1033,7 +1025,7 @@ def compile_file(src_paths,
         pt = ProcessTimer(args=p_args)
         try:
             while pt.poll():
-                time.sleep(1 / args.sample_rate)  # poll as often as possible
+                time.sleep(1.0 / args.sample_rate)  # poll as often as possible
         except:
             # if rss_mu is None and pt.max_rss_mu != 0:
             #     rss_mu = pt.max_rss_mu
@@ -1056,7 +1048,7 @@ def compile_file(src_paths,
                   file=sys.stderr)
             return None
 
-        check_durs.append(timer() - cstart)
+        durs.append(timer() - cstart)
 
         if outs:
             if not outs.startswith(b'/usr/bin/ld: warning'):
@@ -1066,7 +1058,7 @@ def compile_file(src_paths,
                 errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
             if len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
                 print('output:', errs)
-    check_dur_min = min(check_durs)       # compilation duration minimum
+    dur_min = min(durs)         # duration minimum
 
     # run
     run_dur_min = None             # run duration minimum
@@ -1091,10 +1083,10 @@ def compile_file(src_paths,
     show_file = False
     compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
     if show_file:
-        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(op, src_paths, check_dur_min, exe,
+        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(op, src_paths, dur_min, exe,
                                                                       compiler_version_str))
     else:
-        print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, check_dur_min, exe,
+        print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, dur_min, exe,
                                                                 compiler_version_str))
 
     key = (lang, templated, exe)
@@ -1111,8 +1103,8 @@ def compile_file(src_paths,
               op=op,
               exe_path=exe,
               compiler_version=compiler_version,
-              check_dur=check_dur_min if op == 'Check' else None,
-              build_dur=check_dur_min if op == 'Build' else None,
+              check_dur=dur_min if op == 'Check' else None,
+              build_dur=dur_min if op == 'Build' else None,
               run_dur=run_dur_min,
               check_rss_mu=rss_mu if op == 'Check' else None,
               build_rss_mu=rss_mu if op == 'Build' else None,
