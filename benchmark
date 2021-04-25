@@ -478,7 +478,6 @@ def benchmark_Ada_using_gcc(results_map, lang, execs, gpaths, args, op, template
 
 
 def benchmark_C_and_Cxx_using_gcc(results_map, lang, execs, gpaths, args, op, templated):
-    comp_flags = [] if op == 'Build' else ['-fsyntax-only']
     for gcc_version in VERSIONS:
         if lang == 'C':
             exe = match_lang(args, lang, 'gcc' + str(gcc_version))
@@ -492,7 +491,7 @@ def benchmark_C_and_Cxx_using_gcc(results_map, lang, execs, gpaths, args, op, te
                          out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
                          runner=True,
-                         comp_flags=C_WARN_FLAGS + comp_flags,
+                         comp_flags=C_WARN_FLAGS + ([] if op == 'Build' else ['-fsyntax-only']),
                          args=args,
                          op=op,
                          compiler_version=version,
