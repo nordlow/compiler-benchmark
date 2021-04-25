@@ -150,46 +150,46 @@ results in the following table (copied from the output at the end).
 
 | Lang-uage | Temp-lated | Check Time [us/func] | Build Time [us/func] | Run Time [us/func] | Check Peak RSS [kB/func] | Build Peak RSS [kB/func] | Exec Version | Exec Path |
 | :-------: | ---------- | :------------------: | :------------------: | :----------------: | :----------------------: | :----------------------: | :----------: | :-------: |
-| D         | No         |    6.8  (minimum)    |  149.3 (11.6 tcc)    |    244 ( 1.4 gccgo-10) |    4.3 ( 1.6 tcc)        |   91.6 (31.5 tcc)        | v2.096.0     | dmd       |
-| D         | No         |    7.4 ( 1.1 dmd)    |  867.1 (67.6 tcc)    |   1197 ( 6.8 gccgo-10) |    5.4 ( 2.0 tcc)        |  148.6 (51.1 tcc)        | 1.26.0-beta1 | ldmd2     |
-| D         | No         |   52.1 ( 7.6 dmd)    | 2417.5 (188.5 tcc)   |    203 ( 1.1 gccgo-10) |   35.1 (12.8 tcc)        |  147.0 (50.6 tcc)        | 10.2.0       | gdc       |
-| D         | Yes        |  109.7 (16.1 dmd)    |  221.4 (17.3 tcc)    |    341 ( 1.9 gccgo-10) |  105.1 (38.3 tcc)        |  165.1 (56.8 tcc)        | v2.096.0     | dmd       |
-| D         | Yes        |  119.5 (17.5 dmd)    |  958.0 (74.7 tcc)    |   1105 ( 6.3 gccgo-10) |  117.3 (42.7 tcc)        |  226.0 (77.7 tcc)        | 1.26.0-beta1 | ldmd2     |
-| Vox       | No         |   11.3 ( 1.7 dmd)    |   43.2 ( 3.4 tcc)    |    181 ( 1.0 gccgo-10) |    8.6 ( 3.1 tcc)        |   28.5 ( 9.8 tcc)        | master       | vox       |
-| Vox       | Yes        |   19.2 ( 2.8 dmd)    |   46.2 ( 3.6 tcc)    |    221 ( 1.3 gccgo-10) |   15.7 ( 5.7 tcc)        |   34.2 (11.7 tcc)        | master       | vox       |
-| C         | No         |   15.0 ( 2.2 dmd)    |   12.8  (minimum)    |    206 ( 1.2 gccgo-10) |    2.7  (minimum)        |    2.9  (minimum)        | 0.9.27       | tcc       |
-| C         | No         |   64.5 ( 9.5 dmd)    | 2205.9 (172.0 tcc)   |    221 ( 1.3 gccgo-10) |   21.9 ( 8.0 tcc)        |  104.3 (35.9 tcc)        | 9.3.0        | gcc       |
-| C         | No         |   69.7 (10.2 dmd)    | 2188.9 (170.7 tcc)   |    205 ( 1.2 gccgo-10) |   22.0 ( 8.0 tcc)        |  104.3 (35.9 tcc)        | 9.3.0        | gcc-9     |
-| C         | No         |   67.4 ( 9.9 dmd)    | 2322.5 (181.1 tcc)   |    190 ( 1.1 gccgo-10) |   22.4 ( 8.2 tcc)        |  104.7 (36.0 tcc)        | 10.2.0       | gcc-10    |
-| C         | No         |  115.5 (16.9 dmd)    |  995.1 (77.6 tcc)    |   1889 (10.7 gccgo-10) |   10.7 ( 3.9 tcc)        |   67.9 (23.3 tcc)        | 10.0.0 | clang-10  |
-| C         | No         |  122.2 (17.9 dmd)    | 1008.3 (78.6 tcc)    |   1556 ( 8.8 gccgo-10) |   11.1 ( 4.0 tcc)        |   67.5 (23.2 tcc)        | 11.0.0-2 | clang-11  |
-| C         | No         |   40.8 ( 6.0 dmd)    | not applicable       | not applicable     |   11.8 ( 4.3 tcc)        | not applicable           | unknown      | cproc     |
-| C++       | No         |  161.9 (23.7 dmd)    | 2399.1 (187.1 tcc)   |    199 ( 1.1 gccgo-10) |   34.6 (12.6 tcc)        |  143.7 (49.4 tcc)        | 9.3.0        | g++       |
-| C++       | No         |  164.0 (24.0 dmd)    | 2392.4 (186.6 tcc)   |    205 ( 1.2 gccgo-10) |   34.6 (12.6 tcc)        |  143.7 (49.4 tcc)        | 9.3.0        | g++-9     |
-| C++       | No         |  163.5 (24.0 dmd)    | 2493.6 (194.5 tcc)   |    218 ( 1.2 gccgo-10) |   32.8 (11.9 tcc)        |  144.6 (49.7 tcc)        | 10.2.0       | g++-10    |
-| C++       | No         |  167.0 (24.5 dmd)    | 1107.2 (86.3 tcc)    |   3631 (20.6 gccgo-10) |   11.4 ( 4.2 tcc)        |   68.7 (23.6 tcc)        | 10.0.0 | clang++-10 |
-| C++       | No         |  169.5 (24.8 dmd)    | 1107.7 (86.4 tcc)    |   1524 ( 8.6 gccgo-10) |   11.8 ( 4.3 tcc)        |   68.7 (23.6 tcc)        | 11.0.0-2 | clang++-11 |
-| C++       | Yes        |  455.3 (66.7 dmd)    | 3177.0 (247.8 tcc)   |    214 ( 1.2 gccgo-10) |   57.0 (20.8 tcc)        |  168.4 (57.9 tcc)        | 9.3.0        | g++       |
-| C++       | Yes        |  445.0 (65.2 dmd)    | 3157.0 (246.2 tcc)   |    198 ( 1.1 gccgo-10) |   57.0 (20.8 tcc)        |  168.3 (57.9 tcc)        | 9.3.0        | g++-9     |
-| C++       | Yes        |  470.0 (68.9 dmd)    | 3245.7 (253.1 tcc)   |    214 ( 1.2 gccgo-10) |   54.3 (19.8 tcc)        |  175.1 (60.2 tcc)        | 10.2.0       | g++-10    |
-| C++       | Yes        |  273.6 (40.1 dmd)    | 1644.6 (128.3 tcc)   |   3841 (21.8 gccgo-10) |   25.9 ( 9.4 tcc)        |  105.6 (36.3 tcc)        | 10.0.0 | clang++-10 |
-| C++       | Yes        |  283.7 (41.6 dmd)    | 1382.3 (107.8 tcc)   |   1411 ( 8.0 gccgo-10) |   26.5 ( 9.6 tcc)        |  106.2 (36.5 tcc)        | 11.0.0-2 | clang++-11 |
-| Ada       | No         | not applicable       | 15276.9 (1191.4 tcc) |    391 ( 2.2 gccgo-10) | not applicable           |  250.1 (86.0 tcc)        | 10.2.0       | gnat      |
-| Ada       | No         | not applicable       | 15271.1 (1191.0 tcc) |    345 ( 2.0 gccgo-10) | not applicable           |  250.2 (86.0 tcc)        | 10.2.0       | gnat-10   |
-| Go        | No         |  109.5 (16.1 dmd)    | not applicable       | not applicable     |   28.3 (10.3 tcc)        | not applicable           | 1.16.3       | gotype    |
-| Go        | No         | not applicable       |  897.4 (70.0 tcc)    |    375 ( 2.1 gccgo-10) | not applicable           |  213.0 (73.3 tcc)        | 1.16.3       | go        |
-| Go        | No         | not applicable       | 3492.3 (272.4 tcc)   |    176  (minimum)  | not applicable           |  194.8 (67.0 tcc)        | 10.2.0       | gccgo-10  |
-| Swift     | No         | 2728.9 (399.9 dmd)   | 6573.7 (512.7 tcc)   |    553 ( 3.1 gccgo-10) |   42.8 (15.6 tcc)        |  128.2 (44.1 tcc)        | 5.3.3        | swiftc    |
-| V         | No         | not applicable       |  151.1 (11.8 tcc)    |   1880 (10.7 gccgo-10) | not applicable           |   92.6 (31.9 tcc)        | 0.2.2        | v         |
-| V         | Yes        | not applicable       |  182.6 (14.2 tcc)    |   1673 ( 9.5 gccgo-10) | not applicable           |  102.8 (35.3 tcc)        | 0.2.2        | v         |
-| Zig       | No         |  484.8 (71.0 dmd)    | not applicable       | not applicable     |  171.9 (62.6 tcc)        | not applicable           | 0.7.1        | zig       |
-| Zig       | Yes        |  631.0 (92.5 dmd)    | not applicable       | not applicable     |  243.2 (88.6 tcc)        | not applicable           | 0.7.1        | zig       |
-| Rust      | No         | not applicable       | 4302.7 (335.6 tcc)   |    901 ( 5.1 gccgo-10) | not applicable           |  257.8 (88.7 tcc)        | 1.47.0       | rustc     |
-| Rust      | Yes        | not applicable       | 2917.8 (227.6 tcc)   |    932 ( 5.3 gccgo-10) | not applicable           |  180.8 (62.2 tcc)        | 1.47.0       | rustc     |
-| Nim       | No         |  277.5 (40.7 dmd)    | 3559.7 (277.6 tcc)   |    274 ( 1.6 gccgo-10) |   31.3 (11.4 tcc)        |  253.7 (87.2 tcc)        | 1.4.6        | nim       |
-| C#        | No         | not applicable       |  175.6 (13.7 tcc)    |   2480 (14.1 gccgo-10) | not applicable           |   29.8 (10.3 tcc)        | 6.12.0.122   | mcs       |
-| Julia     | No         | not applicable       | 723116.5 (56395.7 tcc) | not applicable     | not applicable           |  333.7 (114.7 tcc)       | 1.7.0-DEV    | julia     |
-| Julia     | Yes        | not applicable       | 551241.1 (42991.2 tcc) | not applicable     | not applicable           |  377.2 (129.7 tcc)       | 1.7.0-DEV    | julia     |
+| D         | No         |    6.8  (best)    |  149.3 (11.6x)    |    244 ( 1.4x) |    4.3 ( 1.6x)        |   91.6 (31.5x)        | v2.096.0     |x       |
+| D         | No         |    7.4 ( 1.1x)    |  867.1 (67.6x)    |   1197 ( 6.8x) |    5.4 ( 2.0x)        |  148.6 (51.1x)        | 1.26.0-beta1 | ldmd2     |
+| D         | No         |   52.1 ( 7.6x)    | 2417.5 (188.5x)   |    203 ( 1.1x) |   35.1 (12.8x)        |  147.0 (50.6x)        | 10.2.0       | gdc       |
+| D         | Yes        |  109.7 (16.1x)    |  221.4 (17.3x)    |    341 ( 1.9x) |  105.1 (38.3x)        |  165.1 (56.8x)        | v2.096.0     |x       |
+| D         | Yes        |  119.5 (17.5x)    |  958.0 (74.7x)    |   1105 ( 6.3x) |  117.3 (42.7x)        |  226.0 (77.7x)        | 1.26.0-beta1 | ldmd2     |
+| Vox       | No         |   11.3 ( 1.7x)    |   43.2 ( 3.4x)    |    181 ( 1.0x) |    8.6 ( 3.1x)        |   28.5 ( 9.8x)        | master       | vox       |
+| Vox       | Yes        |   19.2 ( 2.8x)    |   46.2 ( 3.6x)    |    221 ( 1.3x) |   15.7 ( 5.7x)        |   34.2 (11.7x)        | master       | vox       |
+| C         | No         |   15.0 ( 2.2x)    |   12.8  (best)    |    206 ( 1.2x) |    2.7  (best)        |    2.9  (best)        | 0.9.27       | tcc       |
+| C         | No         |   64.5 ( 9.5x)    | 2205.9 (172.0x)   |    221 ( 1.3x) |   21.9 ( 8.0x)        |  104.3 (35.9x)        | 9.3.0        | gcc       |
+| C         | No         |   69.7 (10.2x)    | 2188.9 (170.7x)   |    205 ( 1.2x) |   22.0 ( 8.0x)        |  104.3 (35.9x)        | 9.3.0        | gcc-9     |
+| C         | No         |   67.4 ( 9.9x)    | 2322.5 (181.1x)   |    190 ( 1.1x) |   22.4 ( 8.2x)        |  104.7 (36.0x)        | 10.2.0       | gcc-10    |
+| C         | No         |  115.5 (16.9x)    |  995.1 (77.6x)    |   1889 (10.7x) |   10.7 ( 3.9x)        |   67.9 (23.3x)        | 10.0.0 | clang-10  |
+| C         | No         |  122.2 (17.9x)    | 1008.3 (78.6x)    |   1556 ( 8.8x) |   11.1 ( 4.0x)        |   67.5 (23.2x)        | 11.0.0-2 | clang-11  |
+| C         | No         |   40.8 ( 6.0x)    | not applicable       | not applicable     |   11.8 ( 4.3x)        | not applicable           | unknown      | cproc     |
+| C++       | No         |  161.9 (23.7x)    | 2399.1 (187.1x)   |    199 ( 1.1x) |   34.6 (12.6x)        |  143.7 (49.4x)        | 9.3.0        | g++       |
+| C++       | No         |  164.0 (24.0x)    | 2392.4 (186.6x)   |    205 ( 1.2x) |   34.6 (12.6x)        |  143.7 (49.4x)        | 9.3.0        | g++-9     |
+| C++       | No         |  163.5 (24.0x)    | 2493.6 (194.5x)   |    218 ( 1.2x) |   32.8 (11.9x)        |  144.6 (49.7x)        | 10.2.0       | g++-10    |
+| C++       | No         |  167.0 (24.5x)    | 1107.2 (86.3x)    |   3631 (20.6x) |   11.4 ( 4.2x)        |   68.7 (23.6x)        | 10.0.0 | clang++-10 |
+| C++       | No         |  169.5 (24.8x)    | 1107.7 (86.4x)    |   1524 ( 8.6x) |   11.8 ( 4.3x)        |   68.7 (23.6x)        | 11.0.0-2 | clang++-11 |
+| C++       | Yes        |  455.3 (66.7x)    | 3177.0 (247.8x)   |    214 ( 1.2x) |   57.0 (20.8x)        |  168.4 (57.9x)        | 9.3.0        | g++       |
+| C++       | Yes        |  445.0 (65.2x)    | 3157.0 (246.2x)   |    198 ( 1.1x) |   57.0 (20.8x)        |  168.3 (57.9x)        | 9.3.0        | g++-9     |
+| C++       | Yes        |  470.0 (68.9x)    | 3245.7 (253.1x)   |    214 ( 1.2x) |   54.3 (19.8x)        |  175.1 (60.2x)        | 10.2.0       | g++-10    |
+| C++       | Yes        |  273.6 (40.1x)    | 1644.6 (128.3x)   |   3841 (21.8x) |   25.9 ( 9.4x)        |  105.6 (36.3x)        | 10.0.0 | clang++-10 |
+| C++       | Yes        |  283.7 (41.6x)    | 1382.3 (107.8x)   |   1411 ( 8.0x) |   26.5 ( 9.6x)        |  106.2 (36.5x)        | 11.0.0-2 | clang++-11 |
+| Ada       | No         | not applicable       | 15276.9 (1191.4x) |    391 ( 2.2x) | not applicable           |  250.1 (86.0x)        | 10.2.0       | gnat      |
+| Ada       | No         | not applicable       | 15271.1 (1191.0x) |    345 ( 2.0x) | not applicable           |  250.2 (86.0x)        | 10.2.0       | gnat-10   |
+| Go        | No         |  109.5 (16.1x)    | not applicable       | not applicable     |   28.3 (10.3x)        | not applicable           | 1.16.3       | gotype    |
+| Go        | No         | not applicable       |  897.4 (70.0x)    |    375 ( 2.1x) | not applicable           |  213.0 (73.3x)        | 1.16.3       | go        |
+| Go        | No         | not applicable       | 3492.3 (272.4x)   |    176  (best)  | not applicable           |  194.8 (67.0x)        | 10.2.0       | gccgo-10  |
+| Swift     | No         | 2728.9 (399.9x)   | 6573.7 (512.7x)   |    553 ( 3.1x) |   42.8 (15.6x)        |  128.2 (44.1x)        | 5.3.3        | swiftc    |
+| V         | No         | not applicable       |  151.1 (11.8x)    |   1880 (10.7x) | not applicable           |   92.6 (31.9x)        | 0.2.2        | v         |
+| V         | Yes        | not applicable       |  182.6 (14.2x)    |   1673 ( 9.5x) | not applicable           |  102.8 (35.3x)        | 0.2.2        | v         |
+| Zig       | No         |  484.8 (71.0x)    | not applicable       | not applicable     |  171.9 (62.6x)        | not applicable           | 0.7.1        | zig       |
+| Zig       | Yes        |  631.0 (92.5x)    | not applicable       | not applicable     |  243.2 (88.6x)        | not applicable           | 0.7.1        | zig       |
+| Rust      | No         | not applicable       | 4302.7 (335.6x)   |    901 ( 5.1x) | not applicable           |  257.8 (88.7x)        | 1.47.0       | rustc     |
+| Rust      | Yes        | not applicable       | 2917.8 (227.6x)   |    932 ( 5.3x) | not applicable           |  180.8 (62.2x)        | 1.47.0       | rustc     |
+| Nim       | No         |  277.5 (40.7x)    | 3559.7 (277.6x)   |    274 ( 1.6x) |   31.3 (11.4x)        |  253.7 (87.2x)        | 1.4.6        | nim       |
+| C#        | No         | not applicable       |  175.6 (13.7x)    |   2480 (14.1x) | not applicable           |   29.8 (10.3x)        | 6.12.0.122   | mcs       |
+| Julia     | No         | not applicable       | 723116.5 (56395.7x) | not applicable     | not applicable           |  333.7 (114.7x)       | 1.7.0-DEV    | julia     |
+| Julia     | Yes        | not applicable       | 551241.1 (42991.2x) | not applicable     | not applicable           |  377.2 (129.7x)       | 1.7.0-DEV    | julia     |
 
 ## TODO
 
