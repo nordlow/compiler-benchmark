@@ -9,6 +9,7 @@ elm-stuff/
 .mypy_cache/
 generated/
 sample1.h
+__pycache__/
 
 a.out
 main.ali
