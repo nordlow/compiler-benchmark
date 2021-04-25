@@ -270,7 +270,7 @@ def main():
 
     parser.add_argument('--languages', '--langs', type=str,
                         default=','.join(SUPPORTED_LANGUAGES),
-                        help='Languages to benchmark separated by comma')
+                        help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd.')
 
     parser.add_argument('--operations', '--ops', type=str,
                         default=','.join(SUPPORTED_OPERATIONS),
