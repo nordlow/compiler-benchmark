@@ -262,7 +262,8 @@ def markdown_table(titles, results_map):
         result += '| '
         for ix, cl in enumerate(range(len(titles))):
             col = row[ix]
-            result += str(col) + repeat_to_length(" ", len(titles[ix]) - len(str(col))) + ' | '
+            col_str = str(col) if col is not None else 'N/A'
+            result += col_str + repeat_to_length(" ", len(titles[ix]) - len(col_str)) + ' | '
         result += '\n'
     return result
 
