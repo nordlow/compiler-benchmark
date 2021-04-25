@@ -427,25 +427,26 @@ def main():
         if 'Build' in args.operations:
             benchmark_Java(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False)
 
-    if 'Julia' in args.languages:
-        if 'Build' in args.operations:
-            args_dup = args.copy()
-            if args.function_count * args.function_depth >= 10000: # takes too long otherwise
-                # participate by truncating size because ops/function are measured
-                args_dup.function_count = 100
-                args_dup.function_depth = 100
-            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=False)
-            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=True)
+    # Julia and Ocaml take too long otherwise. So let them participate by
+    # truncating size because ops/function are measured
+    function_count = args.function_count
+    function_depth = args.function_depth
+    if args.function_count * args.function_depth >= 10000:
+        args.function_count = 100
+        args.function_depth = 100
 
     if 'OCaml' in args.languages:
         if 'Build' in args.operations:
-            args_dup = args.copy()
-            if args.function_count * args.function_depth >= 10000: # takes too long otherwise
-                # participate by truncating size because ops/function are measured
-                args_dup.function_count = 100
-                args_dup.function_depth = 100
-            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=False, bytecode=False)
-            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args_dup, op='Build', templated=False, bytecode=True)
+            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=False)
+            benchmark_OCaml(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False, bytecode=True)
+
+    if 'Julia' in args.languages:
+        if 'Build' in args.operations:
+            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=False)
+            benchmark_Julia(results_map=results_map, execs=execs, gpaths=gpaths, args=args, op='Build', templated=True)
+
+    args.function_count = function_count
+    args.function_depth = function_depth
 
     print()
 
