@@ -98,6 +98,7 @@ def table_row(row,
               check_rss_mu,
               build_rss_mu,
               templated):
+
     if exe_path.startswith(HOME):
         exe_path = os.path.join('~', exe_path.lstrip(HOME))
 
@@ -115,12 +116,12 @@ def table_row(row,
 
     if isinstance(check_rss_mu, (int, float)):
         row[CHECK_RSS_MU_IX] = check_rss_mu / (args.function_count * args.function_depth)
-    else:
+    elif check_rss_mu is not None:
         row[CHECK_RSS_MU_IX] = check_rss_mu
 
     if isinstance(build_rss_mu, (int, float)):
         row[BUILD_RSS_MU_IX] = build_rss_mu / (args.function_count * args.function_depth)
-    else:
+    elif build_rss_mu is not None:
         row[BUILD_RSS_MU_IX] = build_rss_mu
 
     row[EXE_VERSION_IX] = compiler_version
