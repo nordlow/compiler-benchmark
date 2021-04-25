@@ -196,10 +196,10 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
     if abs_n is None:
         return '{:>6}'.format('not applicable')  # https://en.wikipedia.org/wiki/N/A
     if abs_n == min_val:
-        rel_str = "  (minimum)"
+        rel_str = " (best)"
     else:
         rel_n = abs_n / min_val
-        rel_str = " (" + factor_str(rel_n) + " " + rel_tag + ")"
+        rel_str = " (" + factor_str(rel_n) + "x" ")"
     if column_ix == CHECK_DUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + rel_str
     elif column_ix == BUILD_DUR_PER_FUNC_IX:
