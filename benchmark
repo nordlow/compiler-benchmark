@@ -136,11 +136,12 @@ if RANDOMIZE_FLAG:
 
 
 def get_version(version_run):
-    return next(part
-                for part
-                in version_run.stdout.decode('utf-8').split()
-                if (part[0].isdigit() or
-                    part[0] == 'v' and part[1].isdigit())) # v2.096.1-beta.1-187-gb25be89b3
+    result = next(part
+                  for part
+                  in version_run.stdout.decode('utf-8').split()
+                  if (part[0].isdigit() or
+                      part[0] == 'v' and part[1].isdigit())) # v2.096.1-beta.1-187-gb25be89b3
+    return result.split('~')[0].split('ubuntu1')[0]  # strip ubuntu version postfix
 
 
 def touchFile(path):
