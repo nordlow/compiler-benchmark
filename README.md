@@ -115,7 +115,8 @@ using templated functions.
 
 TCC is superior in all regards because of its single-pass architecture possible
 when parsing the C programming language that doesn’t have to deal with forward
-declarations and thereby limiting the scope to a single function.
+declarations and thereby limiting the parsing (and memory allocation) scope to a
+single function.
 
 Vox's check and build are, by a large margin, the fastest. 3-4 times faster than
 its closers competitor, `dmd`. Note that Vox, however, is a highly experimental
