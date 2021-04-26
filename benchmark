@@ -1000,11 +1000,9 @@ def compile_file(src_paths,
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
         p_args = [exe] + comp_flags + out_flag_and_exe + src_names
-        print("p_args:", ' '.join(p_args))
+        # print("p_args:", ' '.join(p_args))
         cwd = os.getcwd()
-        # print("cwd1:", cwd)
         os.chdir(out_directory(lang))
-        # print("cwd2:", os.getcwd())
         pt = ProcessTimer(args=p_args)
         try:
             while pt.poll():
