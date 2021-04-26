@@ -155,9 +155,13 @@ def ate_D_object_file():
     return path
 
 
-def out_binary(lang):
+def out_directory(lang):
     return os.path.join(ROOT_PATH,
-                        lang.lower(),
+                        lang.lower())
+
+
+def out_binary(lang):
+    return os.path.join(out_directory(lang),
                         DEFAULT_PROGRAM_NAME)
 
 
@@ -980,13 +984,21 @@ def compile_file(src_paths,
                  templated=None,
                  results_map=None):
 
+    key = (lang, templated, exe)
+
+    if key not in results_map:
+        row = [None] * TABLE_LENGTH  # preallocate
+        results_map[key] = row
+    else:
+        row = results_map[key]
+
     # op
     durs = []                  # compilation durations
     rss_mu = None                    # RSS memory usage
     for _ in range(0, args.run_count):
         cstart = timer()        # compilation start
         p_args = [exe] + comp_flags + out_flag_and_exe + src_paths
-        # print("p_args:", ' '.join(p_args))
+        print("p_args:", ' '.join(p_args))
         pt = ProcessTimer(args=p_args)
         try:
             while pt.poll():
@@ -1009,8 +1021,15 @@ def compile_file(src_paths,
         if pt.comp_proc.returncode != 0:
             print("WARNING: Compilation `" + ' '.join([exe] + comp_flags) +
                   "` of source files `" + ' '.join(src_paths) +
-                  "` exited with return code " + str(pt.comp_proc.returncode),
+                  "` exited with return code " + str(pt.comp_proc.returncode) +
+                  ("` and stdout:\n" + str(outs) if outs else "") +
+                  ("` and stderr:\n" + str(errs) if errs else ""),
                   file=sys.stderr)
+            if rss_mu:
+                if op == "Check":
+                    row[CHECK_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
+                if op == "Build":
+                    row[BUILD_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
             return None
 
         durs.append(timer() - cstart)
@@ -1049,14 +1068,6 @@ def compile_file(src_paths,
     else:
         print('- {} took {:1.3f} seconds (using "{}"{})'.format(op, dur_min, exe,
                                                                 compiler_version_str))
-
-    key = (lang, templated, exe)
-
-    if key not in results_map:
-        row = [None] * TABLE_LENGTH  # preallocate
-        results_map[key] = row
-    else:
-        row = results_map[key]
 
     table_row(row=row,
               args=args,
