@@ -168,10 +168,6 @@ def srcIdOf(lang, templated):
         return lang
 
 
-def opIdOf(lang, templated, op, exe_path):
-    return srcIdOf(lang, templated) + '-' + op + '-' + str(exe_path)
-
-
 def fill_in_speedups(results_map, column_ix):
     # calculate minimum
     min_key = None               # key of minimum
@@ -617,7 +613,6 @@ def benchmark_D(results_map, gpaths, args, op, templated, use_dips):
     # DMD
     exe = match_lang(args, lang, 'dmd')
     if exe:
-        opId = opIdOf(lang, templated, op, exe)
         version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['-of=' + out_binary(lang)],
@@ -634,7 +629,6 @@ def benchmark_D(results_map, gpaths, args, op, templated, use_dips):
     # LDC
     exe = match_lang(args, lang, 'ldmd2')
     if exe:
-        opId = opIdOf(lang, templated, op, exe)
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['-of=' + out_binary(lang)],
@@ -652,7 +646,6 @@ def benchmark_D(results_map, gpaths, args, op, templated, use_dips):
     exe = match_lang(args, lang, 'gdc')
     if exe:
         comp_flags = ['-fsyntax-only'] if op == 'Check' else []
-        opId = opIdOf(lang, templated, op, exe)
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         compile_file(src_paths=src_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
@@ -671,7 +664,6 @@ def benchmark_Vox(results_map, gpaths, args, op, templated):
     lang = 'Vox'
     exe = match_lang(args, lang, 'vox')
     if exe:
-        opId = opIdOf(lang, templated, op, exe)
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=['--of=' + out_binary(lang)],
                      exe=exe,
@@ -908,7 +900,6 @@ def benchmark_Rust(results_map, gpaths, args, op, templated):
 
         exe = match_lang(args, lang, 'rustc')
         if exe:
-            opId = opIdOf(lang, templated, op, exe)
             # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
             # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
             # Alternatives:
@@ -938,7 +929,6 @@ def benchmark_Java(results_map, gpaths, args, op, templated):
     lang = 'Java'
     exe = match_lang(args, lang, 'javac')
     if exe:
-        opId = opIdOf(lang, templated, op, exe)
         try:
             task = sp.run([exe, '-version'],
                           stdout=sp.PIPE,
@@ -966,7 +956,6 @@ def benchmark_Julia(results_map, gpaths, args, op, templated):
     lang = 'Julia'
     exe = match_lang(args, lang, 'julia')
     if exe:
-        opId = opIdOf(lang, templated, op, exe)
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                      out_flag_and_exe=[],
@@ -1053,10 +1042,6 @@ def compile_file(src_paths,
         elif out_flag_and_exe:
             if runner is not False:
                 print("TODO run " + outb + " using runner " + str(runner))
-
-    opId = opIdOf(lang, templated, op, exe)
-
-    print(markdown_header(opId + ':', 2))
 
     show_file = False
     compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
