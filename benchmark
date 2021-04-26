@@ -596,9 +596,7 @@ def benchmark_D(results_map, gpaths, args, op, templated, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
 
-    src_paths = [gpaths[srcIdOf(lang, templated)]  # ,
-                 # create_D_object_file() # TODO add later
-                 ]
+    src_paths = [gpaths[srcIdOf(lang, templated)]]
 
     if op == 'Build':
         if which('ld.lld') is not None:
