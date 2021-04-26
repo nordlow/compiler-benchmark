@@ -197,13 +197,8 @@ results in the following table (copied from the output at the end).
 
 ## TODO
 
-- Don’t include Build Time and Build RSS columns when build op is not used
-- Don’t include Check Time and Check RSS columns when check op is not used
-- Fix Zig output file
-
-/snap/bin/zig build-exe --name generated/zig/main generated/zig/main.zig
-LLVM failed to emit file: No such file or directory
-
+- Don’t include Build Time and Build RSS columns when build op is not used.
+- Don’t include Check Time and Check RSS columns when check op is not used.
 - Parallelize calls to checkers and builders.
 - Add language Fortran.
 - Add language Pony.
