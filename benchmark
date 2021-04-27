@@ -496,7 +496,7 @@ def benchmark_C_and_Cxx_using_gcc(results_map, lang, gpaths, args, op, templated
         elif lang == 'C++':
             exe = match_lang(args, lang, 'g++' + str(gcc_version))
         else:
-            assert(False)
+            return None
         if exe:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -520,8 +520,7 @@ def benchmark_C_using_cproc(results_map, lang, gpaths, args, op, templated):
         comp_flags = [] # TODO add version that skips linking via: comp_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
-        assert(False)
-
+        return None
     exe = match_lang(args, lang, 'cproc')
     if exe:
         version = 'unknown'
@@ -546,8 +545,7 @@ def benchmark_C_using_tcc(results_map, lang, gpaths, args, op, templated):
         comp_flags = [] # TODO add version that skips linking via: comp_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
-        assert(False)
-
+        return None
     exe = match_lang(args, lang, 'tcc')
     if exe:
         version = get_version(sp.run([exe, '-v'], stdout=sp.PIPE))
@@ -573,7 +571,7 @@ def benchmark_C_and_Cxx_using_clang(results_map, lang, gpaths, args, op, templat
         elif lang == 'C++':
             exe = match_lang(args, lang, 'clang++' + str(clang_version))
         else:
-            assert(False)
+            return None
         if exe:
             version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -595,7 +593,9 @@ def benchmark_D(results_map, gpaths, args, op, templated, use_dips):
 
     src_paths = [gpaths[srcIdOf(lang, templated)]]
 
-    if op == 'Build':
+    if op == 'Check':
+        comp_flags = ['-o-']
+    elif op == 'Build':
         if which('ld.lld') is not None:
             comp_flags = ["-Xcc=-fuse-ld=lld"]
         elif which('ld.gold') is not None:
@@ -603,7 +603,7 @@ def benchmark_D(results_map, gpaths, args, op, templated, use_dips):
         else:
             comp_flags = []
     else:
-        comp_flags = ['-o-']
+        return None
 
     # DMD
     exe = match_lang(args, lang, 'dmd')
@@ -704,13 +704,15 @@ def benchmark_Go_using_go(results_map, gpaths, args, op, templated):
         comp_flags = ['build']
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
         out_flag_and_exe = ['-o', out_binary(lang)]
-    else:
+    elif op == 'Check':
         exe = which('gotype')
         comp_flags = []
         version_exe = which('go')  # guess it be same as `go`
         if version_exe is not None:
             version = sp.run([version_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
         out_flag_and_exe = []
+    else:
+        return None
     exe = match_lang(args, lang, exe)
     if exe:
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -751,8 +753,10 @@ def benchmark_Swift(results_map, gpaths, args, op, templated):
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
     if op == 'Build':
         comp_flags = ['']
-    else:
+    elif op == 'Check':
         comp_flags = ['-typecheck']
+    else:
+        return None
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -857,7 +861,7 @@ def benchmark_Nim(results_map, gpaths, args, op, templated):
         # the bottleneck is clang compilation
         comp_flags += ['c', '--gc:refc', '--opt:none']  # TODO detect when --gc:arc is available
     else:
-        assert False
+        return None
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
@@ -911,7 +915,7 @@ def benchmark_Rust(results_map, gpaths, args, op, templated):
             elif op == 'Build':
                 out_flag_and_exe = ['-o', out_binary(lang)]
             else:
-                out_flag_and_exe = []
+                continue
             comp_flags = ([] if op == 'Build' else check_args) + RUSTC_FLAGS
             compile_file(src_paths=[gpaths[srcIdOf(lang, templated)]],
                          out_flag_and_exe=out_flag_and_exe,
