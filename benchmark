@@ -406,9 +406,9 @@ def main():
 
     if 'Nim' in args.languages:
         if 'Check' in args.operations:
-            benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Check', templated=False, extra_exe_flags=None)
+            benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Build', templated=False, extra_exe_flags=None)
+            benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     if 'C#' in args.languages:
         if 'Build' in args.operations:
@@ -831,10 +831,13 @@ def benchmark_Zig(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
-def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None, extra_exe_flags=None):
+def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
     lang = 'Nim'
     exe = match_lang(args, lang, 'nim')
-    exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
+
+    tcc_exe = which('tcc')
+    exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
+
     if op == 'Check':
         exe_flags += ['check']
     elif op == 'Build':
