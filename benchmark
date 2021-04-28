@@ -23,7 +23,7 @@ from process_timer import ProcessTimer
 
 SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Nim', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
-SUPPORTED_OPERATIONS = ['Check', 'Build']
+SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
 C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
@@ -72,16 +72,17 @@ class Row(object):
         self.args = args
 
 
-TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/fn]', 'Build Time [us/fn]', 'Run Time [us/fn]', 'Check RSS [kB/fn]', 'Build RSS [kB/fn]', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/fn]', 'Compile Time [us/fn]', 'Build Time [us/fn]', 'Run Time [us/fn]', 'Check RSS [kB/fn]', 'Build RSS [kB/fn]', 'Exec Version', 'Exec Path']
 LANG_IX = 0
 TEMPLATED_IX = 1
 CHECK_DUR_PER_FUNC_IX = 2       # check duration
-BUILD_DUR_PER_FUNC_IX = 3       # build duration
-RUN_DUR_PER_FUNC_IX = 4       # run duration
-CHECK_RSS_MU_IX = 5        # check RSS memory usage
-BUILD_RSS_MU_IX = 6        # build RSS memory usage
-EXE_VERSION_IX = 7
-EXE_PATH_IX = 8
+COMPILE_DUR_PER_FUNC_IX = 3       # compilation duration
+BUILD_DUR_PER_FUNC_IX = 4       # build duration
+RUN_DUR_PER_FUNC_IX = 5       # run duration
+CHECK_RSS_MU_IX = 6        # check RSS memory usage
+BUILD_RSS_MU_IX = 7        # build RSS memory usage
+EXE_VERSION_IX = 8
+EXE_PATH_IX = 9
 TABLE_LENGTH = EXE_PATH_IX + 1
 
 assert len(TABLE_TITLES) == TABLE_LENGTH
@@ -93,6 +94,7 @@ def table_row(row,
               exe_path,
               compiler_version,
               check_dur,
+              compile_dur,
               build_dur,
               run_dur,
               check_rss_mu,
@@ -107,6 +109,9 @@ def table_row(row,
 
     if check_dur is not None:
         row[CHECK_DUR_PER_FUNC_IX] = check_dur / (args.function_count * args.function_depth)
+
+    if compile_dur is not None:
+        row[COMPILE_DUR_PER_FUNC_IX] = compile_dur / (args.function_count * args.function_depth)
 
     if build_dur is not None:
         row[BUILD_DUR_PER_FUNC_IX] = build_dur / (args.function_count * args.function_depth)
@@ -196,6 +201,8 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
         rel_str = " (" + factor_str(rel_n) + "x" ")"
     if column_ix == CHECK_DUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + rel_str
+    elif column_ix == COMPILE_DUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_n) + rel_str
     elif column_ix == BUILD_DUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + rel_str
     elif column_ix == RUN_DUR_PER_FUNC_IX:
@@ -232,6 +239,7 @@ def markdown_header(text, nr):        # Markdown header
 
 def markdown_table(titles, results):
     fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX)
+    fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX)
@@ -321,45 +329,24 @@ def main():
 
     print(markdown_header('Benchmark:', 1))
 
-    if 'D' in args.languages:
-        if 'Check' in args.operations:
-            benchmark_D(results=results, code_paths=code_paths, args=args, op='Check', templated=False, use_dips=True)
-            benchmark_D(results=results, code_paths=code_paths, args=args, op='Check', templated=True, use_dips=True)
-        if 'Build' in args.operations:
-            benchmark_D(results=results, code_paths=code_paths, args=args, op='Build', templated=False, use_dips=True)
-            benchmark_D(results=results, code_paths=code_paths, args=args, op='Build', templated=True, use_dips=True)
-
-    if 'Vox' in args.languages:
-        if 'Check' in args.operations:
-            benchmark_Vox(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_Vox(results=results, code_paths=code_paths, args=args, op='Check', templated=True)
-        if 'Build' in args.operations:
-            benchmark_Vox(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_Vox(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
-
-    if 'C' in args.languages:
-        if 'Check' in args.operations:
-            benchmark_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op='Check', templated=False)
-        if 'Build' in args.operations:
-            benchmark_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op='Build', templated=False)
-
-    if 'C++' in args.languages:
-        if 'Check' in args.operations:
-            benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op='Check', templated=True)
-            benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op='Check', templated=True)
-        if 'Build' in args.operations:
-            benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op='Build', templated=True)
-            benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op='Build', templated=True)
+    for op in args.operations:
+        if 'Vox' in args.languages:
+            for templated in (False, True):
+                benchmark_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+                benchmark_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+        if 'D' in args.languages:
+            for templated in (False, True):
+                benchmark_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=True)
+        if 'C' in args.languages:
+            for templated in (False,):
+                benchmark_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                benchmark_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                benchmark_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                benchmark_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+        if 'C++' in args.languages:
+            for templated in (False, True):
+                benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
+                benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Ada' in args.languages:
         # if 'Check' in args.operations:
@@ -472,29 +459,6 @@ def benchmark_Ada_using_gcc(results, lang, code_paths, args, op, templated):
                          results=results)
 
 
-def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated):
-    for gcc_version in VERSIONS:
-        if lang == 'C':
-            exe = match_lang(args, lang, 'gcc' + str(gcc_version))
-        elif lang == 'C++':
-            exe = match_lang(args, lang, 'g++' + str(gcc_version))
-        else:
-            return None
-        if exe:
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
-            compile_file(code_paths,
-                         out_flag_and_exe=['-o', out_binary(lang)],
-                         exe=exe,
-                         runner=True,
-                         exe_flags=C_WARN_FLAGS + (['-fsyntax-only'] if op == 'Check' else []),
-                         args=args,
-                         op=op,
-                         compiler_version=version,
-                         lang=lang,
-                         templated=templated,
-                         results=results)
-
-
 def benchmark_C_using_cproc(results, lang, code_paths, args, op, templated):
     if op == 'Check':
         exe_flags = ['-emit-qbe']
@@ -524,6 +488,9 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
     if op == 'Check':
         exe_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
+    elif op == 'Compile':
+        exe_flags = ['-c']
+        out_flag_and_exe = []
     elif op == 'Build':
         exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
@@ -545,20 +512,63 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
                      results=results)
 
 
+def gcc_clang_op_flags(op, lang):
+    if op == 'Check':
+        exe_flags = ['-c', '-fsyntax-only']
+        out_flag_and_exe = []
+    elif op == 'Compile':
+        exe_flags = ['-c']
+        out_flag_and_exe = []
+    elif op == 'Build':
+        exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        return (None, None)
+    return (exe_flags, out_flag_and_exe)
+
+
+def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated):
+    (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
+    if exe_flags is None:
+        return none
+    for gcc_version in VERSIONS:
+        if lang == 'C':
+            exe = match_lang(args, lang, 'gcc' + str(gcc_version))
+        elif lang == 'C++':
+            exe = match_lang(args, lang, 'g++' + str(gcc_version))
+        else:
+            return None
+        if exe:
+            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
+            compile_file(code_paths,
+                         out_flag_and_exe=out_flag_and_exe,
+                         exe=exe,
+                         runner=True,
+                         exe_flags=exe_flags + C_WARN_FLAGS,
+                         args=args,
+                         op=op,
+                         compiler_version=version,
+                         lang=lang,
+                         templated=templated,
+                         results=results)
+
+
 def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templated):
+    (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
+    if exe_flags is None:
+        return none
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
-    exe_flags = ['-fsyntax-only'] if op == 'Check' else []
     for clang_version in VERSIONS:
         if lang == 'C':
             exe = match_lang(args, lang, 'clang' + str(clang_version))
         elif lang == 'C++':
-            exe = match_lang(args, lang, 'clang++' + str(clang_version))
+            exe = match_lang(args, lang, 'clang' + str(clang_version))
         else:
             return None
         if exe:
             version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
             compile_file(code_paths,
-                         out_flag_and_exe=['-o', out_binary(lang)],
+                         out_flag_and_exe=out_flag_and_exe,
                          exe=exe,
                          runner=True,
                          exe_flags=C_CLANG_FLAGS + exe_flags,
@@ -576,6 +586,8 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
 
     if op == 'Check':
         exe_flags = ['-o-']
+    elif op == 'Compile':
+        exe_flags = ['-c']
     elif op == 'Build':
         if which('ld.lld') is not None:
             exe_flags = ["-Xcc=-fuse-ld=lld"]
@@ -591,7 +603,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
     if exe:
         version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
         compile_file(code_paths=code_paths,
-                     out_flag_and_exe=['-of=' + out_binary(lang)],
+                     out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
                      exe=exe,
                      runner=True,
                      exe_flags=d_flags + exe_flags,
@@ -607,7 +619,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
         compile_file(code_paths=code_paths,
-                     out_flag_and_exe=['-of=' + out_binary(lang)],
+                     out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
                      exe=exe,
                      runner=True,
                      exe_flags=d_flags + exe_flags,
@@ -624,7 +636,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
         exe_flags = ['-fsyntax-only'] if op == 'Check' else []
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         compile_file(code_paths=code_paths,
-                     out_flag_and_exe=['-o', out_binary(lang)],
+                     out_flag_and_exe=['-o' + out_binary(lang)] if op == 'Build' else [],
                      exe=exe,
                      runner=True,
                      exe_flags=exe_flags,
@@ -638,13 +650,23 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
 
 def benchmark_Vox(results, code_paths, args, op, templated):
     lang = 'Vox'
+    if op == 'Check':
+        exe_flags = ['--check-only']
+        out_flag_and_exe = []
+    elif op == 'Compile':
+        return None             # no supported
+    elif op == 'Build':
+        exe_flags = []
+        out_flag_and_exe = ['--of=' + out_binary(lang)]
+    else:
+        return None
     exe = match_lang(args, lang, 'vox')
     if exe:
         compile_file(code_paths,
-                     out_flag_and_exe=['--of=' + out_binary(lang)],
+                     out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
                      runner=True,  # os.name == 'nt', # only on Windows for now. TODO https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
-                     exe_flags=['--check-only'] if op == 'Check' else [],
+                     exe_flags=exe_flags,
                      args=args,
                      op=op,
                      compiler_version='master',  # TODO lookup Git version
@@ -1072,6 +1094,7 @@ def compile_file(code_paths,
               exe_path=exe,
               compiler_version=compiler_version,
               check_dur=dur_min if op == 'Check' else None,
+              compile_dur=dur_min if op == 'Compile' else None,
               build_dur=dur_min if op == 'Build' else None,
               run_dur=run_dur_min,
               check_rss_mu=rss_mu if op == 'Check' else None,
