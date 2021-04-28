@@ -582,7 +582,7 @@ def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templat
 
 def benchmark_D(results, code_paths, args, op, templated, use_dips):
     lang = 'D'
-    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []  # use DIPs
+    d_flags = ['-w', '-dip25', '-dip1008', '-dip1000'] if use_dips else []
 
     if op == 'Check':
         exe_flags = ['-o-']
