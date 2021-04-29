@@ -197,6 +197,7 @@ results in the following table (copied from the output at the end).
 
 ## TODO
 
+- Sort table primarily by build time and then check time
 - Don’t include Build Time and Build RSS columns when build op is not used.
 - Don’t include Check Time and Check RSS columns when check op is not used.
 - Add language Fortran.
