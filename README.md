@@ -199,7 +199,6 @@ results in the following table (copied from the output at the end).
 
 - Don’t include Build Time and Build RSS columns when build op is not used.
 - Don’t include Check Time and Check RSS columns when check op is not used.
-- Parallelize calls to checkers and builders.
 - Add language Fortran.
 - Add language Pony.
 
