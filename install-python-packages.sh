@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pip3 install psutils
+pip3 install psutil
