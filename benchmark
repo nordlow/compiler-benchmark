@@ -805,12 +805,12 @@ def benchmark_V(results, code_paths, args, op, templated):
     exe = match_lang(args, lang, 'v')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
-        vlang_backends = ['c', 'js', 'x64', 'v2', 'experimental']
+        vlang_backends = ['native', 'c', 'js', 'x64', 'v2', 'experimental']
         compile_file(code_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
                      runner=True,
-                     exe_flags=['-backend', vlang_backends[2]], # skip '-cc clang' for now
+                     exe_flags=['-backend', vlang_backends[1]], # skip '-cc clang' for now
                      args=args,
                      op=op,
                      compiler_version=version,
