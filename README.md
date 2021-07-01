@@ -189,7 +189,6 @@ results in the following table (copied from the output at the end).
 | Rust      | Yes        |  140.5 (94.4x)     |    N/A               |  258.2 (164.7x)    |   1766 (50.3x)   |   15.8 (39.6x)    |   21.5 (48.0x)    | 1.53.0-nightly | rustc     |
 | Nim       | No         |   36.6 (24.6x)     |    N/A               |   80.3 (51.2x)     |     76 (2.2x)    |    4.2 (10.5x)    |    8.0 (17.8x)    | 1.4.6        | nim       |
 | C#        | No         |    N/A             |    N/A               |   25.1 (16.0x)     |    556 (15.8x)   |    N/A            |    4.7 (10.4x)    | 6.12.0.122   | mcs       |
-| N/A       | N/A        |    N/A             |    N/A               |    N/A             |    N/A           |    N/A            |   10.6 (23.5x)    | N/A          | N/A       |
 | OCaml     | No         |    N/A             |    N/A               |  898.4 (572.9x)    |    463 (13.2x)   |    N/A            |   40.6 (90.5x)    | 4.08.1       | ocamlopt  |
 | OCaml     | No         |    N/A             |    N/A               |   87.7 (55.9x)     |    193 (5.5x)    |    N/A            |   16.5 (36.8x)    | 4.08.1       | ocamlc    |
 | Julia     | No         |    N/A             |    N/A               |  384.6 (245.2x)    |    N/A           |    N/A            |   22.7 (50.6x)    | 1.8.0-DEV    | julia     |
