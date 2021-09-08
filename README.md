@@ -47,7 +47,7 @@ for suitable values of `$FUNCTION_COUNT` and `FUNCTION_DEPTH` or simply
 
 for defaulted values of all the parameters.
 
-A specific subset of support languages can be chosen as, for instance,
+A subset of languages to benchmark can be chosen as, for instance,
 
     ./benchmark --languages=C++,D,Rust
 
@@ -96,11 +96,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
 The numerical constants are randomized using a new seed upon every call. This
 makes it impossible for any compiler to utilize any caching mechanism upon
 successive calls with same flags that affect the source generation. The purpose
-of this is to make the comparison between compilers with different levels of
-caching more fair.
+of this is to make the comparison between compilers with no or different
+different levels of caching more fair.
 
-For instance, the caching mechanism of the Go reference compiler `go` can no
-longer be deactivated.
+The caching of the Go reference compiler `go`, for instance, is effectively
+disabled by this randomization.
 
 ## Generics
 
