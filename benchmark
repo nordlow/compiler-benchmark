@@ -465,9 +465,19 @@ def benchmark_C_using_cproc(results, lang, code_paths, args, op, templated):
     if op == 'Check':
         exe_flags = ['-emit-qbe']
         out_flag_and_exe = ['-o', '/dev/null']
+    elif op == 'Compile':
+        exe_flags = ['-c']
+        out_flag_and_exe = ['-o', '/dev/null']
     elif op == 'Build':
-        exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
+        exe_flags = []
         out_flag_and_exe = ['-o', out_binary(lang)]
+        # Disable build for now until I find out how to fix linker errors:
+        # ld: error: unable to find library -l:crt1.o
+        # ld: error: unable to find library -l:crti.o
+        # ld: error: unable to find library -lc
+        # ld: error: unable to find library -l:crtn.o
+        # cproc: link: process 2424876 exited with status 1
+        return False
     else:
         return None
     exe = match_lang(args, lang, 'cproc')
