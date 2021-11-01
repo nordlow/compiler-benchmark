@@ -14,6 +14,11 @@ sudo apt install clang-10
 sudo apt install g++-10
 sudo apt install clangxx-10
 
+# C++ Circle Compiler
+TDIR="${HOME}/.local/circle"
+mkdir -p "$TDIR"
+exec wget --quiet --show-progress --progress=bar:force -c "https://www.circle-lang.org/linux/build_141.tgz" -O - | tar -xz -C "$TDIR"
+
 # Ada
 sudo apt install gnat-10
 
