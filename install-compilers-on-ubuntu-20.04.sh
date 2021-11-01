@@ -14,12 +14,6 @@ sudo apt install clang-10
 sudo apt install g++-10
 sudo apt install clangxx-10
 
-# C++ Circle Compiler
-VERSION="141"
-TDIR="${HOME}/.local/circle"
-mkdir -p "$TDIR"
-wget --quiet --show-progress --progress=bar:force -c "https://www.circle-lang.org/linux/build_${VERSION}.tgz" -O - | tar -xz -C "$TDIR"
-
 # Ada
 sudo apt install gnat-10
 
@@ -53,3 +47,9 @@ curl https://nim-lang.org/choosenim/init.sh -sSf | sh
 
 # OCaml
 sudo apt install ocaml-nox
+
+# C++ Circle Compiler
+VERSION="141"
+TDIR="${HOME}/.local/circle"
+mkdir -p "$TDIR"
+wget --quiet --show-progress --progress=bar:force -c "https://www.circle-lang.org/linux/build_${VERSION}.tgz" -O - | tar -xz -C "$TDIR"
