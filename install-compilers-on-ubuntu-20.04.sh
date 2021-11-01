@@ -13,7 +13,6 @@ sudo apt install clang-10
 # C++
 sudo apt install g++-10
 sudo apt install clangxx-10
-./install-circle.sh
 
 # Ada
 sudo apt install gnat-10
