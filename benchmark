@@ -297,9 +297,9 @@ def main():
                         default=1,
                         help='Number of runs for each compilation')
 
-    parser.add_argument('--path', dest='path', nargs='+',
-                        default=["/usr/local/bin"],
-                        help='Search paths for binaries (eg: --path=/usr/bin:/usr/local/bin)')
+    parser.add_argument('--path', dest='path', type=str,
+                        default=os.environ.get('PATH'),
+                        help='Colon separated list of paths in which to look for compilers (eg: --path=/usr/bin:/usr/local/bin)')
 
     args = parser.parse_args()
 
