@@ -780,8 +780,8 @@ def benchmark_Go_using_gccgo(results, code_paths, args, op, templated):
 
 def benchmark_Swift(results, code_paths, args, op, templated):
     lang = 'Swift'
-    for path in PATH:
-        exe = (match_lang(args, lang, 'swiftc', path=path if args.env_path else None) or
+    for path in args.path:
+        exe = (match_lang(args, lang, 'swiftc', path=path) or
             which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
         if op == 'Build':
             exe_flags = ['']
@@ -806,11 +806,11 @@ def benchmark_Swift(results, code_paths, args, op, templated):
 
 def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
     lang = 'OCaml'
-    for path in PATH:
+    for path in args.path:
         if bytecode:
-            exe = match_lang(args, lang, 'ocamlc', path=path if args.env_path else None)
+            exe = match_lang(args, lang, 'ocamlc', path=path)
         else:
-            exe = match_lang(args, lang, 'ocamlopt', path=path if args.env_path else None)
+            exe = match_lang(args, lang, 'ocamlopt', path=path)
         if exe:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
             compile_file(code_paths,
@@ -830,8 +830,8 @@ def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
 
 def benchmark_V(results, code_paths, args, op, templated):
     lang = 'V'                                   # vlang.io
-    for path in PATH:
-        exe = match_lang(args, lang, 'v', path=path if args.env_path else None)
+    for path in args.path:
+        exe = match_lang(args, lang, 'v', path=path)
         if exe:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             vlang_backends = ['native', 'c', 'js', 'x64', 'v2', 'experimental']
@@ -850,8 +850,8 @@ def benchmark_V(results, code_paths, args, op, templated):
 
 def benchmark_C3(results, code_paths, args, op, templated):
     lang = 'C3'
-    for path in PATH:
-        exe = (match_lang(args, lang, 'c3c', path=path if args.env_path else None) or
+    for path in args.path:
+        exe = (match_lang(args, lang, 'c3c', path=path) or
             which(os.path.join(HOME, 'ware/c3c/build/c3c')))
         if exe:
             version = 'unknown'
@@ -870,8 +870,8 @@ def benchmark_C3(results, code_paths, args, op, templated):
 
 def benchmark_Zig(results, code_paths, args, op, templated):
     lang = 'Zig'
-    for path in PATH:
-        exe = match_lang(args, lang, 'zig', path=path if args.env_path else None)
+    for path in args.path:
+        exe = match_lang(args, lang, 'zig', path=path)
         if exe:
             version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
             compile_file(code_paths,
@@ -888,10 +888,10 @@ def benchmark_Zig(results, code_paths, args, op, templated):
 
 def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
     lang = 'Nim'
-    for path in PATH:
-        exe = match_lang(args, lang, 'nim', path=path if args.env_path else None)
+    for path in args.path:
+        exe = match_lang(args, lang, 'nim', path=path)
 
-        tcc_exe = which('tcc', path=path if args.env_path else None)
+        tcc_exe = which('tcc', path=path)
         exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
 
         if op == 'Check':
@@ -925,8 +925,8 @@ def set_rustup_channel(channel):
 
 def benchmark_Rust(results, code_paths, args, op, templated):
     lang = 'Rust'
-    for path in PATH:
-        rustup_exe = which('rustup', path=path if args.env_path else None)
+    for path in args.path:
+        rustup_exe = which('rustup', path=path)
         if rustup_exe:
             rustup_channels = ['stable', 'nightly']
         else:
@@ -936,7 +936,7 @@ def benchmark_Rust(results, code_paths, args, op, templated):
             if rustup_exe is not None:
                 set_rustup_channel(channel)
 
-            exe = match_lang(args, lang, 'rustc', path=path if args.env_path else None)
+            exe = match_lang(args, lang, 'rustc', path=path)
             if exe:
                 # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
                 # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
@@ -970,8 +970,8 @@ def benchmark_Rust(results, code_paths, args, op, templated):
 
 def benchmark_Java(results, code_paths, args, op, templated):
     lang = 'Java'
-    for path in PATH:
-        exe = match_lang(args, lang, 'javac', path=path if args.env_path else None)
+    for path in args.path:
+        exe = match_lang(args, lang, 'javac', path=path)
         if exe:
             try:
                 task = sp.run([exe, '-version'],
@@ -998,8 +998,8 @@ def benchmark_Java(results, code_paths, args, op, templated):
 
 def benchmark_Julia(results, code_paths, args, op, templated):
     lang = 'Julia'
-    for path in PATH:
-        exe = match_lang(args, lang, 'julia', path=path if args.env_path else None)
+    for path in args.path:
+        exe = match_lang(args, lang, 'julia', path=path)
         if exe:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
             compile_file(code_paths,
