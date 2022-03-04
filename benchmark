@@ -31,7 +31,8 @@ C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
 RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 
-JULIA_EXE_FLAGS = ['--compile=min']
+JULIA_INTERPRET_FLAGS = ['--compile=min']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
+JULIA_COMPILE_FLAGS = ['-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
 ROOT_PATH = 'generated'
 RANGE = range(5, 15)
@@ -991,7 +992,7 @@ def benchmark_Julia(results, code_paths, args, op, templated):
                      out_flag_and_exe=[],
                      exe=exe,
                      runner=False,
-                     exe_flags=JULIA_EXE_FLAGS,
+                     exe_flags=JULIA_INTERPRET_FLAGS,  # TODO: use JULIA_COMPILE_FLAGS aswell
                      args=args,
                      op=op,
                      compiler_version=version,
