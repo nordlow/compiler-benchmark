@@ -926,18 +926,10 @@ def benchmark_Rust(results, code_paths, args, op, templated):
 
         exe = match_lang(args, lang, 'rustc')
         if exe:
-            # See: https://stackoverflow.com/questions/53250631/does-rust-have-a-way-to-perform-syntax-and-semantic-analysis-without-generating/53250674#53250674
-            # See: https://stackoverflow.com/questions/51485765/run-rustc-to-check-a-program-without-generating-any-files
-            # Alternatives:
-            # - `rustc --emit=metadata -Z no-codegen`
-            # - Not yet in stable: `rustc -Z no-codegen`
-            # - 'rustc', '--crate-type', 'lib', '--emit=mir', '-o', '/dev/null', '--test'
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             if op == 'Check':
-                if channel == 'nightly':
-                    check_args = ['-Z', 'no-codegen']  # TODO why is this not available on stable yet?
-                else:
-                    check_args = ['--emit=mir', '-o', '/dev/null']  # Used by Flycheck. Twice as slow as `-Z no-codegen`
+                # `cargo check` uses `rustc --emit=metadata`
+                check_args = ['--emit=metadata']
                 out_flag_and_exe = []
             elif op == 'Build':
                 out_flag_and_exe = ['-o', out_binary(lang)]
