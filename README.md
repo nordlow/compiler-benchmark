@@ -18,6 +18,7 @@ compilers. Supported languages are:
 - [V](https://vlang.io/) (using `v`),
 - [Vox](https://github.com/MrSmith33/vox) (using `vox`),
 - [C3](https://github.com/c3lang/c3c) (using `c3c`),
+- [Pareas](https://github.com/Snektron/pareas) (using `pareas`),
 
 ## Languages with Bytecode Compilers:
 

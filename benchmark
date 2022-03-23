@@ -21,7 +21,7 @@ from timeit import default_timer as timer
 from process_timer import ProcessTimer
 
 
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Nim', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml']
+SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Nim', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml', 'Pareas']
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
 SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
@@ -407,6 +407,12 @@ def main():
     if 'Java' in args.languages:
         if 'Build' in args.operations:
             benchmark_Java(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+
+    if 'Pareas' in args.languages:
+        if 'Check' in args.operations:
+            benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
+        if 'Build' in args.operations:
+            benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     # Julia and Ocaml take too long otherwise. So let them participate by
     # truncating size because ops/function are measured
@@ -974,6 +980,22 @@ def benchmark_Java(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
+def benchmark_Pareas(results, code_paths, args, op, templated):
+    lang = 'Pareas'
+    exe = match_lang(args, lang, 'pareas')
+    if exe:
+        compile_file(code_paths,
+                     out_flag_and_exe=['-o', out_binary(lang)],
+                     exe=exe,
+                     runner=False,
+                     exe_flags=['--check'] if op == 'Check' else [],
+                     args=args,
+                     op=op,
+                     compiler_version='unknown',
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
 
 def benchmark_Julia(results, code_paths, args, op, templated):
     lang = 'Julia'
@@ -1154,6 +1176,8 @@ def long_types_of_lang(lang):
         return ['float']
     elif lang == 'ada':
         return ['Long_Integer']  # gnat
+    elif lang == 'pareas':
+        return ['int']
     else:
         return None
 
@@ -1171,6 +1195,8 @@ def language_file_extension(lang):
         return 'vx'
     elif lang == 'ada':
         return 'adb'
+    elif lang == 'pareas':
+        return 'par'
     else:
         return lang
 
@@ -1236,6 +1262,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
                                                                           X='[' + typ + ']' if templated else ''))
     elif lang == 'swift':
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=str(findex)))
+    elif lang == 'pareas':
+        f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}[${N}]').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
@@ -1302,6 +1330,8 @@ def generate_test_language_specific_postfix(lang, types, f):
         f.write(Tm('\n\n').substitute(T=types[0]))
     elif lang == 'c3':
         f.write(Tm('        return (int)(${T}_sum);\n}\n').substitute(T=types[0]))
+    elif lang == 'pareas':
+        f.write(Tm('    return ${T}_sum;\n}\n').substitute(T=types[0]))
     elif lang == 'julia':
         f.write(Tm('''    return ${T}_sum;
 end
@@ -1386,6 +1416,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
             expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + nconst + '.0'
         elif lang == 'swift':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x: ' + xtarg + 'x) + ' + nconst
+        elif lang == 'pareas':
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
         else:
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + nconst
 
@@ -1475,6 +1507,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
     elif lang == 'julia':
         f.write(Tm('function ${F}(x${QT})${QT}\n    return ${X}\nend;\n').substitute(QT=('' if templated else ('::' + typ)),
                                                                                      F=str(fname), N=nconst, H=str(fheight), X=expr))
+    elif lang == 'pareas':
+        f.write(Tm('fn ${F}[x: ${T}]: ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), X=expr))
 
 
 def generate_test_main_header(lang, types, f, templated):
@@ -1510,6 +1544,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write('let () = \n')
     elif lang == 'nim':
         f.write('when isMainModule:\n')
+    elif lang == 'pareas':
+        f.write('fn main[]: int {\n')
     else:
         assert False
 
@@ -1544,6 +1580,8 @@ def generate_main_test_function_variable(lang, typ, f, templated):
         f.write(Tm('    ${T}_sum${QT} = 0;\n').substitute(T=typ, QT=(('::' + typ) if templated else '')))
     elif lang == 'ocaml':
         f.write(Tm('    let ${T}_sum = 0.0 in\n').substitute(T=typ))
+    elif lang == 'pareas':
+        f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
     else:
         assert False
 
@@ -1628,6 +1666,8 @@ def generate_test_program_2(function_count, lang, templated):
 end;
 ''').substitute(QT=('' if templated else ('::' + typ)), N=str(findex)))
                     f.write('\n')
+                elif lang == 'pareas':
+                    f.write(Tm('fn add_${T}_n${N}[x: ${T}]: ${T} { return x + ${N}; }').substitute(T=typ, N=str(findex)))
 
         # MAIN HEADER
         if lang in ['c', 'c++']:
@@ -1653,6 +1693,8 @@ end;
         elif lang == 'julia':
             f.write(Tm('''function main()::${T}
 ''').substitute(T=types[0]))
+        elif lang == 'pareas':
+            f.write(Tm('fn main[]: ${T} {\n').substitute(T=types[0]))
         else:
             assert False
 
@@ -1676,11 +1718,16 @@ end;
             elif lang == 'julia':
                 f.write(Tm('''    ${T}_sum${QT} = 0;
 ''').substitute(QT=('' if templated else ('::' + typ))))
+            elif lang == 'pareas':
+                f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
             else:
                 assert False
 
-            for findex in range(0, function_count):
-                f.write(Tm('''    ${T}_sum += add_${T}_n${N}(${N});
+            if lang == 'pareas':
+                f.write(Tm('    ${T}_sum += add_${T}_n${N}[${N}];').substitute(T=typ, N=str(findex)))
+            else:
+                for findex in range(0, function_count):
+                    f.write(Tm('''    ${T}_sum += add_${T}_n${N}(${N});
 ''').substitute(T=typ, N=str(findex)))
 
         if lang == 'rust':
