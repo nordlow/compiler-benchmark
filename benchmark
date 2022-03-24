@@ -808,7 +808,7 @@ def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
                      runner=([which('ocamlrun')] if
                              bytecode else
                              True),
-                     exe_flags=['-c'] if bytecode else [],
+                     exe_flags=['-c'] if bytecode else  ['-linscan'],
                      args=args,
                      op=op,
                      compiler_version=version,
