@@ -278,7 +278,7 @@ def main():
 
     parser.add_argument('--languages', '--langs', type=str,
                         default=','.join(SUPPORTED_LANGUAGES),
-                        help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd.')
+                        help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd,D:gdc,D:ldmd2.')
 
     parser.add_argument('--operations', '--ops', type=str,
                         default=','.join(SUPPORTED_OPERATIONS),
@@ -304,19 +304,23 @@ def main():
 
     args.languages = list(map(lambda x: 'OCaml' if x.lower() == 'ocaml' else x.capitalize(),
                               args.languages.split(',')))  # into a list
-    filtered_languages = []
-    args.language_exe = {}
-    for language in args.languages:
-        split = language.split(':')
+    args.language_exes = {}
+    for language_exes_spec in args.languages:
+        split = language_exes_spec.split(':')
         if len(split) == 2:
             language = split[0]
             exes = split[1]
-            args.language_exe[language] = tuple(exes.split())
-        if language in SUPPORTED_LANGUAGES:
-            filtered_languages.append(language)
         else:
+            language = split[0]
+            exes = Null
+        if language not in SUPPORTED_LANGUAGES:
             print('Warning: Ignoring unsupported language ' + language)
-    args.languages = filtered_languages
+            continue
+        if language in args.language_exes:
+            args.language_exes[language] += tuple(exes.split(','))
+        else:
+            args.language_exes[language] = tuple(exes.split(','))
+    print("args.language_exes:", args.language_exes)
 
     args.operations = list(map(lambda x: x.capitalize(), args.operations.split(',')))  # into a list of capitalized names
     filtered_operations = []
@@ -333,52 +337,52 @@ def main():
     print(markdown_header('Benchmark:', 1))
 
     for op in args.operations:
-        if 'Vox' in args.languages:
+        if 'Vox' in args.language_exes:
             for templated in (False, True):
                 benchmark_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-        if 'D' in args.languages:
+        if 'D' in args.language_exes:
             for templated in (False, True):
                 benchmark_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=True)
-        if 'C' in args.languages:
+        if 'C' in args.language_exes:
             for templated in (False,):
                 benchmark_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-        if 'C++' in args.languages:
+        if 'C++' in args.language_exes:
             for templated in (False, True):
                 benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
 
-    if 'Ada' in args.languages:
+    if 'Ada' in args.language_exes:
         # if 'Check' in args.operations:
         #     benchmark_Ada_using_gcc(results=results,lang='Ada', code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             benchmark_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='Build', templated=False)
 
-    if 'Go' in args.languages:
+    if 'Go' in args.language_exes:
         if 'Check' in args.operations:
             benchmark_Go(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             benchmark_Go(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
-    if 'Swift' in args.languages:
+    if 'Swift' in args.language_exes:
         if 'Check' in args.operations:
             benchmark_Swift(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             benchmark_Swift(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
-    if 'V' in args.languages:
+    if 'V' in args.language_exes:
         if 'Build' in args.operations:
             benchmark_V(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
             benchmark_V(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
 
-    if 'C3' in args.languages:
+    if 'C3' in args.language_exes:
         for op in args.operations:
             benchmark_C3(results=results, code_paths=code_paths, args=args, op=op, templated=False)
 
-    if 'Zig' in args.languages:
+    if 'Zig' in args.language_exes:
         if 'Check' in args.operations:
             benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
             benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Check', templated=True)
@@ -386,7 +390,7 @@ def main():
             benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
             benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
 
-    if 'Rust' in args.languages:
+    if 'Rust' in args.language_exes:
         if 'Check' in args.operations:
             benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
             benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Check', templated=True)
@@ -394,21 +398,21 @@ def main():
             benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
             benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
 
-    if 'Nim' in args.languages:
+    if 'Nim' in args.language_exes:
         if 'Check' in args.operations:
             benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
-    if 'C#' in args.languages:
+    if 'C#' in args.language_exes:
         if 'Build' in args.operations:
             benchmark_Mono(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
-    if 'Java' in args.languages:
+    if 'Java' in args.language_exes:
         if 'Build' in args.operations:
             benchmark_Java(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
-    if 'Pareas' in args.languages:
+    if 'Pareas' in args.language_exes:
         if 'Check' in args.operations:
             benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
@@ -422,12 +426,12 @@ def main():
         args.function_count = 100
         args.function_depth = 100
 
-    if 'OCaml' in args.languages:
+    if 'OCaml' in args.language_exes:
         if 'Build' in args.operations:
             benchmark_OCaml(results=results, code_paths=code_paths, args=args, op='Build', templated=False, bytecode=False)
             benchmark_OCaml(results=results, code_paths=code_paths, args=args, op='Build', templated=False, bytecode=True)
 
-    if 'Julia' in args.languages:
+    if 'Julia' in args.language_exes:
         if 'Build' in args.operations:
             benchmark_Julia(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
             benchmark_Julia(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
@@ -442,7 +446,7 @@ def main():
 
 def match_lang(args, lang, exe_name):
     try:
-        if exe_name not in args.language_exe[lang]:
+        if exe_name not in args.language_exes[lang]:
             return None
     except KeyError:
         pass
@@ -617,7 +621,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
     else:
         return None
 
-    # DMD
+    # dmd
     exe = match_lang(args, lang, 'dmd')
     if exe:
         version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
@@ -633,7 +637,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
                      templated=templated,
                      results=results)
 
-    # LDC
+    # ldmd2
     exe = match_lang(args, lang, 'ldmd2')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
@@ -649,7 +653,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
                      templated=templated,
                      results=results)
 
-    # GDC
+    # gdc
     exe = match_lang(args, lang, 'gdc')
     if exe:
         exe_flags = ['-fsyntax-only'] if op == 'Check' else []
