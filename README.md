@@ -48,9 +48,10 @@ for suitable values of `$FUNCTION_COUNT` and `FUNCTION_DEPTH` or simply
 
 for defaulted values of all the parameters.
 
-A subset of languages to benchmark can be chosen as, for instance,
+A subset of languages combined with set of compilers to benchmark can be chosen
+as, for instance,
 
-    ./benchmark --languages=C++,D,Rust
+    ./benchmark --languages=C:tcc,C:gcc-12,C++,D:dmd,D:ldmd2,D:gdc-12,Rust
 
 This will generate code into the directory `generated` and then, for each
 combination of language, operation type and compiler, run the supported

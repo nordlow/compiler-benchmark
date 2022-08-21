@@ -26,6 +26,10 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zi
 SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
+C_EXES = ['tcc', 'gcc', 'clang',]
+D_EXES = ['dmd', 'ldmd2', 'gdc',]
+RUST_EXES = ['rustc']
+
 C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
 
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
@@ -36,9 +40,9 @@ JULIA_COMPILE_FLAGS = ['-O0']  # See: https://github.com/JuliaLang/julia/issues/
 
 ROOT_PATH = 'generated'
 RANGE = range(5, 15)
-VERSIONS = [""] + [f"-{i}" for i in RANGE]
+VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
-HOME = os.path.expanduser("~")  # instead of home = os.getenv('HOME') that doesn’t work on Windows
+HOME = os.path.expanduser('~')  # instead of home = os.getenv('HOME') that doesn’t work on Windows
 
 
 class Row:                      # TODO use
@@ -309,18 +313,17 @@ def main():
         split = language_exes_spec.split(':')
         if len(split) == 2:
             language = split[0]
-            exes = split[1]
+            exes = split[1]. split(',')
         else:
             language = split[0]
-            exes = Null
+            exes = []
         if language not in SUPPORTED_LANGUAGES:
             print('Warning: Ignoring unsupported language ' + language)
             continue
         if language in args.language_exes:
-            args.language_exes[language] += tuple(exes.split(','))
+            args.language_exes[language] += exes
         else:
-            args.language_exes[language] = tuple(exes.split(','))
-    print("args.language_exes:", args.language_exes)
+            args.language_exes[language] = exes
 
     args.operations = list(map(lambda x: x.capitalize(), args.operations.split(',')))  # into a list of capitalized names
     filtered_operations = []
@@ -444,9 +447,9 @@ def main():
     print(markdown_table(TABLE_TITLES, results))
 
 
-def match_lang(args, lang, exe_name):
+def match_lang_exe(args, lang, exe_name):
     try:
-        if exe_name not in args.language_exes[lang]:
+        if args.language_exes[lang] and exe_name not in args.language_exes[lang]:
             return None
     except KeyError:
         pass
@@ -456,7 +459,7 @@ def match_lang(args, lang, exe_name):
 def benchmark_Ada_using_gcc(results, lang, code_paths, args, op, templated):
     exe_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in VERSIONS:
-        exe = match_lang(args, lang, 'gnat' + str(gcc_version))
+        exe = match_lang_exe(args, lang, 'gnat' + str(gcc_version))
         if exe:
             version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
             compile_file(code_paths,
@@ -491,7 +494,7 @@ def benchmark_C_using_cproc(results, lang, code_paths, args, op, templated):
         return False
     else:
         return None
-    exe = match_lang(args, lang, 'cproc')
+    exe = match_lang_exe(args, lang, 'cproc')
     if exe:
         version = 'unknown'
         compile_file(code_paths,
@@ -519,7 +522,7 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
-    exe = match_lang(args, lang, 'tcc')
+    exe = match_lang_exe(args, lang, 'tcc')
     if exe:
         version = get_version(sp.run([exe, '-v'], stdout=sp.PIPE))
         compile_file(code_paths,
@@ -556,9 +559,9 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated
         return none
     for gcc_version in VERSIONS:
         if lang == 'C':
-            exe = match_lang(args, lang, 'gcc' + str(gcc_version))
+            exe = match_lang_exe(args, lang, 'gcc' + str(gcc_version))
         elif lang == 'C++':
-            exe = match_lang(args, lang, 'g++' + str(gcc_version))
+            exe = match_lang_exe(args, lang, 'g++' + str(gcc_version))
         else:
             return None
         if exe:
@@ -583,9 +586,9 @@ def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templat
     C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
     for clang_version in VERSIONS:
         if lang == 'C':
-            exe = match_lang(args, lang, 'clang' + str(clang_version))
+            exe = match_lang_exe(args, lang, 'clang' + str(clang_version))
         elif lang == 'C++':
-            exe = match_lang(args, lang, 'clang' + str(clang_version))
+            exe = match_lang_exe(args, lang, 'clang' + str(clang_version))
         else:
             return None
         if exe:
@@ -621,54 +624,57 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
     else:
         return None
 
+    try:
+        exes = args.language_exes[lang]
+    except KeyError:
+        return
+    if not exes:
+        exes = D_EXES
+
     # dmd
-    exe = match_lang(args, lang, 'dmd')
-    if exe:
-        version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
-        compile_file(code_paths=code_paths,
-                     out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
-                     exe=exe,
-                     runner=True,
-                     exe_flags=d_flags + exe_flags,
-                     args=args,
-                     op=op,
-                     compiler_version=version,
-                     lang=lang,
-                     templated=templated,
-                     results=results)
-
-    # ldmd2
-    exe = match_lang(args, lang, 'ldmd2')
-    if exe:
-        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
-        compile_file(code_paths=code_paths,
-                     out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
-                     exe=exe,
-                     runner=True,
-                     exe_flags=d_flags + exe_flags,
-                     args=args,
-                     op=op,
-                     compiler_version=version,
-                     lang=lang,
-                     templated=templated,
-                     results=results)
-
-    # gdc
-    exe = match_lang(args, lang, 'gdc')
-    if exe:
-        exe_flags = ['-fsyntax-only'] if op == 'Check' else []
-        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
-        compile_file(code_paths=code_paths,
-                     out_flag_and_exe=['-o' + out_binary(lang)] if op == 'Build' else [],
-                     exe=exe,
-                     runner=True,
-                     exe_flags=exe_flags,
-                     args=args,
-                     op=op,
-                     compiler_version=version,
-                     lang=lang,
-                     templated=templated,
-                     results=results)
+    for exe in filter(lambda exe: which(exe), exes):
+        if not which(exe):
+            continue
+        if exe.startswith('dmd'):
+            version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
+            compile_file(code_paths=code_paths,
+                         out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
+                         exe=exe,
+                         runner=True,
+                         exe_flags=d_flags + exe_flags,
+                         args=args,
+                         op=op,
+                         compiler_version=version,
+                         lang=lang,
+                         templated=templated,
+                         results=results)
+        elif exe.startswith('ldmd2'):
+            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
+            compile_file(code_paths=code_paths,
+                         out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
+                         exe=exe,
+                         runner=True,
+                         exe_flags=d_flags + exe_flags,
+                         args=args,
+                         op=op,
+                         compiler_version=version,
+                         lang=lang,
+                         templated=templated,
+                         results=results)
+        elif exe.startswith('gdc'):
+            exe_flags = ['-fsyntax-only'] if op == 'Check' else []
+            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
+            compile_file(code_paths=code_paths,
+                         out_flag_and_exe=['-o' + out_binary(lang)] if op == 'Build' else [],
+                         exe=exe,
+                         runner=True,
+                         exe_flags=exe_flags,
+                         args=args,
+                         op=op,
+                         compiler_version=version,
+                         lang=lang,
+                         templated=templated,
+                         results=results)
 
 
 def benchmark_Vox(results, code_paths, args, op, templated):
@@ -683,7 +689,7 @@ def benchmark_Vox(results, code_paths, args, op, templated):
         out_flag_and_exe = ['--of=' + out_binary(lang)]
     else:
         return None
-    exe = match_lang(args, lang, 'vox')
+    exe = match_lang_exe(args, lang, 'vox')
     if exe:
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
@@ -700,7 +706,7 @@ def benchmark_Vox(results, code_paths, args, op, templated):
 
 def benchmark_Mono(results, code_paths, args, op, templated):
     lang = 'C#'
-    exe = match_lang(args, lang, 'mcs')
+    exe = match_lang_exe(args, lang, 'mcs')
     if exe:
         exe_flags = ['-target:exe'] + ([] if op == 'Build' else [''])
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
@@ -739,7 +745,7 @@ def benchmark_Go_using_go(results, code_paths, args, op, templated):
         out_flag_and_exe = []
     else:
         return None
-    exe = match_lang(args, lang, exe)
+    exe = match_lang_exe(args, lang, exe)
     if exe:
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
@@ -757,7 +763,7 @@ def benchmark_Go_using_go(results, code_paths, args, op, templated):
 def benchmark_Go_using_gccgo(results, code_paths, args, op, templated):
     lang = 'Go'
     for gccgo_version in VERSIONS:
-        exe = match_lang(args, lang, 'gccgo' + str(gccgo_version))
+        exe = match_lang_exe(args, lang, 'gccgo' + str(gccgo_version))
         if exe:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             compile_file(code_paths,
@@ -775,7 +781,7 @@ def benchmark_Go_using_gccgo(results, code_paths, args, op, templated):
 
 def benchmark_Swift(results, code_paths, args, op, templated):
     lang = 'Swift'
-    exe = (match_lang(args, lang, 'swiftc') or
+    exe = (match_lang_exe(args, lang, 'swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
     if op == 'Build':
         exe_flags = ['']
@@ -801,9 +807,9 @@ def benchmark_Swift(results, code_paths, args, op, templated):
 def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
     lang = 'OCaml'
     if bytecode:
-        exe = match_lang(args, lang, 'ocamlc')
+        exe = match_lang_exe(args, lang, 'ocamlc')
     else:
-        exe = match_lang(args, lang, 'ocamlopt')
+        exe = match_lang_exe(args, lang, 'ocamlopt')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(code_paths,
@@ -823,7 +829,7 @@ def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
 
 def benchmark_V(results, code_paths, args, op, templated):
     lang = 'V'                                   # vlang.io
-    exe = match_lang(args, lang, 'v')
+    exe = match_lang_exe(args, lang, 'v')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
         vlang_backends = ['native', 'c', 'js', 'x64', 'v2', 'experimental']
@@ -842,7 +848,7 @@ def benchmark_V(results, code_paths, args, op, templated):
 
 def benchmark_C3(results, code_paths, args, op, templated):
     lang = 'C3'
-    exe = (match_lang(args, lang, 'c3c') or
+    exe = (match_lang_exe(args, lang, 'c3c') or
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
     if exe:
         exe_flags = ['-O0']
@@ -870,7 +876,7 @@ def benchmark_C3(results, code_paths, args, op, templated):
 
 def benchmark_Zig(results, code_paths, args, op, templated):
     lang = 'Zig'
-    exe = match_lang(args, lang, 'zig')
+    exe = match_lang_exe(args, lang, 'zig')
     if exe:
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(code_paths,
@@ -887,7 +893,7 @@ def benchmark_Zig(results, code_paths, args, op, templated):
 
 def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
     lang = 'Nim'
-    exe = match_lang(args, lang, 'nim')
+    exe = match_lang_exe(args, lang, 'nim')
 
     tcc_exe = which('tcc')
     exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
@@ -930,12 +936,18 @@ def benchmark_Rust(results, code_paths, args, op, templated):
     else:
         rustup_channels = [None]
 
+    try:
+        exes = args.language_exes[lang]
+    except KeyError:
+        return
+    if not exes:
+        exes = RUST_EXES
+
     for channel in rustup_channels:
         if rustup_exe is not None:
             set_rustup_channel(channel)
 
-        exe = match_lang(args, lang, 'rustc')
-        if exe:
+        for exe in exes:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             if op == 'Check':
                 # `cargo check` uses `rustc --emit=metadata`
@@ -960,7 +972,7 @@ def benchmark_Rust(results, code_paths, args, op, templated):
 
 def benchmark_Java(results, code_paths, args, op, templated):
     lang = 'Java'
-    exe = match_lang(args, lang, 'javac')
+    exe = match_lang_exe(args, lang, 'javac')
     if exe:
         try:
             task = sp.run([exe, '-version'],
@@ -986,7 +998,7 @@ def benchmark_Java(results, code_paths, args, op, templated):
 
 def benchmark_Pareas(results, code_paths, args, op, templated):
     lang = 'Pareas'
-    exe = match_lang(args, lang, 'pareas')
+    exe = match_lang_exe(args, lang, 'pareas')
     if exe:
         compile_file(code_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
@@ -1003,7 +1015,7 @@ def benchmark_Pareas(results, code_paths, args, op, templated):
 
 def benchmark_Julia(results, code_paths, args, op, templated):
     lang = 'Julia'
-    exe = match_lang(args, lang, 'julia')
+    exe = match_lang_exe(args, lang, 'julia')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(code_paths,
