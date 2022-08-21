@@ -26,10 +26,11 @@ TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zi
 SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
-C_EXES = ['tcc', 'gcc', 'clang',]
-D_EXES = ['dmd', 'ldmd2', 'gdc',]
-CXX_EXES = ['g++', 'clang++',]
-RUST_EXES = ['rustc']
+LANGUAGE_EXES = {'C': ['tcc', 'gcc', 'clang', ],
+                 'C++': ['g++', 'clang++', ],
+                 'D': ['dmd', 'ldmd2', 'gdc', ],
+                 'Rust': ['rustc'],
+                 }
 
 C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
 
@@ -325,6 +326,8 @@ def main():
             args.language_exes[language] += exes
         else:
             args.language_exes[language] = exes
+    if not args.language_exes:
+        args.language_exes = LANGUAGE_EXES
 
     args.operations = list(map(lambda x: x.capitalize(), args.operations.split(',')))  # into a list of capitalized names
     filtered_operations = []
@@ -630,7 +633,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
     except KeyError:
         return
     if not exes:
-        exes = D_EXES
+        exes = LANGUAGE_EXES[lang]
 
     # dmd
     for exe in filter(lambda exe: which(exe), exes):
@@ -942,7 +945,7 @@ def benchmark_Rust(results, code_paths, args, op, templated):
     except KeyError:
         return
     if not exes:
-        exes = RUST_EXES
+        exes = LANGUAGE_EXES[lang]
 
     for channel in rustup_channels:
         if rustup_exe is not None:
