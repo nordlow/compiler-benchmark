@@ -28,6 +28,7 @@ DEFAULT_PROGRAM_NAME = 'main'
 
 C_EXES = ['tcc', 'gcc', 'clang',]
 D_EXES = ['dmd', 'ldmd2', 'gdc',]
+CXX_EXES = ['g++', 'clang++',]
 RUST_EXES = ['rustc']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
