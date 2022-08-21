@@ -20,17 +20,29 @@ from timeit import default_timer as timer
 
 from process_timer import ProcessTimer
 
-
-SUPPORTED_LANGUAGES = ['C', 'C++', 'Ada', 'C#', 'Swift', 'Java', 'D', 'Vox', 'Rust', 'Nim', 'Zig', 'Go', 'V', 'C3', 'Julia', 'OCaml', 'Pareas']
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
-SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
 DEFAULT_PROGRAM_NAME = 'main'
 
-LANGUAGE_EXES = {'C': ['tcc', 'gcc', 'clang', ],
+SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
+
+LANGUAGE_EXES = {'C': ['tcc', 'cproc', 'gcc', 'clang', ],
+                 'C3': ['c3c', ],
                  'C++': ['g++', 'clang++', ],
                  'D': ['dmd', 'ldmd2', 'gdc', ],
-                 'Rust': ['rustc'],
+                 'Zig': ['zig', ],
+                 'Nim': ['nim', ],
+                 'Rust': ['rustc', ],
+                 'Ada': ['gnat', ],
+                 'Vox': ['vox', ],
+                 'C#': ['mcs', ],
+                 'Go': ['go', 'gccgo', ],
+                 'V': ['v', ],
+                 'Swift': ['swiftc', ],
+                 'Java': ['javac', ],
+                 'Julia': ['julia', ],
+                 'OCaml': ['ocamlc', 'ocamlopt', ],
+                 'Pareas': ['pareas', ],
                  }
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra', '-Wno-c++11-extensions']
 
@@ -283,7 +295,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--languages', '--langs', type=str,
-                        default=','.join(SUPPORTED_LANGUAGES),
+                        default=','.join(LANGUAGE_EXES.keys()),
                         help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd,D:gdc,D:ldmd2.')
 
     parser.add_argument('--operations', '--ops', type=str,
@@ -319,7 +331,7 @@ def main():
         else:
             language = split[0]
             exes = []
-        if language not in SUPPORTED_LANGUAGES:
+        if language not in LANGUAGE_EXES:
             print('Warning: Ignoring unsupported language ' + language)
             continue
         if language in args.language_exes:
