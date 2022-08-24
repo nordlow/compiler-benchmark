@@ -200,11 +200,11 @@ results in the following table (copied from the output at the end).
 
 - Benchmark C# with both `mono` and `dotnet`.
 - Add installer V and include a recent build.
+- Add language Fortran.
+- Add language Pony.
 - Sort table primarily by build time and then check time.
 - Don’t include Build Time and Build RSS columns when build op is not used.
 - Don’t include Check Time and Check RSS columns when check op is not used.
-- Add language Fortran.
-- Add language Pony.
 
 ## References
 
