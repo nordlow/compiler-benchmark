@@ -36,7 +36,7 @@ sudo apt install julia
 
 # C#
 ./install-mono.sh
-sudo snap install --classic dotnet-sdk
+install-dotnet-sdk.sh
 
 sudo apt install mono-mcs
 
