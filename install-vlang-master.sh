@@ -8,6 +8,7 @@ REPOS=~/.cache/repos
 
 mkdir -p "${REPOS}"
 pushd "${REPOS}"
+rm -rf v
 git clone --recurse-submodules https://github.com/vlang/v.git
 pushd v
 make
