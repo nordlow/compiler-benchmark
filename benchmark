@@ -425,7 +425,7 @@ def main():
 
     if 'C#' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Mono(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_CSharp_using_mono(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     if 'Java' in args.language_exes:
         if 'Build' in args.operations:
@@ -720,7 +720,7 @@ def benchmark_Vox(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Mono(results, code_paths, args, op, templated):
+def benchmark_CSharp_using_mono(results, code_paths, args, op, templated):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'mcs')
     if exe:
