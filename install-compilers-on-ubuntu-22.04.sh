@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Install faster linker
 if ! type -f ld.lld &>/dev/null; then
     sudo apt install lld

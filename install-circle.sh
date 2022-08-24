@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # C++ Circle Compiler
 VERSION="141"
 TDIR="${HOME}/.local/circle"

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 MAJOR_VERSION="2.096.0"
 VERSION="${MAJOR_VERSION}"
 
