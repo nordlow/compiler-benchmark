@@ -8,9 +8,9 @@ REPOS=~/.cache/repos
 
 mkdir -p "${REPOS}"
 pushd "${REPOS}"
-rm -rf v
-git clone --recurse-submodules https://github.com/vlang/v.git
-pushd v
+rm -rf vlang
+git clone --recurse-submodules https://github.com/vlang/v.git vlang
+pushd vlang
 make
 cp -rf v vlib ~/.local/bin/
 popd
