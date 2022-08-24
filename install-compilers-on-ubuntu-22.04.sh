@@ -24,7 +24,7 @@ sudo apt install gnat-12
 sudo apt install gdc gdc-12
 
 # Go: `gccgo`
-sudo apt install gccgo-12
+./install-gccgo.sh
 
 # Go: `go` `gotype`
 ./install-golang.sh
