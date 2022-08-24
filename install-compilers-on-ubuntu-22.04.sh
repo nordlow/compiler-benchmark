@@ -27,9 +27,7 @@ sudo apt install gdc gdc-12
 sudo apt install gccgo-12
 
 # Go: `go` `gotype`
-sudo add-apt-repository ppa:longsleep/golang-backports
-sudo apt update
-sudo apt install golang-go golang-golang-x-tools
+./install-golang.sh
 
 # Julia
 sudo apt install julia
