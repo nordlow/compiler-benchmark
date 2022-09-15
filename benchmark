@@ -574,13 +574,15 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return none
+    FLAGS = []
+    if lang == 'C':
+        FLAGS = C_WARN_FLAGS
+    elif lang == 'C++':
+        FLAGS = CXX_WARN_FLAGS
     for gcc_version in VERSIONS:
-        WARN_FLAGS = []
         if lang == 'C':
-            WARN_FLAGS += C_WARN_FLAGS
             exe = match_lang_exe(args, lang, 'gcc' + str(gcc_version))
         elif lang == 'C++':
-            WARN_FLAGS += CXX_WARN_FLAGS
             exe = match_lang_exe(args, lang, 'g++' + str(gcc_version))
         else:
             return None
@@ -590,7 +592,7 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated
                          out_flag_and_exe=out_flag_and_exe,
                          exe=exe,
                          runner=True,
-                         exe_flags=exe_flags + WARN_FLAGS,
+                         exe_flags=exe_flags + FLAGS,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -603,7 +605,11 @@ def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templat
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return none
-    C_CLANG_FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
+    FLAGS = []
+    if lang == 'C':
+        FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
+    elif lang == 'C++':
+        FLAGS = CXX_WARN_FLAGS
     for clang_version in VERSIONS:
         if lang == 'C':
             exe = match_lang_exe(args, lang, 'clang' + str(clang_version))
@@ -617,7 +623,7 @@ def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templat
                          out_flag_and_exe=out_flag_and_exe,
                          exe=exe,
                          runner=True,
-                         exe_flags=C_CLANG_FLAGS + exe_flags,
+                         exe_flags=FLAGS + exe_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
