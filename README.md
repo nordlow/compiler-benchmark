@@ -51,7 +51,7 @@ for defaulted values of all the parameters.
 A subset of languages combined with set of compilers to benchmark can be chosen
 as, for instance,
 
-    ./benchmark --languages=C:tcc,C:gcc-12,C++,D:dmd,D:ldmd2,D:gdc-12,Rust
+    ./benchmark --languages=C:tcc,C:gcc,C++,D:dmd,D:ldmd2,D:gdc,Rust
 
 This will generate code into the directory `generated` and then, for each
 combination of language, operation type and compiler, run the supported
