@@ -2,7 +2,7 @@
 
 set -e
 
-MAJOR_VERSION="2.096.0"
+MAJOR_VERSION="2.103.0"
 VERSION="${MAJOR_VERSION}"
 
 UNAME=$(uname -i)
