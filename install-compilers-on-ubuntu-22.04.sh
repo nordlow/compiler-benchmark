@@ -48,3 +48,7 @@ curl https://nim-lang.org/choosenim/init.sh -sSf | sh
 
 # OCaml
 sudo apt install ocaml-nox
+
+# Zig: https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager
+# snap install zig --classic --beta
+snap install zig --classic --edge
