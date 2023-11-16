@@ -954,6 +954,16 @@ def set_rustup_channel(channel):
         proc.communicate()
 
 
+def rust_flags():
+    flags = RUSTC_FLAGS
+    process = sp.Popen('rustc -Z help', shell=True, stdout=sp.PIPE)
+    output, error = process.communicate()
+    if 'threads=val' in output.decode('utf-8'):
+        flags += RUSTC_NIGHTLY_FLAGS
+    print(flags)
+    return flags
+
+
 def benchmark_Rust(results, code_paths, args, op, templated):
     lang = 'Rust'
 
@@ -984,7 +994,7 @@ def benchmark_Rust(results, code_paths, args, op, templated):
                 out_flag_and_exe = ['-o', out_binary(lang)]
             else:
                 continue
-            exe_flags = ([] if op == 'Build' else check_args) + RUSTC_FLAGS
+            exe_flags = ([] if op == 'Build' else check_args) + rust_flags()
             compile_file(code_paths,
                          out_flag_and_exe=out_flag_and_exe,
                          exe=exe,
