@@ -962,7 +962,7 @@ def rust_flags(channel):
         output, error = process.communicate()
         if 'threads=val' in output.decode('utf-8'):
             flags += RUSTC_NIGHTLY_FLAGS
-    print("flags: ", flags)
+    print("flags:", flags)
     return flags
 
 
