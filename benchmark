@@ -48,7 +48,8 @@ C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
 
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
-RUSTC_FLAGS = []          # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
+RUSTC_FLAGS = []  # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
+RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=8']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
 
 JULIA_INTERPRET_FLAGS = ['--compile=min']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 JULIA_COMPILE_FLAGS = ['-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
