@@ -956,7 +956,6 @@ def set_rustup_channel(channel):
 
 def rust_flags(channel):
     flags = RUSTC_FLAGS
-    # rustup default nightly
     if channel == 'nightly':
         process = sp.Popen('rustc -Z help', shell=True, stdout=sp.PIPE)
         output, error = process.communicate()
