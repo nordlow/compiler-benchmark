@@ -1671,7 +1671,7 @@ def main():
                         help='Number of runs for each compilation')
 
     args = parser.parse_args()
-	install_missing_modules()
+    install_missing_modules()
 
     args.languages = list(map(lambda x: 'OCaml' if x.lower() == 'ocaml' else x.capitalize(),
                               args.languages.split(',')))  # into a list
