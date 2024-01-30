@@ -54,4 +54,4 @@ sudo apt install ocaml-nox
 snap install zig --classic --edge
 
 # Rust
-./install-rust-nightly.sh
+./install_rust-nightly.sh
