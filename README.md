@@ -141,7 +141,7 @@ OCaml's optimizing native compiler `ocamlopt` is very slow for large inputs and
 is therefore disabled when the product of `function-count` and `function-depth`
 exceeds 10000.
 
-## Sample run output
+## Sample Run 1
 
 The output on my AMD Ryzen Threadripper 3960X 24-Core Processor running Ubuntu
 22.04 for the sample call
@@ -195,6 +195,23 @@ results in the following table (copied from the output at the end).
 | OCaml     | No         |    N/A             |    N/A               |   87.7 (55.9x)     |    193 (5.5x)    |    N/A            |   16.5 (36.8x)    | 4.08.1       | ocamlc    |
 | Julia     | No         |    N/A             |    N/A               |  384.6 (245.2x)    |    N/A           |    N/A            |   22.7 (50.6x)    | 1.8.0-DEV    | julia     |
 | Julia     | Yes        |    N/A             |    N/A               |  331.7 (211.5x)    |    N/A           |    N/A            |   22.5 (50.0x)    | 1.8.0-DEV    | julia     |
+
+## Sample Run 2
+
+The output on a Intel Core (Tiger Lake R0) [Willow Cove] {Sunny Cove}, 10nm++
+running Ubuntu 22.04 for the sample call
+
+    ./benchmark --languages=D:dmd,Zig --function-count=200 --function-depth=200 --run-count=5
+
+results in the following table (copied from the output at the end).
+
+| Lang-uage | Temp-lated | Check Time [us/fn] | Compile Time [us/fn] | Build Time [us/fn] | Run Time [us/fn] | Check RSS [kB/fn] | Build RSS [kB/fn] | Exec Version | Exec Path |
+| :-------: | ---------- | :----------------: | :------------------: | :----------------: | :--------------: | :---------------: | :---------------: | :----------: | :-------: |
+| D         | No         |    5.9 (best)      |   14.1 (best)        |   16.3 (best)      |     41 (best)    |    5.0 (1.6x)     |   14.8 (best)     | v2.107.0-beta.1-134-g11a7cea58e | dmd       |
+| D         | Yes        |   17.2 (2.9x)      |   28.1 (2.0x)        |   30.6 (1.9x)      |     44 (1.1x)    |   13.8 (4.5x)     |   23.9 (1.6x)     | v2.107.0-beta.1-134-g11a7cea58e | dmd       |
+| Zig       | No         |   12.1 (2.1x)      |    N/A               |  221.6 (13.6x)     |     77 (1.9x)    |    3.1 (best)     |   27.2 (1.8x)     | 0.12.0-dev.2341+92211135f | zig       |
+| Zig       | Yes        |   14.2 (2.4x)      |    N/A               |  226.3 (13.9x)     |     87 (2.1x)    |    3.5 (1.1x)     |   27.7 (1.9x)     | 0.12.0-dev.2341+92211135f | zig       |
+
 
 ## TODO
 
