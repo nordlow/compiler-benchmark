@@ -23,7 +23,7 @@ fi
 ./install-golang.sh
 
 # Julia
-sudo apt install julia
+./install-julia
 
 # C#
 ./install-mono.sh
