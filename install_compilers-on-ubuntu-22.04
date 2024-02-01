@@ -8,7 +8,7 @@ if ! type -f ld.lld &>/dev/null; then
 fi
 
 # TCC
-sudo apt install tcc
+./install_tcc
 
 # GCC
 ./install_gcc
@@ -24,17 +24,17 @@ sudo apt install tcc
 
 # C#
 ./install_mono
-./install_dotnet-sdk.sh
+./install_dotnet-sdk
 ./install_mono-mcs
 
 # Java
 ./install_java
 
 # Nim
-./install-nim.sh
+./install_nim
 
 # OCaml
-./install_ocaml.sh
+./install_ocaml
 
 # Zig: https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager
 ./install_zig-master
@@ -42,7 +42,7 @@ sudo apt install tcc
 # snap install zig --classic --edge
 
 # Rust
-./install_rust-nightly.sh
+./install_rust-nightly
 
 # Julia
 ./install_julia
