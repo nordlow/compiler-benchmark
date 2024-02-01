@@ -36,7 +36,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'C#': ['mcs',  # mcs is Mono C# compiler version 6.12.0.200
                         'csc'], # csc is Microsoft (R) Visual C# Compiler
                  'Go': ['go', 'gccgo', ],
-                 'V': ['v', ],
+                 # 'V': ['v', ],
                  'Swift': ['swiftc', ],
                  'Java': ['javac', ],
                  'Julia': ['julia', ],
