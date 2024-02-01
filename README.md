@@ -126,7 +126,8 @@ have to deal with forward declarations and thereby limiting the parsing (and
 memory allocation) scope to a single function.
 
 The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest, closely
-followed by Vox and D's `dmd`. Note that Vox is an experimental language.
+followed by the C compiler Cuik, Vox and D's `dmd`. Note that Vox is an
+experimental language and Cuik is an experimental C compiler.
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
