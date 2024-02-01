@@ -21,3 +21,4 @@ fi
 ./install_rust-nightly
 ./install_julia
 ./install_zig-master
+./install_swift
