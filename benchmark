@@ -807,7 +807,7 @@ def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
         exe_flags += ['check']
     elif op == 'Build':
         # the bottleneck is clang compilation
-        exe_flags += ['c', '--gc:refc', '--opt:none']  # TODO detect when --gc:arc is available
+        exe_flags += ['c', '--mm:refc', '--opt:none']  # TODO detect when --gc:arc is available
     else:
         return None
     if exe:
