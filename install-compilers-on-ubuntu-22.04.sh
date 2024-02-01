@@ -2,8 +2,6 @@
 
 set -e
 
-LLVM_VERSION=17
-
 # TCC
 sudo apt install tcc
 
