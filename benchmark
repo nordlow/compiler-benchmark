@@ -300,7 +300,8 @@ def match_lang_exe(args, lang, exe_name):
             return None
     except KeyError:
         pass
-    return which(exe_name)
+    exe_path = which(exe_name)
+    return exe_path
 
 
 def benchmark_Ada_using_gcc(results, lang, code_paths, args, op, templated):
@@ -387,8 +388,8 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
 
 def benchmark_C_using_cuik(results, lang, code_paths, args, op, templated):
     if op == 'Check':
-        exe_flags = ['-c']
-        out_flag_and_exe = ['-o', '/dev/null']
+        exe_flags = ['-c', '-xe']
+        out_flag_and_exe = []
     elif op == 'Compile':
         exe_flags = ['-c']
         out_flag_and_exe = []
