@@ -55,7 +55,7 @@ JULIA_INTERPRET_FLAGS = ['--compile=min']  # See: https://github.com/JuliaLang/j
 JULIA_COMPILE_FLAGS = ['-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
 ROOT_PATH = 'generated'
-RANGE = range(5, 15)
+RANGE = range(5, 17)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
 HOME = os.path.expanduser('~')  # instead of home = os.getenv('HOME') that doesn’t work on Windows

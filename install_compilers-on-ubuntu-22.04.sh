@@ -25,7 +25,7 @@ sudo apt install tcc
 # C#
 ./install-mono.sh
 ./install-dotnet-sdk.sh
-./install-mono-mcs
+./install_mono-mcs
 
 # Java
 ./install_java
