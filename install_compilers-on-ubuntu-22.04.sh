@@ -17,7 +17,7 @@ sudo apt install tcc
 ./install_llvm
 
 # D `dmd`
-./install-dmd.sh
+./install_dmd-stable
 
 # Go: `go` `gotype`
 ./install-golang.sh
@@ -25,7 +25,6 @@ sudo apt install tcc
 # C#
 ./install-mono.sh
 ./install-dotnet-sdk.sh
-
 ./install-mono-mcs
 
 # Java

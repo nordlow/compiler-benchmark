@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
+# doc: Digital Mars D compiler (DMD)
+# See: https://code.google.com/p/d-apt/wiki/APT_Repository#APT_Repository_for_D
 
-MAJOR_VERSION="2.103.0"
+MAJOR_VERSION="2.106.0"
 VERSION="${MAJOR_VERSION}"
 
 UNAME=$(uname -i)
@@ -23,11 +24,6 @@ on_exit() {
     rm -f ${PPATH}
 }
 trap on_exit EXIT
-
-# Install faster linker
-if ! type -f ld.lld &>/dev/null; then
-    sudo apt install lld
-fi
 
 # get it
 wget -O "${PPATH}" "http://downloads.dlang.org/releases/2.x/${MAJOR_VERSION}/${PNAME}" && \
