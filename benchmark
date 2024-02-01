@@ -1795,8 +1795,8 @@ def main():
     function_count = args.function_count
     function_depth = args.function_depth
     if args.function_count * args.function_depth >= 10000:
-        args.function_count = 100
-        args.function_depth = 100
+        args.function_count = 200
+        args.function_depth = 200
 
     if 'OCaml' in args.language_exes:
         if 'Build' in args.operations:
