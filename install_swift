@@ -1,6 +1,6 @@
 #!/bin/bash
 
 URL=https://download.swift.org/swift-5.9.2-release/ubuntu2204/swift-5.9.2-RELEASE/swift-5.9.2-RELEASE-ubuntu22.04.tar.gz
-TDIR="${HOME}/.local/swift"
+TDIR="${HOME}/.local"
 mkdir -p "$TDIR"
 exec wget --quiet --show-progress --progress=bar:force -c "$URL" -O - | tar -xz -C "$TDIR"
