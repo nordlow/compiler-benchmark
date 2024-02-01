@@ -53,8 +53,9 @@ sudo apt install openjdk-18-jdk
 ./install_ocaml.sh
 
 # Zig: https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager
+./install_zig-master
 # snap install zig --classic --beta
-snap install zig --classic --edge
+# snap install zig --classic --edge
 
 # Rust
 ./install_rust-nightly.sh
