@@ -33,7 +33,8 @@ LANGUAGE_EXES = {'C': ['tcc', 'cproc', 'gcc', 'clang', ],
                  'Rust': ['rustc', ],
                  'Ada': ['gnat', ],
                  'Vox': ['vox', ],
-                 'C#': ['mcs', 'csc'],
+                 'C#': ['mcs',  # mcs is Mono C# compiler version 6.12.0.200
+                        'csc'], # csc is Microsoft (R) Visual C# Compiler
                  'Go': ['go', 'gccgo', ],
                  'V': ['v', ],
                  'Swift': ['swiftc', ],
