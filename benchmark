@@ -799,8 +799,9 @@ def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
     lang = 'Nim'
     exe = match_lang_exe(args, lang, 'nim')
 
-    tcc_exe = which('tcc')
-    exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
+    # tcc_exe = which('tcc')
+    # exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
+    exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
 
     if op == 'Check':
         exe_flags += ['check']
