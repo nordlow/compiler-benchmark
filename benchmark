@@ -1655,11 +1655,11 @@ def main():
                         help='Operations to perform separated by comma')
 
     parser.add_argument('--function-count', '--fc', type=int,
-                        default=100,
+                        default=200,
                         help='Number of functions generated and called')
 
     parser.add_argument('--function-depth', '--fd', type=int,
-                        default=100,
+                        default=200,
                         help='Function call depth')
 
     parser.add_argument('--sample-rate', '--sr', type=int,
