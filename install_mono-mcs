@@ -1,0 +1,5 @@
+# See: https://www.mono-project.com/download/stable/
+
+set -e
+
+sudo apt install mono-mcs

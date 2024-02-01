@@ -2,6 +2,11 @@
 
 set -e
 
+# Install faster linker
+if ! type -f ld.lld &>/dev/null; then
+    sudo apt install lld
+fi
+
 # TCC
 sudo apt install tcc
 
@@ -10,11 +15,6 @@ sudo apt install tcc
 
 # Install LLVM and Clang
 ./install_llvm
-
-# Install faster linker
-if ! type -f ld.lld &>/dev/null; then
-    sudo apt install lld
-fi
 
 # D `dmd`
 ./install-dmd.sh
@@ -29,7 +29,7 @@ fi
 ./install-mono.sh
 ./install-dotnet-sdk.sh
 
-sudo apt install mono-mcs
+./install-mono-mcs
 
 # Java
 sudo apt install openjdk-18-jdk
