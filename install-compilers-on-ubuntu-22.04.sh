@@ -50,7 +50,7 @@ sudo apt install openjdk-18-jdk
 ./install-nim.sh
 
 # OCaml
-sudo apt install ocaml-nox
+./install_ocaml.sh
 
 # Zig: https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager
 # snap install zig --classic --beta
