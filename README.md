@@ -120,8 +120,8 @@ architecture. Partly because parsing the C programming language that doesn’t
 have to deal with forward declarations and thereby limiting the parsing (and
 memory allocation) scope to a single function.
 
-The compilers `vox` `dmd` are, by a large margin, the fastest. 2 times faster
-than its closers competitor, `tcc`. Note that Vox is an experimental language.
+The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest, closely
+followed by Vox and D's `dmd`. Note that Vox is an experimental language.
 
 The performance of both GCC and Clang gets significanly worse with each new
 release (currently 8, 9, 10 in the table below).
