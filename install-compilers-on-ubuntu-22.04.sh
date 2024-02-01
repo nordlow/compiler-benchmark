@@ -2,22 +2,23 @@
 
 set -e
 
+GCC_VERSION=12
+LLVM_VERSION=17
+
+# TCC
+sudo apt install tcc
+
+# GCC
+sudo apt install gcc-${GCC_VERSION}
+sudo apt install g++-${GCC_VERSION}
+
+# Install LLVM and Clang
+./install_llvm
+
 # Install faster linker
 if ! type -f ld.lld &>/dev/null; then
     sudo apt install lld
 fi
-
-GCC_VERSION=12
-CLANG_VERSION=17
-
-# C
-sudo apt install tcc
-sudo apt install gcc-${GCC_VERSION}
-sudo apt install clang-${CLANG_VERSION}
-
-# C++
-sudo apt install g++-${GCC_VERSION}
-sudo apt install clang-${CLANG_VERSION}
 
 # Ada
 sudo apt install gnat-${GCC_VERSION}

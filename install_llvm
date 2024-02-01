@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+# File: Setup LLVM/Clang Toolchain
+# See: https://apt.llvm.org/
+
+LLVM_VERSION=17
+LLVM_VERSIONS=("${LLVM_VERSION}")
+
+function install_llvm()
+{
+	local codename
+	codename=$(grep "DISTRIB_CODENAME" /etc/lsb-release)
+	codename=${CODENAME:17}
+
+	# retrieve the archive signature
+	wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+
+	local apt_file="/etc/apt/sources.list.d/llvm-toolchain-${codename}.list"
+	sudo rm -f "${apt_file}"
+	echo "deb http://apt.llvm.org/${codename}/ llvm-toolchain-${codename}-${LLVM_VERSION} main
+deb-src http://apt.llvm.org/${codename}/ llvm-toolchain-${codename}-${LLVM_VERSION} main" | \
+		sudo tee "${apt_file}"
+	sudo apt update -q=2
+
+	sudo apt install \
+		 "clang-${LLVM_VERSION}" \
+		 "clang-${LLVM_VERSION}-doc" \
+		 "clang-${LLVM_VERSION}-examples" \
+		 "clang-format-${LLVM_VERSION}" \
+		 "clang-tools-${LLVM_VERSION}" \
+		 "clangd-${LLVM_VERSION}" \
+		 "llvm-${LLVM_VERSION}-dev" \
+		 "llvm-${LLVM_VERSION}-tools" \
+		 "llvm-${LLVM_VERSION}-linker-tools" \
+		 "lld-${LLVM_VERSION}"
+
+	# make recent clang default
+	sudo ln -sf "/usr/lib/llvm-${LLVM_VERSION}/bin/clang" /usr/bin/clang
+	sudo ln -sf "/usr/lib/llvm-${LLVM_VERSION}/bin/clang++" /usr/bin/clang++
+	sudo ln -sf "/usr/bin/lld-${LLVM_VERSION}" /usr/bin/lld
+}
+
+function assert_llvm()
+{
+	CLANG="/usr/lib/llvm-${LLVM_VERSION}/bin/clang"
+	if [ ! -e "${CLANG}" ]; then
+		echo "Installing Clang and LLVM version ${LLVM_VERSION} ..."
+		install_llvm
+	fi
+}
+
+for LLVM_VERSION in "${LLVM_VERSIONS[@]}"; do
+	assert_llvm
+done
