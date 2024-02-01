@@ -2,15 +2,13 @@
 
 set -e
 
-GCC_VERSION=12
 LLVM_VERSION=17
 
 # TCC
 sudo apt install tcc
 
 # GCC
-sudo apt install gcc-${GCC_VERSION}
-sudo apt install g++-${GCC_VERSION}
+./install_gcc
 
 # Install LLVM and Clang
 ./install_llvm
@@ -28,9 +26,6 @@ sudo apt install gnat-${GCC_VERSION}
 
 # D `gdc`
 sudo apt install gdc gdc-${GCC_VERSION}
-
-# Go: `gccgo`
-./install-gccgo.sh
 
 # Go: `go` `gotype`
 ./install-golang.sh

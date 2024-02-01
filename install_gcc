@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+GCC_VERSION=12
+
+sudo apt install gcc-${GCC_VERSION} # C
+sudo apt install g++-${GCC_VERSION} # C++
+sudo apt install gccgo-GCC_VERSION	# Go
