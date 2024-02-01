@@ -22,9 +22,6 @@ sudo apt install tcc
 # Go: `go` `gotype`
 ./install-golang.sh
 
-# Julia
-./install-julia
-
 # C#
 ./install-mono.sh
 ./install-dotnet-sdk.sh
@@ -47,3 +44,6 @@ sudo apt install tcc
 
 # Rust
 ./install_rust-nightly.sh
+
+# Julia
+./install_julia
