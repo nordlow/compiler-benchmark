@@ -7,23 +7,26 @@ if ! type -f ld.lld &>/dev/null; then
     sudo apt install lld
 fi
 
+GCC_VERSION=12
+CLANG_VERSION=17
+
 # C
 sudo apt install tcc
-sudo apt install gcc-12
-sudo apt install clang-14
+sudo apt install gcc-${GCC_VERSION}
+sudo apt install clang-${CLANG_VERSION}
 
 # C++
-sudo apt install g++-12
-sudo apt install clang-14
+sudo apt install g++-${GCC_VERSION}
+sudo apt install clang-${CLANG_VERSION}
 
 # Ada
-sudo apt install gnat-12
+sudo apt install gnat-${GCC_VERSION}
 
 # D `dmd`
 ./install-dmd.sh
 
 # D `gdc`
-sudo apt install gdc gdc-12
+sudo apt install gdc gdc-${GCC_VERSION}
 
 # Go: `gccgo`
 ./install-gccgo.sh
