@@ -20,11 +20,11 @@ sudo apt install tcc
 ./install_dmd-stable
 
 # Go: `go` `gotype`
-./install-golang.sh
+./install_golang
 
 # C#
-./install-mono.sh
-./install-dotnet-sdk.sh
+./install_mono
+./install_dotnet-sdk.sh
 ./install_mono-mcs
 
 # Java
