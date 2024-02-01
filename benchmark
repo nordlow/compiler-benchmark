@@ -24,7 +24,7 @@ DEFAULT_PROGRAM_NAME = 'main'
 
 SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
 
-LANGUAGE_EXES = {'C': ['tcc', 'cproc', 'gcc', 'clang', ],
+LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'C3': ['c3c', ],
                  'C++': ['g++', 'clang++', ],
                  'D': ['dmd', 'ldmd2', 'gdc', ],
@@ -370,6 +370,34 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
     else:
         return None
     exe = match_lang_exe(args, lang, 'tcc')
+    if exe:
+        version = get_version(sp.run([exe, '-v'], stdout=sp.PIPE))
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     exe=exe,
+                     runner=(op == 'Build'),
+                     exe_flags=exe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
+def benchmark_C_using_cuik(results, lang, code_paths, args, op, templated):
+    if op == 'Check':
+        exe_flags = ['-c']
+        out_flag_and_exe = ['-o', '/dev/null']
+    elif op == 'Compile':
+        exe_flags = ['-c']
+        out_flag_and_exe = []
+    elif op == 'Build':
+        exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        return None
+    exe = match_lang_exe(args, lang, 'cuik')
     if exe:
         version = get_version(sp.run([exe, '-v'], stdout=sp.PIPE))
         compile_file(code_paths,
@@ -1740,6 +1768,7 @@ def main():
         if 'C' in args.language_exes:
             for templated in (False,):
                 benchmark_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                benchmark_C_using_cuik(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
                 benchmark_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
