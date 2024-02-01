@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # See: https://github.com/vlang/v#installing-v---from-source-preferred-method
 
 REPOS=~/.cache/repos

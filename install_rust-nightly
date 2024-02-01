@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+set -uo pipefail
 curl https://sh.rustup.rs -sSf | sh -s --

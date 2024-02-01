@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -uo pipefail
 # doc: Digital Mars D compiler (DMD)
 # See: https://code.google.com/p/d-apt/wiki/APT_Repository#APT_Repository_for_D
 
