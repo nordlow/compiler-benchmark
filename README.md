@@ -5,8 +5,13 @@ compilers. Supported languages are:
 
 ## Languages with Natives Compilers
 
-- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/), [`cproc`](https://github.com/michaelforney/cproc), and [`tcc`](https://bellard.org/tcc/)),
-- [C\+\+](http://www.cplusplus.org/) (using [`g++`](https://gcc.gnu.org/) and [`clang++`](https://clang.llvm.org/)),
+- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using
+  [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/),
+  [`cproc`](https://github.com/michaelforney/cproc),
+  [`Cuik`](https://github.com/RealNeGate/Cuik/), and
+  [`tcc`](https://bellard.org/tcc/)),
+- [C\+\+](http://www.cplusplus.org/) (using [`g++`](https://gcc.gnu.org/) and
+  [`clang++`](https://clang.llvm.org/)),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
 - [Swift](https://swift.org/) (using `swiftc`),
