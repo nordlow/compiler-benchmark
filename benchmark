@@ -402,7 +402,7 @@ def gcc_clang_op_flags(op, lang):
 def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
-        return none
+        return None
     FLAGS = []
     if lang == 'C':
         FLAGS = C_WARN_FLAGS
@@ -433,7 +433,7 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated
 def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templated):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
-        return none
+        return None
     FLAGS = []
     if lang == 'C':
         FLAGS = C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']
