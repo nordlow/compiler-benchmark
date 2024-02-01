@@ -144,7 +144,7 @@ exceeds 10000.
 ## Sample run output
 
 The output on my AMD Ryzen Threadripper 3960X 24-Core Processor running Ubuntu
-20.04 for the sample call
+22.04 for the sample call
 
     ./benchmark --function-count=200 --function-depth=200 --run-count=1
 
