@@ -32,7 +32,7 @@ sudo apt install tcc
 ./install-mono-mcs
 
 # Java
-sudo apt install openjdk-18-jdk
+./install_java
 
 # Nim
 ./install-nim.sh
