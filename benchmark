@@ -400,7 +400,7 @@ def benchmark_C_using_cuik(results, lang, code_paths, args, op, templated):
         return None
     exe = match_lang_exe(args, lang, 'cuik')
     if exe:
-        version = get_version(sp.run([exe, '-v'], stdout=sp.PIPE))
+        version = "~master"
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
