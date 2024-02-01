@@ -33,7 +33,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cproc', 'gcc', 'clang', ],
                  'Rust': ['rustc', ],
                  'Ada': ['gnat', ],
                  'Vox': ['vox', ],
-                 'C#': ['mcs', ],
+                 'C#': ['mcs', 'csc'],
                  'Go': ['go', 'gccgo', ],
                  'V': ['v', ],
                  'Swift': ['swiftc', ],
@@ -565,6 +565,26 @@ def benchmark_CSharp_using_mono(results, code_paths, args, op, templated):
     if exe:
         exe_flags = ['-target:exe'] + ([] if op == 'Build' else [''])
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
+        compile_file(code_paths,
+                     out_flag_and_exe=['-out:' + out_binary(lang)],
+                     exe=exe,
+                     runner=True,
+                     exe_flags=exe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
+def benchmark_CSharp_using_csc(results, code_paths, args, op, templated):
+    lang = 'C#'
+    exe = match_lang_exe(args, lang, 'csc')
+    if exe:
+        exe_flags = ['-target:exe'] + ([] if op == 'Build' else [''])
+        version = sp.run([exe, '-version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
+        print(version)
         compile_file(code_paths,
                      out_flag_and_exe=['-out:' + out_binary(lang)],
                      exe=exe,
@@ -1779,6 +1799,7 @@ def main():
     if 'C#' in args.language_exes:
         if 'Build' in args.operations:
             benchmark_CSharp_using_mono(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     if 'Java' in args.language_exes:
         if 'Build' in args.operations:
