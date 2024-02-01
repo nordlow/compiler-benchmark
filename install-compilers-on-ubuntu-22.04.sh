@@ -16,14 +16,8 @@ if ! type -f ld.lld &>/dev/null; then
     sudo apt install lld
 fi
 
-# Ada
-sudo apt install gnat-${GCC_VERSION}
-
 # D `dmd`
 ./install-dmd.sh
-
-# D `gdc`
-sudo apt install gdc gdc-${GCC_VERSION}
 
 # Go: `go` `gotype`
 ./install-golang.sh
