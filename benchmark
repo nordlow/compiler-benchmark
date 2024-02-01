@@ -737,12 +737,11 @@ def benchmark_V(results, code_paths, args, op, templated):
     exe = match_lang_exe(args, lang, 'v')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
-        vlang_backends = ['native', 'c', 'js', 'x64', 'v2', 'experimental']
         compile_file(code_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
                      runner=True,
-                     exe_flags=['-backend', vlang_backends[1]],
+                     exe_flags=[], # -backend flag fails
                      args=args,
                      op=op,
                      compiler_version=version,
@@ -980,7 +979,6 @@ def compile_file(code_paths,
 
         cstart = timer()        # compilation start
         p_args = [exe] + exe_flags + out_flag_and_exe + [src_name]
-        # print("p_args:", ' '.join(p_args))
         cwd = os.getcwd()
         os.chdir(out_directory(lang))
         pt = ProcessTimer(args=p_args)
