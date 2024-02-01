@@ -15,5 +15,5 @@ a.out
 main.ali
 main
 main_t
-main.exe
+main_*.exe
 main_t.exe
