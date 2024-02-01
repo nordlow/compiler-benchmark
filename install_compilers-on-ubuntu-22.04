@@ -7,42 +7,17 @@ if ! type -f ld.lld &>/dev/null; then
     sudo apt install lld
 fi
 
-# TCC
 ./install_tcc
-
-# GCC
 ./install_gcc
-
-# Install LLVM and Clang
 ./install_llvm
-
-# D `dmd`
 ./install_dmd-stable
-
-# Go: `go` `gotype`
 ./install_golang
-
-# C#
 ./install_mono
 ./install_dotnet-sdk
 ./install_mono-mcs
-
-# Java
 ./install_java
-
-# Nim
 ./install_nim
-
-# OCaml
 ./install_ocaml
-
-# Zig: https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager
-./install_zig-master
-# snap install zig --classic --beta
-# snap install zig --classic --edge
-
-# Rust
 ./install_rust-nightly
-
-# Julia
 ./install_julia
+./install_zig-master
