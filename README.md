@@ -269,7 +269,6 @@ results in the following table (copied from the output at the end).
 - Add function `benchmark_CSharp_using_dotnet()` that calls `dotnet build`. On
   my Ubuntu 22.04, both `dotnet new` and `dotnet build` segfaults so won’t waste
   time with this for now.
-- Add installer V and include a recent build.
 - Add language Fortran.
 - Add language Pony.
 - Sort table primarily by build time and then check time.
