@@ -42,8 +42,9 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Julia': ['julia', ],
                  'OCaml': ['ocamlc', 'ocamlopt', ],
                  'Pareas': ['pareas', ],
+                 'Mojo': ['mojo', ],
                  }
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia']
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia', 'Mojo']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
@@ -795,6 +796,25 @@ def benchmark_Zig(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
+
+def benchmark_Mojo(results, code_paths, args, op, templated):
+    lang = 'Mojo'
+    exe = match_lang_exe(args, lang, 'mojo')
+    if exe:
+        version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
+        compile_file(code_paths,
+                     out_flag_and_exe=['-o', out_binary(lang)],
+                     exe=exe,
+                     runner=True,
+                     exe_flags=['build', '-O0'],
+                     args=args,  # no syntax flag currently so compile to object file instead
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
 def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
     lang = 'Nim'
     exe = match_lang_exe(args, lang, 'nim')
@@ -1108,6 +1128,8 @@ def long_types_of_lang(lang):
         return ['Long_Integer']  # gnat
     elif lang == 'pareas':
         return ['int']
+    elif lang == 'mojo':
+        return ['Int']
     else:
         return None
 
@@ -1194,6 +1216,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=str(findex)))
     elif lang == 'pareas':
         f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}[${N}]').substitute(T=typ, N=str(findex)))
+    elif lang == 'mojo':
+        f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
@@ -1262,6 +1286,8 @@ def generate_test_language_specific_postfix(lang, types, f):
         f.write(Tm('        return (int)(${T}_sum);\n}\n').substitute(T=types[0]))
     elif lang == 'pareas':
         f.write(Tm('    return ${T}_sum;\n}\n').substitute(T=types[0]))
+    elif lang == 'mojo':
+        f.write(Tm('    print(${T}_sum)\n').substitute(T=types[0]))
     elif lang == 'julia':
         f.write(Tm('''    return ${T}_sum;
 end
@@ -1348,6 +1374,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x: ' + xtarg + 'x) + ' + nconst
         elif lang == 'pareas':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
+        elif lang == 'mojo':
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + nconst # TODO: Add xtarg
         else:
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + nconst
 
@@ -1439,6 +1467,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f,
                                                                                      F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'pareas':
         f.write(Tm('fn ${F}[x: ${T}]: ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), X=expr))
+    elif lang == 'mojo':
+        f.write(Tm('fn ${F}(x: ${T}) -> ${T}: return ${X}\n').substitute(T=typ, F=str(fname), X=expr))
 
 
 def generate_test_main_header(lang, types, f, templated):
@@ -1476,6 +1506,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write('when isMainModule:\n')
     elif lang == 'pareas':
         f.write('fn main[]: int {\n')
+    elif lang == 'mojo':
+        f.write('fn main() -> None:\n')
     else:
         assert False
 
@@ -1512,6 +1544,8 @@ def generate_main_test_function_variable(lang, typ, f, templated):
         f.write(Tm('    let ${T}_sum = 0.0 in\n').substitute(T=typ))
     elif lang == 'pareas':
         f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
+    elif lang == 'mojo':
+        f.write(Tm('    var ${T}_sum: ${T} = 0\n').substitute(T=typ))
     else:
         assert False
 
@@ -1598,6 +1632,8 @@ end;
                     f.write('\n')
                 elif lang == 'pareas':
                     f.write(Tm('fn add_${T}_n${N}[x: ${T}]: ${T} { return x + ${N}; }').substitute(T=typ, N=str(findex)))
+                elif lang == 'mojo':
+                    f.write(Tm('fn add_${T}_n${N}(x: ${T}) -> ${T}: return x + ${N}').substitute(T=typ, N=str(findex)))
 
         # MAIN HEADER
         if lang in ['c', 'c++']:
@@ -1625,6 +1661,8 @@ end;
 ''').substitute(T=types[0]))
         elif lang == 'pareas':
             f.write(Tm('fn main[]: ${T} {\n').substitute(T=types[0]))
+        elif lang == 'mojo':
+            f.write(Tm('fn main():\n').substitute(T=types[0]))
         else:
             assert False
 
@@ -1655,6 +1693,8 @@ end;
 
             if lang == 'pareas':
                 f.write(Tm('    ${T}_sum += add_${T}_n${N}[${N}];').substitute(T=typ, N=str(findex)))
+            if lang == 'mojo':
+                f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
             else:
                 for findex in range(0, function_count):
                     f.write(Tm('''    ${T}_sum += add_${T}_n${N}(${N});
@@ -1840,6 +1880,10 @@ def main():
             benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
             benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+
+    if 'Mojo' in args.language_exes:
+        if 'Build' in args.operations:
+            benchmark_Mojo(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     # Julia and Ocaml take too long otherwise. So let them participate by
     # truncating size because ops/function are measured
