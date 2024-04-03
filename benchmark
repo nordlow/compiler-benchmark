@@ -34,7 +34,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Ada': ['gnat', ],
                  'Vox': ['vox', ],
                  'C#': ['mcs',  # mcs is Mono C# compiler version 6.12.0.200
-                        'csc'], # csc is Microsoft (R) Visual C# Compiler
+                        'csc'],  # csc is Microsoft (R) Visual C# Compiler
                  'Go': ['go', 'gccgo', ],
                  # 'V': ['v', ],
                  'Swift': ['swiftc', ],
@@ -44,12 +44,13 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Pareas': ['pareas', ],
                  'Mojo': ['mojo', ],
                  }
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust', 'Zig', 'V', 'C3', 'Julia', 'Mojo']
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust',
+                                 'Zig', 'V', 'C3', 'Julia', 'Mojo']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
 
-RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # flags that disable warnings for `rustc`
+RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # disable warnings for `rustc`
 RUSTC_FLAGS = []  # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=8']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
 
@@ -60,7 +61,8 @@ ROOT_PATH = 'generated'
 RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
-HOME = os.path.expanduser('~')  # instead of home = os.getenv('HOME') that doesn’t work on Windows
+# instead of home = os.getenv('HOME') that doesn’t work on Windows
+HOME = os.path.expanduser('~')
 
 
 class Row:                      # TODO use
@@ -72,6 +74,7 @@ class Row:                      # TODO use
                  'rss_mu',
                  'exe_version',
                  'exe_path']
+
     def __init__(self,
                  lang,
                  templated,
@@ -82,13 +85,13 @@ class Row:                      # TODO use
                  exe_version,
                  exe_path):
         self.lang = lang
-        self.templated=templated
-        self.check_dur_per_func=check_dur_per_func
-        self.build_dur_per_func=build_dur_per_func
-        self.run_dur_per_func=run_dur_per_func
-        self.rss_mu=rss_mu
-        self.exe_version=exe_version
-        self.exe_pat=exe_path
+        self.templated = templated
+        self.check_dur_per_func = check_dur_per_func
+        self.build_dur_per_func = build_dur_per_func
+        self.run_dur_per_func = run_dur_per_func
+        self.rss_mu = rss_mu
+        self.exe_version = exe_version
+        self.exe_pat = exe_path
 
 
 class Row(object):
@@ -97,7 +100,10 @@ class Row(object):
         self.args = args
 
 
-TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/fn]', 'Compile Time [us/fn]', 'Build Time [us/fn]', 'Run Time [us/fn]', 'Check RSS [kB/fn]', 'Build RSS [kB/fn]', 'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/fn]',
+                'Compile Time [us/fn]', 'Build Time [us/fn]',
+                'Run Time [us/fn]', 'Check RSS [kB/fn]', 'Build RSS [kB/fn]',
+                'Exec Version', 'Exec Path']
 LANG_IX = 0
 TEMPLATED_IX = 1
 CHECK_DUR_PER_FUNC_IX = 2       # check duration
@@ -111,6 +117,7 @@ EXE_PATH_IX = 9
 TABLE_LENGTH = EXE_PATH_IX + 1
 
 assert len(TABLE_TITLES) == TABLE_LENGTH
+
 
 def table_row(row,
               args,
@@ -159,6 +166,7 @@ def table_row(row,
 
     return row
 
+
 RANDOMIZE_FLAG = True
 
 if RANDOMIZE_FLAG:
@@ -170,8 +178,8 @@ def get_version(version_run):
                   for part
                   in version_run.stdout.decode('utf-8').split()
                   if (part[0].isdigit() or
-                      part[0] == 'v' and part[1].isdigit())) # v2.096.1-beta.1-187-gb25be89b3
-    return result.split('~')[0].split('ubuntu1')[0]  # strip ubuntu version postfix
+                      part[0] == 'v' and part[1].isdigit()))  # v2.096.1-beta.1-187-gb25be89b3
+    return result.split('~')[0].split('ubuntu1')[0]  # strip ubuntu version
 
 
 def touchFile(path):
@@ -367,7 +375,7 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
         exe_flags = ['-c']
         out_flag_and_exe = []
     elif op == 'Build':
-        exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
+        exe_flags = []  # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
@@ -395,7 +403,7 @@ def benchmark_C_using_cuik(results, lang, code_paths, args, op, templated):
         exe_flags = ['-c']
         out_flag_and_exe = []
     elif op == 'Build':
-        exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
+        exe_flags = []  # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
@@ -423,14 +431,15 @@ def gcc_clang_op_flags(op, lang):
         exe_flags = ['-c']
         out_flag_and_exe = []
     elif op == 'Build':
-        exe_flags = [] # TODO add version that skips linking via: exe_flags = ['-c']
+        exe_flags = []  # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return (None, None)
     return (exe_flags, out_flag_and_exe)
 
 
-def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated):
+def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op,
+                                  templated):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return None
@@ -447,7 +456,8 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated
         else:
             return None
         if exe:
-            version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2].split('-')[0]
+            output = sp.run([exe, '--version'], stdout=sp.PIPE).stdout
+            version = output.decode('utf-8').split()[2].split('-')[0]
             compile_file(code_paths,
                          out_flag_and_exe=out_flag_and_exe,
                          exe=exe,
@@ -461,7 +471,8 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op, templated
                          results=results)
 
 
-def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op, templated):
+def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op,
+                                    templated):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return None
@@ -1846,44 +1857,60 @@ def main():
 
     if 'Zig' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Check', templated=True)
+            benchmark_Zig(results=results, code_paths=code_paths, args=args,
+                          op='Check', templated=False)
+            benchmark_Zig(results=results, code_paths=code_paths, args=args,
+                          op='Check', templated=True)
         if 'Build' in args.operations:
-            benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_Zig(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
+            benchmark_Zig(results=results, code_paths=code_paths, args=args,
+                          op='Build', templated=False)
+            benchmark_Zig(results=results, code_paths=code_paths, args=args,
+                          op='Build', templated=True)
 
     if 'Rust' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
-            benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Check', templated=True)
+            benchmark_Rust(results=results, code_paths=code_paths, args=args,
+                           op='Check', templated=False)
+            benchmark_Rust(results=results, code_paths=code_paths, args=args,
+                           op='Check', templated=True)
         if 'Build' in args.operations:
-            benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_Rust(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
+            benchmark_Rust(results=results, code_paths=code_paths, args=args,
+                           op='Build', templated=False)
+            benchmark_Rust(results=results, code_paths=code_paths, args=args,
+                           op='Build', templated=True)
 
     if 'Nim' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
+            benchmark_Nim(results=results, code_paths=code_paths, args=args,
+                          op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Nim(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_Nim(results=results, code_paths=code_paths, args=args,
+                          op='Build', templated=False)
 
     if 'C#' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_CSharp_using_mono(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_CSharp_using_mono(results=results, code_paths=code_paths,
+                                        args=args, op='Build', templated=False)
+            benchmark_CSharp_using_csc(results=results, code_paths=code_paths,
+                                       args=args, op='Build', templated=False)
 
     if 'Java' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Java(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_Java(results=results, code_paths=code_paths, args=args,
+                           op='Build', templated=False)
 
     if 'Pareas' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
+            benchmark_Pareas(results=results, code_paths=code_paths, args=args,
+                             op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Pareas(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_Pareas(results=results, code_paths=code_paths, args=args,
+                             op='Build', templated=False)
 
     if 'Mojo' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Mojo(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            benchmark_Mojo(results=results, code_paths=code_paths, args=args,
+                           op='Build', templated=False)
 
     # Julia and Ocaml take too long otherwise. So let them participate by
     # truncating size because ops/function are measured
@@ -1895,13 +1922,17 @@ def main():
 
     if 'OCaml' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_OCaml(results=results, code_paths=code_paths, args=args, op='Build', templated=False, bytecode=False)
-            benchmark_OCaml(results=results, code_paths=code_paths, args=args, op='Build', templated=False, bytecode=True)
+            benchmark_OCaml(results=results, code_paths=code_paths, args=args,
+                            op='Build', templated=False, bytecode=False)
+            benchmark_OCaml(results=results, code_paths=code_paths, args=args,
+                            op='Build', templated=False, bytecode=True)
 
     if 'Julia' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Julia(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_Julia(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
+            benchmark_Julia(results=results, code_paths=code_paths, args=args,
+                            op='Build', templated=False)
+            benchmark_Julia(results=results, code_paths=code_paths, args=args,
+                            op='Build', templated=True)
 
     args.function_count = function_count
     args.function_depth = function_depth
