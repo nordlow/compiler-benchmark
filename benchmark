@@ -313,7 +313,7 @@ def match_lang_exe(args, lang, exe_name):
     return exe_path
 
 
-def benchmark_Ada_using_gcc(results, lang, code_paths, args, op, templated):
+def bench_Ada_using_gcc(results, lang, code_paths, args, op, templated):
     exe_flags = ['compile'] if op == 'Build' else ['check']
     for gcc_version in VERSIONS:
         exe = match_lang_exe(args, lang, 'gnat' + str(gcc_version))
@@ -332,7 +332,7 @@ def benchmark_Ada_using_gcc(results, lang, code_paths, args, op, templated):
                          results=results)
 
 
-def benchmark_C_using_cproc(results, lang, code_paths, args, op, templated):
+def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
     if op == 'Check':
         exe_flags = ['-emit-qbe']
         out_flag_and_exe = ['-o', '/dev/null']
@@ -367,7 +367,7 @@ def benchmark_C_using_cproc(results, lang, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
+def bench_C_using_tcc(results, lang, code_paths, args, op, templated):
     if op == 'Check':
         exe_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
@@ -395,7 +395,7 @@ def benchmark_C_using_tcc(results, lang, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_C_using_cuik(results, lang, code_paths, args, op, templated):
+def bench_C_using_cuik(results, lang, code_paths, args, op, templated):
     if op == 'Check':
         exe_flags = ['-c', '-xe']
         out_flag_and_exe = []
@@ -438,7 +438,7 @@ def gcc_clang_op_flags(op, lang):
     return (exe_flags, out_flag_and_exe)
 
 
-def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op,
+def bench_C_and_Cxx_using_gcc(results, lang, code_paths, args, op,
                                   templated):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
@@ -471,7 +471,7 @@ def benchmark_C_and_Cxx_using_gcc(results, lang, code_paths, args, op,
                          results=results)
 
 
-def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op,
+def bench_C_and_Cxx_using_clang(results, lang, code_paths, args, op,
                                     templated):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
@@ -503,7 +503,7 @@ def benchmark_C_and_Cxx_using_clang(results, lang, code_paths, args, op,
                          results=results)
 
 
-def benchmark_D(results, code_paths, args, op, templated, use_dips):
+def bench_D(results, code_paths, args, op, templated, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip1008', '-dip1000'] if use_dips else []
 
@@ -574,7 +574,7 @@ def benchmark_D(results, code_paths, args, op, templated, use_dips):
                          results=results)
 
 
-def benchmark_Vox(results, code_paths, args, op, templated):
+def bench_Vox(results, code_paths, args, op, templated):
     lang = 'Vox'
     if op == 'Check':
         exe_flags = ['--check-only']
@@ -601,7 +601,7 @@ def benchmark_Vox(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_CSharp_using_mono(results, code_paths, args, op, templated):
+def bench_CSharp_using_mono(results, code_paths, args, op, templated):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'mcs')
     if exe:
@@ -620,7 +620,7 @@ def benchmark_CSharp_using_mono(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_CSharp_using_csc(results, code_paths, args, op, templated):
+def bench_CSharp_using_csc(results, code_paths, args, op, templated):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'csc')
     if exe:
@@ -640,12 +640,12 @@ def benchmark_CSharp_using_csc(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Go(results, code_paths, args, op, templated):
-    benchmark_Go_using_go(results, code_paths, args, op, templated)
-    benchmark_Go_using_gccgo(results, code_paths, args, op, templated)
+def bench_Go(results, code_paths, args, op, templated):
+    bench_Go_using_go(results, code_paths, args, op, templated)
+    bench_Go_using_gccgo(results, code_paths, args, op, templated)
 
 
-def benchmark_Go_using_go(results, code_paths, args, op, templated):
+def bench_Go_using_go(results, code_paths, args, op, templated):
     lang = 'Go'
     version = None              # unknown
     if op == 'Build':
@@ -677,7 +677,7 @@ def benchmark_Go_using_go(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Go_using_gccgo(results, code_paths, args, op, templated):
+def bench_Go_using_gccgo(results, code_paths, args, op, templated):
     lang = 'Go'
     for gccgo_version in VERSIONS:
         exe = match_lang_exe(args, lang, 'gccgo' + str(gccgo_version))
@@ -696,7 +696,7 @@ def benchmark_Go_using_gccgo(results, code_paths, args, op, templated):
                          results=results)
 
 
-def benchmark_Swift(results, code_paths, args, op, templated):
+def bench_Swift(results, code_paths, args, op, templated):
     lang = 'Swift'
     exe = (match_lang_exe(args, lang, 'swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
@@ -721,7 +721,7 @@ def benchmark_Swift(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
+def bench_OCaml(results, code_paths, args, op, templated, bytecode):
     lang = 'OCaml'
     if bytecode:
         exe = match_lang_exe(args, lang, 'ocamlc')
@@ -744,7 +744,7 @@ def benchmark_OCaml(results, code_paths, args, op, templated, bytecode):
                      results=results)
 
 
-def benchmark_V(results, code_paths, args, op, templated):
+def bench_V(results, code_paths, args, op, templated):
     lang = 'V'                                   # vlang.io
     exe = match_lang_exe(args, lang, 'v')
     if exe:
@@ -762,7 +762,7 @@ def benchmark_V(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_C3(results, code_paths, args, op, templated):
+def bench_C3(results, code_paths, args, op, templated):
     lang = 'C3'
     exe = (match_lang_exe(args, lang, 'c3c') or
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
@@ -790,7 +790,7 @@ def benchmark_C3(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Zig(results, code_paths, args, op, templated):
+def bench_Zig(results, code_paths, args, op, templated):
     lang = 'Zig'
     exe = match_lang_exe(args, lang, 'zig')
     if exe:
@@ -808,7 +808,7 @@ def benchmark_Zig(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Mojo(results, code_paths, args, op, templated):
+def bench_Mojo(results, code_paths, args, op, templated):
     lang = 'Mojo'
     exe = match_lang_exe(args, lang, 'mojo')
     if exe:
@@ -826,7 +826,7 @@ def benchmark_Mojo(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Nim(results, code_paths, args, op, templated, exe_flags=None):
+def bench_Nim(results, code_paths, args, op, templated, exe_flags=None):
     lang = 'Nim'
     exe = match_lang_exe(args, lang, 'nim')
 
@@ -873,7 +873,7 @@ def rust_flags(channel):
     return flags
 
 
-def benchmark_Rust(results, code_paths, args, op, templated):
+def bench_Rust(results, code_paths, args, op, templated):
     lang = 'Rust'
 
     rustup_exe = which('rustup')
@@ -916,7 +916,7 @@ def benchmark_Rust(results, code_paths, args, op, templated):
                          templated=templated,
                          results=results)
 
-def benchmark_Java(results, code_paths, args, op, templated):
+def bench_Java(results, code_paths, args, op, templated):
     lang = 'Java'
     exe = match_lang_exe(args, lang, 'javac')
     if exe:
@@ -942,7 +942,7 @@ def benchmark_Java(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
-def benchmark_Pareas(results, code_paths, args, op, templated):
+def bench_Pareas(results, code_paths, args, op, templated):
     lang = 'Pareas'
     exe = match_lang_exe(args, lang, 'pareas')
     if exe:
@@ -959,7 +959,7 @@ def benchmark_Pareas(results, code_paths, args, op, templated):
                      results=results)
 
 
-def benchmark_Julia(results, code_paths, args, op, templated):
+def bench_Julia(results, code_paths, args, op, templated):
     lang = 'Julia'
     exe = match_lang_exe(args, lang, 'julia')
     if exe:
@@ -1811,106 +1811,106 @@ def main():
     for op in args.operations:
         if 'Vox' in args.language_exes:
             for templated in (False, True):
-                benchmark_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-                benchmark_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
         if 'D' in args.language_exes:
             for templated in (False, True):
-                benchmark_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=True)
+                bench_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=True)
         if 'C' in args.language_exes:
             for templated in (False,):
-                benchmark_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                benchmark_C_using_cuik(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                benchmark_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                benchmark_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                benchmark_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_using_cuik(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
         if 'C++' in args.language_exes:
             for templated in (False, True):
-                benchmark_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
-                benchmark_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
+                bench_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Ada' in args.language_exes:
         # if 'Check' in args.operations:
-        #     benchmark_Ada_using_gcc(results=results,lang='Ada', code_paths=code_paths, args=args, op='Check', templated=False)
+        #     bench_Ada_using_gcc(results=results,lang='Ada', code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='Build', templated=False)
+            bench_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='Build', templated=False)
 
     if 'Go' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Go(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
+            bench_Go(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Go(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            bench_Go(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     if 'Swift' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Swift(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
+            bench_Swift(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Swift(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            bench_Swift(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
 
     if 'V' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_V(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            benchmark_V(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
+            bench_V(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+            bench_V(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
 
     if 'C3' in args.language_exes:
         for op in args.operations:
-            benchmark_C3(results=results, code_paths=code_paths, args=args, op=op, templated=False)
+            bench_C3(results=results, code_paths=code_paths, args=args, op=op, templated=False)
 
     if 'Zig' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Zig(results=results, code_paths=code_paths, args=args,
-                          op='Check', templated=False)
-            benchmark_Zig(results=results, code_paths=code_paths, args=args,
-                          op='Check', templated=True)
+            bench_Zig(results=results, code_paths=code_paths, args=args,
+                      op='Check', templated=False)
+            bench_Zig(results=results, code_paths=code_paths, args=args,
+                      op='Check', templated=True)
         if 'Build' in args.operations:
-            benchmark_Zig(results=results, code_paths=code_paths, args=args,
-                          op='Build', templated=False)
-            benchmark_Zig(results=results, code_paths=code_paths, args=args,
-                          op='Build', templated=True)
+            bench_Zig(results=results, code_paths=code_paths, args=args,
+                      op='Build', templated=False)
+            bench_Zig(results=results, code_paths=code_paths, args=args,
+                      op='Build', templated=True)
 
     if 'Rust' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Rust(results=results, code_paths=code_paths, args=args,
-                           op='Check', templated=False)
-            benchmark_Rust(results=results, code_paths=code_paths, args=args,
-                           op='Check', templated=True)
+            bench_Rust(results=results, code_paths=code_paths, args=args,
+                       op='Check', templated=False)
+            bench_Rust(results=results, code_paths=code_paths, args=args,
+                       op='Check', templated=True)
         if 'Build' in args.operations:
-            benchmark_Rust(results=results, code_paths=code_paths, args=args,
-                           op='Build', templated=False)
-            benchmark_Rust(results=results, code_paths=code_paths, args=args,
-                           op='Build', templated=True)
+            bench_Rust(results=results, code_paths=code_paths, args=args,
+                       op='Build', templated=False)
+            bench_Rust(results=results, code_paths=code_paths, args=args,
+                       op='Build', templated=True)
 
     if 'Nim' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Nim(results=results, code_paths=code_paths, args=args,
-                          op='Check', templated=False)
+            bench_Nim(results=results, code_paths=code_paths, args=args,
+                      op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Nim(results=results, code_paths=code_paths, args=args,
-                          op='Build', templated=False)
+            bench_Nim(results=results, code_paths=code_paths, args=args,
+                      op='Build', templated=False)
 
     if 'C#' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_CSharp_using_mono(results=results, code_paths=code_paths,
-                                        args=args, op='Build', templated=False)
-            benchmark_CSharp_using_csc(results=results, code_paths=code_paths,
-                                       args=args, op='Build', templated=False)
+            bench_CSharp_using_mono(results=results, code_paths=code_paths,
+                                    args=args, op='Build', templated=False)
+            bench_CSharp_using_csc(results=results, code_paths=code_paths,
+                                   args=args, op='Build', templated=False)
 
     if 'Java' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Java(results=results, code_paths=code_paths, args=args,
-                           op='Build', templated=False)
+            bench_Java(results=results, code_paths=code_paths, args=args,
+                       op='Build', templated=False)
 
     if 'Pareas' in args.language_exes:
         if 'Check' in args.operations:
-            benchmark_Pareas(results=results, code_paths=code_paths, args=args,
-                             op='Check', templated=False)
+            bench_Pareas(results=results, code_paths=code_paths, args=args,
+                         op='Check', templated=False)
         if 'Build' in args.operations:
-            benchmark_Pareas(results=results, code_paths=code_paths, args=args,
-                             op='Build', templated=False)
+            bench_Pareas(results=results, code_paths=code_paths, args=args,
+                         op='Build', templated=False)
 
     if 'Mojo' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Mojo(results=results, code_paths=code_paths, args=args,
-                           op='Build', templated=False)
+            bench_Mojo(results=results, code_paths=code_paths, args=args,
+                       op='Build', templated=False)
 
     # Julia and Ocaml take too long otherwise. So let them participate by
     # truncating size because ops/function are measured
@@ -1922,17 +1922,17 @@ def main():
 
     if 'OCaml' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_OCaml(results=results, code_paths=code_paths, args=args,
-                            op='Build', templated=False, bytecode=False)
-            benchmark_OCaml(results=results, code_paths=code_paths, args=args,
-                            op='Build', templated=False, bytecode=True)
+            bench_OCaml(results=results, code_paths=code_paths, args=args,
+                        op='Build', templated=False, bytecode=False)
+            bench_OCaml(results=results, code_paths=code_paths, args=args,
+                        op='Build', templated=False, bytecode=True)
 
     if 'Julia' in args.language_exes:
         if 'Build' in args.operations:
-            benchmark_Julia(results=results, code_paths=code_paths, args=args,
-                            op='Build', templated=False)
-            benchmark_Julia(results=results, code_paths=code_paths, args=args,
-                            op='Build', templated=True)
+            bench_Julia(results=results, code_paths=code_paths, args=args,
+                        op='Build', templated=False)
+            bench_Julia(results=results, code_paths=code_paths, args=args,
+                        op='Build', templated=True)
 
     args.function_count = function_count
     args.function_depth = function_depth
