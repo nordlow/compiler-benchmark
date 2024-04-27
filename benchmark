@@ -1827,6 +1827,9 @@ def main():
         if 'D' in args.language_exes:
             for templated in (False, True):
                 bench_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=True)
+        if 'Zig' in args.language_exes:
+            for templated in (False, True):
+                bench_Zig(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
         if 'C' in args.language_exes:
             for templated in (False,):
                 bench_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
@@ -1865,18 +1868,6 @@ def main():
     if 'C3' in args.language_exes:
         for op in args.operations:
             bench_C3(results=results, code_paths=code_paths, args=args, op=op, templated=False)
-
-    if 'Zig' in args.language_exes:
-        if 'Check' in args.operations:
-            bench_Zig(results=results, code_paths=code_paths, args=args,
-                      op='Check', templated=False)
-            bench_Zig(results=results, code_paths=code_paths, args=args,
-                      op='Check', templated=True)
-        if 'Build' in args.operations:
-            bench_Zig(results=results, code_paths=code_paths, args=args,
-                      op='Build', templated=False)
-            bench_Zig(results=results, code_paths=code_paths, args=args,
-                      op='Build', templated=True)
 
     if 'Rust' in args.language_exes:
         if 'Check' in args.operations:
