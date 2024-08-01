@@ -10,7 +10,7 @@ import stat
 import os.path
 from shutil import which
 import time
-from pprint import pprint
+# from pprint import pprint
 import random
 from datetime import datetime
 from os.path import expanduser
@@ -62,10 +62,11 @@ RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
 # instead of home = os.getenv('HOME') that doesn’t work on Windows
-HOME = os.path.expanduser('~')
+HOME = expanduser('~')
 
 
 class Row:                      # TODO use
+    """Result row."""
     __slots__ = ['lang',
                  'templated',
                  'check_dur_per_func',
@@ -92,12 +93,6 @@ class Row:                      # TODO use
         self.rss_mu = rss_mu
         self.exe_version = exe_version
         self.exe_pat = exe_path
-
-
-class Row(object):
-    """Result row."""
-    def __init__(self, args):
-        self.args = args
 
 
 TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/fn]',
@@ -936,7 +931,7 @@ def bench_Java(results, code_paths, args, op, templated):
                           stdout=sp.PIPE,
                           stderr=sp.PIPE)
             version = (task.stdout or task.stderr).decode('utf-8').split()[1]
-        except:
+        except Exception:
             print("WARNING: Failed to decode version from neither stdout:" + str(task.stdout) + " nor stderr:" + str(task.stderr) +
                   " of command " + str([exe, '-version']) + ", defaulting version of " + lang + " to `none`",
                   file=sys.stderr)
@@ -1028,7 +1023,7 @@ def compile_file(code_paths,
         try:
             while pt.poll():
                 time.sleep(1.0 / args.sample_rate)  # poll as often as possible
-        except:
+        except Exception:
             # if rss_mu is None and pt.max_rss_mu != 0:
             #     rss_mu = pt.max_rss_mu
             # if rss_mu is None:
