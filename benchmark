@@ -20,6 +20,8 @@ from timeit import default_timer as timer
 
 from process_timer import ProcessTimer
 
+import importlib
+
 DEFAULT_PROGRAM_NAME = 'main'
 
 SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
@@ -1941,9 +1943,10 @@ def main():
 
 def install_missing_modules():
     try:
-        import psutil
-    except ImportError:
+        importlib.import_module('psutil')
+    except ModuleNotFoundError:
         print("Installing missing modules...")
+        import pip
         pip.main(["install", "psutil"])
         print("Missing modules installed successfully.")
 
