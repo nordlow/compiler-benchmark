@@ -345,7 +345,7 @@ def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
         # ld: error: unable to find library -lc
         # ld: error: unable to find library -l:crtn.o
         # cproc: link: process 2424876 exited with status 1
-        return False
+        # return False
     else:
         return None
     exe = match_lang_exe(args, lang, 'cproc')
