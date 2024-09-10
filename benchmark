@@ -18,8 +18,6 @@ from os.path import expanduser
 from string import Template as Tm
 from timeit import default_timer as timer
 
-from process_timer import ProcessTimer
-
 import importlib
 
 DEFAULT_PROGRAM_NAME = 'main'
@@ -1021,6 +1019,7 @@ def compile_file(code_paths,
         p_args = [exe] + exe_flags + out_flag_and_exe + [src_name]
         cwd = os.getcwd()
         os.chdir(out_directory(lang))
+        from process_timer import ProcessTimer
         pt = ProcessTimer(args=p_args)
         try:
             while pt.poll():

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pip3 install psutil
+sudo apt install python3-psutil
