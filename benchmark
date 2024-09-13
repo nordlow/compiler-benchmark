@@ -793,7 +793,7 @@ def bench_Zig(results, code_paths, args, op, templated):
     elif op == 'Check':
         exe_flags = ['build-obj', '-fno-emit-bin']
         out_flag_and_exe = []
-    elif op == 'Compile':       # TODO: Add 'Compile-Incrementally that uses `-fno-emit-bin` on a single function change. See https://github.com/ziglang/zig/issues/21165.
+    elif op == 'Compile':
         exe_flags = ['build-obj', '-fno-llvm', '-fno-lld']
         out_flag_and_exe = []
     elif op == 'Build':
