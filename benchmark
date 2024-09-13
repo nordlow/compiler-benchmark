@@ -1066,9 +1066,9 @@ def compile_file(code_paths,
                   ("`\n  - stderr:\n" + errs.decode('utf8') if errs else ""),
                   file=sys.stderr)
             if rss_mu and isinstance(rss_mu, (int, float)):
-                if op == "Check":
+                if op == 'check':
                     row[CHECK_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
-                if op == "Build":
+                if op == 'build':
                     row[BUILD_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
             return None
 
