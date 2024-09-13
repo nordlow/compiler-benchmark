@@ -120,9 +120,9 @@ CHECK_RSS_MU_IX = 7        # check RSS memory usage
 BUILD_RSS_MU_IX = 8        # build RSS memory usage
 EXE_VERSION_IX = 9
 EXE_PATH_IX = 10
-TABLE_LENGTH = EXE_PATH_IX + 1
+MARKDOWN_TABLE_LENGTH = EXE_PATH_IX + 1
 
-assert len(MARKDOWN_TABLE_TITLES) == TABLE_LENGTH
+assert len(MARKDOWN_TABLE_TITLES) == MARKDOWN_TABLE_LENGTH
 
 
 def table_row(row,
@@ -1015,7 +1015,7 @@ def compile_file(code_paths,
     key = (lang, templated, exe)
 
     if key not in results:
-        row = [None] * TABLE_LENGTH  # preallocate
+        row = [None] * MARKDOWN_TABLE_LENGTH  # preallocate
         results[key] = row
     else:
         row = results[key]
