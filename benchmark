@@ -95,17 +95,20 @@ class Row:                      # TODO use
         self.exe_pat = exe_path
 
 
-TABLE_TITLES = ['Lang-uage',
-                'Temp-lated',
-                'AST Check Time [us/fn]',
-                'Check Time [us/fn]',
-                'Compile Time [us/fn]',
-                'Build Time [us/fn]',
-                'Run Time [us/fn]',
-                'Check RSS [kB/fn]',
-                'Build RSS [kB/fn]',
-                'Exec Version',
-                'Exec Path']
+MARKDOWN_TABLE_TITLES = [
+    'Lang-uage',
+    'Temp-lated',
+    'AST Check Time [us/fn]',
+    'Check Time [us/fn]',
+    'Compile Time [us/fn]',
+    'Build Time [us/fn]',
+    'Run Time [us/fn]',
+    'Check RSS [kB/fn]',
+    'Build RSS [kB/fn]',
+    'Exec Version',
+    'Exec Path',
+]
+
 LANG_IX = 0
 TEMPLATED_IX = 1
 AST_CHECK_DUR_PER_FUNC_IX = 3       # AST-check duration
@@ -119,7 +122,7 @@ EXE_VERSION_IX = 9
 EXE_PATH_IX = 10
 TABLE_LENGTH = EXE_PATH_IX + 1
 
-assert len(TABLE_TITLES) == TABLE_LENGTH
+assert len(MARKDOWN_TABLE_TITLES) == TABLE_LENGTH
 
 
 def table_row(row,
@@ -1953,7 +1956,7 @@ def main():
 
     print()
 
-    print(markdown_table(TABLE_TITLES, results))
+    print(markdown_table(MARKDOWN_TABLE_TITLES, results))
 
 
 def install_missing_modules():
