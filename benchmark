@@ -111,7 +111,7 @@ MARKDOWN_TABLE_TITLES = [
 
 LANG_IX = 0
 TEMPLATED_IX = 1
-AST_CHECK_DUR_PER_FUNC_IX = 3       # AST-check duration
+AST_CHECK_DUR_PER_FUNC_IX = 2       # AST-check duration
 CHECK_DUR_PER_FUNC_IX = 3       # check duration
 COMPILE_DUR_PER_FUNC_IX = 4       # compilation duration
 BUILD_DUR_PER_FUNC_IX = 5       # build duration
@@ -242,7 +242,9 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
     else:
         rel_n = abs_n / min_val
         rel_str = " (" + factor_str(rel_n) + "x" ")"
-    if column_ix == CHECK_DUR_PER_FUNC_IX:
+    if column_ix == AST_CHECK_DUR_PER_FUNC_IX:
+        return to_str_in_microseconds(abs_n) + rel_str
+    elif column_ix == CHECK_DUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + rel_str
     elif column_ix == COMPILE_DUR_PER_FUNC_IX:
         return to_str_in_microseconds(abs_n) + rel_str
@@ -281,6 +283,7 @@ def markdown_header(text, nr):        # Markdown header
 
 
 def markdown_table(titles, results):
+    fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX)
@@ -636,7 +639,6 @@ def bench_CSharp_using_csc(results, code_paths, args, op, templated):
     if exe:
         exe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([exe, '-version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
-        print(version)
         compile_file(code_paths,
                      out_flag_and_exe=['-out:' + out_binary(lang)],
                      exe=exe,
