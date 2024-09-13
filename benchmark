@@ -98,7 +98,7 @@ class Row:                      # TODO use
 MARKDOWN_TABLE_TITLES = [
     'Lang-uage',
     'Temp-lated',
-    'AST Check Time [us/fn]',
+    'AST-Check Time [us/fn]',
     'Check Time [us/fn]',
     'Compile Time [us/fn]',
     'Build Time [us/fn]',
