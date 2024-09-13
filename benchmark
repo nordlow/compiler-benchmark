@@ -22,7 +22,7 @@ import importlib
 
 DEFAULT_PROGRAM_NAME = 'main'
 
-SUPPORTED_OPERATIONS = ['Check', 'Compile', 'Build']
+SUPPORTED_OPERATIONS = ['ast-check', 'check', 'compile', 'build']
 
 LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'C3': ['c3c', ],
@@ -95,20 +95,28 @@ class Row:                      # TODO use
         self.exe_pat = exe_path
 
 
-TABLE_TITLES = ['Lang-uage', 'Temp-lated', 'Check Time [us/fn]',
-                'Compile Time [us/fn]', 'Build Time [us/fn]',
-                'Run Time [us/fn]', 'Check RSS [kB/fn]', 'Build RSS [kB/fn]',
-                'Exec Version', 'Exec Path']
+TABLE_TITLES = ['Lang-uage',
+                'Temp-lated',
+                'AST Check Time [us/fn]',
+                'Check Time [us/fn]',
+                'Compile Time [us/fn]',
+                'Build Time [us/fn]',
+                'Run Time [us/fn]',
+                'Check RSS [kB/fn]',
+                'Build RSS [kB/fn]',
+                'Exec Version',
+                'Exec Path']
 LANG_IX = 0
 TEMPLATED_IX = 1
-CHECK_DUR_PER_FUNC_IX = 2       # check duration
-COMPILE_DUR_PER_FUNC_IX = 3       # compilation duration
-BUILD_DUR_PER_FUNC_IX = 4       # build duration
-RUN_DUR_PER_FUNC_IX = 5       # run duration
-CHECK_RSS_MU_IX = 6        # check RSS memory usage
-BUILD_RSS_MU_IX = 7        # build RSS memory usage
-EXE_VERSION_IX = 8
-EXE_PATH_IX = 9
+AST_CHECK_DUR_PER_FUNC_IX = 3       # AST-check duration
+CHECK_DUR_PER_FUNC_IX = 3       # check duration
+COMPILE_DUR_PER_FUNC_IX = 4       # compilation duration
+BUILD_DUR_PER_FUNC_IX = 5       # build duration
+RUN_DUR_PER_FUNC_IX = 6       # run duration
+CHECK_RSS_MU_IX = 7        # check RSS memory usage
+BUILD_RSS_MU_IX = 8        # build RSS memory usage
+EXE_VERSION_IX = 9
+EXE_PATH_IX = 10
 TABLE_LENGTH = EXE_PATH_IX + 1
 
 assert len(TABLE_TITLES) == TABLE_LENGTH
@@ -120,6 +128,7 @@ def table_row(row,
               op,
               exe_path,
               compiler_version,
+              ast_check_dur,
               check_dur,
               compile_dur,
               build_dur,
@@ -133,6 +142,9 @@ def table_row(row,
 
     row[LANG_IX] = lang
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
+
+    if ast_check_dur is not None:
+        row[AST_CHECK_DUR_PER_FUNC_IX] = ast_check_dur / (args.function_count * args.function_depth)
 
     if check_dur is not None:
         row[CHECK_DUR_PER_FUNC_IX] = check_dur / (args.function_count * args.function_depth)
@@ -309,7 +321,7 @@ def match_lang_exe(args, lang, exe_name):
 
 
 def bench_Ada_using_gcc(results, lang, code_paths, args, op, templated):
-    exe_flags = ['compile'] if op == 'Build' else ['check']
+    exe_flags = ['compile'] if op == 'build' else ['check']
     for gcc_version in VERSIONS:
         exe = match_lang_exe(args, lang, 'gnat' + str(gcc_version))
         if exe:
@@ -328,13 +340,13 @@ def bench_Ada_using_gcc(results, lang, code_paths, args, op, templated):
 
 
 def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
-    if op == 'Check':
+    if op == 'check':
         exe_flags = ['-emit-qbe']
         out_flag_and_exe = ['-o', '/dev/null']
-    elif op == 'Compile':
+    elif op == 'compile':
         exe_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
-    elif op == 'Build':
+    elif op == 'build':
         exe_flags = []
         out_flag_and_exe = ['-o', out_binary(lang)]
         # Disable build for now until I find out how to fix linker errors:
@@ -352,7 +364,7 @@ def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
-                     runner=(op == 'Build'),
+                     runner=(op == 'build'),
                      exe_flags=exe_flags,
                      args=args,
                      op=op,
@@ -363,13 +375,13 @@ def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
 
 
 def bench_C_using_tcc(results, lang, code_paths, args, op, templated):
-    if op == 'Check':
+    if op == 'check':
         exe_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
-    elif op == 'Compile':
+    elif op == 'compile':
         exe_flags = ['-c']
         out_flag_and_exe = []
-    elif op == 'Build':
+    elif op == 'build':
         exe_flags = []  # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
@@ -380,7 +392,7 @@ def bench_C_using_tcc(results, lang, code_paths, args, op, templated):
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
-                     runner=(op == 'Build'),
+                     runner=(op == 'build'),
                      exe_flags=exe_flags,
                      args=args,
                      op=op,
@@ -391,13 +403,13 @@ def bench_C_using_tcc(results, lang, code_paths, args, op, templated):
 
 
 def bench_C_using_cuik(results, lang, code_paths, args, op, templated):
-    if op == 'Check':
+    if op == 'check':
         exe_flags = ['-c', '-xe']
         out_flag_and_exe = []
-    elif op == 'Compile':
+    elif op == 'compile':
         exe_flags = ['-c']
         out_flag_and_exe = []
-    elif op == 'Build':
+    elif op == 'build':
         exe_flags = []  # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
@@ -408,7 +420,7 @@ def bench_C_using_cuik(results, lang, code_paths, args, op, templated):
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
-                     runner=(op == 'Build'),
+                     runner=(op == 'build'),
                      exe_flags=exe_flags,
                      args=args,
                      op=op,
@@ -419,13 +431,13 @@ def bench_C_using_cuik(results, lang, code_paths, args, op, templated):
 
 
 def gcc_clang_op_flags(op, lang):
-    if op == 'Check':
+    if op == 'check':
         exe_flags = ['-c', '-fsyntax-only']
         out_flag_and_exe = []
-    elif op == 'Compile':
+    elif op == 'compile':
         exe_flags = ['-c']
         out_flag_and_exe = []
-    elif op == 'Build':
+    elif op == 'build':
         exe_flags = []  # TODO add version that skips linking via: exe_flags = ['-c']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
@@ -502,11 +514,11 @@ def bench_D(results, code_paths, args, op, templated, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip1008', '-dip1000'] if use_dips else []
 
-    if op == 'Check':
+    if op == 'check':
         exe_flags = ['-o-']
-    elif op == 'Compile':
+    elif op == 'compile':
         exe_flags = ['-c']
-    elif op == 'Build':
+    elif op == 'build':
         if which('ld.lld') is not None:
             exe_flags = ["-Xcc=-fuse-ld=lld"]
         elif which('ld.gold') is not None:
@@ -530,7 +542,7 @@ def bench_D(results, code_paths, args, op, templated, use_dips):
         if exe.startswith('dmd'):
             version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
             compile_file(code_paths=code_paths,
-                         out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
+                         out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                          exe=exe,
                          runner=True,
                          exe_flags=d_flags + exe_flags,
@@ -543,7 +555,7 @@ def bench_D(results, code_paths, args, op, templated, use_dips):
         elif exe.startswith('ldmd2'):
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[6][1:-2]
             compile_file(code_paths=code_paths,
-                         out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'Build' else [],
+                         out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                          exe=exe,
                          runner=True,
                          exe_flags=d_flags + exe_flags,
@@ -554,10 +566,10 @@ def bench_D(results, code_paths, args, op, templated, use_dips):
                          templated=templated,
                          results=results)
         elif exe.startswith('gdc'):
-            exe_flags = ['-fsyntax-only'] if op == 'Check' else []
+            exe_flags = ['-fsyntax-only'] if op == 'check' else []
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             compile_file(code_paths=code_paths,
-                         out_flag_and_exe=['-o' + out_binary(lang)] if op == 'Build' else [],
+                         out_flag_and_exe=['-o' + out_binary(lang)] if op == 'build' else [],
                          exe=exe,
                          runner=True,
                          exe_flags=exe_flags,
@@ -571,12 +583,12 @@ def bench_D(results, code_paths, args, op, templated, use_dips):
 
 def bench_Vox(results, code_paths, args, op, templated):
     lang = 'Vox'
-    if op == 'Check':
+    if op == 'check':
         exe_flags = ['--check-only']
         out_flag_and_exe = []
-    elif op == 'Compile':
+    elif op == 'compile':
         return None             # no supported
-    elif op == 'Build':
+    elif op == 'build':
         exe_flags = []
         out_flag_and_exe = ['--of=' + out_binary(lang)]
     else:
@@ -600,7 +612,7 @@ def bench_CSharp_using_mono(results, code_paths, args, op, templated):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'mcs')
     if exe:
-        exe_flags = ['-target:exe'] + ([] if op == 'Build' else [''])
+        exe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
         compile_file(code_paths,
                      out_flag_and_exe=['-out:' + out_binary(lang)],
@@ -619,7 +631,7 @@ def bench_CSharp_using_csc(results, code_paths, args, op, templated):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'csc')
     if exe:
-        exe_flags = ['-target:exe'] + ([] if op == 'Build' else [''])
+        exe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([exe, '-version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         print(version)
         compile_file(code_paths,
@@ -643,12 +655,12 @@ def bench_Go(results, code_paths, args, op, templated):
 def bench_Go_using_go(results, code_paths, args, op, templated):
     lang = 'Go'
     version = None              # unknown
-    if op == 'Build':
+    if op == 'build':
         exe = which('go')
         exe_flags = ['build']
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
         out_flag_and_exe = ['-o', out_binary(lang)]
-    elif op == 'Check':
+    elif op == 'check':
         exe = which('gotype')
         exe_flags = []
         version_exe = which('go')  # guess it be same as `go`
@@ -682,7 +694,7 @@ def bench_Go_using_gccgo(results, code_paths, args, op, templated):
                          out_flag_and_exe=[],  # TODO this fails out_flag_and_exe=['-o', out_binary(lang)],
                          exe=exe,
                          runner=True,
-                         exe_flags=[] if op == 'Build' else ['-fsyntax-only', '-S'],
+                         exe_flags=[] if op == 'build' else ['-fsyntax-only', '-S'],
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -695,9 +707,9 @@ def bench_Swift(results, code_paths, args, op, templated):
     lang = 'Swift'
     exe = (match_lang_exe(args, lang, 'swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
-    if op == 'Build':
+    if op == 'build':
         exe_flags = ['']
-    elif op == 'Check':
+    elif op == 'check':
         exe_flags = ['-typecheck']
     else:
         return None
@@ -764,9 +776,9 @@ def bench_C3(results, code_paths, args, op, templated):
     if exe:
         exe_flags = ['-O0']
 
-        if op == 'Check':
+        if op == 'check':
             exe_flags += ['compile-only'] + ['-C']
-        elif op == 'Compile':
+        elif op == 'compile':
             exe_flags += ['compile-only']
         else:
             exe_flags += ['compile']
@@ -790,13 +802,13 @@ def bench_Zig(results, code_paths, args, op, templated):
     if op == 'AST-Check':       # not full semantic analysis
         exe_flags = ['ast-check']
         out_flag_and_exe = []
-    elif op == 'Check':
+    elif op == 'check':
         exe_flags = ['build-obj', '-fno-emit-bin']
         out_flag_and_exe = []
-    elif op == 'Compile':
+    elif op == 'compile':
         exe_flags = ['build-obj', '-fno-llvm', '-fno-lld']
         out_flag_and_exe = []
-    elif op == 'Build':
+    elif op == 'build':
         exe_flags = ['build-exe', '-fno-llvm', '-fno-lld']
         out_flag_and_exe = ['--name', out_binary(lang)]
     else:
@@ -843,9 +855,9 @@ def bench_Nim(results, code_paths, args, op, templated, exe_flags=None):
     # exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
     exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
 
-    if op == 'Check':
+    if op == 'check':
         exe_flags += ['check']
-    elif op == 'Build':
+    elif op == 'build':
         # the bottleneck is clang compilation
         exe_flags += ['c', '--mm:refc', '--opt:none']  # TODO detect when --gc:arc is available
     else:
@@ -904,15 +916,15 @@ def bench_Rust(results, code_paths, args, op, templated):
 
         for exe in exes:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
-            if op == 'Check':
+            if op == 'check':
                 # `cargo check` uses `rustc --emit=metadata`
                 check_args = ['--emit=metadata']
                 out_flag_and_exe = []
-            elif op == 'Build':
+            elif op == 'build':
                 out_flag_and_exe = ['-o', out_binary(lang)]
             else:
                 continue
-            exe_flags = ([] if op == 'Build' else check_args) + rust_flags(channel)
+            exe_flags = ([] if op == 'build' else check_args) + rust_flags(channel)
             compile_file(code_paths,
                          out_flag_and_exe=out_flag_and_exe,
                          exe=exe,
@@ -959,7 +971,7 @@ def bench_Pareas(results, code_paths, args, op, templated):
                      out_flag_and_exe=['-o', out_binary(lang)],
                      exe=exe,
                      runner=False,
-                     exe_flags=['--check'] if op == 'Check' else [],
+                     exe_flags=['--check'] if op == 'check' else [],
                      args=args,
                      op=op,
                      compiler_version='unknown',
@@ -992,7 +1004,7 @@ def compile_file(code_paths,
                  runner,
                  exe_flags,
                  args,
-                 op='Check',
+                 op,
                  compiler_version=None,
                  lang=None,
                  templated=None,
@@ -1071,7 +1083,7 @@ def compile_file(code_paths,
 
     # run
     run_dur_min = None             # run duration minimum
-    if op == 'Build':
+    if op == 'build':
         outb = out_binary(lang)
         if runner:
             if runner is True:      # binary should be runnable
@@ -1100,12 +1112,13 @@ def compile_file(code_paths,
               op=op,
               exe_path=exe,
               compiler_version=compiler_version,
-              check_dur=dur_min if op == 'Check' else None,
-              compile_dur=dur_min if op == 'Compile' else None,
-              build_dur=dur_min if op == 'Build' else None,
+              ast_check_dur=dur_min if op == 'ast-check' else None,
+              check_dur=dur_min if op == 'check' else None,
+              compile_dur=dur_min if op == 'compile' else None,
+              build_dur=dur_min if op == 'build' else None,
               run_dur=run_dur_min,
-              check_rss_mu=rss_mu if op == 'Check' else None,
-              build_rss_mu=rss_mu if op == 'Build' else None,
+              check_rss_mu=rss_mu if op == 'check' else None,
+              build_rss_mu=rss_mu if op == 'build' else None,
               templated=templated)
 
 
@@ -1804,7 +1817,7 @@ def main():
     if not args.language_exes:
         args.language_exes = LANGUAGE_EXES
 
-    args.operations = list(map(lambda x: x.capitalize(), args.operations.split(',')))  # into a list of capitalized names
+    args.operations = list(map(lambda x: x.lower(), args.operations.split(',')))  # into a list of capitalized names
     filtered_operations = []
     for operation in args.operations:
         if operation in SUPPORTED_OPERATIONS:
@@ -1842,76 +1855,76 @@ def main():
                 bench_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Ada' in args.language_exes:
-        # if 'Check' in args.operations:
-        #     bench_Ada_using_gcc(results=results,lang='Ada', code_paths=code_paths, args=args, op='Check', templated=False)
-        if 'Build' in args.operations:
-            bench_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='Build', templated=False)
+        # if 'check' in args.operations:
+        #     bench_Ada_using_gcc(results=results,lang='Ada', code_paths=code_paths, args=args, op='check', templated=False)
+        if 'build' in args.operations:
+            bench_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'Go' in args.language_exes:
-        if 'Check' in args.operations:
-            bench_Go(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
-        if 'Build' in args.operations:
-            bench_Go(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+        if 'check' in args.operations:
+            bench_Go(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+        if 'build' in args.operations:
+            bench_Go(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'Swift' in args.language_exes:
-        if 'Check' in args.operations:
-            bench_Swift(results=results, code_paths=code_paths, args=args, op='Check', templated=False)
-        if 'Build' in args.operations:
-            bench_Swift(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
+        if 'check' in args.operations:
+            bench_Swift(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+        if 'build' in args.operations:
+            bench_Swift(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'V' in args.language_exes:
-        if 'Build' in args.operations:
-            bench_V(results=results, code_paths=code_paths, args=args, op='Build', templated=False)
-            bench_V(results=results, code_paths=code_paths, args=args, op='Build', templated=True)
+        if 'build' in args.operations:
+            bench_V(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            bench_V(results=results, code_paths=code_paths, args=args, op='build', templated=True)
 
     if 'C3' in args.language_exes:
         for op in args.operations:
             bench_C3(results=results, code_paths=code_paths, args=args, op=op, templated=False)
 
     if 'Rust' in args.language_exes:
-        if 'Check' in args.operations:
+        if 'check' in args.operations:
             bench_Rust(results=results, code_paths=code_paths, args=args,
-                       op='Check', templated=False)
+                       op='check', templated=False)
             bench_Rust(results=results, code_paths=code_paths, args=args,
-                       op='Check', templated=True)
-        if 'Build' in args.operations:
+                       op='check', templated=True)
+        if 'build' in args.operations:
             bench_Rust(results=results, code_paths=code_paths, args=args,
-                       op='Build', templated=False)
+                       op='build', templated=False)
             bench_Rust(results=results, code_paths=code_paths, args=args,
-                       op='Build', templated=True)
+                       op='build', templated=True)
 
     if 'Nim' in args.language_exes:
-        if 'Check' in args.operations:
+        if 'check' in args.operations:
             bench_Nim(results=results, code_paths=code_paths, args=args,
-                      op='Check', templated=False)
-        if 'Build' in args.operations:
+                      op='check', templated=False)
+        if 'build' in args.operations:
             bench_Nim(results=results, code_paths=code_paths, args=args,
-                      op='Build', templated=False)
+                      op='build', templated=False)
 
     if 'C#' in args.language_exes:
-        if 'Build' in args.operations:
+        if 'build' in args.operations:
             bench_CSharp_using_mono(results=results, code_paths=code_paths,
-                                    args=args, op='Build', templated=False)
+                                    args=args, op='build', templated=False)
             bench_CSharp_using_csc(results=results, code_paths=code_paths,
-                                   args=args, op='Build', templated=False)
+                                   args=args, op='build', templated=False)
 
     if 'Java' in args.language_exes:
-        if 'Build' in args.operations:
+        if 'build' in args.operations:
             bench_Java(results=results, code_paths=code_paths, args=args,
-                       op='Build', templated=False)
+                       op='build', templated=False)
 
     if 'Pareas' in args.language_exes:
-        if 'Check' in args.operations:
+        if 'check' in args.operations:
             bench_Pareas(results=results, code_paths=code_paths, args=args,
-                         op='Check', templated=False)
-        if 'Build' in args.operations:
+                         op='check', templated=False)
+        if 'build' in args.operations:
             bench_Pareas(results=results, code_paths=code_paths, args=args,
-                         op='Build', templated=False)
+                         op='build', templated=False)
 
     if 'Mojo' in args.language_exes:
-        if 'Build' in args.operations:
+        if 'build' in args.operations:
             bench_Mojo(results=results, code_paths=code_paths, args=args,
-                       op='Build', templated=False)
+                       op='build', templated=False)
 
     # Julia and Ocaml take too long otherwise. So let them participate by
     # truncating size because ops/function are measured
@@ -1922,18 +1935,18 @@ def main():
         args.function_depth = 200
 
     if 'OCaml' in args.language_exes:
-        if 'Build' in args.operations:
+        if 'build' in args.operations:
             bench_OCaml(results=results, code_paths=code_paths, args=args,
-                        op='Build', templated=False, bytecode=False)
+                        op='build', templated=False, bytecode=False)
             bench_OCaml(results=results, code_paths=code_paths, args=args,
-                        op='Build', templated=False, bytecode=True)
+                        op='build', templated=False, bytecode=True)
 
     if 'Julia' in args.language_exes:
-        if 'Build' in args.operations:
+        if 'build' in args.operations:
             bench_Julia(results=results, code_paths=code_paths, args=args,
-                        op='Build', templated=False)
+                        op='build', templated=False)
             bench_Julia(results=results, code_paths=code_paths, args=args,
-                        op='Build', templated=True)
+                        op='build', templated=True)
 
     args.function_count = function_count
     args.function_depth = function_depth
