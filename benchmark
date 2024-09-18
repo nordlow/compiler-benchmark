@@ -809,7 +809,7 @@ def bench_Zig(results, code_paths, args, op, templated):
         exe_flags = ['ast-check']
         out_flag_and_exe = []
     elif op == 'check':
-        exe_flags = ['build-obj', '-fno-emit-bin']
+        exe_flags = ['build-obj', '-fno-emit-bin'] + zig_no_llvm_exe_flags
         out_flag_and_exe = []
     elif op == 'compile':
         exe_flags = ['build-obj'] + zig_no_llvm_exe_flags
