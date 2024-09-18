@@ -801,6 +801,7 @@ def bench_C3(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
+zig_no_llvm_exe_flags = ['-fno-llvm', '-fno-lld', '-fno-clang']
 
 def bench_Zig(results, code_paths, args, op, templated):
     lang = 'Zig'
@@ -811,10 +812,10 @@ def bench_Zig(results, code_paths, args, op, templated):
         exe_flags = ['build-obj', '-fno-emit-bin']
         out_flag_and_exe = []
     elif op == 'compile':
-        exe_flags = ['build-obj', '-fno-llvm', '-fno-lld']
+        exe_flags = ['build-obj'] + zig_no_llvm_exe_flags
         out_flag_and_exe = []
     elif op == 'build':
-        exe_flags = ['build-exe', '-fno-llvm', '-fno-lld']
+        exe_flags = ['build-exe'] + zig_no_llvm_exe_flags
         out_flag_and_exe = ['--name', out_binary(lang)]
     else:
         return None
