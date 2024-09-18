@@ -801,7 +801,7 @@ def bench_C3(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
-zig_no_llvm_exe_flags = ['-fno-llvm', '-fno-lld', '-fno-clang']
+zig_no_llvm_exe_flags = ['-fno-llvm', '-fno-lld', '-fno-clang'] # See https://stackoverflow.com/a/78995648/683710
 
 def bench_Zig(results, code_paths, args, op, templated):
     lang = 'Zig'
