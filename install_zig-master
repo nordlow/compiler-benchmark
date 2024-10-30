@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-set -uo pipefail
-# File: Setup Zig master build.
+set -euo pipefail
 
-ZIG_LATEST=https://ziglang.org/builds/zig-linux-x86_64-0.13.0-dev.46+3648d7df1.tar.xz
+ZIG_LATEST=https://ziglang.org/builds/zig-linux-x86_64-0.14.0-dev.1983+6bf52b050.tar.xz
 INSTALL_DIR="${HOME}"/.local
 
-# download and install
 wget -qO- "${ZIG_LATEST}" | tar -xvJ --keep-old-files -C "${INSTALL_DIR}"

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+C3_SNAPSHOT_DIR="${HOME}/.local/c3-snapshot"
+C3_BINARY_DIR="${C3_SNAPSHOT_DIR}/bin"
+C3_BINARY_SOURCE="${C3_SNAPSHOT_DIR}/c3c"
+C3_BINARY_TARGET="${C3_SNAPSHOT_DIR}/bin/c3c"
+
+mkdir -p "$(dirname "${C3_BINARY_DIR}")"
+
+curl -sL https://github.com/c3lang/c3c/releases/download/latest/c3-linux.tar.gz | tar -xz -C "${C3_SNAPSHOT_DIR}" --strip-components=1 c3
+
+mv "${C3_BINARY_SOURCE}" "${C3_BINARY_TARGET}"
+chmod +x "${C3_BINARY_TARGET}"

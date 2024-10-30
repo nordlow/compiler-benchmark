@@ -20,3 +20,4 @@ fi
 ./install_julia
 ./install_zig-master
 ./install_swift
+./install_c3c-latest
