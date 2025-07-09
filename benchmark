@@ -1404,7 +1404,7 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-    def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated):
+def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated):
     if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
