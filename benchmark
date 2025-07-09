@@ -29,6 +29,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'C++': ['g++', 'clang++', ],
                  'D': ['dmd', 'ldmd2', 'gdc', ],
                  'Zig': ['zig', ],
+                 'Odin': ['odin', ],
                  'Nim': ['nim', ],
                  'Rust': ['rustc', ],
                  'Ada': ['gnat', ],
@@ -45,7 +46,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Mojo': ['mojo', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust',
-                                 'Zig', 'V', 'C3', 'Julia', 'Mojo']
+                                 'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
@@ -824,6 +825,24 @@ def bench_Zig(results, code_paths, args, op, templated):
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
+                     exe=exe,
+                     runner=True,
+                     exe_flags=exe_flags,
+                     args=args,  # no syntax flag currently so compile to object file instead
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
+def bench_Odin(results, code_paths, args, op, templated):
+    lang = 'Odin'
+    exe_flags = ['build', '-build-mode:exe', '-lld'] if op == 'build' else ['check']
+    if exe:
+        version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
+        compile_file(code_paths,
+                     out_flag_and_exe=['-out:', out_binary(lang)],
                      exe=exe,
                      runner=True,
                      exe_flags=exe_flags,
@@ -1848,6 +1867,9 @@ def main():
         if 'Zig' in args.language_exes:
             for templated in (False, True):
                 bench_Zig(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+        if 'Odin' in args.language_exes:
+            for templated in (False, True):
+                bench_Odin(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
         if 'C' in args.language_exes:
             for templated in (False,):
                 bench_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
