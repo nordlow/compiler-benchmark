@@ -1269,8 +1269,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
         f.write(Tm('   ${T}_sum := ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
     elif lang == 'vox':
         f.write(Tm('    ${T}_sum += add_${T}_n${N}${X}(${N})').substitute(T=typ,
-                                                                          N=str(findex),
-                                                                          X='[' + typ + ']' if templated else ''))
+                                                                             N=str(findex),
+                                                                             X='[' + typ + ']' if templated else ''))
     elif lang == 'swift':
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=str(findex)))
     elif lang == 'pareas':
@@ -1280,8 +1280,8 @@ def generate_test_function_call(lang, findex, typ, f, templated):
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
-    if lang not in ('ocaml', 'nim', 'v'):
-        f.write(';')            # statement terminator
+    if lang not in ('ocaml', 'nim', 'v', 'odin'):
+        f.write(';')          # statement terminator
 
     f.write('\n')
 
