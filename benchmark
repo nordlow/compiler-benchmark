@@ -1304,6 +1304,9 @@ def generate_test_language_specific_prefix(lang, program_name, f, templated):
     elif lang == 'ada':
         f.write('with System;\n\n')
         f.write('with GNAT.OS_Lib;\n\n')
+    elif lang == 'odin':
+        f.write('package ' + program_name + '\n\n')
+        f.write('import "core:os"\n\n')
     elif lang == 'vox':
         f.write('''enum u32 stdin = 0;
 enum u32 stdout = 1;
