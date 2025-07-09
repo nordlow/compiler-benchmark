@@ -1372,6 +1372,8 @@ end Main;
 ''').substitute(T=types[0]))
     elif lang == 'ocaml':
         f.write(Tm('    exit (if ${T}_sum = 42.0 then 1 else 0)\n').substitute(T=types[0]))
+    elif lang == 'odin':
+        f.write(Tm('    os.exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
     elif lang == 'v':
         f.write(Tm('''    exit(int(${T}_sum >> 32))\n}\n''').substitute(T=types[0]))
     else:
@@ -1402,8 +1404,7 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-def generate_test_function_definition(args, lang, typ, findex, fheight, f,
-                                      templated):
+def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated):
     if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
