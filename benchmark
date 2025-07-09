@@ -1576,6 +1576,8 @@ def generate_test_main_header(lang, types, f, templated):
         f.write('fn main[]: int {\n')
     elif lang == 'mojo':
         f.write('fn main() -> None:\n')
+    elif lang == 'odin':
+        f.write(Tm('main :: proc() {\n').substitute(T=types[0]))
     else:
         assert False
 
