@@ -1171,7 +1171,7 @@ def run_compiled_file(args, run_count=1):
 def long_types_of_lang(lang):
     if lang in ('c', 'c3', 'c++', 'c#', 'java'):
         return ['long']
-    elif lang in ('rust', 'zig', 'v', 'vox', 'c3'):
+    elif lang in ('rust', 'zig', 'v', 'vox', 'c3', 'odin'):
         return ['i64']
     elif lang in 'swift':
         return ['Int64']
