@@ -1641,6 +1641,10 @@ def generate_test_program_2(function_count, lang, templated):
 
 ''')
 
+        elif lang == 'odin':
+            f.write('''package ''' + program_name + ''';
+
+''')
         # standard io module
         if lang in ['c']:
             f.write('''#include <stdio.h>
