@@ -1404,7 +1404,7 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated):
+    def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated):
     if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
@@ -1518,6 +1518,11 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'go':
         f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
+    elif lang == 'odin':
+        if templated:
+            f.write(Tm('${F} :: proc(x: $T) -> $T { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
+        else:
+            f.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'ocaml':
         f.write(Tm('let ${F} x = ${X}\n').substitute(F=str(fname), X=expr))
     elif lang == 'v':
