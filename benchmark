@@ -1518,11 +1518,6 @@ def function_name(typ, findex, fheight):
             f.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'go':
         f.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'odin':
-        if templated:
-            f.write(Tm('${F} :: proc(x: $T) -> $T { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
-        else:
-            f.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'ocaml':
         f.write(Tm('let ${F} x = ${X}\n').substitute(F=str(fname), X=expr))
     elif lang == 'v':
@@ -1537,6 +1532,11 @@ def function_name(typ, findex, fheight):
         f.write(Tm('fn ${F}[x: ${T}]: ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), X=expr))
     elif lang == 'mojo':
         f.write(Tm('fn ${F}(x: ${T}) -> ${T}: return ${X}\n').substitute(T=typ, F=str(fname), X=expr))
+    elif lang == 'odin':
+        if templated:
+            f.write(Tm('${F} :: proc(x: $T) -> $T { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
+        else:
+            f.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
 
 
 def generate_test_main_header(lang, types, f, templated):
@@ -1616,6 +1616,8 @@ def generate_main_test_function_variable(lang, typ, f, templated):
         f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
     elif lang == 'mojo':
         f.write(Tm('    var ${T}_sum: ${T} = 0\n').substitute(T=typ))
+    elif lang == 'odin':
+        f.write(Tm('    ${T}_sum: ${T} := 0;\n').substitute(T=typ))
     else:
         assert False
 
