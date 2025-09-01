@@ -193,14 +193,8 @@ def get_version(version_run):
     return result.split('~')[0].split('ubuntu1')[0]  # strip ubuntu version
 
 
-def touchFile(path):
-    with open(path, 'a'):
-        os.utime(path, None)
-
-
 def out_directory(lang):
-    return os.path.join(ROOT_PATH,
-                        lang.lower())
+    return os.path.join(ROOT_PATH, lang.lower())
 
 
 def out_binary(lang):
