@@ -433,7 +433,7 @@ def bench_C_using_cuik(results, lang, code_paths, args, op, templated):
 
 def gcc_clang_op_flags(op, lang):
     if op == 'check':
-        exe_flags = ['-c', '-fsyntax-only']
+        exe_flags = ['-fsyntax-only']
         out_flag_and_exe = []
     elif op == 'compile':
         exe_flags = ['-c']
