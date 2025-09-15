@@ -201,7 +201,7 @@ def out_binary(lang):
     return DEFAULT_PROGRAM_NAME
 
 
-def sourceIdOf(lang, templated, run_ix):
+def sourceIdOf(lang: str, templated, run_ix):
     if lang in TEMPLATED_SUPPORTED_LANGUAGES:
         key = lang + ('-Templated' if templated else '-Untemplated')
     else:
@@ -321,7 +321,7 @@ def match_lang_exe(args, lang, exe_name):
     return exe_path
 
 
-def bench_Ada_using_gcc(results, lang, code_paths, args, op, templated):
+def bench_Ada_using_gcc(results, lang, code_paths, args, op, templated: bool):
     exe_flags = ['compile'] if op == 'build' else ['check']
     for gcc_version in VERSIONS:
         exe = match_lang_exe(args, lang, 'gnat' + str(gcc_version))
@@ -340,7 +340,7 @@ def bench_Ada_using_gcc(results, lang, code_paths, args, op, templated):
                          results=results)
 
 
-def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
+def bench_C_using_cproc(results, lang, code_paths, args, op, templated: bool):
     if op == 'check':
         exe_flags = ['-emit-qbe']
         out_flag_and_exe = ['-o', '/dev/null']
@@ -375,7 +375,7 @@ def bench_C_using_cproc(results, lang, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_C_using_tcc(results, lang, code_paths, args, op, templated):
+def bench_C_using_tcc(results, lang, code_paths, args, op, templated: bool):
     if op == 'check':
         exe_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
@@ -403,7 +403,7 @@ def bench_C_using_tcc(results, lang, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_C_using_cuik(results, lang, code_paths, args, op, templated):
+def bench_C_using_cuik(results, lang, code_paths, args, op, templated: bool):
     if op == 'check':
         exe_flags = ['-c', '-xe']
         out_flag_and_exe = []
@@ -582,7 +582,7 @@ def bench_D(results, code_paths, args, op, templated, use_dips):
                          results=results)
 
 
-def bench_Vox(results, code_paths, args, op, templated):
+def bench_Vox(results, code_paths, args, op, templated: bool):
     lang = 'Vox'
     if op == 'check':
         exe_flags = ['--check-only']
@@ -609,7 +609,7 @@ def bench_Vox(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_CSharp_using_mono(results, code_paths, args, op, templated):
+def bench_CSharp_using_mono(results, code_paths, args, op, templated: bool):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'mcs')
     if exe:
@@ -628,7 +628,7 @@ def bench_CSharp_using_mono(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_CSharp_using_csc(results, code_paths, args, op, templated):
+def bench_CSharp_using_csc(results, code_paths, args, op, templated: bool):
     lang = 'C#'
     exe = match_lang_exe(args, lang, 'csc')
     if exe:
@@ -647,12 +647,12 @@ def bench_CSharp_using_csc(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_Go(results, code_paths, args, op, templated):
+def bench_Go(results, code_paths, args, op, templated: bool):
     bench_Go_using_go(results, code_paths, args, op, templated)
     bench_Go_using_gccgo(results, code_paths, args, op, templated)
 
 
-def bench_Go_using_go(results, code_paths, args, op, templated):
+def bench_Go_using_go(results, code_paths, args, op, templated: bool):
     lang = 'Go'
     version = None              # unknown
     if op == 'build':
@@ -684,7 +684,7 @@ def bench_Go_using_go(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_Go_using_gccgo(results, code_paths, args, op, templated):
+def bench_Go_using_gccgo(results, code_paths, args, op, templated: bool):
     lang = 'Go'
     for gccgo_version in VERSIONS:
         exe = match_lang_exe(args, lang, 'gccgo' + str(gccgo_version))
@@ -703,7 +703,7 @@ def bench_Go_using_gccgo(results, code_paths, args, op, templated):
                          results=results)
 
 
-def bench_Swift(results, code_paths, args, op, templated):
+def bench_Swift(results, code_paths, args, op, templated: bool):
     lang = 'Swift'
     exe = (match_lang_exe(args, lang, 'swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
@@ -751,7 +751,7 @@ def bench_OCaml(results, code_paths, args, op, templated, bytecode):
                      results=results)
 
 
-def bench_V(results, code_paths, args, op, templated):
+def bench_V(results, code_paths, args, op, templated: bool):
     lang = 'V'                                   # vlang.io
     exe = match_lang_exe(args, lang, 'v')
     if exe:
@@ -769,7 +769,7 @@ def bench_V(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_C3(results, code_paths, args, op, templated):
+def bench_C3(results, code_paths, args, op, templated: bool):
     lang = 'C3'
     exe = (match_lang_exe(args, lang, 'c3c') or
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
@@ -798,7 +798,7 @@ def bench_C3(results, code_paths, args, op, templated):
 
 zig_no_llvm_build_flags = ['-fno-llvm', '-fno-lld', '-fno-clang'] # See https://stackoverflow.com/a/78995648/683710 and https://github.com/ziglang/zig/issues/6251
 
-def bench_Zig(results, code_paths, args, op, templated):
+def bench_Zig(results, code_paths, args, op, templated: bool):
     lang = 'Zig'
     if op == 'ast-check':       # full syntactic analysis and partial semantic analysis
         exe_flags = ['ast-check']
@@ -830,8 +830,9 @@ def bench_Zig(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_Odin(results, code_paths, args, op, templated):
+def bench_Odin(results, code_paths, args, op, templated: bool):
     lang = 'Odin'
+    exe = match_lang_exe(args, lang, 'odin')
     exe_flags = ['build', '-build-mode:exe', '-lld'] if op == 'build' else ['check']
     if exe:
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
@@ -848,7 +849,7 @@ def bench_Odin(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_Mojo(results, code_paths, args, op, templated):
+def bench_Mojo(results, code_paths, args, op, templated: bool):
     lang = 'Mojo'
     exe = match_lang_exe(args, lang, 'mojo')
     if exe:
@@ -913,7 +914,7 @@ def rust_flags(channel):
     return flags
 
 
-def bench_Rust(results, code_paths, args, op, templated):
+def bench_Rust(results, code_paths, args, op, templated: bool):
     lang = 'Rust'
 
     rustup_exe = which('rustup')
@@ -956,7 +957,7 @@ def bench_Rust(results, code_paths, args, op, templated):
                          templated=templated,
                          results=results)
 
-def bench_Java(results, code_paths, args, op, templated):
+def bench_Java(results, code_paths, args, op, templated: bool):
     lang = 'Java'
     exe = match_lang_exe(args, lang, 'javac')
     if exe:
@@ -982,7 +983,7 @@ def bench_Java(results, code_paths, args, op, templated):
                      templated=templated,
                      results=results)
 
-def bench_Pareas(results, code_paths, args, op, templated):
+def bench_Pareas(results, code_paths, args, op, templated: bool):
     lang = 'Pareas'
     exe = match_lang_exe(args, lang, 'pareas')
     if exe:
@@ -999,7 +1000,7 @@ def bench_Pareas(results, code_paths, args, op, templated):
                      results=results)
 
 
-def bench_Julia(results, code_paths, args, op, templated):
+def bench_Julia(results, code_paths, args, op, templated: bool):
     lang = 'Julia'
     exe = match_lang_exe(args, lang, 'julia')
     if exe:
@@ -1206,7 +1207,7 @@ def language_file_extension(lang):
         return lang
 
 
-def generate_test_program_file(lang, args, templated, run_ix):
+def generate_test_program_file(lang: str, args, templated, run_ix):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()        # lowered language
@@ -1249,7 +1250,7 @@ def generate_test_program_file(lang, args, templated, run_ix):
     return path
 
 
-def generate_test_function_call(lang, findex, typ, f, templated):
+def generate_test_function_call(lang: str, findex, typ, f, templated: bool):
     if lang in ('c#', 'java'):
         f.write('    ')
 
@@ -1280,7 +1281,7 @@ def generate_test_function_call(lang, findex, typ, f, templated):
     f.write('\n')
 
 
-def generate_test_language_specific_prefix(lang, program_name, f, templated):
+def generate_test_language_specific_prefix(lang: str, program_name, f, templated: bool):
     if lang == 'go':
         f.write('package ' + program_name + ';\n')
         f.write('// import ("os")\n\n')  # fails with `gotype`
@@ -1318,7 +1319,7 @@ void write(u32 fd, u8[] data) {
 ''')
 
 
-def generate_test_language_specific_postfix(lang, types, f):
+def generate_test_language_specific_postfix(lang: str, types, f):
     if lang == 'rust':
         f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
     elif lang == 'd':
@@ -1377,7 +1378,7 @@ end Main;
         f.write('}\n')            # one extra closing brace for class
 
 
-def generate_main_test_function_definition_set(lang, types, args, f,
+def generate_main_test_function_definition_set(lang: str, types, args, f,
                                                templated):
     for typ in types:
         for findex in range(0, args.function_count):
@@ -1398,7 +1399,7 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated):
+def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated: bool):
     if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
@@ -1533,7 +1534,7 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             f.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
 
 
-def generate_test_main_header(lang, types, f, templated):
+def generate_test_main_header(lang: str, types, f, templated: bool):
     if lang in ['c', 'c++']:
         # `cproc` cannot handle this skip for now:
         # f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
@@ -1576,12 +1577,12 @@ def generate_test_main_header(lang, types, f, templated):
         assert False
 
 
-def generate_test_main_middle(lang, types, f, templated):
+def generate_test_main_middle(lang: str, types, f, templated: bool):
     if lang == 'ada':
         f.write('begin\n')
 
 
-def generate_main_test_function_variable(lang, typ, f, templated):
+def generate_main_test_function_variable(lang: str, typ, f, templated: bool):
     if lang in ('c', 'c3', 'c++', 'd', 'vox'):
         f.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang in ['ada']:
@@ -1616,7 +1617,7 @@ def generate_main_test_function_variable(lang, typ, f, templated):
         assert False
 
 
-def generate_test_program_2(function_count, lang, templated):
+def generate_test_program_2(function_count: int, lang: str, templated: bool):
     program_name = 'sample2'
 
     lang = lang.lower()
