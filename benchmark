@@ -201,7 +201,7 @@ def out_binary(lang):
     return DEFAULT_PROGRAM_NAME
 
 
-def sourceIdOf(lang: str, templated, run_ix):
+def sourceIdOf(lang: str, templated: bool, run_ix):
     if lang in TEMPLATED_SUPPORTED_LANGUAGES:
         key = lang + ('-Templated' if templated else '-Untemplated')
     else:
@@ -511,7 +511,7 @@ def bench_C_and_Cxx_using_clang(results, lang, code_paths, args, op,
                          results=results)
 
 
-def bench_D(results, code_paths, args, op, templated, use_dips):
+def bench_D(results, code_paths, args, op, templated: bool, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip1008', '-dip1000'] if use_dips else []
 
@@ -728,7 +728,7 @@ def bench_Swift(results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bench_OCaml(results, code_paths, args, op, templated, bytecode):
+def bench_OCaml(results, code_paths, args, op, templated: bool, bytecode):
     lang = 'OCaml'
     if bytecode:
         exe = match_lang_exe(args, lang, 'ocamlc')
@@ -867,7 +867,7 @@ def bench_Mojo(results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bench_Nim(results, code_paths, args, op, templated, exe_flags=None):
+def bench_Nim(results, code_paths, args, op, templated: bool, exe_flags=None):
     lang = 'Nim'
     exe = match_lang_exe(args, lang, 'nim')
 
@@ -1207,7 +1207,7 @@ def language_file_extension(lang):
         return lang
 
 
-def generate_test_program_file(lang: str, args, templated, run_ix):
+def generate_test_program_file(lang: str, args, templated: bool, run_ix):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()        # lowered language
