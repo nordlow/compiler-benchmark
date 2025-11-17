@@ -43,6 +43,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Julia': ['julia', ],
                  'OCaml': ['ocamlc', 'ocamlopt', ],
                  'Pareas': ['pareas', ],
+                 'Python': ['python3', 'python', 'pypy3', 'pypy'],
                  'Mojo': ['mojo', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust',
@@ -93,7 +94,7 @@ class Row:                      # TODO use
         self.run_dur_per_func = run_dur_per_func
         self.rss_mu = rss_mu
         self.exe_version = exe_version
-        self.exe_pat = exe_path
+        self.exe_path = exe_path
 
 
 MARKDOWN_TABLE_TITLES = [
@@ -849,6 +850,46 @@ def bench_Odin(results, code_paths, args, op, templated: bool):
                      results=results)
 
 
+def bench_Python(results, code_paths, args, op, templated: bool):
+    lang = 'Python'
+
+    if op == 'build':
+        # Python is interpreted, but we can compile to bytecode
+        exe_flags = ['-m', 'py_compile']
+        out_flag_and_exe = []
+    elif op == 'check':
+        # Use py_compile for syntax checking
+        exe_flags = ['-m', 'py_compile']
+        out_flag_and_exe = []
+    else:
+        return None
+
+    exe = match_lang_exe(args, lang, 'python3')
+    if not exe:
+        exe = match_lang_exe(args, lang, 'python')
+    if not exe:
+        exe = match_lang_exe(args, lang, 'pypy3')
+    if not exe:
+        exe = match_lang_exe(args, lang, 'pypy')
+
+    if exe:
+        version_output = sp.run([exe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
+        version_str = (version_output.stdout or version_output.stderr).decode('utf-8')
+        version = version_str.split()[1]
+
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     exe=exe,
+                     runner=[exe],
+                     exe_flags=exe_flags if op == 'check' else [],
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
 def bench_Mojo(results, code_paths, args, op, templated: bool):
     lang = 'Mojo'
     exe = match_lang_exe(args, lang, 'mojo')
@@ -1163,7 +1204,7 @@ def run_compiled_file(args, run_count=1):
     return dur_min
 
 
-def long_types_of_lang(lang):
+def long_type_of_lang(lang):
     if lang in ('c', 'c3', 'c++', 'c#', 'java'):
         return ['long']
     elif lang in ('rust', 'zig', 'v', 'vox', 'c3', 'odin'):
@@ -1182,6 +1223,8 @@ def long_types_of_lang(lang):
         return ['Long_Integer']  # gnat
     elif lang == 'pareas':
         return ['int']
+    elif lang == 'python':
+        return ['Int']
     elif lang == 'mojo':
         return ['Int']
     else:
@@ -1203,6 +1246,8 @@ def language_file_extension(lang):
         return 'adb'
     elif lang == 'pareas':
         return 'par'
+    elif lang == 'python':
+        return 'py'
     else:
         return lang
 
@@ -1211,7 +1256,7 @@ def generate_test_program_file(lang: str, args, templated: bool, run_ix):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()        # lowered language
-    types = long_types_of_lang(llang)
+    types = long_type_of_lang(llang)
     ext = language_file_extension(llang)
     dir_path = os.path.join(ROOT_PATH, llang)
     os.makedirs(dir_path, exist_ok=True)
@@ -1270,8 +1315,8 @@ def generate_test_function_call(lang: str, findex, typ, f, templated: bool):
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=str(findex)))
     elif lang == 'pareas':
         f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}[${N}]').substitute(T=typ, N=str(findex)))
-    elif lang == 'mojo':
-        f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+    elif lang == 'python' or lang == 'mojo':
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
     else:
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
 
@@ -1343,8 +1388,10 @@ def generate_test_language_specific_postfix(lang: str, types, f):
         f.write(Tm('        return (int)(${T}_sum);\n}\n').substitute(T=types[0]))
     elif lang == 'pareas':
         f.write(Tm('    return ${T}_sum;\n}\n').substitute(T=types[0]))
-    elif lang == 'mojo':
-        f.write(Tm('    print(${T}_sum)\n').substitute(T=types[0]))
+    elif lang == 'python' or lang == 'mojo':
+        f.write(Tm('    sys.exit(int(${T}_sum) & 0xFFFFFFFF)\n\n').substitute(T=types[0]))
+        f.write('if __name__ == "__main__":\n')
+        f.write('    main()\n')
     elif lang == 'julia':
         f.write(Tm('''    return ${T}_sum;
 end
@@ -1532,6 +1579,14 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             f.write(Tm('${F} :: proc(x: $T) -> $T { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
         else:
             f.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
+    elif lang == 'python' or lang == 'mojo':
+        if templated:
+            # doesn't have compile-time templates, but we can use type hints
+            f.write(Tm('def ${F}(x: ${T}) -> ${T}:\n    return ${X}\n\n').substitute(
+                T='int', F=str(fname), X=expr))
+        else:
+            f.write(Tm('def ${F}(x):\n    return ${X}\n\n').substitute(
+                F=str(fname), X=expr))
 
 
 def generate_test_main_header(lang: str, types, f, templated: bool):
@@ -1569,15 +1624,20 @@ def generate_test_main_header(lang: str, types, f, templated: bool):
         f.write('when isMainModule:\n')
     elif lang == 'pareas':
         f.write('fn main[]: int {\n')
+    elif lang == 'python':
+        if templated:
+            f.write('def main() -> int:\n')
+        else:
+            f.write('def main():\n')
     elif lang == 'mojo':
-        f.write('fn main() -> None:\n')
+        f.write('fn main() -> int:\n')
     elif lang == 'odin':
         f.write(Tm('main :: proc() {\n').substitute(T=types[0]))
     else:
         assert False
 
 
-def generate_test_main_middle(lang: str, types, f, templated: bool):
+def generate_test_main_middle(lang: str, types, f, _templated: bool):
     if lang == 'ada':
         f.write('begin\n')
 
@@ -1609,6 +1669,11 @@ def generate_main_test_function_variable(lang: str, typ, f, templated: bool):
         f.write(Tm('    let ${T}_sum = 0.0 in\n').substitute(T=typ))
     elif lang == 'pareas':
         f.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
+    elif lang == 'python':
+        if templated:
+            f.write(Tm('    ${T}_sum: ${T} = 0\n').substitute(T=typ))
+        else:
+            f.write(Tm('    ${T}_sum = 0\n').substitute(T=typ))
     elif lang == 'mojo':
         f.write(Tm('    var ${T}_sum: ${T} = 0\n').substitute(T=typ))
     elif lang == 'odin':
@@ -1621,7 +1686,7 @@ def generate_test_program_2(function_count: int, lang: str, templated: bool):
     program_name = 'sample2'
 
     lang = lang.lower()
-    types = long_types_of_lang(lang)
+    types = [long_type_of_lang(lang)]
     ext = language_file_extension(lang)
     dir_path = os.path.join(ROOT_PATH, lang)
     os.makedirs(dir_path, exist_ok=True)
