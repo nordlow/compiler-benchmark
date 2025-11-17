@@ -22,7 +22,7 @@ import importlib
 
 DEFAULT_PROGRAM_NAME = 'main'
 
-SUPPORTED_OPERATIONS = ['ast-check', 'check', 'compile', 'build']
+SUPPORTED_OPERATIONS = ['ast-check', 'check', 'compile', 'build', 'run']
 
 LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'C3': ['c3c', ],
@@ -863,6 +863,9 @@ def bench_Python(results, code_paths, args, op, templated: bool):
         # Use py_compile for syntax checking
         exe_flags = ['-m', 'py_compile']
         out_flag_and_exe = []
+    elif op == 'run':
+        exe_flags = []
+        out_flag_and_exe = []
     else:
         return None
 
@@ -882,7 +885,7 @@ def bench_Python(results, code_paths, args, op, templated: bool):
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
-                     runner=[exe],
+                     runner=[exe] if op in ('build', 'run') else False,
                      exe_flags=exe_flags if op == 'check' else [],
                      args=args,
                      op=op,
@@ -1345,6 +1348,8 @@ def generate_test_language_specific_prefix(lang: str, program_name, f, templated
     elif lang == 'odin':
         f.write('package ' + program_name + '\n\n')
         f.write('import "core:os"\n\n')
+    elif lang == 'python':
+        f.write('import sys\n\n')
     elif lang == 'vox':
         f.write('''enum u32 stdin = 0;
 enum u32 stdout = 1;
