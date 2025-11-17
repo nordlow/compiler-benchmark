@@ -663,14 +663,14 @@ def bench_Go_using_go(results, code_paths, args, op, templated: bool):
         out_flag_and_exe = ['-o', out_binary(lang)]
     elif op == 'check':
         exe = which('gotype')
+        if  not exe:
+            return None
         exe_flags = []
         version_exe = which('go')  # guess it be same as `go`
         if version_exe is not None:
             version = sp.run([version_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
         out_flag_and_exe = []
     else:
-        return None
-    if exe is None:
         return None
     exe = match_lang_exe(args, lang, exe)
     if exe:
@@ -1112,7 +1112,7 @@ def compile_file(code_paths: list,
             if rss_mu is None and pt.max_rss_mu != 0:
                 rss_mu = pt.max_rss_mu
             if rss_mu is None:
-                rss_mu = "sampling miss"
+                rss_mu = "missing"
         # TODO pt.assertClosed() needed?
         outs, errs = pt.comp_proc.communicate()
         os.chdir(cwd)           # restore
