@@ -1165,13 +1165,13 @@ def compile_file(code_paths,
     compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
     cop = op.capitalize()
     if show_file:
-        print('- {} of {} took {:1.3f} seconds (using "{}"{})'.format(cop, src_name, dur_min, exe,
-                                                                      compiler_version_str))
+        print('- {} of {} took {:1.3f} seconds (using "{}"{})'
+              .format(cop, src_name, dur_min, exe, compiler_version_str))
     else:
-        print('- {} took {:1.3f} seconds (using "{}"{})'.format(cop, dur_min, exe,
-                                                                compiler_version_str))
+        print('- {} took {:1.3f} seconds (using "{}"{})'
+              .format(cop, dur_min, exe, compiler_version_str))
 
-    table_row(row=row,
+    return table_row(row=row,
               args=args,
               lang=lang,
               op=op,
