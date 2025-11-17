@@ -318,7 +318,6 @@ def match_lang_exe(args, lang, exe_name):
             return None
     except KeyError:
         pass
-    print(exe_name)
     exe_path = which(exe_name)
     return exe_path
 
