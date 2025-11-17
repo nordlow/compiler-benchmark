@@ -670,9 +670,8 @@ def bench_Go_using_go(results, code_paths, args, op, templated: bool):
         out_flag_and_exe = []
     else:
         return None
-    print(args)
-    print(lang)
-    print(exe)
+    if exe is None:
+        return None
     exe = match_lang_exe(args, lang, exe)
     if exe:
         compile_file(code_paths,
