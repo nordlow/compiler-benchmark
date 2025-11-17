@@ -4,4 +4,5 @@
 # sudo apt update
 # sudo apt install golang-go golang-golang-x-tools
 
-sudo apt install golang-go gcc-go
+sudo apt install golang-go
+
