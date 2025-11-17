@@ -2026,6 +2026,18 @@ def main():
             bench_Pareas(results=results, code_paths=code_paths, args=args,
                          op='build', templated=False)
 
+    if 'Python' in args.language_exes:
+        if 'check' in args.operations:
+            bench_Python(results=results, code_paths=code_paths, args=args,
+                        op='check', templated=False)
+            bench_Python(results=results, code_paths=code_paths, args=args,
+                        op='check', templated=True)
+        if 'build' in args.operations:
+            bench_Python(results=results, code_paths=code_paths, args=args,
+                        op='build', templated=False)
+            bench_Python(results=results, code_paths=code_paths, args=args,
+                        op='build', templated=True)
+
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:
             bench_Mojo(results=results, code_paths=code_paths, args=args,
