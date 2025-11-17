@@ -107,8 +107,8 @@ MARKDOWN_TABLE_TITLES = [
     'Run Time [us/fn]',
     'Check RSS [kB/fn]',
     'Build RSS [kB/fn]',
-    'Exec Version',
-    'Exec Path',
+    'Version',
+    'Exec',
 ]
 
 LANG_IX = 0
