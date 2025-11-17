@@ -1172,19 +1172,19 @@ def compile_file(code_paths,
               format(cop, dur_min, exe, compiler_version_str))
 
     return table_row(row=row,
-              args=args,
-              lang=lang,
-              op=op,
-              exe_path=exe,
-              compiler_version=compiler_version,
-              ast_check_dur=dur_min if op == 'ast-check' else None,
-              check_dur=dur_min if op == 'check' else None,
-              compile_dur=dur_min if op == 'compile' else None,
-              build_dur=dur_min if op == 'build' else None,
-              run_dur=run_dur_min,
-              check_rss_mu=rss_mu if op == 'check' else None,
-              build_rss_mu=rss_mu if op == 'build' else None,
-              templated=templated)
+                     args=args,
+                     lang=lang,
+                     op=op,
+                     exe_path=exe,
+                     compiler_version=compiler_version,
+                     ast_check_dur=dur_min if op == 'ast-check' else None,
+                     check_dur=dur_min if op == 'check' else None,
+                     compile_dur=dur_min if op == 'compile' else None,
+                     build_dur=dur_min if op == 'build' else None,
+                     run_dur=run_dur_min,
+                     check_rss_mu=rss_mu if op == 'check' else None,
+                     build_rss_mu=rss_mu if op == 'build' else None,
+                     templated=templated)
 
 
 def run_compiled_file(args, run_count=1):
