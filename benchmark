@@ -1062,13 +1062,13 @@ def bench_Julia(results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def compile_file(code_paths,
+def compile_file(code_paths: list,
                  out_flag_and_exe,
-                 exe,
+                 exe: str,
                  runner,
-                 exe_flags,
-                 args,
-                 op,
+                 exe_flags: list[str],
+                 args: list,
+                 op: str,
                  compiler_version=None,
                  lang=None,
                  templated=None,
