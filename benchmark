@@ -316,7 +316,7 @@ def markdown_table(titles: list[str], results: Results):
     return result
 
 
-def match_lang_cexe(args, lang, cexe_name):
+def match_lang_cexe(args, lang: str, cexe_name: str):
     """Return compiler executable of lang."""
     try:
         if args.language_exes[lang] and cexe_name not in args.language_exes[lang]:
