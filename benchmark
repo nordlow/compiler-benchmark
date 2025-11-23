@@ -924,19 +924,17 @@ def bm_Scheme(results, code_paths, args, op, templated: bool):
 
         if op == 'run':
             exe_flags = ['--script']
-            out_flag_and_exe = []
             stdin_input = None
         elif op == 'build':
             # For build operation: echo '(compile-file "main_0.scm")' | scheme -q
             exe_flags = ['-q']
-            out_flag_and_exe = []
             # Generate the stdin input dynamically based on run_ix
             stdin_input = '(compile-file "main_{}.scm")'
         else:
             return None
 
         compile_file(code_paths,
-                     out_flag_and_exe=out_flag_and_exe,
+                     out_flag_and_exe=[],
                      cexe=cexe,
                      runner=False,
                      exe_flags=exe_flags,
