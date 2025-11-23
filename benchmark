@@ -924,7 +924,9 @@ def bench_Scheme(results, code_paths, args, op, templated: bool):
         # Get version - Chez Scheme outputs version to stderr
         version_run = sp.run([exe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
         version_output = (version_run.stdout or version_run.stderr).decode('utf-8')
+        print(version_output)
         version_parts = version_output.split()
+        print(version_parts)
         if 'Version' in version_parts:
             version_idx = version_parts.index('Version')
             version = version_parts[version_idx + 1] if len(version_parts) > version_idx + 1 else 'unknown'
@@ -1422,8 +1424,6 @@ void write(u32 fd, u8[] data) {
 ''')
     elif lang == 'scheme':
         f.write('''#!/usr/bin/env scheme --script
-
-(import (chezscheme))
 
 ''')
 
