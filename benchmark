@@ -1422,7 +1422,9 @@ void write(u32 fd, u8[] data) {
 ''')
     elif lang == 'scheme':
         f.write('''#!/usr/bin/env scheme --script
+
 (import (chezscheme))
+
 ''')
 
 def generate_test_language_specific_postfix(lang: str, types, f):
