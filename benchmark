@@ -274,7 +274,7 @@ def to_str_memory_usage(mu):
     return '{:6.1f}'.format(mu / 1e3)
 
 
-def repeat_to_length(string_to_expand, length):
+def repeat_to_length(string_to_expand, length: int):
     return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
 
 
