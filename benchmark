@@ -316,7 +316,7 @@ def markdown_table(titles: list[str], results: Results):
     return result
 
 
-def match_lang_cexe(args, lang: str, cexe_name: str):
+def match_lang_cexe(args: argparse.Namespace, lang: str, cexe_name: str):
     """Return compiler executable of lang."""
     try:
         if args.language_exes[lang] and cexe_name not in args.language_exes[lang]:
@@ -346,7 +346,7 @@ def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, 
                          results=results)
 
 
-def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args, op: str, templated: bool):
+def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     if op == 'check':
         exe_flags = ['-emit-qbe']
         out_flag_and_exe = ['-o', '/dev/null']
@@ -1104,7 +1104,7 @@ def compile_file(code_paths: list,
                  cexe: str,
                  runner,
                  exe_flags: list[str],
-                 args: list,
+                 args: argparse.Namespace,
                  op: str,
                  compiler_version=None,
                  lang=None,
@@ -1306,7 +1306,7 @@ def language_file_extension(lang):
         return lang
 
 
-def generate_test_program_file(lang: str, args, templated: bool, run_ix):
+def generate_test_program_file(lang: str, args: argparse.Namespace, templated: bool, run_ix):
     program_name = DEFAULT_PROGRAM_NAME
 
     llang = lang.lower()        # lowered language
