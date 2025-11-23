@@ -2,4 +2,4 @@
 
 set -uo pipefail
 
-sudo apt install ocaml ocaml-nox
+sudo apt install ocaml
