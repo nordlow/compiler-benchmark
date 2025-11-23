@@ -1481,14 +1481,14 @@ end Main;
         f.write(Tm('    os.exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
     elif lang == 'v':
         f.write(Tm('''    exit(int(${T}_sum >> 32))\n}\n''').substitute(T=types[0]))
+    elif lang == 'scheme':
+        f.write(Tm('''    ${T}_sum))
+(exit (main))\n''').substitute(T=types[0]))
     else:
         f.write(Tm('''    return ${T}_sum;\n}\n''').substitute(T=types[0]))
 
     if lang in ('c#', 'java'):
         f.write('}\n')            # one extra closing brace for class
-    elif lang == 'scheme':
-        f.write(Tm('''    ${T}_sum))
-(exit (main))\n''').substitute(T=types[0]))
 
 
 def generate_main_test_function_definition_set(lang: str, types, args, f,
