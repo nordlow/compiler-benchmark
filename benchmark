@@ -327,7 +327,7 @@ def match_lang_cexe(args, lang: str, cexe_name: str):
     return cexe_path
 
 
-def bm_Ada_using_gcc(results: Results, lang, code_paths, args, op, templated: bool):
+def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, op: str, templated: bool):
     exe_flags = ['compile'] if op == 'build' else ['check']
     for gcc_version in VERSIONS:
         cexe = match_lang_cexe(args, lang, 'gnat' + str(gcc_version))
