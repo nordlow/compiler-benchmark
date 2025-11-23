@@ -26,6 +26,7 @@ compilers. Supported languages are:
 - [Pareas](https://github.com/Snektron/pareas) (using `pareas`),
 - [Python](https://www.python.org/) (using `python`),
 - [Mojo](https://www.modular.com/mojo) (using `mojo`),
+- [Scheme](https://cisco.github.io/ChezScheme/) (using `scheme`),
 
 ## Languages with Bytecode Compilers:
 
@@ -281,3 +282,9 @@ results in the following table (copied from the output at the end).
 
 - [Go compilation times compared to C++, D, Rust, Pascal (cross-posted)](https://www.reddit.com/r/golang/comments/55k7n4/go_compilation_times_compared_to_c_d_rust_pascal/)
 - [LanguageCompilationSpeed](https://wiki.alopex.li/LanguageCompilationSpeed)
+
+<!-- Local Variables: -->
+<!-- gptel-model: grok-beta -->
+<!-- gptel--backend-name: "xAI" -->
+<!-- gptel--bounds: nil -->
+<!-- End: -->
