@@ -1108,7 +1108,7 @@ def compile_file(code_paths: list,
                  compiler_version=None,
                  lang=None,
                  templated: bool = False,
-                 results: list[str] = [],
+                 results: list[tuple] = [],
                  stdin_input: str|None = None):
     key = (lang, templated, cexe)
 
