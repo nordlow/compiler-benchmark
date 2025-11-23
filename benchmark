@@ -2095,8 +2095,7 @@ def main():
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:
-            bm_Mojo(results=results, code_paths=code_paths, args=args,
-                       op='build', templated=False)
+            bm_Mojo(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     # Julia and Ocaml take too long otherwise. So let them participate by
     # truncating size because ops/function are measured
