@@ -312,8 +312,8 @@ def markdown_table(titles, results):
         result += '\n'
     return result
 
-
-def match_lang_exe(args, lang, exe_name):
+def match_lang_cexe(args, lang, exe_name):
+    """Return compiler executable of lang."""
     try:
         if args.language_exes[lang] and exe_name not in args.language_exes[lang]:
             return None
@@ -326,7 +326,7 @@ def match_lang_exe(args, lang, exe_name):
 def bm_Ada_using_gcc(results, lang, code_paths, args, op, templated: bool):
     exe_flags = ['compile'] if op == 'build' else ['check']
     for gcc_version in VERSIONS:
-        exe = match_lang_exe(args, lang, 'gnat' + str(gcc_version))
+        exe = match_lang_cexe(args, lang, 'gnat' + str(gcc_version))
         if exe:
             version = get_version(sp.run([exe, '--version'], stdout=sp.PIPE))
             compile_file(code_paths,
@@ -361,7 +361,7 @@ def bm_C_using_cproc(results, lang, code_paths, args, op, templated: bool):
         # return False
     else:
         return None
-    exe = match_lang_exe(args, lang, 'cproc')
+    exe = match_lang_cexe(args, lang, 'cproc')
     if exe:
         version = 'unknown'
         compile_file(code_paths,
@@ -389,7 +389,7 @@ def bm_C_using_tcc(results, lang, code_paths, args, op, templated: bool):
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
-    exe = match_lang_exe(args, lang, 'tcc')
+    exe = match_lang_cexe(args, lang, 'tcc')
     if exe:
         version = get_version(sp.run([exe, '-v'], stdout=sp.PIPE))
         compile_file(code_paths,
@@ -417,7 +417,7 @@ def bm_C_using_cuik(results, lang, code_paths, args, op, templated: bool):
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
-    exe = match_lang_exe(args, lang, 'cuik')
+    exe = match_lang_cexe(args, lang, 'cuik')
     if exe:
         version = "~master"
         compile_file(code_paths,
@@ -460,9 +460,9 @@ def bm_C_and_Cxx_using_gcc(results, lang, code_paths, args, op,
         FLAGS = CXX_WARN_FLAGS
     for gcc_version in VERSIONS:
         if lang == 'C':
-            exe = match_lang_exe(args, lang, 'gcc' + str(gcc_version))
+            exe = match_lang_cexe(args, lang, 'gcc' + str(gcc_version))
         elif lang == 'C++':
-            exe = match_lang_exe(args, lang, 'g++' + str(gcc_version))
+            exe = match_lang_cexe(args, lang, 'g++' + str(gcc_version))
         else:
             return None
         if exe:
@@ -493,9 +493,9 @@ def bm_C_and_Cxx_using_clang(results, lang, code_paths, args, op,
         FLAGS = CXX_WARN_FLAGS
     for clang_version in VERSIONS:
         if lang == 'C':
-            exe = match_lang_exe(args, lang, 'clang' + str(clang_version))
+            exe = match_lang_cexe(args, lang, 'clang' + str(clang_version))
         elif lang == 'C++':
-            exe = match_lang_exe(args, lang, 'clang' + str(clang_version))
+            exe = match_lang_cexe(args, lang, 'clang' + str(clang_version))
         else:
             return None
         if exe:
@@ -596,7 +596,7 @@ def bm_Vox(results, code_paths, args, op, templated: bool):
         out_flag_and_exe = ['--of=' + out_binary(lang)]
     else:
         return None
-    exe = match_lang_exe(args, lang, 'vox')
+    exe = match_lang_cexe(args, lang, 'vox')
     if exe:
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
@@ -613,7 +613,7 @@ def bm_Vox(results, code_paths, args, op, templated: bool):
 
 def bm_CSharp_using_mono(results, code_paths, args, op, templated: bool):
     lang = 'C#'
-    exe = match_lang_exe(args, lang, 'mcs')
+    exe = match_lang_cexe(args, lang, 'mcs')
     if exe:
         exe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
@@ -632,7 +632,7 @@ def bm_CSharp_using_mono(results, code_paths, args, op, templated: bool):
 
 def bm_CSharp_using_csc(results, code_paths, args, op, templated: bool):
     lang = 'C#'
-    exe = match_lang_exe(args, lang, 'csc')
+    exe = match_lang_cexe(args, lang, 'csc')
     if exe:
         exe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([exe, '-version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
@@ -673,7 +673,7 @@ def bm_Go_using_go(results, code_paths, args, op, templated: bool):
         out_flag_and_exe = []
     else:
         return None
-    exe = match_lang_exe(args, lang, exe)
+    exe = match_lang_cexe(args, lang, exe)
     if exe:
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
@@ -691,7 +691,7 @@ def bm_Go_using_go(results, code_paths, args, op, templated: bool):
 def bm_Go_using_gccgo(results, code_paths, args, op, templated: bool):
     lang = 'Go'
     for gccgo_version in VERSIONS:
-        exe = match_lang_exe(args, lang, 'gccgo' + str(gccgo_version))
+        exe = match_lang_cexe(args, lang, 'gccgo' + str(gccgo_version))
         if exe:
             version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
             compile_file(code_paths,
@@ -709,7 +709,7 @@ def bm_Go_using_gccgo(results, code_paths, args, op, templated: bool):
 
 def bm_Swift(results, code_paths, args, op, templated: bool):
     lang = 'Swift'
-    exe = (match_lang_exe(args, lang, 'swiftc') or
+    exe = (match_lang_cexe(args, lang, 'swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
     if op == 'build':
         exe_flags = ['']
@@ -735,9 +735,9 @@ def bm_Swift(results, code_paths, args, op, templated: bool):
 def bm_OCaml(results, code_paths, args, op, templated: bool, bytecode):
     lang = 'OCaml'
     if bytecode:
-        exe = match_lang_exe(args, lang, 'ocamlc')
+        exe = match_lang_cexe(args, lang, 'ocamlc')
     else:
-        exe = match_lang_exe(args, lang, 'ocamlopt')
+        exe = match_lang_cexe(args, lang, 'ocamlopt')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(code_paths,
@@ -757,7 +757,7 @@ def bm_OCaml(results, code_paths, args, op, templated: bool, bytecode):
 
 def bm_V(results, code_paths, args, op, templated: bool):
     lang = 'V'                                   # vlang.io
-    exe = match_lang_exe(args, lang, 'v')
+    exe = match_lang_cexe(args, lang, 'v')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
         compile_file(code_paths,
@@ -775,7 +775,7 @@ def bm_V(results, code_paths, args, op, templated: bool):
 
 def bm_C3(results, code_paths, args, op, templated: bool):
     lang = 'C3'
-    exe = (match_lang_exe(args, lang, 'c3c') or
+    exe = (match_lang_cexe(args, lang, 'c3c') or
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
     if exe:
         exe_flags = ['-O0']
@@ -818,7 +818,7 @@ def bm_Zig(results, code_paths, args, op, templated: bool):
         out_flag_and_exe = ['--name', out_binary(lang)]
     else:
         return None
-    exe = match_lang_exe(args, lang, 'zig')
+    exe = match_lang_cexe(args, lang, 'zig')
     if exe:
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(code_paths,
@@ -836,7 +836,7 @@ def bm_Zig(results, code_paths, args, op, templated: bool):
 
 def bm_Odin(results, code_paths, args, op, templated: bool):
     lang = 'Odin'
-    exe = match_lang_exe(args, lang, 'odin')
+    exe = match_lang_cexe(args, lang, 'odin')
     exe_flags = ['build', '-build-mode:exe', '-lld'] if op == 'build' else ['check']
     if exe:
         version = sp.run([exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
@@ -870,13 +870,13 @@ def bm_Python(results, code_paths, args, op, templated: bool):
     else:
         return None
 
-    exe = match_lang_exe(args, lang, 'python3')
+    exe = match_lang_cexe(args, lang, 'python3')
     if not exe:
-        exe = match_lang_exe(args, lang, 'python')
+        exe = match_lang_cexe(args, lang, 'python')
     if not exe:
-        exe = match_lang_exe(args, lang, 'pypy3')
+        exe = match_lang_cexe(args, lang, 'pypy3')
     if not exe:
-        exe = match_lang_exe(args, lang, 'pypy')
+        exe = match_lang_cexe(args, lang, 'pypy')
 
     if exe:
         version_output = sp.run([exe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
@@ -898,7 +898,7 @@ def bm_Python(results, code_paths, args, op, templated: bool):
 
 def bm_Mojo(results, code_paths, args, op, templated: bool):
     lang = 'Mojo'
-    exe = match_lang_exe(args, lang, 'mojo')
+    exe = match_lang_cexe(args, lang, 'mojo')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
         compile_file(code_paths,
@@ -916,7 +916,7 @@ def bm_Mojo(results, code_paths, args, op, templated: bool):
 
 def bm_Scheme(results, code_paths, args, op, templated: bool):
     lang = 'Scheme'
-    exe = match_lang_exe(args, lang, 'scheme')
+    exe = match_lang_cexe(args, lang, 'scheme')
     if exe:
         version_run = sp.run([exe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
         version = version_run.stderr.decode('utf-8').strip()
@@ -940,7 +940,7 @@ def bm_Scheme(results, code_paths, args, op, templated: bool):
 
 def bm_Nim(results, code_paths, args, op, templated: bool, exe_flags=None):
     lang = 'Nim'
-    exe = match_lang_exe(args, lang, 'nim')
+    exe = match_lang_cexe(args, lang, 'nim')
 
     # tcc_exe = which('tcc')
     # exe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
@@ -1030,7 +1030,7 @@ def bm_Rust(results, code_paths, args, op, templated: bool):
 
 def bm_Java(results, code_paths, args, op, templated: bool):
     lang = 'Java'
-    exe = match_lang_exe(args, lang, 'javac')
+    exe = match_lang_cexe(args, lang, 'javac')
     if exe:
         try:
             task = sp.run([exe, '-version'],
@@ -1056,7 +1056,7 @@ def bm_Java(results, code_paths, args, op, templated: bool):
 
 def bm_Pareas(results, code_paths, args, op, templated: bool):
     lang = 'Pareas'
-    exe = match_lang_exe(args, lang, 'pareas')
+    exe = match_lang_cexe(args, lang, 'pareas')
     if exe:
         compile_file(code_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
@@ -1073,7 +1073,7 @@ def bm_Pareas(results, code_paths, args, op, templated: bool):
 
 def bm_Julia(results, code_paths, args, op, templated: bool):
     lang = 'Julia'
-    exe = match_lang_exe(args, lang, 'julia')
+    exe = match_lang_cexe(args, lang, 'julia')
     if exe:
         version = sp.run([exe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(code_paths,
