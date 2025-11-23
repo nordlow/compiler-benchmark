@@ -57,8 +57,7 @@ RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # disable warnings for `rustc`
 RUSTC_FLAGS = []  # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=8']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
 
-JULIA_INTERPRET_FLAGS = ['--compile=min']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
-JULIA_COMPILE_FLAGS = ['-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
+JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
 ROOT_PATH = 'generated'
 RANGE = range(5, 20)
@@ -1086,11 +1085,12 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
     cexe = match_lang_cexe(args, lang, 'julia')
     if cexe:
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
+        print(version)
         compile_file(code_paths,
                      out_flag_and_exe=[],
                      cexe=cexe,
                      runner=False,
-                     exe_flags=JULIA_INTERPRET_FLAGS,  # TODO: use JULIA_COMPILE_FLAGS aswell
+                     exe_flags=JULIA_FLAGS,
                      args=args,
                      op=op,
                      compiler_version=version,
