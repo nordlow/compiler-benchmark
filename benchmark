@@ -916,17 +916,25 @@ def bm_Mojo(results, code_paths, args, op, templated: bool):
 
 
 def bm_Scheme(results, code_paths, args, op, templated: bool):
-    print(locals())
     lang = 'Scheme'
     cexe = match_lang_cexe(args, lang, 'scheme')
     if cexe:
         version_run = sp.run([cexe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
         version = version_run.stderr.decode('utf-8').strip()
-        if op in ('run'):
+
+        if op == 'run':
             exe_flags = ['--script']
             out_flag_and_exe = []
+            stdin_input = None
+        elif op == 'build':
+            # For build operation: echo '(compile-file "main_0.scm")' | scheme -q
+            exe_flags = ['-q']
+            out_flag_and_exe = []
+            # Generate the stdin input dynamically based on run_ix
+            stdin_input = '(compile-file "main_{}.scm")'
         else:
             return None
+
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
@@ -937,7 +945,8 @@ def bm_Scheme(results, code_paths, args, op, templated: bool):
                      compiler_version=version,
                      lang=lang,
                      templated=templated,
-                     results=results)
+                     results=results,
+                     stdin_input=stdin_input)
 
 
 def bm_Nim(results, code_paths, args, op, templated: bool, exe_flags=None):
@@ -1101,7 +1110,8 @@ def compile_file(code_paths: list,
                  compiler_version=None,
                  lang=None,
                  templated: bool = False,
-                 results: list = []):
+                 results: list = [],
+                 stdin_input: str = None):  # NEW: optional stdin input
     key = (lang, templated, cexe)
 
     if key not in results:
@@ -1124,30 +1134,45 @@ def compile_file(code_paths: list,
         src_name = os.path.basename(src_path)
 
         cstart = timer()        # compilation start
-        p_args = [cexe] + exe_flags + out_flag_and_exe + [src_name]
+        # NEW: Don't add src_name to p_args if using stdin_input
+        if stdin_input:
+            p_args = [cexe] + exe_flags + out_flag_and_exe
+        else:
+            p_args = [cexe] + exe_flags + out_flag_and_exe + [src_name]
         cwd = os.getcwd()
         os.chdir(out_directory(lang))
         from process_timer import ProcessTimer
-        pt = ProcessTimer(args=p_args)
-        try:
-            while pt.poll():
-                time.sleep(1.0 / args.sample_rate)  # poll as often as possible
-        except Exception:
-            # if rss_mu is None and pt.max_rss_mu != 0:
-            #     rss_mu = pt.max_rss_mu
-            # if rss_mu is None:
-            #     rss_mu = "unavailable"
-            rss_mu = "sampling error"  # precision of maximum is uncertain
-        finally:
-            if rss_mu is None and pt.max_rss_mu != 0:
-                rss_mu = pt.max_rss_mu
-            if rss_mu is None:
-                rss_mu = "missing"
-        # TODO pt.assertClosed() needed?
-        outs, errs = pt.comp_proc.communicate()
+
+        # NEW: Handle stdin_input if provided
+        if stdin_input:
+            # Format stdin with the actual source filename
+            formatted_stdin = stdin_input.format(run_ix)
+            # Use subprocess directly for stdin piping
+            import subprocess
+            comp_proc = subprocess.Popen(p_args,
+                                        stdin=subprocess.PIPE,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+            # Pass input directly to communicate() instead of writing and closing
+            outs, errs = comp_proc.communicate(input=formatted_stdin.encode('utf-8'))
+            rss_mu = "unavailable"  # Can't measure RSS with this approach
+            pt = type('obj', (object,), {'comp_proc': comp_proc})()  # Mock pt object
+        else:
+            pt = ProcessTimer(args=p_args)
+            try:
+                while pt.poll():
+                    time.sleep(1.0 / args.sample_rate)  # poll as often as possible
+            except Exception:
+                rss_mu = "sampling error"  # precision of maximum is uncertain
+            finally:
+                if rss_mu is None and pt.max_rss_mu != 0:
+                    rss_mu = pt.max_rss_mu
+                if rss_mu is None:
+                    rss_mu = "missing"
+
+            outs, errs = pt.comp_proc.communicate()
         os.chdir(cwd)           # restore
 
-        # print('Compilation:', ' '.join([cexe] + exe_flags + out_flag_and_exe + src_name))
         if pt.comp_proc.returncode != 0:
             print("WARNING: Compilation `" + ' '.join([cexe] + exe_flags) +
                   "` of source file `" + src_name +
@@ -1172,6 +1197,7 @@ def compile_file(code_paths: list,
                 errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
             if len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
                 print('output:', errs)
+
     dur_min = min(durs)         # duration minimum
 
     # run
