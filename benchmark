@@ -914,6 +914,52 @@ def bench_Mojo(results, code_paths, args, op, templated: bool):
                      results=results)
 
 
+def bench_Scheme(results, code_paths, args, op, templated: bool):
+    lang = 'Scheme'
+    exe = match_lang_exe(args, lang, 'scheme')
+    if not exe:
+        exe = match_lang_exe(args, lang, 'petite')
+
+    if exe:
+        # Get version - Chez Scheme outputs version to stderr
+        version_run = sp.run([exe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
+        version_output = (version_run.stdout or version_run.stderr).decode('utf-8')
+        version_parts = version_output.split()
+        if 'Version' in version_parts:
+            version_idx = version_parts.index('Version')
+            version = version_parts[version_idx + 1] if len(version_parts) > version_idx + 1 else 'unknown'
+        else:
+            version = 'unknown'
+
+        if op == 'check':
+            # For syntax check, use --program mode which checks without executing
+            # We'll compile to check syntax
+            exe_flags = ['--compile-imported-libraries', '--optimize-level', '0']
+            out_flag_and_exe = []
+        elif op == 'build':
+            # Compile the script using compile-script
+            # We need to load and compile, not run
+            exe_flags = ['--optimize-level', '0']
+            out_flag_and_exe = []
+        elif op == 'run':
+            exe_flags = ['--script']
+            out_flag_and_exe = []
+        else:
+            return None
+
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     exe=exe,
+                     runner=[exe, '--script'] if op == 'run' else False,
+                     exe_flags=exe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
 def bench_Nim(results, code_paths, args, op, templated: bool, exe_flags=None):
     lang = 'Nim'
     exe = match_lang_exe(args, lang, 'nim')
