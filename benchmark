@@ -43,8 +43,9 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Julia': ['julia', ],
                  'OCaml': ['ocamlc', 'ocamlopt', ],
                  'Pareas': ['pareas', ],
-                 'Python': ['python3', 'python', 'pypy3', 'pypy'],
+                 'Python': ['python3', 'python', 'pypy3', 'pypy', ],
                  'Mojo': ['mojo', ],
+                 'Scheme': ['scheme', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust',
                                  'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo']
