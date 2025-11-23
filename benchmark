@@ -1376,7 +1376,7 @@ def generate_test_function_call(lang: str, findex, typ, fi, templated: bool):
     else:
         fi.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme'):
         fi.write(';')          # statement terminator
 
     fi.write('\n')
