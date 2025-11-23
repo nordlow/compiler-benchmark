@@ -1348,30 +1348,29 @@ def generate_test_program_file(lang: str, args, templated: bool, run_ix):
 
 
 def generate_test_function_call(lang: str, findex, typ, f, templated: bool):
+    n = str(findex)
     if lang in ('c#', 'java'):
         f.write('    ')
     if lang == 'zig' and templated:  # Zig needs explicit template type
-        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${T}, ${N})').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${T}, ${N})').substitute(T=typ, N=n))
     elif lang == 'v' and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
-        f.write(Tm('    ${T}_sum += add_${T}_n${N}<${T}>(${N})').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}<${T}>(${N})').substitute(T=typ, N=n))
     elif lang == 'ocaml':
-        f.write(Tm('    let ${T}_sum = ${T}_sum +. (add_${T}_n${N} ${N}.0) in').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    let ${T}_sum = ${T}_sum +. (add_${T}_n${N} ${N}.0) in').substitute(T=typ, N=n))
     elif lang == 'ada':
-        f.write(Tm('   ${T}_sum := ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+        f.write(Tm('   ${T}_sum := ${T}_sum + add_${T}_n${N}(${N})').substitute(T=typ, N=n))
     elif lang == 'vox':
-        f.write(Tm('    ${T}_sum += add_${T}_n${N}${X}(${N})').substitute(T=typ,
-                                                                             N=str(findex),
-                                                                             X='[' + typ + ']' if templated else ''))
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else ''))
     elif lang == 'swift':
-        f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(x: ${N})').substitute(T=typ, N=n))
     elif lang == 'pareas':
-        f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}[${N}]').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    ${T}_sum = ${T}_sum + add_${T}_n${N}[${N}]').substitute(T=typ, N=n))
     elif lang == 'python' or lang == 'mojo':
-        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=n))
     elif lang == 'scheme':
-        f.write(f'    (set! {typ}_sum (+ {typ}_sum (add_{typ}_n{findex} {findex})))')
+        f.write(Tm('    (set! ${T}_sum (+ ${T}_sum (add_${T}_n${N} ${N})))').substitute(T=typ, N=n))
     else:
-        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
+        f.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=n))
 
     if lang not in ('ocaml', 'nim', 'v', 'odin'):
         f.write(';')          # statement terminator
