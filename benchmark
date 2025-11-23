@@ -2141,6 +2141,17 @@ def main():
             bench_Julia(results=results, code_paths=code_paths, args=args,
                         op='build', templated=True)
 
+    if 'Scheme' in args.language_exes:
+        if 'check' in args.operations:
+            bench_Scheme(results=results, code_paths=code_paths, args=args,
+                         op='check', templated=False)
+        if 'build' in args.operations:
+            bench_Scheme(results=results, code_paths=code_paths, args=args,
+                         op='build', templated=False)
+        if 'run' in args.operations:
+            bench_Scheme(results=results, code_paths=code_paths, args=args,
+                         op='run', templated=False)
+
     args.function_count = function_count
     args.function_depth = function_depth
 
