@@ -1754,6 +1754,8 @@ def generate_main_test_function_variable(lang: str, typ, f, templated: bool):
         f.write(Tm('    ${T}_sum: ${T} := 0;\n').substitute(T=typ))
     elif lang == 'mojo':
         f.write(Tm('    var ${T}_sum: ${T} = 0\n').substitute(T=typ))
+    elif lang == 'scheme':
+        pass # variables are declared in the let binding in generate_test_main_middle
     else:
         assert False
 
