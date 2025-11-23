@@ -1349,8 +1349,10 @@ def generate_test_program_file(lang: str, args, templated: bool, run_ix):
 
 def generate_test_function_call(lang: str, findex, typ, f, templated: bool):
     n = str(findex)
+
     if lang in ('c#', 'java'):
         f.write('    ')
+
     if lang == 'zig' and templated:  # Zig needs explicit template type
         f.write(Tm('    ${T}_sum += add_${T}_n${N}(${T}, ${N})').substitute(T=typ, N=n))
     elif lang == 'v' and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
