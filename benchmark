@@ -1109,7 +1109,7 @@ def compile_file(code_paths: list,
                  lang=None,
                  templated: bool = False,
                  results: list[str] = [],
-                 stdin_input: str = ""):
+                 stdin_input: str|None = None):
     key = (lang, templated, cexe)
 
     if key not in results:
