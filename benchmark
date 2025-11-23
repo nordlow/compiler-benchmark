@@ -278,7 +278,7 @@ def repeat_to_length(string_to_expand, length):
     return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
 
 
-def markdown_header(text, nr):        # Markdown header
+def markdown_header(text: str, nr: int):        # Markdown header
     return '#' * nr + ' ' + text
 
 
