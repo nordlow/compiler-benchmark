@@ -122,8 +122,8 @@ RUN_DUR_PER_FUNC_IX = 6       # run duration
 CHECK_RSS_MU_IX = 7        # check RSS memory usage
 BUILD_RSS_MU_IX = 8        # build RSS memory usage
 CEXE_VERSION_IX = 9
-EXE_PATH_IX = 10
-MARKDOWN_TABLE_LENGTH = EXE_PATH_IX + 1
+CEXE_PATH_IX = 10
+MARKDOWN_TABLE_LENGTH = CEXE_PATH_IX + 1
 
 assert len(MARKDOWN_TABLE_TITLES) == MARKDOWN_TABLE_LENGTH
 
@@ -175,7 +175,7 @@ def table_row(row,
         row[BUILD_RSS_MU_IX] = build_rss_mu
 
     row[CEXE_VERSION_IX] = compiler_version
-    row[EXE_PATH_IX] = os.path.basename(cexe_path)
+    row[CEXE_PATH_IX] = os.path.basename(cexe_path)
 
     return row
 
@@ -221,7 +221,7 @@ def fill_in_speedups(results, column_ix):
                 min_key = key
                 min_val = result[column_ix]
     if min_key is not None:
-        rel_tag = results[min_key][EXE_PATH_IX]
+        rel_tag = results[min_key][CEXE_PATH_IX]
         for key, result in results.items():
             result[column_ix] = stringify_metrics(abs_n=result[column_ix],
                                                   min_val=min_val,
