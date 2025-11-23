@@ -2043,55 +2043,40 @@ def main():
 
     if 'Rust' in args.language_exes:
         if 'check' in args.operations:
-            bm_Rust(results=results, code_paths=code_paths, args=args,
-                       op='check', templated=False)
-            bm_Rust(results=results, code_paths=code_paths, args=args,
-                       op='check', templated=True)
+            bm_Rust(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+            bm_Rust(results=results, code_paths=code_paths, args=args, op='check', templated=True)
         if 'build' in args.operations:
-            bm_Rust(results=results, code_paths=code_paths, args=args,
-                       op='build', templated=False)
-            bm_Rust(results=results, code_paths=code_paths, args=args,
-                       op='build', templated=True)
+            bm_Rust(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            bm_Rust(results=results, code_paths=code_paths, args=args, op='build', templated=True)
 
     if 'Nim' in args.language_exes:
         if 'check' in args.operations:
-            bm_Nim(results=results, code_paths=code_paths, args=args,
-                      op='check', templated=False)
+            bm_Nim(results=results, code_paths=code_paths, args=args, op='check', templated=False)
         if 'build' in args.operations:
-            bm_Nim(results=results, code_paths=code_paths, args=args,
-                      op='build', templated=False)
+            bm_Nim(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'C#' in args.language_exes:
         if 'build' in args.operations:
-            bm_CSharp_using_mono(results=results, code_paths=code_paths,
-                                    args=args, op='build', templated=False)
-            bm_CSharp_using_csc(results=results, code_paths=code_paths,
-                                   args=args, op='build', templated=False)
+            bm_CSharp_using_mono(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            bm_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'Java' in args.language_exes:
         if 'build' in args.operations:
-            bm_Java(results=results, code_paths=code_paths, args=args,
-                       op='build', templated=False)
+            bm_Java(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'Pareas' in args.language_exes:
         if 'check' in args.operations:
-            bm_Pareas(results=results, code_paths=code_paths, args=args,
-                         op='check', templated=False)
+            bm_Pareas(results=results, code_paths=code_paths, args=args, op='check', templated=False)
         if 'build' in args.operations:
-            bm_Pareas(results=results, code_paths=code_paths, args=args,
-                         op='build', templated=False)
+            bm_Pareas(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'Python' in args.language_exes:
         if 'check' in args.operations:
-            bm_Python(results=results, code_paths=code_paths, args=args,
-                        op='check', templated=False)
-            bm_Python(results=results, code_paths=code_paths, args=args,
-                        op='check', templated=True)
+            bm_Python(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+            bm_Python(results=results, code_paths=code_paths, args=args, op='check', templated=True)
         if 'build' in args.operations:
-            bm_Python(results=results, code_paths=code_paths, args=args,
-                        op='build', templated=False)
-            bm_Python(results=results, code_paths=code_paths, args=args,
-                        op='build', templated=True)
+            bm_Python(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            bm_Python(results=results, code_paths=code_paths, args=args, op='build', templated=True)
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:
