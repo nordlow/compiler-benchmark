@@ -214,7 +214,7 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
 Results = dict[tuple, list]
 
 
-def fill_in_speedups(results: Results, column_ix):
+def fill_in_speedups(results: Results, column_ix: int):
     # calculate minimum
     min_key = None               # key of minimum
     min_val = None               # value of minimum
@@ -282,7 +282,7 @@ def markdown_header(text, nr):        # Markdown header
     return '#' * nr + ' ' + text
 
 
-def markdown_table(titles, results):
+def markdown_table(titles: list[str], results: Results):
     fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX)
