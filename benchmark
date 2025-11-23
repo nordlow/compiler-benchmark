@@ -312,6 +312,7 @@ def markdown_table(titles, results):
         result += '\n'
     return result
 
+
 def match_lang_cexe(args, lang, exe_name):
     """Return compiler executable of lang."""
     try:
