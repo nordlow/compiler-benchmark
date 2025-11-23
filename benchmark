@@ -1100,6 +1100,7 @@ def compile_file(code_paths: list,
                  lang=None,
                  templated: bool = False,
                  results: list = []):
+    print(locals())
     key = (lang, templated, exe)
 
     if key not in results:
