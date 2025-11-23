@@ -928,7 +928,7 @@ def bench_Scheme(results, code_paths, args, op, templated: bool):
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      exe=exe,
-                     runner=False,  # We're already using --script
+                     runner=False,
                      exe_flags=exe_flags,
                      args=args,
                      op=op,
