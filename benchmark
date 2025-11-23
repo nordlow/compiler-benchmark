@@ -1320,28 +1320,28 @@ def generate_test_program_file(lang: str, args, templated: bool, run_ix):
                          '.' + ext))
 
     start = timer()
-    with open(path, 'w') as fi:
-        generate_test_language_specific_prefix(llang, program_name, fi, templated=templated)
+    with open(path, 'w') as fil:
+        generate_test_language_specific_prefix(llang, program_name, fil, templated=templated)
 
         if llang == 'ada':
-            generate_test_main_header(llang, types, fi, templated)
-            generate_main_test_function_definition_set(llang, types, args, fi,
+            generate_test_main_header(llang, types, fil, templated)
+            generate_main_test_function_definition_set(llang, types, args, fil,
                                                        templated=templated)
         else:
-            generate_main_test_function_definition_set(llang, types, args, fi,
+            generate_main_test_function_definition_set(llang, types, args, fil,
                                                        templated=templated)
-            generate_test_main_header(llang, types, fi, templated)
+            generate_test_main_header(llang, types, fil, templated)
 
         for typ in types:
-            generate_main_test_function_variable(llang, typ, fi, templated=templated)
+            generate_main_test_function_variable(llang, typ, fil, templated=templated)
 
-        generate_test_main_middle(llang, types, fi, templated)
+        generate_test_main_middle(llang, types, fil, templated)
 
         for typ in types:
             for findex in range(0, args.function_count):
-                generate_test_function_call(llang, findex, typ, fi, templated=templated)
+                generate_test_function_call(llang, findex, typ, fil, templated=templated)
 
-        generate_test_language_specific_postfix(llang, types, fi)
+        generate_test_language_specific_postfix(llang, types, fil)
     end = timer()
     dur = (end - start)  # time dur
     print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
@@ -1349,39 +1349,39 @@ def generate_test_program_file(lang: str, args, templated: bool, run_ix):
     return path
 
 
-def generate_test_function_call(lang: str, findex, typ, fi, templated: bool):
+def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
     n = str(findex)
 
     if lang in ('c#', 'java'):
-        fi.write('    ')
+        fil.write('    ')
 
     fn = Tm('add_${T}_n${N}').substitute(T=typ, N=n)
 
     if lang == 'zig' and templated:  # Zig needs explicit template type
-        fi.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'v' and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
-        fi.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'ocaml':
-        fi.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
     elif lang == 'ada':
-        fi.write(Tm('   ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('   ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'vox':
-        fi.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else ''))
+        fil.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else ''))
     elif lang == 'swift':
-        fi.write(Tm('    ${T}_sum += ${F}(x: ${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum += ${F}(x: ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pareas':
-        fi.write(Tm('    ${T}_sum = ${T}_sum + ${F}[${N}]').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}[${N}]').substitute(T=typ, N=n, F=fn))
     elif lang == 'python' or lang == 'mojo':
-        fi.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'scheme':
-        fi.write(Tm('    (set! ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    (set! ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
     else:
-        fi.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
     if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme'):
-        fi.write(';')          # statement terminator
+        fil.write(';')          # statement terminator
 
-    fi.write('\n')
+    fil.write('\n')
 
 
 def generate_test_language_specific_prefix(lang: str, program_name, f, templated: bool):
