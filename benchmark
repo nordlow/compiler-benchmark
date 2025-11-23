@@ -141,7 +141,7 @@ def table_row(row,
               run_dur,
               check_rss_mu,
               build_rss_mu,
-              templated):
+              templated: bool):
 
     if cexe_path.startswith(HOME):
         cexe_path = os.path.join('~', cexe_path.lstrip(HOME))
@@ -452,7 +452,7 @@ def gcc_clang_op_flags(op, lang):
     return (exe_flags, out_flag_and_exe)
 
 
-def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args, op, templated):
+def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args, op, templated: bool):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return None
@@ -484,7 +484,7 @@ def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args, op, templat
                          results=results)
 
 
-def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args, op, templated):
+def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args, op, templated: bool):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return None
@@ -1491,7 +1491,7 @@ end Main;
         f.write('}\n')            # one extra closing brace for class
 
 
-def generate_main_test_function_definition_set(lang: str, types, args, f, templated):
+def generate_main_test_function_definition_set(lang: str, types, args, f, templated: bool):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
