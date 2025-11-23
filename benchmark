@@ -1709,7 +1709,6 @@ def generate_test_main_header(lang: str, types: list, f, templated: bool):
     else:
         assert False
 
-
 def generate_test_main_middle(lang: str, types: list, f, _templated: bool):
     if lang == 'ada':
         f.write('begin\n')
