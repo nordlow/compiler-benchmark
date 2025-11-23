@@ -1656,12 +1656,6 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             f.write(Tm('def ${F}(x):\n    return ${X}\n\n').substitute(
                 F=str(fname), X=expr))
     elif lang == 'scheme':
-        if fheight == 0:
-            expr = f'(+ x {nconst})'
-        else:
-            call = function_name(typ, findex, fheight - 1)
-            expr = f'(+ x ({call} x) {nconst})'
-        fname = function_name(typ, findex, fheight)
         f.write(f'(define ({fname} x)\n  {expr})\n\n')
 
 
