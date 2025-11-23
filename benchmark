@@ -1485,11 +1485,8 @@ end Main;
     if lang in ('c#', 'java'):
         f.write('}\n')            # one extra closing brace for class
     elif lang == 'scheme':
-        f.write(f'''    {types[0]}_sum))
-
-;; Call main and exit with result
-(exit (main))
-''')
+        f.write(Tm('''    ${T}_sum))
+(exit (main))\n''').substitute(T=types[0]))
 
 
 def generate_main_test_function_definition_set(lang: str, types, args, f,
