@@ -381,7 +381,7 @@ def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argpar
                      results=results)
 
 
-def bm_C_using_tcc(results: Results, lang: str, code_paths: list, args, op: str, templated: bool):
+def bm_C_using_tcc(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     if op == 'check':
         exe_flags = ['-c']
         out_flag_and_exe = ['-o', '/dev/null']
@@ -409,7 +409,7 @@ def bm_C_using_tcc(results: Results, lang: str, code_paths: list, args, op: str,
                      results=results)
 
 
-def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args, op: str, templated: bool):
+def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     if op == 'check':
         exe_flags = ['-c', '-xe']
         out_flag_and_exe = []
@@ -452,7 +452,7 @@ def gcc_clang_op_flags(op, lang):
     return (exe_flags, out_flag_and_exe)
 
 
-def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args, op, templated: bool):
+def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args: argparse.Namespace, op, templated: bool):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return None
@@ -484,7 +484,7 @@ def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args, op, templat
                          results=results)
 
 
-def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args, op, templated: bool):
+def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.Namespace, op, templated: bool):
     (exe_flags, out_flag_and_exe) = gcc_clang_op_flags(op, lang)
     if exe_flags is None:
         return None
@@ -515,7 +515,7 @@ def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args, op, templ
                          results=results)
 
 
-def bm_D(results: Results, code_paths, args, op, templated: bool, use_dips):
+def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips):
     lang = 'D'
     d_flags = ['-w', '-dip1008', '-dip1000'] if use_dips else []
 
@@ -586,7 +586,7 @@ def bm_D(results: Results, code_paths, args, op, templated: bool, use_dips):
                          results=results)
 
 
-def bm_Vox(results: Results, code_paths, args, op, templated: bool):
+def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Vox'
     if op == 'check':
         exe_flags = ['--check-only']
@@ -613,7 +613,7 @@ def bm_Vox(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_CSharp_using_mono(results: Results, code_paths, args, op, templated: bool):
+def bm_CSharp_using_mono(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C#'
     cexe = match_lang_cexe(args, lang, 'mcs')
     if cexe:
@@ -632,7 +632,7 @@ def bm_CSharp_using_mono(results: Results, code_paths, args, op, templated: bool
                      results=results)
 
 
-def bm_CSharp_using_csc(results: Results, code_paths, args, op, templated: bool):
+def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C#'
     cexe = match_lang_cexe(args, lang, 'csc')
     if cexe:
@@ -651,12 +651,12 @@ def bm_CSharp_using_csc(results: Results, code_paths, args, op, templated: bool)
                      results=results)
 
 
-def bm_Go(results: Results, code_paths, args, op, templated: bool):
+def bm_Go(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     bm_Go_using_go(results, code_paths, args, op, templated)
     bm_Go_using_gccgo(results, code_paths, args, op, templated)
 
 
-def bm_Go_using_go(results: Results, code_paths, args, op, templated: bool):
+def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Go'
     version = None              # unknown
     if op == 'build':
@@ -690,7 +690,7 @@ def bm_Go_using_go(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_Go_using_gccgo(results: Results, code_paths, args, op, templated: bool):
+def bm_Go_using_gccgo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Go'
     for gccgo_version in VERSIONS:
         cexe = match_lang_cexe(args, lang, 'gccgo' + str(gccgo_version))
@@ -709,7 +709,7 @@ def bm_Go_using_gccgo(results: Results, code_paths, args, op, templated: bool):
                          results=results)
 
 
-def bm_Swift(results: Results, code_paths, args, op, templated: bool):
+def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Swift'
     cexe = (match_lang_cexe(args, lang, 'swiftc') or
            which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
@@ -734,7 +734,7 @@ def bm_Swift(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_OCaml(results: Results, code_paths, args, op, templated: bool, bytecode):
+def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, bytecode):
     lang = 'OCaml'
     if bytecode:
         cexe = match_lang_cexe(args, lang, 'ocamlc')
@@ -757,7 +757,7 @@ def bm_OCaml(results: Results, code_paths, args, op, templated: bool, bytecode):
                      results=results)
 
 
-def bm_V(results: Results, code_paths, args, op, templated: bool):
+def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'V'                                   # vlang.io
     cexe = match_lang_cexe(args, lang, 'v')
     if cexe:
@@ -775,7 +775,7 @@ def bm_V(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_C3(results: Results, code_paths, args, op, templated: bool):
+def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C3'
     cexe = (match_lang_cexe(args, lang, 'c3c') or
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
@@ -804,7 +804,7 @@ def bm_C3(results: Results, code_paths, args, op, templated: bool):
 
 zig_no_llvm_build_flags = ['-fno-llvm', '-fno-lld', '-fno-clang'] # See https://stackoverflow.com/a/78995648/683710 and https://github.com/ziglang/zig/issues/6251
 
-def bm_Zig(results: Results, code_paths, args, op, templated: bool):
+def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Zig'
     if op == 'ast-check':       # full syntactic analysis and partial semantic analysis
         exe_flags = ['ast-check']
@@ -836,7 +836,7 @@ def bm_Zig(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_Odin(results: Results, code_paths, args, op, templated: bool):
+def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Odin'
     cexe = match_lang_cexe(args, lang, 'odin')
     exe_flags = ['build', '-build-mode:cexe', '-lld'] if op == 'build' else ['check']
@@ -855,7 +855,7 @@ def bm_Odin(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_Python(results: Results, code_paths, args, op, templated: bool):
+def bm_Python(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Python'
 
     if op == 'build':
@@ -898,7 +898,7 @@ def bm_Python(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_Mojo(results: Results, code_paths, args, op, templated: bool):
+def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Mojo'
     cexe = match_lang_cexe(args, lang, 'mojo')
     if cexe:
@@ -916,7 +916,7 @@ def bm_Mojo(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_Scheme(results: Results, code_paths, args, op, templated: bool):
+def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Scheme'
     cexe = match_lang_cexe(args, lang, 'scheme')
     if cexe:
@@ -948,7 +948,7 @@ def bm_Scheme(results: Results, code_paths, args, op, templated: bool):
                      stdin_input=stdin_input)
 
 
-def bm_Nim(results: Results, code_paths, args, op, templated: bool, exe_flags=None):
+def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, exe_flags=None):
     lang = 'Nim'
     cexe = match_lang_cexe(args, lang, 'nim')
 
@@ -995,7 +995,7 @@ def rust_flags(channel):
     return flags
 
 
-def bm_Rust(results: Results, code_paths, args, op, templated: bool):
+def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Rust'
 
     rustup_exe = which('rustup')
@@ -1038,7 +1038,7 @@ def bm_Rust(results: Results, code_paths, args, op, templated: bool):
                          templated=templated,
                          results=results)
 
-def bm_Java(results: Results, code_paths, args, op, templated: bool):
+def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Java'
     cexe = match_lang_cexe(args, lang, 'javac')
     if cexe:
@@ -1064,7 +1064,7 @@ def bm_Java(results: Results, code_paths, args, op, templated: bool):
                      templated=templated,
                      results=results)
 
-def bm_Pareas(results: Results, code_paths, args, op, templated: bool):
+def bm_Pareas(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Pareas'
     cexe = match_lang_cexe(args, lang, 'pareas')
     if cexe:
@@ -1081,7 +1081,7 @@ def bm_Pareas(results: Results, code_paths, args, op, templated: bool):
                      results=results)
 
 
-def bm_Julia(results: Results, code_paths, args, op, templated: bool):
+def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Julia'
     cexe = match_lang_cexe(args, lang, 'julia')
     if cexe:
@@ -1233,7 +1233,7 @@ def compile_file(code_paths: list,
                      templated=templated)
 
 
-def run_compiled_file(args, run_count=1):
+def run_compiled_file(args: argparse.Namespace, run_count=1):
     durs = []                  # compilation durations
     for _ in range(0, run_count):
         cstart = timer()        # compilation start
@@ -1491,7 +1491,7 @@ end Main;
         fil.write('}\n')            # one extra closing brace for class
 
 
-def generate_main_test_function_definition_set(lang: str, types: list[str], args, fil, templated: bool):
+def generate_main_test_function_definition_set(lang: str, types: list[str], args: argparse.Namespace, fil, templated: bool):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
@@ -1510,7 +1510,7 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-def generate_test_function_definition(args, lang: str, typ, findex: int, fheight: int, fil, templated: bool):
+def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, findex: int, fheight: int, fil, templated: bool):
     if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
