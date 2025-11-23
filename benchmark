@@ -1658,7 +1658,7 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             f.write(Tm('def ${F}(x):\n    return ${X}\n\n').substitute(
                 F=str(fname), X=expr))
     elif lang == 'scheme':
-        f.write(f'(define ({fname} x)\n  {expr})\n\n')
+        f.write(f'(define ({fname} x)\n  {expr})\n')
 
 
 def generate_test_main_header(lang: str, types, f, templated: bool):
