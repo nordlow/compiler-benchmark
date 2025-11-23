@@ -916,6 +916,7 @@ def bm_Mojo(results, code_paths, args, op, templated: bool):
 
 
 def bm_Scheme(results, code_paths, args, op, templated: bool):
+    print(locals())
     lang = 'Scheme'
     cexe = match_lang_cexe(args, lang, 'scheme')
     if cexe:
@@ -1101,7 +1102,6 @@ def compile_file(code_paths: list,
                  lang=None,
                  templated: bool = False,
                  results: list = []):
-    print(locals())
     key = (lang, templated, cexe)
 
     if key not in results:
@@ -1111,8 +1111,8 @@ def compile_file(code_paths: list,
         row = results[key]
 
     # op
-    durs = []                  # compilation durations
-    rss_mu = None                    # RSS memory usage
+    durs = [] # compilation durations
+    rss_mu = None # RSS memory usage
     for run_ix in range(0, args.run_count):
         src_key = sourceIdOf(lang, templated, run_ix)
 
