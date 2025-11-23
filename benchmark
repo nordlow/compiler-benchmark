@@ -1110,7 +1110,7 @@ def compile_file(code_paths: list,
                  compiler_version=None,
                  lang=None,
                  templated: bool = False,
-                 results: list = [],
+                 results: list[str] = [],
                  stdin_input: str = ""):
     key = (lang, templated, cexe)
 
