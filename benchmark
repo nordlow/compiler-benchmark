@@ -1546,6 +1546,9 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
         elif lang == 'mojo':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + nconst # TODO: Add xtarg
+        elif lang == 'scheme':
+            call = function_name(typ, findex, fheight - 1)
+            expr = f'(+ x ({call} x) {nconst})'
         else:
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + nconst
 
