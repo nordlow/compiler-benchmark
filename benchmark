@@ -1275,6 +1275,8 @@ def long_type_of_lang(lang):
         return ['Int']
     elif lang == 'mojo':
         return ['Int']
+    elif lang == 'scheme':
+        return ['int']  # Scheme uses unboxed integers
     else:
         return None
 
@@ -1296,6 +1298,8 @@ def language_file_extension(lang):
         return 'par'
     elif lang == 'python':
         return 'py'
+    elif lang == 'scheme':
+        return 'ss'
     else:
         return lang
 
@@ -1412,7 +1416,10 @@ void write(u32 fd, u8[] data) {
 	sys_write(fd, data.ptr, data.length);
 }
 ''')
-
+    elif lang == 'scheme':
+        f.write('''#!/usr/bin/env scheme --script
+(import (chezscheme))
+''')
 
 def generate_test_language_specific_postfix(lang: str, types, f):
     if lang == 'rust':
@@ -1473,6 +1480,10 @@ end Main;
 
     if lang in ('c#', 'java'):
         f.write('}\n')            # one extra closing brace for class
+    elif lang == 'scheme':
+        f.write(f'''
+(exit (main))
+''')
 
 
 def generate_main_test_function_definition_set(lang: str, types, args, f,
@@ -1480,8 +1491,7 @@ def generate_main_test_function_definition_set(lang: str, types, args, f,
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
-                generate_test_function_definition(args, lang, typ, findex, fheight, f,
-                                                  templated=templated)
+                generate_test_function_definition(args, lang, typ, findex, fheight, f, templated=templated)
             f.write('\n')
         f.write('\n')
 
@@ -1637,6 +1647,14 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
         else:
             f.write(Tm('def ${F}(x):\n    return ${X}\n\n').substitute(
                 F=str(fname), X=expr))
+    elif lang == 'scheme':
+        if fheight == 0:
+            expr = f'(+ x {nconst})'
+        else:
+            call = function_name(typ, findex, fheight - 1)
+            expr = f'(+ x ({call} x) {nconst})'
+        fname = function_name(typ, findex, fheight)
+        f.write(f'(define ({fname} x)\n  {expr})\n\n')
 
 
 def generate_test_main_header(lang: str, types, f, templated: bool):
@@ -1683,6 +1701,8 @@ def generate_test_main_header(lang: str, types, f, templated: bool):
         f.write('fn main() -> int:\n')
     elif lang == 'odin':
         f.write(Tm('main :: proc() {\n').substitute(T=types[0]))
+    elif lang == 'scheme':
+        f.write('(define (main)\n')
     else:
         assert False
 
