@@ -1710,8 +1710,11 @@ def generate_test_main_header(lang: str, types, f, templated: bool):
 def generate_test_main_middle(lang: str, types, f, _templated: bool):
     if lang == 'ada':
         f.write('begin\n')
-    else:
-        pass  # no special middle section needed
+    elif lang == 'scheme':
+        # Open let binding for sum variables
+        bindings = ' '.join([f'({typ}_sum 0)' for typ in types])
+        f.write(f'  (let ({bindings})\n')
+
 
 def generate_main_test_function_variable(lang: str, typ, f, templated: bool):
     if lang in ('c', 'c3', 'c++', 'd', 'vox'):
