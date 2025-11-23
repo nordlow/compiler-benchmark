@@ -1485,7 +1485,9 @@ end Main;
     if lang in ('c#', 'java'):
         f.write('}\n')            # one extra closing brace for class
     elif lang == 'scheme':
-        f.write(f'''
+        f.write(f'''    {types[0]}_sum)) ;; close let and return sum
+
+;; Call main and exit with result
 (exit (main))
 ''')
 
