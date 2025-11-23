@@ -1299,7 +1299,7 @@ def language_file_extension(lang):
     elif lang == 'python':
         return 'py'
     elif lang == 'scheme':
-        return 'ss'
+        return 'scm'
     else:
         return lang
 
