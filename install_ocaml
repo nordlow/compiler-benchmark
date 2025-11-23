@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
 set -uo pipefail
-sudo apt install ocaml-nox
+
+sudo apt install ocaml ocaml-nox
