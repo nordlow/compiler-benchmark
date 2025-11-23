@@ -926,9 +926,7 @@ def bench_Scheme(results, code_paths, args, op, templated: bool):
             version = version_parts[version_idx + 1] if len(version_parts) > version_idx + 1 else 'unknown'
         else:
             version = 'unknown'
-        # Chez Scheme compiles incrementally when running scripts
-        # There's no separate syntax-check mode that doesn't execute
-        if op in ('check', 'build', 'run'):
+        if op in ('run'):
             exe_flags = ['--script']
             out_flag_and_exe = []
         else:
