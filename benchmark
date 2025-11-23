@@ -1491,7 +1491,7 @@ end Main;
         f.write('}\n')            # one extra closing brace for class
 
 
-def generate_main_test_function_definition_set(lang: str, types, args, f, templated: bool):
+def generate_main_test_function_definition_set(lang: str, types: list[str], args, f, templated: bool):
     for typ in types:
         for findex in range(0, args.function_count):
             for fheight in range(0, args.function_depth):
@@ -1510,7 +1510,7 @@ def function_name(typ, findex, fheight):
                                                N=str(findex))
 
 
-def generate_test_function_definition(args, lang, typ, findex, fheight, f, templated: bool):
+def generate_test_function_definition(args, lang: str, typ, findex: int, fheight: int, f, templated: bool):
     if RANDOMIZE_FLAG:
         nconst = str(random.randint(0, 100000))
     else:
