@@ -1427,7 +1427,7 @@ void write(u32 fd, u8[] data) {
 
 ''')
 
-def generate_test_language_specific_postfix(lang: str, types, f):
+def generate_test_language_specific_postfix(lang: str, types: list, f):
     if lang == 'rust':
         f.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
     elif lang == 'd':
@@ -1660,7 +1660,7 @@ def generate_test_function_definition(args, lang: str, typ, findex: int, fheight
         f.write(f'(define ({fname} x) {expr})\n')
 
 
-def generate_test_main_header(lang: str, types, f, templated: bool):
+def generate_test_main_header(lang: str, types: list, f, templated: bool):
     if lang in ['c', 'c++']:
         # `cproc` cannot handle this skip for now:
         # f.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
@@ -1710,7 +1710,7 @@ def generate_test_main_header(lang: str, types, f, templated: bool):
         assert False
 
 
-def generate_test_main_middle(lang: str, types, f, _templated: bool):
+def generate_test_main_middle(lang: str, types: list, f, _templated: bool):
     if lang == 'ada':
         f.write('begin\n')
     elif lang == 'scheme':
