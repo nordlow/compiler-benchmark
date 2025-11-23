@@ -1520,6 +1520,8 @@ def generate_test_function_definition(args, lang, typ, findex, fheight, f, templ
             expr = 'x'          # because Rust is picky
         elif lang == 'ocaml':
             expr = 'x +. ' + nconst + '.0'
+        elif lang == 'scheme':
+            expr = f'(+ x {nconst})'
         else:
             expr = 'x + ' + nconst
     else:
