@@ -1143,17 +1143,13 @@ def compile_file(code_paths: list,
         os.chdir(out_directory(lang))
         from process_timer import ProcessTimer
 
-        # NEW: Handle stdin_input if provided
         if stdin_input:
-            # Format stdin with the actual source filename
             formatted_stdin = stdin_input.format(run_ix)
-            # Use subprocess directly for stdin piping
             import subprocess
             comp_proc = subprocess.Popen(p_args,
                                         stdin=subprocess.PIPE,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
-            # Pass input directly to communicate() instead of writing and closing
             outs, errs = comp_proc.communicate(input=formatted_stdin.encode('utf-8'))
             rss_mu = "unavailable"  # Can't measure RSS with this approach
             pt = type('obj', (object,), {'comp_proc': comp_proc})()  # Mock pt object
@@ -1190,8 +1186,9 @@ def compile_file(code_paths: list,
         durs.append(timer() - cstart)
 
         if outs:
-            if not outs.startswith(b'/usr/bin/ld: warning'):
+            if lang != 'Scheme' and not outs.startswith(b'/usr/bin/ld: warning'):
                 print('stdout:', outs)
+
         if errs:
             if lang == 'Ada':
                 errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
