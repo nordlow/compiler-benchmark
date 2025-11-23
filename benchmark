@@ -1110,7 +1110,7 @@ def compile_file(code_paths: list,
                  templated: bool = False,
                  results: list[tuple] = [],
                  stdin_input: str|None = None):
-    key = (lang, templated, cexe)
+    key: tuple = (lang, templated, cexe)
 
     if key not in results:
         row = [None] * MARKDOWN_TABLE_LENGTH  # preallocate
