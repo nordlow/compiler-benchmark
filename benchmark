@@ -2084,6 +2084,8 @@ def main():
             bm_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
     if 'Java' in args.language_exes:
+        if 'check' in args.operations:
+            bm_Java(results=results, code_paths=code_paths, args=args, op='check', templated=False)
         if 'build' in args.operations:
             bm_Java(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
