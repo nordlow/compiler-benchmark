@@ -1043,7 +1043,7 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
     if cexe:
         try:
             task = sp.run([cexe, '-version'], stdout=sp.PIPE, stderr=sp.PIPE)
-            version = (task.stdout or task.stderr).decode('utf-8').split()[1]
+            version = task.stdout.decode('utf-8').split()[1]
         except Exception:
             print("WARNING: Failed to decode version from neither stdout:" + str(task.stdout) + " nor stderr:" + str(task.stderr) +
                   " of command " + str([cexe, '-version']) + ", defaulting version of " + lang + " to `none`",
