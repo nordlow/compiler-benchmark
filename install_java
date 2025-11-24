@@ -2,4 +2,4 @@
 
 set -uo pipefail
 
-sudo apt install openjdk-18-jdk
+sudo apt install openjdk-26-jdk
