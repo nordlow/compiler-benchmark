@@ -1037,6 +1037,7 @@ def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, template
                          templated=templated,
                          results=results)
 
+
 def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Java'
     cexe = match_lang_cexe(args, lang, 'javac')
@@ -1060,6 +1061,7 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
                      lang=lang,
                      templated=templated,
                      results=results)
+
 
 def bm_Pareas(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Pareas'
