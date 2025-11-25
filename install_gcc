@@ -2,10 +2,8 @@
 
 set -uo pipefail
 
-GCC_VERSION=15
-
-sudo apt install gcc-${GCC_VERSION} # C
-sudo apt install g++-${GCC_VERSION} # C++
-sudo apt install gccgo-${GCC_VERSION}	# Go
-sudo apt install gnat-${GCC_VERSION} # Ada
-sudo apt install gdc gdc-${GCC_VERSION} # D
+sudo apt install gcc
+sudo apt install g++
+sudo apt install gccgo
+sudo apt install gnat
+sudo apt install gdc
