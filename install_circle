@@ -35,7 +35,6 @@ echo "Downloading from: $URL"
 
 if wget --quiet --show-progress --progress=bar:force -c "$URL" -O - | tar -xz -C "$TDIR"; then
     echo "✅ Circle Compiler version ${VERSION} installed successfully to $TDIR"
-    echo "Add '$TDIR/bin' to your PATH to run 'circle' command."
 else
     echo "❌ Error: Installation failed. Check if version ${VERSION} is correct and the URL is valid." >&2
     exit 1
