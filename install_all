@@ -22,4 +22,4 @@ fi
 ./install_swift
 ./install_tcc
 ./install_vlang-master
-./install_zig-master
+./install_zig@~master

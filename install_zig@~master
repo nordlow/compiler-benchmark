@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+import requests
+import tarfile
+import os
+import shutil
+import logging # Import the logging library
+
+# Configure logging
+# You can change the level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+# and the format as needed.
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+def download_and_extract_zig():
+    install_dir = os.path.join(os.path.expanduser("~"), ".local")
+    zig_arch = "x86_64-linux"
+    download_url_json = "https://ziglang.org/download/index.json"
+
+    try:
+        logger.info(f"Fetching latest Zig build information from: {download_url_json}")
+        response = requests.get(download_url_json)
+        response.raise_for_status()  # Raise an exception for HTTP errors (4xx or 5xx)
+        data = response.json()
+
+        zig_latest_url = data.get("master", {}).get(zig_arch, {}).get("tarball")
+
+        if not zig_latest_url:
+            logger.error(f"Could not find the latest Zig build URL for {zig_arch}.")
+            return
+
+        logger.info(f"Downloading Zig from: {zig_latest_url}")
+        # Use stream=True to handle large files efficiently
+        with requests.get(zig_latest_url, stream=True) as r:
+            r.raise_for_status()
+            # Create a temporary file to save the tarball
+            temp_tar_path = os.path.join(install_dir, "zig_temp.tar.xz")
+            with open(temp_tar_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+            logger.info(f"Extracting Zig to: {install_dir}")
+            # Open the tarball and extract
+            with tarfile.open(temp_tar_path, "r:xz") as tar:
+                # Get the root directory name inside the tarball (e.g., zig-linux-x86_64-0.12.0)
+                # Assuming the first member is the root directory
+                root_dir_name = os.path.commonprefix(tar.getnames())
+
+                tar.extractall(path=install_dir)
+                logger.info("Extraction complete.")
+
+            # Clean up the temporary tarball
+            os.remove(temp_tar_path)
+
+            # Print the path to the extracted directory
+            extracted_zig_path = os.path.join(install_dir, root_dir_name)
+            logger.info(f"Zig has been installed to {extracted_zig_path}")
+            logger.info(f"You might want to add '{extracted_zig_path}' to your PATH.")
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network or HTTP error: {e}")
+    except ValueError as e:
+        logger.error(f"JSON decoding error: {e}")
+    except tarfile.ReadError as e:
+        logger.error(f"Error reading or extracting tarball: {e}")
+    except Exception as e:
+        logger.critical(f"An unexpected error occurred: {e}", exc_info=True) # exc_info=True to log traceback
+
+if __name__ == "__main__":
+    download_and_extract_zig()
