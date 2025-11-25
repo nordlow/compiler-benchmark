@@ -633,7 +633,7 @@ def bm_CSharp_using_mono(results: Results, code_paths, args: argparse.Namespace,
 
 def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C#'
-    cexe = match_lang_cexe(args, lang, 'csc')
+    cexe = match_lang_cexe(args, lang, 'mono-csc')
     if cexe:
         cexe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([cexe, '-version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
