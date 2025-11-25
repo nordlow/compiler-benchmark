@@ -1,31 +1,55 @@
 #!/usr/bin/env bash
 
+# Doc: Digital Mars D compiler (DMD)
+# See: https://dlang.org/download.html
+
 set -uo pipefail
-# doc: Digital Mars D compiler (DMD)
-# See: https://code.google.com/p/d-apt/wiki/APT_Repository#APT_Repository_for_D
 
-MAJOR_VERSION="2.106.0"
+echo "Searching for the latest stable DMD version..."
+
+MAJOR_VERSION=$(
+    wget -q -O - "https://dlang.org/download.html" | \
+    grep -oP 'releases/2.x/\K\d+\.\d+\.\d+(?=/dmd_)' | \
+    head -n 1
+)
+
+if [[ -z "${MAJOR_VERSION}" ]]; then
+    echo "Error: Could not automatically determine the latest stable version." >&2
+    exit 1
+fi
+
 VERSION="${MAJOR_VERSION}"
+echo "Found latest stable VERSION: ${VERSION}"
 
-UNAME=$(uname -i)
+UNAME=$(uname -m)
 if [[ "${UNAME}" == "i386" ]]; then
     ARCH=x86
 elif [[ "${UNAME}" == "x86_64" ]]; then
     ARCH=amd64
 else
-    echo "Unsupported architecture ${UNAME}"
+    echo "Unsupported architecture ${UNAME}" >&2
     exit 1
 fi
 
 PNAME="dmd_${VERSION}-0_${ARCH}.deb"
 TDIR=/tmp
 PPATH="${TDIR}/${PNAME}"
+echo "Target package name: ${PNAME}"
 
 on_exit() {
-    rm -f ${PPATH}
+    rm -f "${PPATH}"
+    echo "Cleaned up temporary file: ${PPATH}"
 }
 trap on_exit EXIT
 
-# get it
-wget -O "${PPATH}" "http://downloads.dlang.org/releases/2.x/${MAJOR_VERSION}/${PNAME}" && \
-    exec sudo dpkg -i "${PPATH}"
+DOWNLOAD_URL="http://downloads.dlang.org/releases/2.x/${MAJOR_VERSION}/${PNAME}"
+echo "Downloading from: ${DOWNLOAD_URL}"
+
+if wget --quiet --show-progress --progress=bar:force -O "${PPATH}" "${DOWNLOAD_URL}"; then
+    # The 'exec' command is removed here to allow the 'on_exit' trap to fire.
+    sudo dpkg -i "${PPATH}"
+    echo "✅ DMD version ${VERSION} installed successfully."
+else
+    echo "❌ Error: Download failed for ${DOWNLOAD_URL}" >&2
+    exit 1
+fi
