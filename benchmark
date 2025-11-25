@@ -616,7 +616,7 @@ def bm_CSharp_using_mono(results: Results, code_paths, args: argparse.Namespace,
     lang = 'C#'
     cexe = match_lang_cexe(args, lang, 'mcs')
     if cexe:
-        cexe_flags = ['-target:cexe'] + ([] if op == 'build' else [''])
+        cexe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[4]
         compile_file(code_paths,
                      out_flag_and_exe=['-out:' + out_binary(lang)],
@@ -635,7 +635,7 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
     lang = 'C#'
     cexe = match_lang_cexe(args, lang, 'csc')
     if cexe:
-        cexe_flags = ['-target:cexe'] + ([] if op == 'build' else [''])
+        cexe_flags = ['-target:exe'] + ([] if op == 'build' else [''])
         version = sp.run([cexe, '-version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
         compile_file(code_paths,
                      out_flag_and_exe=['-out:' + out_binary(lang)],
@@ -2078,6 +2078,7 @@ def main():
 
     if 'C#' in args.language_exes:
         if 'build' in args.operations:
+            print("here")
             bm_CSharp_using_mono(results=results, code_paths=code_paths, args=args, op='build', templated=False)
             bm_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
