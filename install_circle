@@ -1,7 +1,44 @@
 #!/bin/bash
 
-# C++ Circle Compiler
-VERSION="141"
+# Usage: ./install_circle.sh [VERSION]
+# If VERSION is provided, it uses that version.
+# If no VERSION is provided, it attempts to find the latest version.
+
 TDIR="${HOME}/.local/circle"
+
+# 1. Determine the VERSION
+if [ -n "$1" ]; then
+    VERSION="$1"
+    echo "Using specified VERSION: $VERSION"
+else
+    echo "VERSION not specified. Attempting to find the latest version..."
+    # The version is usually in a link like "build_XXX.tgz"
+    # We scrape the index page for the highest build number link.
+    VERSION=$(
+        wget -q -O - "https://www.circle-lang.org/linux/" | \
+        grep -oP 'build_\K\d+(?=\.tgz)' | \
+        sort -nr | \
+        head -n 1
+    )
+    if [ -z "$VERSION" ]; then
+        echo "Error: Could not automatically determine the latest version." >&2
+        exit 1
+    fi
+    echo "Found latest VERSION: $VERSION"
+fi
+
+echo "Installation directory: $TDIR"
 mkdir -p "$TDIR"
-wget --quiet --show-progress --progress=bar:force -c "https://www.circle-lang.org/linux/build_${VERSION}.tgz" -O - | tar -xz -C "$TDIR"
+
+URL="https://www.circle-lang.org/linux/build_${VERSION}.tgz"
+echo "Downloading from: $URL"
+
+if wget --quiet --show-progress --progress=bar:force -c "$URL" -O - | tar -xz -C "$TDIR"; then
+    echo "---"
+    echo "✅ Circle Compiler version ${VERSION} installed successfully to $TDIR"
+    echo "Add '$TDIR/bin' to your PATH to run 'circle' command."
+else
+    echo "---"
+    echo "❌ Error: Installation failed. Check if version ${VERSION} is correct and the URL is valid." >&2
+    exit 1
+fi
