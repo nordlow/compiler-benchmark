@@ -8,14 +8,12 @@ fi
 ./install_c3c-latest
 ./install_circle
 ./install_dmd-stable
-./install_dotnet-sdk
 ./install_gcc
 ./install_golang
 ./install_java
 ./install_julia
 ./install_llvm
-./install_mono
-./install_mono-mcs
+./install_csharp
 ./install_nim
 ./install_ocaml
 ./install_python-packages
