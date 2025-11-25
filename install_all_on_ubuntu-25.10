@@ -5,19 +5,23 @@ if ! type -f ld.lld &>/dev/null; then
     sudo apt install lld
 fi
 
-./install_tcc
-./install_gcc
-./install_llvm
+./install_c3c-latest
+./install_circle
 ./install_dmd-stable
-./install_golang
-./install_mono
 ./install_dotnet-sdk
-./install_mono-mcs
+./install_gcc
+./install_golang
 ./install_java
+./install_julia
+./install_llvm
+./install_mono
+./install_mono-mcs
 ./install_nim
 ./install_ocaml
+./install_python-packages
 ./install_rust-nightly
-./install_julia
-./install_zig-master
+./install_scheme
 ./install_swift
-./install_c3c-latest
+./install_tcc
+./install_vlang-master
+./install_zig-master
