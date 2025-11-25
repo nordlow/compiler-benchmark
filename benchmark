@@ -815,7 +815,7 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
         cexe_flags = ['build-obj'] + zig_no_llvm_build_flags
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = ['build-cexe'] + zig_no_llvm_build_flags
+        cexe_flags = ['build-exe'] + zig_no_llvm_build_flags
         out_flag_and_exe = ['--name', out_binary(lang)]
     else:
         return None
@@ -838,7 +838,7 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
 def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Odin'
     cexe = match_lang_cexe(args, lang, 'odin')
-    cexe_flags = ['build', '-build-mode:cexe', '-lld'] if op == 'build' else ['check']
+    cexe_flags = ['build', '-build-mode:exe', '-lld'] if op == 'build' else ['check']
     if cexe:
         version = sp.run([cexe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(code_paths,
