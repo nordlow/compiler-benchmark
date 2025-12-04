@@ -10,10 +10,10 @@ elm-stuff/
 generated/
 sample1.h
 __pycache__/
-
 a.out
 main.ali
 main
 main_t
 main_*.exe
 main_t.exe
+*~
