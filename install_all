@@ -21,5 +21,5 @@ fi
 ./install_scheme
 ./install_swift
 ./install_tcc
-./install_vlang-master
+./install_vlang@latest
 ./install_zig@~master
