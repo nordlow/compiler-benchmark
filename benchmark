@@ -1359,7 +1359,7 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
     if lang == 'zig' and templated:  # Zig needs explicit template type
         fil.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'v' and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
-        fil.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
+        fil.write(Tm('    ${T}_sum += ${F}[${T}](${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'ocaml':
         fil.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
     elif lang == 'ada':
@@ -1533,7 +1533,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             call = function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x)'
             expr = 'x + ' + call
         elif lang == 'v' and templated:
-            call = function_name(typ, findex, fheight - 1) + Tm('<${T}>(x)').substitute(T=typ)
+            call = function_name(typ, findex, fheight - 1) + Tm('[${T}](x)').substitute(T=typ)
             expr = 'x + ' + call
         elif lang == 'vox' and templated:
             call = function_name(typ, findex, fheight - 1) + Tm('[${T}](x)').substitute(T=typ)
@@ -1632,7 +1632,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         fil.write(Tm('let ${F} x = ${X}\n').substitute(F=str(fname), X=expr))
     elif lang == 'v':
         if templated:
-            fil.write(Tm('fn ${F}<${T}>(x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
+            fil.write(Tm('fn ${F}[${T}](x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
         else:
             fil.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'julia':
