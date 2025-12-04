@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+URL="https://github.com/vlang/v/releases/latest/download/v_linux.zip"
+TDIR="${HOME}/.local"
+
+mkdir -p "${TDIR}"
+
+ZIP="$(mktemp /tmp/v_linux.XXXXXX.zip)"
+
+cleanup() {
+    rm -f "${ZIP}"
+}
+trap cleanup EXIT
+
+curl -s -L -o "${ZIP}" "${URL}"
+
+unzip -o -qq "${ZIP}" -d "${TDIR}"
