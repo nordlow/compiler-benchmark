@@ -838,15 +838,22 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
 def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Odin'
     cexe = match_lang_cexe(args, lang, 'odin')
-    cexe_flags = ['build', '-build-mode:exe', '-lld'] if op == 'build' else ['check']
+    if op == 'build':
+        cexe_flags = ['build', '-build-mode:exe', '-lld']
+        out_flag_and_exe = ['-out:' + out_binary(lang)]
+    elif op == 'check':
+        cexe_flags = ['check']
+        out_flag_and_exe = []
+    else:
+        return None
     if cexe:
         version = sp.run([cexe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(code_paths,
-                     out_flag_and_exe=['-out:', out_binary(lang)],
+                     out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
                      runner=True,
                      cexe_flags=cexe_flags,
-                     args=args,  # no syntax flag currently so compile to object file instead
+                     args=args,
                      op=op,
                      compiler_version=version,
                      lang=lang,
@@ -1139,7 +1146,10 @@ def compile_file(code_paths: list,
         if stdin_input:
             p_args = [cexe] + cexe_flags + out_flag_and_exe
         else:
-            p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
+            if lang == 'Odin':
+                p_args = [cexe] + cexe_flags + [os.path.dirname(src_path)] + out_flag_and_exe
+            else:
+                p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
         cwd = os.getcwd()
         os.chdir(out_directory(lang))
         from process_timer import ProcessTimer
