@@ -1324,6 +1324,16 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
     dir_path = os.path.join(ROOT_PATH, llang)
     os.makedirs(dir_path, exist_ok=True)
 
+    # For Odin, clean up all .odin files in the directory before generating new ones
+    # This prevents conflicts when odin checks all files in the directory
+    if llang == 'odin' and run_ix == 0:
+        import glob
+        for old_file in glob.glob(os.path.join(dir_path, '*.odin')):
+            try:
+                os.remove(old_file)
+            except OSError:
+                pass  # Ignore errors if file doesn't exist
+
     path = (os.path.join(dir_path, program_name + ('_t' if templated else '') +
                          ('_' + str(run_ix) if lang.lower() != 'ada' else '') +
                          '.' + ext))
@@ -1654,7 +1664,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         fil.write(Tm('fn ${F}(x: ${T}) -> ${T}: return ${X}\n').substitute(T=typ, F=str(fname), X=expr))
     elif lang == 'odin':
         if templated:
-            fil.write(Tm('${F} :: proc(x: $T) -> $T { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
+            fil.write(Tm('${F} :: proc(x: $$T) -> $$T { return ${X} }\n').substitute(F=str(fname), N=nconst, H=str(fheight), X=expr))
         else:
             fil.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'python' or lang == 'mojo':
