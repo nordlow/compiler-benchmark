@@ -1147,7 +1147,6 @@ def compile_file(code_paths: list,
             p_args = [cexe] + cexe_flags + out_flag_and_exe
         else:
             if lang == 'Odin':
-                # Odin expects a directory/package path, and we're already cd'd into it
                 p_args = [cexe] + cexe_flags + ['.'] + out_flag_and_exe
             else:
                 p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
