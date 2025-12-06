@@ -1664,7 +1664,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         fil.write(Tm('fn ${F}(x: ${T}) -> ${T}: return ${X}\n').substitute(T=typ, F=str(fname), X=expr))
     elif lang == 'odin':
         if templated:
-            fil.write(Tm('${F} :: proc(x: $$T) -> $$T { return ${X} }\n').substitute(F=str(fname), N=nconst, H=str(fheight), X=expr))
+            fil.write(Tm('${F} :: proc(x: $$T) -> T { return ${X} }\n').substitute(F=str(fname), N=nconst, H=str(fheight), X=expr))
         else:
             fil.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'python' or lang == 'mojo':
