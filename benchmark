@@ -1380,6 +1380,8 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
         fil.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'v' and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
         fil.write(Tm('    ${T}_sum += ${F}[${T}](${N})').substitute(T=typ, N=n, F=fn))
+    elif lang == 'odin' and templated:  # Odin needs explicit type casting for polymorphic procs
+        fil.write(Tm('    ${T}_sum += ${F}(${T}(${N}))').substitute(T=typ, N=n, F=fn))
     elif lang == 'ocaml':
         fil.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
     elif lang == 'ada':
