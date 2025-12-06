@@ -780,14 +780,12 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
            which(os.path.join(HOME, 'ware/c3c/build/c3c')))
     if cexe:
         cexe_flags = ['-O0']
-
         if op == 'check':
             cexe_flags += ['compile-only'] + ['-C']
         elif op == 'compile':
             cexe_flags += ['compile-only']
         else:
             cexe_flags += ['compile']
-
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split(':')[1].split()[0]
         compile_file(code_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
@@ -800,6 +798,7 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
                      lang=lang,
                      templated=templated,
                      results=results)
+
 
 zig_no_llvm_build_flags = ['-fno-llvm', '-fno-lld', '-fno-clang'] # See https://stackoverflow.com/a/78995648/683710 and https://github.com/ziglang/zig/issues/6251
 
