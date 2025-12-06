@@ -839,7 +839,7 @@ def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, template
     lang = 'Odin'
     cexe = match_lang_cexe(args, lang, 'odin')
     if op == 'build':
-        cexe_flags = ['build', '-build-mode:exe', '-lld']
+        cexe_flags = ['build', '-build-mode:exe', '-linker:lld']
         out_flag_and_exe = ['-out:' + out_binary(lang)]
     elif op == 'check':
         cexe_flags = ['check']
@@ -1147,7 +1147,14 @@ def compile_file(code_paths: list,
             p_args = [cexe] + cexe_flags + out_flag_and_exe
         else:
             if lang == 'Odin':
-                p_args = [cexe] + cexe_flags + ['.'] + out_flag_and_exe
+                # Odin expects: odin <command> <directory> [flags]
+                # Split cexe_flags to get command and remaining flags
+                if cexe_flags and cexe_flags[0] in ['build', 'check']:
+                    cmd = [cexe_flags[0]]
+                    remaining_flags = cexe_flags[1:]
+                    p_args = [cexe] + cmd + ['.'] + remaining_flags + out_flag_and_exe
+                else:
+                    p_args = [cexe] + cexe_flags + ['.'] + out_flag_and_exe
             else:
                 p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
         cwd = os.getcwd()
