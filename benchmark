@@ -1759,7 +1759,7 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         else:
             fil.write(Tm('    ${T}_sum = 0\n').substitute(T=typ))
     elif lang == 'odin':
-        fil.write(Tm('    ${T}_sum: ${T} := 0;\n').substitute(T=typ))
+        fil.write(Tm('    ${T}_sum: ${T} = 0\n').substitute(T=typ))
     elif lang == 'mojo':
         fil.write(Tm('    var ${T}_sum: ${T} = 0\n').substitute(T=typ))
     elif lang == 'scheme':
