@@ -996,6 +996,7 @@ def rust_flags(channel):
     if channel == 'nightly':
         process = sp.Popen('rustc -Z help', shell=True, stdout=sp.PIPE)
         output, error = process.communicate()
+        # Disabled because this gives error even on nightly:
         # if 'threads=val' in output.decode('utf-8'):
         #     flags += RUSTC_NIGHTLY_FLAGS
     return flags
