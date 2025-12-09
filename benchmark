@@ -1122,6 +1122,8 @@ def compile_file(code_paths: list,
                  stdin_input: str|None = None):
     key: tuple = (lang, templated, cexe)
 
+    lang_dir = out_directory(lang)
+
     if key not in results:
         row = [None] * MARKDOWN_TABLE_LENGTH  # preallocate
         results[key] = row
@@ -1158,7 +1160,7 @@ def compile_file(code_paths: list,
             else:
                 p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
         cwd = os.getcwd()
-        os.chdir(out_directory(lang))
+        os.chdir(lang_dir)
         from process_timer import ProcessTimer
 
         if stdin_input:
@@ -1221,8 +1223,9 @@ def compile_file(code_paths: list,
                 if (cexe.endswith('cproc')):  # cproc forgets to set executable bit
                     st = os.stat(cexe)
                     os.chmod(outb, st.st_mode | stat.S_IEXEC)
-                run_dur_min = run_compiled_file(cexe)
+                run_dur_min = run_compiled_file(os.path.join(lang_dir, outb))
             elif isinstance(runner, list):
+                print(runner)
                 run_dur_min = run_compiled_file(runner + [outb])
         elif out_flag_and_exe:
             if runner is not False:
