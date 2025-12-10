@@ -1397,7 +1397,7 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
     elif lang == 'ada':
         fil.write(Tm('   ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'vox':
-        fil.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else ''))
+        fil.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else '', F=fn))
     elif lang == 'swift':
         fil.write(Tm('    ${T}_sum += ${F}(x: ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pareas':
