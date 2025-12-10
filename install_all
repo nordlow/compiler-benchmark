@@ -23,3 +23,4 @@ fi
 ./install_tcc
 ./install_vlang@latest
 ./install_zig@~master
+./install_vox
