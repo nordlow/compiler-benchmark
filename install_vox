@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Doc: Digital Mars D compiler (DMD)
+# See: https://dlang.org/download.html
+
+set -uo pipefail
+
+git clone https://github.com/MrSmith33/vox
+
+DST_EXEC_PREFIX=$HOME/.local
+
+pushd vox/source || exit
+ldc2 -d-version=cli -m64 -O3 -release -boundscheck=off -enable-inlining -flto=full -i main.d -of=vox.out
+mkdir -p "${DST_EXEC_PREFIX}"/bin/
+cp vox.out "${DST_EXEC_PREFIX}"/bin/vox
+popd
