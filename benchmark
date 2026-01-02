@@ -2132,11 +2132,11 @@ def main():
 
     if 'Python' in args.language_exes:
         if 'check' in args.operations:
-            bm_Python(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-            bm_Python(results=results, code_paths=code_paths, args=args, op='check', templated=True)
+            for templated in (False, True):
+                bm_Python(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
         if 'build' in args.operations:
-            bm_Python(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-            bm_Python(results=results, code_paths=code_paths, args=args, op='build', templated=True)
+            for templated in (False, True):
+                bm_Python(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:
