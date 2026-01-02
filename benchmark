@@ -1212,7 +1212,7 @@ def compile_file(code_paths: list,
 
         durs.append(timer() - cstart)
 
-        if outs:
+        if False and outs:      # don't show output for now
             if lang != 'Scheme' and not outs.startswith(b'/usr/bin/ld: warning'):
                 print('stdout:', outs)
 
