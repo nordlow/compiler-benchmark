@@ -2077,20 +2077,24 @@ def main():
 
     if 'Go' in args.language_exes:
         if 'check' in args.operations:
-            bm_Go(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+            for templated in (False, True):
+                bm_Go(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
         if 'build' in args.operations:
-            bm_Go(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            for templated in (False, True):
+                bm_Go(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'Swift' in args.language_exes:
         if 'check' in args.operations:
-            bm_Swift(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+            for templated in (False, True):
+                bm_Swift(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
         if 'build' in args.operations:
-            bm_Swift(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            for templated in (False, True):
+                bm_Swift(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'V' in args.language_exes:
         if 'build' in args.operations:
-            bm_V(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-            bm_V(results=results, code_paths=code_paths, args=args, op='build', templated=True)
+            for templated in (False, True):
+                bm_V(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'C3' in args.language_exes:
         for op in args.operations:
