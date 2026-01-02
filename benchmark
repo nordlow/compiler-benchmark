@@ -1210,17 +1210,17 @@ def compile_file(code_paths: list,
                     row[BUILD_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
             return None
 
+        if False: # hide everything for now if command succeeds
+            if outs:
+                if lang != 'Scheme' and not outs.startswith(b'/usr/bin/ld: warning'):
+                    print('stdout:', outs)
+            if errs:
+                if lang == 'Ada':
+                    errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
+                if lang != 'Ada' and len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
+                    print('output:', errs)
+
         durs.append(timer() - cstart)
-
-        if False and outs:      # don't show output for now
-            if lang != 'Scheme' and not outs.startswith(b'/usr/bin/ld: warning'):
-                print('stdout:', outs)
-
-        if errs:
-            if lang == 'Ada':
-                errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
-            if lang != 'Ada' and len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
-                print('output:', errs)
 
     dur_min = min(durs)         # duration minimum
 
