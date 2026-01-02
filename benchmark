@@ -2107,9 +2107,11 @@ def main():
 
     if 'Nim' in args.language_exes:
         if 'check' in args.operations:
-            bm_Nim(results=results, code_paths=code_paths, args=args, op='check', templated=False)
+            for templated in (False, True):
+                bm_Nim(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
         if 'build' in args.operations:
-            bm_Nim(results=results, code_paths=code_paths, args=args, op='build', templated=False)
+            for templated in (False, True):
+                bm_Nim(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'C#' in args.language_exes:
         if 'build' in args.operations:
