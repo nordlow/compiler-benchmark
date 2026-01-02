@@ -1219,7 +1219,7 @@ def compile_file(code_paths: list,
         if errs:
             if lang == 'Ada':
                 errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
-            if len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
+            if lang != 'Ada' and len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
                 print('output:', errs)
 
     dur_min = min(durs)         # duration minimum
