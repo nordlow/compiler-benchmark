@@ -327,7 +327,15 @@ def match_lang_cexe(args: argparse.Namespace, lang: str, cexe_name: str):
 
 
 def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, op: str, templated: bool):
-    cexe_flags = ['compile'] if op == 'build' else ['check']
+    cexe_flags = []
+    if op == 'build':
+        cexe_flags += ['make']
+    elif op == 'compile':
+        cexe_flags += ['compile']
+    elif op == 'check':
+        cexe_flags += ['check']
+    else:
+        return None
     for gcc_version in VERSIONS:
         cexe = match_lang_cexe(args, lang, 'gnat' + str(gcc_version))
         if cexe:
