@@ -776,10 +776,9 @@ def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: 
 
 def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C3'
-    cexe = (match_lang_cexe(args, lang, 'c3c') or
-           which(os.path.join(HOME, 'ware/c3c/build/c3c')))
+    cexe = (match_lang_cexe(args, lang, 'c3c') or which(os.path.join(HOME, 'ware/c3c/build/c3c')))
     if cexe:
-        cexe_flags = ['-O0']
+        cexe_flags = ['-q', '-O0']
         if op == 'check':
             cexe_flags += ['compile-only'] + ['-C']
             out_flag_and_exe = []
