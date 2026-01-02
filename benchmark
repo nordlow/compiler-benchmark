@@ -797,6 +797,7 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
             cexe_flags += ['compile']
             out_flag_and_exe = ['-o', out_binary(lang)]
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split(':')[1].split()[0]
+        print("TODO:", cexe, cexe_flags)
         compile_file(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
