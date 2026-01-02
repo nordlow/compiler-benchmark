@@ -2115,7 +2115,6 @@ def main():
 
     if 'C#' in args.language_exes:
         if 'build' in args.operations:
-            print("here")
             bm_CSharp_using_mono(results=results, code_paths=code_paths, args=args, op='build', templated=False)
             bm_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
