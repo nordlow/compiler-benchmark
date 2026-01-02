@@ -2094,15 +2094,16 @@ def main():
 
     if 'C3' in args.language_exes:
         for op in args.operations:
-            bm_C3(results=results, code_paths=code_paths, args=args, op=op, templated=False)
+            for templated in (False, True):
+                bm_C3(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Rust' in args.language_exes:
         if 'check' in args.operations:
-            bm_Rust(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-            bm_Rust(results=results, code_paths=code_paths, args=args, op='check', templated=True)
+            for templated in (False, True):
+                bm_Rust(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
         if 'build' in args.operations:
-            bm_Rust(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-            bm_Rust(results=results, code_paths=code_paths, args=args, op='build', templated=True)
+            for templated in (False, True):
+                bm_Rust(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'Nim' in args.language_exes:
         if 'check' in args.operations:
