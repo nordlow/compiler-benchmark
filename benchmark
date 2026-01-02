@@ -782,13 +782,16 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
         cexe_flags = ['-O0']
         if op == 'check':
             cexe_flags += ['compile-only'] + ['-C']
+            out_flag_and_exe = []
         elif op == 'compile':
             cexe_flags += ['compile-only']
+            out_flag_and_exe = ['-o', out_binary(lang)]
         else:
             cexe_flags += ['compile']
+            out_flag_and_exe = ['-o', out_binary(lang)]
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split(':')[1].split()[0]
         compile_file(code_paths,
-                     out_flag_and_exe=['-o', out_binary(lang)],
+                     out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
                      runner=True,
                      cexe_flags=cexe_flags,
