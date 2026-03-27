@@ -39,6 +39,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Go': ['go', 'gccgo', ],
                  'V': ['v', ],
                  'Swift': ['swiftc', ],
+                 'Hylo': ['hc', ],
                  'Java': ['javac', ],
                  'Julia': ['julia', ],
                  'OCaml': ['ocamlc', 'ocamlopt', ],
@@ -47,7 +48,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Mojo': ['mojo', ],
                  'Scheme': ['scheme', ],
                  }
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Vox', 'Rust',
+TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
                                  'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
@@ -718,8 +719,7 @@ def bm_Go_using_gccgo(results: Results, code_paths, args: argparse.Namespace, op
 
 def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Swift'
-    cexe = (match_lang_cexe(args, lang, 'swiftc') or
-           which(os.path.join(HOME, '.local/swift-5.3.3-RELEASE-ubuntu20.04/usr/bin/swiftc')))
+    cexe = match_lang_cexe(args, lang, 'swiftc')
     if op == 'build':
         cexe_flags = ['']
     elif op == 'check':
@@ -730,6 +730,34 @@ def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templat
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2]
         compile_file(code_paths,
                      out_flag_and_exe=['-o', out_binary(lang)],
+                     cexe=cexe,
+                     runner=True,
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
+def bm_Hylo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
+    lang = 'Hylo'
+    cexe = match_lang_cexe(args, lang, 'hc')
+    if op == 'build':
+        cexe_flags = []
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    elif op == 'check':
+        cexe_flags = ['--typecheck']
+        out_flag_and_exe = []
+    else:
+        return None
+    if cexe:
+        # Extract version string from 'hc --version'
+        version_run = sp.run([cexe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
+        version = version_run.stdout.decode('utf-8').split()[-1]
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
                      runner=True,
                      cexe_flags=cexe_flags,
@@ -1289,7 +1317,7 @@ def long_type_of_lang(lang):
         return ['long']
     elif lang in ('rust', 'zig', 'v', 'vox', 'c3', 'odin'):
         return ['i64']
-    elif lang in 'swift':
+    elif lang in ('swift', 'hylo'):
         return ['Int64']
     elif lang == 'd':
         return ['long']
@@ -1409,7 +1437,7 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
         fil.write(Tm('   ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'vox':
         fil.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else '', F=fn))
-    elif lang == 'swift':
+    elif lang in ('swift', 'hylo'):
         fil.write(Tm('    ${T}_sum += ${F}(x: ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pareas':
         fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}[${N}]').substitute(T=typ, N=n, F=fn))
@@ -1434,7 +1462,7 @@ def generate_test_language_specific_prefix(lang: str, program_name, fil, templat
         fil.write('use std::process::exit;\n')
         if templated:
             fil.write('use std::ops::Add;\n')
-    elif lang == 'swift':
+    elif lang in ('swift', 'hylo'):
         fil.write('import Foundation\n\n')
     elif lang == 'c#':
         fil.write('using System;\n\n')
@@ -1476,7 +1504,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, fil):
         fil.write(Tm('    return cast(int)${T}_sum;\n}\n').substitute(T=types[0]))
     elif lang == 'nim':
         fil.write(Tm('    quit(int(${T}_sum))\n\n').substitute(T=types[0]))
-    elif lang == 'swift':
+    elif lang in ('swift', 'hylo'):
         fil.write(Tm('    exit(Int32(${T}_sum))\n}\n').substitute(T=types[0]))
     elif lang == 'go':
         fil.write(Tm('    // os.Exit(int(${T}_sum));\n').substitute(T=types[0]))
@@ -1583,7 +1611,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             expr = 'x + ' + call
         elif lang == 'ocaml':
             expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + nconst + '.0'
-        elif lang == 'swift':
+        elif lang in ('swift', 'hylo'):
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x: ' + xtarg + 'x) + ' + nconst
         elif lang == 'pareas':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
@@ -1637,7 +1665,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
                                                                                       X=expr))
         else:
             fil.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'swift':
+    elif lang in ('swift', 'hylo'):
         if templated:
             fil.write(Tm('func ${F}<${T}>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
                                                                                         F=str(fname),
@@ -1719,7 +1747,7 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
         fil.write('i32 main() {\n')
     elif lang == 'rust':
         fil.write(Tm('fn main() {\n').substitute(T=types[0]))
-    elif lang == 'swift':
+    elif lang in ('swift', 'hylo'):
         fil.write(Tm('func main() {\n').substitute(T=types[0]))
     elif lang == 'zig':
         fil.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
@@ -1770,7 +1798,7 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         fil.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
     elif lang == 'rust':
         fil.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
-    elif lang == 'swift':
+    elif lang in ('swift', 'hylo'):
         fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
     elif lang == 'nim':
         fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
@@ -2099,6 +2127,14 @@ def main():
         if 'build' in args.operations:
             for templated in (False, True):
                 bm_Swift(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
+
+    if 'Hylo' in args.language_exes:
+        if 'check' in args.operations:
+            for templated in (False, True):
+                bm_Hylo(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
+        if 'build' in args.operations:
+            for templated in (False, True):
+                bm_Hylo(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'V' in args.language_exes:
         if 'build' in args.operations:
