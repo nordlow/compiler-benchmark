@@ -1667,7 +1667,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             fil.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang in ('swift', 'hylo'):
         if templated:
-            fil.write(Tm('func ${F}<${T}>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
+            fil.write(Tm('func ${F}<${T}: BinaryInteger>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
                                                                                         F=str(fname),
                                                                                         N=nconst,
                                                                                         H=str(fheight),
