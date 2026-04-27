@@ -1595,7 +1595,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         elif lang == 'scheme':
             expr = f'(+ x {nconst})'
         elif lang == 'c3' and templated:
-            expr = 'x + (T)' + nconst
+            expr = 'x + (Type)' + nconst
         else:
             expr = 'x + ' + nconst
     else:
@@ -1635,7 +1635,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         fil.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ('c3'):
         if templated:
-            fil.write(Tm('fn T ${F}(T x) { return ${X}; }\n').substitute(
+            fil.write(Tm('fn Type ${F}(<Type> x) <Type> { return ${X}; }\n').substitute(
                 F=str(fname),
                 X=expr))
         else:
