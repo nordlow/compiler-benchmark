@@ -1632,7 +1632,15 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
     if lang in ('c'):
         fil.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ('c3'):
-        fil.write(Tm('fn ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
+        if templated:
+            fil.write(Tm('fn T ${F}(T x) <T> { return ${X}; }\n').substitute(
+                F=str(fname),
+                X=expr))
+        else:
+            fil.write(Tm('fn ${T} ${F}(${T} x) { return ${X}; }\n').substitute(
+                T=typ,
+                F=str(fname),
+                X=expr))
     elif lang in ['ada']:
         fil.write(Tm('''   function ${F} (x: ${T}) return ${T} is (${X});
 ''').substitute(T=typ, F=str(fname), N=nconst, X=expr))
