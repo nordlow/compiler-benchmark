@@ -820,7 +820,7 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
             out_flag_and_exe = []
         elif op == 'compile':
             cexe_flags += ['compile-only']
-            out_flag_and_exe = ['-o', out_binary(lang)]
+            out_flag_and_exe = []
         else:
             cexe_flags += ['compile']
             out_flag_and_exe = ['-o', out_binary(lang)]
