@@ -1763,7 +1763,7 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
     elif lang == 'zig':
         fil.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
     elif lang == 'c3':
-        fil.write(Tm('fn int main() {\n').substitute(T=types[0]))
+        fil.write(Tm('fn int main(String[] args) {\n').substitute(T=types[0]))
     elif lang == 'go':
         fil.write(Tm('func main() {\n').substitute(T=types[0]))
     elif lang == 'v':
