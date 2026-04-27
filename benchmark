@@ -1633,7 +1633,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         fil.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ('c3'):
         if templated:
-            fil.write(Tm('fn $T ${F}($T x) { return ${X}; }\n').substitute(
+            fil.write(Tm('fn $$T ${F}($$T x) { return ${X}; }\n').substitute(
                 F=str(fname),
                 X=expr))
         else:
@@ -1649,7 +1649,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
     elif lang in ['java']:
         fil.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang in ['c++']:
-        fil.write(Tm('${M}${T} ${F}(${T} x) { return ${X}; }\n')
+        fil.write(Tm('${M}${T} ${F}($$T x) { return ${X}; }\n')
                 .substitute(T=typ, F=str(fname), N=nconst, H=str(fheight),
                             M='template<typename T=int> ' if templated else '',
                             X=expr))
