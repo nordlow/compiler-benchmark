@@ -1477,7 +1477,7 @@ def generate_test_language_specific_prefix(lang: str, program_name, fil, templat
     elif lang == 'python':
         fil.write('import sys\n\n')
     elif lang == 'c3':
-        fil.write('module adder(<T>);\n\n')
+        fil.write('module adder<T>;\n\n')
     elif lang == 'vox':
         fil.write('''enum u32 stdin = 0;
 enum u32 stdout = 1;
