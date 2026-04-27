@@ -1476,6 +1476,8 @@ def generate_test_language_specific_prefix(lang: str, program_name, fil, templat
         fil.write('import "core:os"\n\n')
     elif lang == 'python':
         fil.write('import sys\n\n')
+    elif lang == 'c3':
+        fil.write('module adder(<T>);\n\n')
     elif lang == 'vox':
         fil.write('''enum u32 stdin = 0;
 enum u32 stdout = 1;
@@ -1593,7 +1595,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         elif lang == 'scheme':
             expr = f'(+ x {nconst})'
         elif lang == 'c3' and templated:
-            expr = 'x + ($T)' + nconst
+            expr = 'x + (T)' + nconst
         else:
             expr = 'x + ' + nconst
     else:
@@ -1633,7 +1635,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         fil.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ('c3'):
         if templated:
-            fil.write(Tm('fn $$T ${F}($$T x) { return ${X}; }\n').substitute(
+            fil.write(Tm('fn T ${F}(T x) { return ${X}; }\n').substitute(
                 F=str(fname),
                 X=expr))
         else:
