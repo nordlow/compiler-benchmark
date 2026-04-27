@@ -1592,6 +1592,8 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             expr = 'x +. ' + nconst + '.0'
         elif lang == 'scheme':
             expr = f'(+ x {nconst})'
+        elif lang == 'c3' and templated:
+            expr = 'x + (T)' + nconst
         else:
             expr = 'x + ' + nconst
     else:
