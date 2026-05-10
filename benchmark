@@ -523,10 +523,14 @@ def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.
                          results=results)
 
 
-def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips):
+def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips: bool):
     lang = 'D'
-    d_flags = ['-betterC']      # fair comparison with C and C3
-    d_flags += ['-w', '-dip1008', '-dip1000'] if use_dips else []
+    d_flags = []
+    use_betterC = True
+    if use_betterC:
+        d_flags += ['-betterC'] # for fair comparison with C and C3
+    if use_dips:
+        d_flags += ['-w', '-dip1008', '-dip1000']
     if op == 'check':
         cexe_flags = ['-o-']
     elif op == 'compile':
@@ -1751,7 +1755,11 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
     elif lang == 'java':
         fil.write('    public static void main(String args[]) {\n')
     elif lang == 'd':
-        fil.write('int main() @safe {\n')
+        use_betterC = True
+        if use_betterC:
+            fil.write('extern(C) int main() @safe {\n')
+        else:
+            fil.write('int main() @safe {\n')
     elif lang == 'vox':
         fil.write('i32 main() {\n')
     elif lang == 'rust':
