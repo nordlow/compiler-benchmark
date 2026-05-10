@@ -525,7 +525,7 @@ def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.
 
 def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips):
     lang = 'D'
-    d_flags = ['-betterC']      # faii comparison with C and C3
+    d_flags = ['-betterC']      # fair comparison with C and C3
     d_flags += ['-w', '-dip1008', '-dip1000'] if use_dips else []
     if op == 'check':
         cexe_flags = ['-o-']
