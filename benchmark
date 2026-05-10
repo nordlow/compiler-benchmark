@@ -527,7 +527,6 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
     lang = 'D'
     d_flags = ['-betterC']      # faii comparison with C and C3
     d_flags += ['-w', '-dip1008', '-dip1000'] if use_dips else []
-
     if op == 'check':
         cexe_flags = ['-o-']
     elif op == 'compile':
@@ -541,14 +540,12 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
             cexe_flags = []
     else:
         return None
-
     try:
         exes = args.language_exes[lang]
     except KeyError:
         return
     if not exes:
         exes = LANGUAGE_EXES[lang]
-
     # dmd
     for cexe in filter(lambda cexe: which(cexe), exes):
         if not which(cexe):
