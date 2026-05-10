@@ -525,7 +525,8 @@ def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.
 
 def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips):
     lang = 'D'
-    d_flags = ['-w', '-dip1008', '-dip1000'] if use_dips else []
+    d_flags = ['-betterC']      # faii comparison with C and C3
+    d_flags += ['-w', '-dip1008', '-dip1000'] if use_dips else []
 
     if op == 'check':
         cexe_flags = ['-o-']
@@ -2098,7 +2099,7 @@ def main():
                 bm_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
         if 'D' in args.language_exes:
             for templated in (False, True):
-                bm_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=True)
+                bm_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=False)
         if 'Zig' in args.language_exes:
             for templated in (False, True):
                 bm_Zig(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
