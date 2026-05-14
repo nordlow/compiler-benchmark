@@ -56,7 +56,10 @@ CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
 
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # disable warnings for `rustc`
 RUSTC_FLAGS = []  # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
-RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=8']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
+
+# Requires: rustup component add rustc-codegen-cranelift-preview --toolchain nightly
+# Call: cargo +nightly rustc -- -Zcodegen-backend=cranelift
+RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=8', '-Zcodegen-backend=cranelift']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
 
 JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
