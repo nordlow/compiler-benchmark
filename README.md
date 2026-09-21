@@ -12,6 +12,7 @@ compilers. Supported languages are:
   [`tcc`](https://bellard.org/tcc/)),
 - [C\+\+](http://www.cplusplus.org/) (using [`g++`](https://gcc.gnu.org/) and
   [`clang++`](https://clang.llvm.org/)),
+- [Pascal](https://www.freepascal.org/) (using `fpc`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
 - [Swift](https://swift.org/) (using `swiftc`),
