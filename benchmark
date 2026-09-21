@@ -2342,8 +2342,8 @@ def install_missing_modules():
         importlib.import_module('psutil')
     except ModuleNotFoundError:
         print("Installing missing modules...")
-        import pip
-        pip.main(["install", "psutil"])
+        import subprocess as sp
+        sp.check_call([sys.executable, "-m", "pip", "install", "psutil"])
         print("Missing modules installed successfully.")
 
 
