@@ -50,6 +50,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Crystal': ['crystal', ],
                  'Pascal': ['fpc', ],
                  'Haskell': ['ghc', ],
+                 'Fortran': ['gfortran', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
                                  'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal', 'Haskell']
@@ -1139,6 +1140,37 @@ def bm_Haskell(results: Results, code_paths, args: argparse.Namespace, op, templ
                  results=results)
 
 
+def bm_Fortran_using_gcc(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    if op == 'check':
+        cexe_flags = ['-fsyntax-only']
+        out_flag_and_exe = []
+    elif op == 'compile':
+        cexe_flags = ['-c']
+        out_flag_and_exe = []
+    elif op == 'build':
+        cexe_flags = ['-O0']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        return None
+
+    for gcc_version in VERSIONS:
+        cexe = match_lang_cexe(args, lang, 'gfortran' + str(gcc_version))
+        if not cexe:
+            continue
+        version = get_version(sp.run([cexe, '--version'], stdout=sp.PIPE))
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     cexe=cexe,
+                     runner=True,
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
 def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Scheme'
 
@@ -1522,6 +1554,7 @@ LANG_PROPERTIES = {
     'crystal': ('cr', 'Int64'),
     'pascal': ('pas', 'Int64'),
     'haskell': ('hs', 'Int64'),
+    'fortran': ('f90', 'int64'),
 }
 
 
@@ -1626,6 +1659,8 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
         fil.write(Tm('  ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'haskell':
         fil.write(Tm('    modifyIORef\' ${T}_sum (\\s -> s + ${F} ${N})').substitute(T=typ.lower(), N=n, F=fn))
+    elif lang == 'fortran':
+        fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N}_${T})').substitute(T=typ, N=n, F=fn))
     elif lang == 'c3':
         fn = "calc::" + fn;
         if templated:
@@ -1635,14 +1670,20 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
     else:
         fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran'):
         fil.write(';')          # statement terminator
 
     fil.write('\n')
 
 
 def generate_test_language_specific_prefix(lang: str, program_name, fil, templated: bool):
-    if lang == 'haskell':
+    if lang == 'fortran':
+        fil.write('''module calc
+    use, intrinsic :: iso_fortran_env, only: int64
+    implicit none
+contains
+''')
+    elif lang == 'haskell':
         fil.write('''module Main where
 
 import Data.Int (Int64)
@@ -1771,6 +1812,10 @@ end.
     let code = fromIntegral (s `mod` 256)
     exitWith (if code == 0 then ExitSuccess else ExitFailure code)
 ''').substitute(T=types[0].lower()))
+    elif lang == 'fortran':
+        fil.write(Tm('''    call exit(int(mod(${T}_sum, 256_${T})))
+end program main
+''').substitute(T=types[0]))
     elif lang in ('c', 'c++'):
         fil.write(Tm('''    return ${T}_sum;\n}\n''').substitute(T=types[0]))
     else:
@@ -1956,6 +2001,9 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
     elif lang == 'pascal':
         fil.write(Tm('function ${F}(x: ${T}): ${T}; begin ${F} := ${X}; end;\n').substitute(
             T=typ, F=str(fname), X=expr))
+    elif lang == 'fortran':
+        fil.write(Tm('function ${F}(x) result(r); integer(${T}), value :: x; integer(${T}) :: r; r = ${X}; end function\n').substitute(
+            T=typ, F=str(fname), X=expr))
     elif lang == 'haskell':
         if templated:
             fil.write(Tm('${F} :: Num a => a -> a\n${F} x = ${X}\n').substitute(
@@ -2033,6 +2081,14 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
         fil.write('var\n')
     elif lang == 'haskell':
         fil.write('main :: IO ()\nmain = do\n')
+    elif lang == 'fortran':
+        fil.write('''end module calc
+
+program main
+    use, intrinsic :: iso_fortran_env, only: int64
+    use calc
+    implicit none
+''')
     else:
         assert False
 
@@ -2041,6 +2097,9 @@ def generate_test_main_middle(lang: str, types: list, fil, _templated: bool):
         fil.write('begin\n')
         for typ in types:
             fil.write(f'  {typ}_sum := 0;\n')
+    elif lang == 'fortran':
+        for typ in types:
+            fil.write(f'    {typ}_sum = 0\n')
     elif lang == 'ada':
         fil.write('begin\n')
     elif lang == 'scheme':
@@ -2092,6 +2151,8 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         fil.write(Tm('  ${T}_sum: ${T};\n').substitute(T=typ))
     elif lang == 'haskell':
         fil.write(Tm('    ${V}_sum <- newIORef (0 :: ${T})\n').substitute(V=typ.lower(), T=typ))
+    elif lang == 'fortran':
+        fil.write(Tm('    integer(${T}) :: ${T}_sum\n').substitute(T=typ))
     else:
         assert False
 
@@ -2126,7 +2187,7 @@ def main():
     args = parser.parse_args()
     install_missing_modules()
 
-    args.languages = list(map(lambda x: 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
+    args.languages = list(map(lambda x: 'Fortran' if x.lower() in ('fortran', 'gfortran') else 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
                               args.languages.split(',')))  # into a list
     args.language_exes = {}
     for language_exes_spec in args.languages:
@@ -2285,6 +2346,12 @@ def main():
             if op in ('check', 'build'):
                 for templated in (False, True):
                     bm_Haskell(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+
+    if 'Fortran' in args.language_exes:
+        for op in args.operations:
+            if op in ('check', 'compile', 'build'):
+                for templated in (False,):
+                    bm_Fortran_using_gcc(results=results, lang='Fortran', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:

@@ -12,6 +12,7 @@ compilers. Supported languages are:
   [`tcc`](https://bellard.org/tcc/)),
 - [C\+\+](http://www.cplusplus.org/) (using [`g++`](https://gcc.gnu.org/) and
   [`clang++`](https://clang.llvm.org/)),
+- [Fortran](https://gcc.gnu.org/wiki/GFortran) (using `gfortran`),
 - [Pascal](https://www.freepascal.org/) (using `fpc`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
@@ -278,7 +279,6 @@ results in the following table (copied from the output at the end).
 
 - Add C source backend to C3.
 - Add Lua (luajit).
-- Add language Fortran.
 - Add language Pony.
 - Add function `benchmark_CSharp_using_dotnet()` that calls `dotnet build`. On
   my Ubuntu 22.04, both `dotnet new` and `dotnet build` segfaults so won’t waste

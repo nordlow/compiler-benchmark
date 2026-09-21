@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -92,9 +92,9 @@ fi
 if should_install "gcc"; then
     echo ">> Installing GCC Suite..."
     if [ "$OS" == "arch" ]; then
-        ${PKG_MAN} gcc gcc-ada gcc-d gcc-go
+        ${PKG_MAN} gcc gcc-ada gcc-d gcc-go gcc-fortran
     else
-        ${PKG_MAN} gcc g++ gnat gdc gccgo
+        ${PKG_MAN} gcc g++ gnat gdc gccgo gfortran
     fi
 fi
 
@@ -310,6 +310,16 @@ if should_install "ghc" || should_install "haskell"; then
     else
         sudo add-apt-repository -y universe || true
         ${PKG_MAN} ghc
+    fi
+fi
+
+# Fortran (gfortran)
+if should_install "fortran" || should_install "gfortran"; then
+    echo ">> Installing GNU Fortran..."
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} gcc-fortran
+    else
+        ${PKG_MAN} gfortran
     fi
 fi
 
