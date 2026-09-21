@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -288,6 +288,17 @@ if should_install "crystal"; then
         ${PKG_MAN} crystal shards
     else
         curl -fsSL https://crystal-lang.org/install.sh | sudo bash
+    fi
+fi
+
+# Free Pascal (FPC)
+if should_install "fpc" || should_install "pascal"; then
+    echo ">> Installing Free Pascal (FPC)..."
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} fpc
+    else
+        sudo add-apt-repository -y universe || true
+        ${PKG_MAN} fpc
     fi
 fi
 
