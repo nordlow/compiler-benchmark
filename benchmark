@@ -1078,8 +1078,8 @@ def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templa
     if not cexe:
         return None
 
-    if op == 'check':
-        cexe_flags = ['-fs']
+    if op in ('check', 'compile'):
+        cexe_flags = ['-Cn', '-O-']
         out_flag_and_exe = []
     elif op == 'build':
         cexe_flags = ['-O-']
@@ -2410,7 +2410,7 @@ def main():
 
     if 'Pascal' in args.language_exes:
         for op in args.operations:
-            if op in ('check', 'build'):
+            if op in ('check', 'compile', 'build'):
                 for templated in (False,):
                     bm_Pascal(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
 
