@@ -147,7 +147,7 @@ def table_row(row,
               templated: bool):
 
     if cexe_path.startswith(HOME):
-        cexe_path = os.path.join('~', cexe_path.lstrip(HOME))
+        cexe_path = os.path.join('~', cexe_path.removeprefix(HOME))
 
     row[LANG_IX] = lang
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
