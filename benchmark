@@ -19,6 +19,8 @@ from string import Template as Tm
 from timeit import default_timer as timer
 
 import importlib
+import tempfile
+import shutil
 
 DEFAULT_PROGRAM_NAME = 'main'
 
@@ -1178,7 +1180,12 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
     if not cexe:
         return None
 
-    if op == 'build':
+    check_temp_file = None
+    if op == 'check':
+        check_temp_file = os.path.join(out_directory(lang), out_binary(lang) + '.check_tmp')
+        cexe_flags = ['build']
+        out_flag_and_exe = ['-o', out_binary(lang) + '.check_tmp']
+    elif op == 'build':
         cexe_flags = ['build']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
@@ -1189,17 +1196,30 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
     except Exception:
         version = 'unknown'
 
-    compile_file(code_paths,
-                 out_flag_and_exe=out_flag_and_exe,
-                 cexe=cexe,
-                 runner=(op == 'build'),
-                 cexe_flags=cexe_flags,
-                 args=args,
-                 op=op,
-                 compiler_version=version,
-                 lang=lang,
-                 templated=templated,
-                 results=results)
+    # Guarantee a 100% cold build by isolating and clearing the cache for this operation
+    cache_dir = os.path.join(tempfile.gettempdir(), f'hare_cache_{op}')
+    shutil.rmtree(cache_dir, ignore_errors=True)
+    os.environ['HARECACHE'] = cache_dir
+
+    try:
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     cexe=cexe,
+                     runner=(op == 'build'),
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+    finally:
+        # Clean up temporary check binary
+        if check_temp_file and os.path.exists(check_temp_file):
+            try:
+                os.remove(check_temp_file)
+            except OSError:
+                pass
 
 
 def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
@@ -2401,9 +2421,10 @@ def main():
                     bm_Fortran_using_gcc(results=results, lang='Fortran', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Hare' in args.language_exes:
-        if 'build' in args.operations:
-            for templated in (False,):
-                bm_Hare(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
+        for op in args.operations:
+            if op in ('check', 'build'):
+                for templated in (False,):
+                    bm_Hare(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:
