@@ -1178,10 +1178,7 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
     if not cexe:
         return None
 
-    if op == 'check':
-        cexe_flags = ['build']
-        out_flag_and_exe = ['-o', out_binary(lang) + '.check_tmp']
-    elif op == 'build':
+    if op == 'build':
         cexe_flags = ['build']
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
@@ -2404,10 +2401,9 @@ def main():
                     bm_Fortran_using_gcc(results=results, lang='Fortran', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Hare' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'build'):
-                for templated in (False,):
-                    bm_Hare(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+        if 'build' in args.operations:
+            for templated in (False,):
+                bm_Hare(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:

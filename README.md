@@ -15,7 +15,6 @@ compilers. Supported languages are:
 - [Fortran](https://gcc.gnu.org/wiki/GFortran) (using `gfortran`),
 - [Pascal](https://www.freepascal.org/) (using `fpc`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
-- [Hare](https://harelang.org/) (using `hare`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
 - [Swift](https://swift.org/) (using `swiftc`),
 - [Rust](https://www.rust-lang.org/) (using `rustc`),
@@ -24,6 +23,7 @@ compilers. Supported languages are:
 - [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
 - [Zig](https://ziglang.org/) (using `zig`), and
 - [V](https://vlang.io/) (using `v`),
+- [Hare](https://harelang.org/) (using `hare`),
 - [Vox](https://github.com/MrSmith33/vox) (using `vox`),
 - [C3](https://github.com/c3lang/c3c) (using `c3c`),
 - [Pareas](https://github.com/Snektron/pareas) (using `pareas`),
