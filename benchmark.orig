@@ -1055,6 +1055,9 @@ def bm_Crystal(results: Results, code_paths, args: argparse.Namespace, op, templ
     elif op == 'build':
         cexe_flags = ['build', '--no-debug']
         out_flag_and_exe = ['-o', out_binary(lang)]
+    elif op == 'run':
+        cexe_flags = ['run']
+        out_flag_and_exe = []
     else:
         return None
 
@@ -1562,8 +1565,6 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
         fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'scheme':
         fil.write(Tm('    (set! ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
-    elif lang == 'crystal':
-        fil.write(Tm('    ${T}_sum += ${F}(${N}_i64)').substitute(T=typ.lower(), N=n, F=fn))
     elif lang == 'c3':
         fn = "calc::" + fn;
         if templated:
@@ -1684,12 +1685,6 @@ end Main;
     elif lang == 'scheme':
         fil.write(Tm('''    ${T}_sum))
 (exit (main))\n''').substitute(T=types[0]))
-    elif lang == 'crystal':
-        fil.write(Tm('''    exit((${T}_sum % 256).to_i32)
-end
-
-main()
-''').substitute(T=types[0].lower()))
     else:
         fil.write(Tm('''    return ${T}_sum;\n}\n''').substitute(T=types[0]))
 
@@ -1984,7 +1979,7 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
     elif lang == 'scheme':
         pass # variables are declared in the let binding in generate_test_main_middle
     elif lang == 'crystal':
-        fil.write(Tm('    ${T}_sum = 0_i64\n').substitute(T=typ.lower()))
+        fil.write(Tm('    ${T}_sum = 0_i64\n').substitute(T=typ))
     else:
         assert False
 
@@ -2349,7 +2344,7 @@ def main():
 
     if 'Crystal' in args.language_exes:
         for op in args.operations:
-            if op in ('check', 'build'):
+            if op in ('check', 'build', 'run'):
                 for templated in (False, True):
                     bm_Crystal(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
 
