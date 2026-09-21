@@ -1541,28 +1541,30 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
                          '.' + ext))
 
     start = timer()
+    import io
+    buf = io.StringIO()
+    generate_test_language_specific_prefix(llang, program_name, buf, templated=templated)
+
+    if llang == 'ada':
+        generate_test_main_header(llang, types, buf, templated)
+        generate_main_test_function_definition_set(llang, types, args, buf, templated=templated)
+    else:
+        generate_main_test_function_definition_set(llang, types, args, buf, templated=templated)
+        generate_test_main_header(llang, types, buf, templated)
+
+    for typ in types:
+        generate_main_test_function_variable(llang, typ, buf, templated=templated)
+
+    generate_test_main_middle(llang, types, buf, templated)
+
+    for typ in types:
+        for findex in range(0, args.function_count):
+            generate_test_function_call(llang, findex, typ, buf, templated=templated)
+
+    generate_test_language_specific_postfix(llang, types, buf)
+
     with open(path, 'w') as fil:
-        generate_test_language_specific_prefix(llang, program_name, fil, templated=templated)
-
-        if llang == 'ada':
-            generate_test_main_header(llang, types, fil, templated)
-            generate_main_test_function_definition_set(llang, types, args, fil,
-                                                       templated=templated)
-        else:
-            generate_main_test_function_definition_set(llang, types, args, fil,
-                                                       templated=templated)
-            generate_test_main_header(llang, types, fil, templated)
-
-        for typ in types:
-            generate_main_test_function_variable(llang, typ, fil, templated=templated)
-
-        generate_test_main_middle(llang, types, fil, templated)
-
-        for typ in types:
-            for findex in range(0, args.function_count):
-                generate_test_function_call(llang, findex, typ, fil, templated=templated)
-
-        generate_test_language_specific_postfix(llang, types, fil)
+        fil.write(buf.getvalue())
     end = timer()
     dur = (end - start)  # time dur
     print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
@@ -2042,192 +2044,6 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         fil.write(Tm('  ${T}_sum: ${T};\n').substitute(T=typ))
     else:
         assert False
-
-
-def generate_test_program_2(function_count: int, lang: str, templated: bool):
-    program_name = 'sample2'
-
-    lang = lang.lower()
-    types = [long_type_of_lang(lang)]
-    ext = language_file_extension(lang)
-    dir_path = os.path.join(ROOT_PATH, lang)
-    os.makedirs(dir_path, exist_ok=True)
-    path = os.path.join(dir_path, program_name + '.' + ext)
-
-    start = timer()
-    with open(path, 'w') as fil:
-
-        # package definition
-        if lang == 'go':
-            fil.write('''package ''' + program_name + ''';
-
-''')
-
-        elif lang == 'odin':
-            fil.write('''package ''' + program_name + ''';
-
-''')
-        # standard io module
-        if lang in ['c']:
-            fil.write('''#include <stdio.h>
-''')
-        if lang in ['c++']:
-            fil.write('''#include <iostream>
-''')
-        if lang in ('d', 'vox'):
-            fil.write('''import std.stdio;
-''')
-        if lang == 'rust':
-            fil.write('''use std::io;
-''')
-        if lang == 'c3':
-            fil.write('''import std::io;
-''')
-        if lang == 'go':
-            fil.write('''import "fmt";
-
-''')
-        if lang == 'v':
-            fil.write('''import os
-''')
-
-        # special modules
-        if lang == 'rust':
-            fil.write('''use std::process::exit;
-''')
-
-        for typ in types:
-            for findex in range(0, function_count):
-                if lang in ('c', 'c++'):
-                    fil.write(Tm('''${T} add_${T}_n${N}(${T} x) { return x + ${N}; }
-''').substitute(T=typ, N=str(findex)))
-                if lang in ('d', 'vox'):
-                    fil.write(Tm('''${T} add_${T}_n${N}(${T} x) pure { return x + ${N}; }
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'c3':
-                    fil.write(Tm('''fn ${T} add_${T}_n${N}(${T} x) { return x + ${N}; }
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'rust':
-                    fil.write(Tm('''fn add_${T}_n${N}(x: ${T}) -> ${T} { x + ${N} }
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'zig':
-                    fil.write(Tm('''fn add_${T}_n${N}(x: ${T}) ${T} { return x + ${N}; }
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'go':
-                    fil.write(Tm('''func add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'ocaml':
-                    fil.write(Tm('''let add_${T}_n${N} x = x +. ${N}.0
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'v':
-                    fil.write(Tm('''fn add_${T}_n${N}(x ${T}) ${T} { return x + ${N} }
-''').substitute(T=typ, N=str(findex)))
-                elif lang == 'julia':
-                    fil.write(Tm('''function add_${T}_n${N}(x${QT})${QT}
-    return x + ${N}
-end;
-''').substitute(QT=('' if templated else ('::' + typ)), N=str(findex)))
-                    fil.write('\n')
-                elif lang == 'pareas':
-                    fil.write(Tm('fn add_${T}_n${N}[x: ${T}]: ${T} { return x + ${N}; }').substitute(T=typ, N=str(findex)))
-                elif lang == 'mojo':
-                    fil.write(Tm('fn add_${T}_n${N}(x: ${T}) -> ${T}: return x + ${N}').substitute(T=typ, N=str(findex)))
-
-        # MAIN HEADER
-        if lang in ['c', 'c++']:
-            fil.write('''int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[])
-{
-''')
-        elif lang in ('d', 'vox'):
-            fil.write('''int main(string[] args)
-{
-''')
-        elif lang == 'rust':
-            fil.write(Tm('''fn main() {
-''').substitute(T=types[0]))
-        elif lang == 'zig':
-            fil.write(Tm('''pub fn main() void {
-''').substitute(T=types[0]))
-        elif lang == 'go':
-            fil.write(Tm('''func main() ${T} {
-''').substitute(T=types[0]))
-        elif lang == 'v':
-            fil.write(Tm('''fn main() ${T} {
-''').substitute(T=types[0]))
-        elif lang == 'julia':
-            fil.write(Tm('''function main()::${T}
-''').substitute(T=types[0]))
-        elif lang == 'pareas':
-            fil.write(Tm('fn main[]: ${T} {\n').substitute(T=types[0]))
-        elif lang == 'mojo':
-            fil.write(Tm('fn main():\n').substitute(T=types[0]))
-        else:
-            assert False
-
-        # CALCULATE
-        for typ in types:
-            if lang in ('c', 'c3', 'c++', 'd', 'vox'):
-                fil.write(Tm('''    ${T} ${T}_sum = 0;
-''').substitute(T=typ))
-            elif lang == 'rust':
-                fil.write(Tm('''    let mut ${T}_sum : ${T} = 0;
-''').substitute(T=typ))
-            elif lang == 'zig':
-                fil.write(Tm('''    var ${T}_sum: ${T} = 0;
-''').substitute(T=typ))
-            elif lang == 'go':
-                fil.write(Tm('''    var ${T}_sum ${T} = 0;
-''').substitute(T=typ))
-            elif lang == 'v':
-                fil.write(Tm('''    var ${T}_sum ${T} = 0;
-''').substitute(T=typ))
-            elif lang == 'julia':
-                fil.write(Tm('''    ${T}_sum${QT} = 0;
-''').substitute(QT=('' if templated else ('::' + typ))))
-            elif lang == 'pareas':
-                fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
-            else:
-                assert False
-
-            if lang == 'pareas':
-                fil.write(Tm('    ${T}_sum += add_${T}_n${N}[${N}];').substitute(T=typ, N=str(findex)))
-            if lang == 'mojo':
-                fil.write(Tm('    ${T}_sum += add_${T}_n${N}(${N})').substitute(T=typ, N=str(findex)))
-            else:
-                for findex in range(0, function_count):
-                    fil.write(Tm('''    ${T}_sum += add_${T}_n${N}(${N});
-''').substitute(T=typ, N=str(findex)))
-
-        if lang == 'rust':
-            fil.write(Tm('''    exit(${T}_sum);
-}
-''').substitute(T=types[0]))
-        elif lang == 'zig':
-            fil.write(Tm('''
-}
-''').substitute(T=types[0]))
-        elif lang == 'ocaml':
-            fil.write(Tm('''    ${T}_sum''').substitute(T=types[0]))
-        elif lang == 'julia':
-            fil.write(Tm('''    return ${T}_sum;
-end
-
-main()
-''').substitute(T=types[0]))
-        elif lang in ('d', 'vox'):
-            fil.write(Tm('''    return cast(int)${T}_sum;
-}
-''').substitute(T=types[0]))
-        else:
-            fil.write(Tm('''    return ${T}_sum;
-}
-''').substitute(T=types[0]))
-
-    end = timer()
-    dur = (end - start)  # time dur
-    print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
-
-    return path
 
 
 def main():
