@@ -61,22 +61,23 @@ for suitable values of `$FUNCTION_COUNT` and `FUNCTION_DEPTH` or simply
 
 for defaulted values of all the parameters.
 
-A subset of languages combined with set of compilers to benchmark can be chosen
-as, for instance,
+A subset of languages combined with set of compilers to benchmark can
+be chosen as, for instance,
 
     ./benchmark --languages=C:tcc,C:gcc,C++,D:dmd,D:ldmd2,D:gdc,Rust
 
-This will generate code into the directory `generated` and then, for each
-combination of language, operation type and compiler, run the supported
-benchmarks. At the end a Markdown-formatted table showing the results of the
-benchmark is printed to standard output. Note that the compilation times in this
-table are titled `Time [us/#fn]` meaning in unit microseconds normalized with
-number of test functions generated, that is divided by `args.function_count *
+This will generate code into the directory `generated` and then, for
+each combination of language, operation type and compiler, run the
+supported benchmarks. At the end a Markdown-formatted table showing
+the results of the benchmark is printed to standard output. Note that
+the compilation times in this table are titled `Time [us/#fn]` meaning
+in unit microseconds normalized with number of test functions
+generated, that is divided by `args.function_count *
 args.function_depth`).
 
-GCC and Clang doesn't perform all semantic checks for C++ (because it's too
-costly). This is in contrast to D's and Rust's compilers that perform all of
-them.
+GCC and Clang doesn't perform all semantic checks for C++ (because
+it's too costly). This is in contrast to D's and Rust's compilers that
+perform all of them.
 
 ## Sample generated code
 
@@ -119,12 +120,13 @@ effectively disabled by this randomization.
 
 ## Generics
 
-For each languages `$LANG` that supports generics an additional templated source
-file `main_t.$LANG` will be generated alongside `main.$LANG` equivalent to
-the contents of `main.$LANG` apart from that all functions (except `main`) are
-templated. This templated source will be benchmarked aswell. The column
-**Templated** in the table below indicates whether or not the compilation is
-using templated functions.
+For each languages `$LANG` that supports generics an additional
+templated source file `main_t.$LANG` will be generated alongside
+`main.$LANG` equivalent to the contents of `main.$LANG` apart from
+that all functions (except `main`) are templated. This templated
+source will be benchmarked aswell. The column **Templated** in the
+table below indicates whether or not the compilation is using
+templated functions.
 
 ## Conclusions (from sample run shown below)
 
@@ -133,32 +135,34 @@ code-generation architecture. This is possible because parsing C code
 doesn’t have to deal with forward declarations and thereby limiting
 the parsing (and memory allocation) scope to a single function.
 
-The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest, closely
-followed by the C compiler Cuik, Vox and D's `dmd`. Note that Vox is an
-experimental language and Cuik is an experimental C compiler.
+The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest,
+closely followed by the C compiler Cuik, Vox and D's `dmd`. Note that
+Vox is an experimental language and Cuik is an experimental C
+compiler.
 
-The performance of both GCC and Clang gets significanly worse with each new
-release (currently 8, 9, 10 in the table below).
+The performance of both GCC and Clang gets significanly worse with
+each new release (currently 8, 9, 10 in the table below).
 
-The templated (generic) C++ source checks about 3 times slower than the
-non-generic one using `gcc-8` but only about 2.3 times slower for `gcc-10`. For
-`clang++-10` the slowdown is only about 1.6. The corresponding slowdown for
-generic D (`dmd`) is about 2.5 times. On the other hand, the generic Rust
-version interestingly is processed 2-3 times faster than the non-generic
-version.
+The templated (generic) C++ source checks about 3 times slower than
+the non-generic one using `gcc-8` but only about 2.3 times slower for
+`gcc-10`. For `clang++-10` the slowdown is only about 1.6. The
+corresponding slowdown for generic D (`dmd`) is about 2.5 times. On
+the other hand, the generic Rust version interestingly is processed
+2-3 times faster than the non-generic version.
 
-Julia's JIT-compiler is (currently) very memory hungry. A maximum recommended
-product of `function-count` and `function-depth` for Julia is 5000. Julia will
-therefore be excluded from the benchmark when this maximum is reached.
+Julia's JIT-compiler is (currently) very memory hungry. A maximum
+recommended product of `function-count` and `function-depth` for Julia
+is 5000. Julia will therefore be excluded from the benchmark when this
+maximum is reached.
 
-OCaml's optimizing native compiler `ocamlopt` is very slow for large inputs and
-is therefore disabled when the product of `function-count` and `function-depth`
-exceeds 10000.
+OCaml's optimizing native compiler `ocamlopt` is very slow for large
+inputs and is therefore disabled when the product of `function-count`
+and `function-depth` exceeds 10000.
 
 ## Sample Run on AMD Ryzen Threadripper 3960X 24-Core
 
-The output on an AMD Ryzen Threadripper 3960X 24-Core Processor running Ubuntu
-22.04 for the sample call
+The output on an AMD Ryzen Threadripper 3960X 24-Core Processor
+running Ubuntu 22.04 for the sample call
 
     ./benchmark --function-count=200 --function-depth=200 --run-count=1
 
