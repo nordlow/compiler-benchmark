@@ -1461,60 +1461,45 @@ def run_compiled_file(args: argparse.Namespace, run_count=1):
     return min(durs) if durs else None
 
 
+# Declarative language properties: (extension, int64_type)
+LANG_PROPERTIES = {
+    'c': ('c', 'long'),
+    'c++': ('cpp', 'long'),
+    'c3': ('c3', 'long'),
+    'd': ('d', 'long'),
+    'rust': ('rs', 'i64'),
+    'zig': ('zig', 'i64'),
+    'odin': ('odin', 'i64'),
+    'nim': ('nim', 'int64'),
+    'ada': ('adb', 'Long_Integer'),
+    'vox': ('vx', 'i64'),
+    'c#': ('cs', 'long'),
+    'go': ('go', 'int64'),
+    'v': ('v', 'i64'),
+    'swift': ('swift', 'Int64'),
+    'hylo': ('hylo', 'Int64'),
+    'java': ('java', 'long'),
+    'julia': ('jl', 'Int64'),
+    'ocaml': ('ml', 'float'),
+    'pareas': ('par', 'int'),
+    'python': ('py', 'Int'),
+    'mojo': ('mojo', 'Int'),
+    'scheme': ('scm', 'int'),
+    'crystal': ('cr', 'Int64'),
+    'pascal': ('pas', 'Int64'),
+}
+
+
 def long_type_of_lang(lang):
-    if lang in ('c', 'c3', 'c++', 'c#', 'java'):
-        return ['long']
-    elif lang in ('rust', 'zig', 'v', 'vox', 'c3', 'odin'):
-        return ['i64']
-    elif lang in ('swift', 'hylo', 'crystal', 'pascal'):
-        return ['Int64']
-    elif lang == 'd':
-        return ['long']
-    elif lang in ('go', 'nim'):
-        return ['int64']
-    elif lang == 'julia':
-        return ['Int64']
-    elif lang == 'ocaml':
-        return ['float']
-    elif lang == 'ada':
-        return ['Long_Integer']  # gnat
-    elif lang == 'pareas':
-        return ['int']
-    elif lang == 'python':
-        return ['Int']
-    elif lang == 'mojo':
-        return ['Int']
-    elif lang == 'scheme':
-        return ['int']  # Scheme uses unboxed integers
-    else:
-        return None
+    prop = LANG_PROPERTIES.get(lang.lower())
+    if prop:
+        return [prop[1]]
+    raise NotImplementedError(f"Missing integer type configuration for '{lang}'")
 
 
 def language_file_extension(lang):
-    if lang == 'rust':
-        return 'rs'
-    elif lang == 'julia':
-        return 'jl'
-    elif lang == 'ocaml':
-        return 'ml'
-    elif lang == 'c#':
-        return 'cs'
-    elif lang == 'vox':
-        return 'vx'
-    elif lang == 'ada':
-        return 'adb'
-    elif lang == 'pareas':
-        return 'par'
-    elif lang == 'python':
-        return 'py'
-    elif lang == 'crystal':
-        return 'cr'
-    elif lang == 'pascal':
-        return 'pas'
-    elif lang == 'scheme':
-        return 'scm'
-    else:
-        return lang
+    prop = LANG_PROPERTIES.get(lang.lower())
+    return prop[0] if prop else lang.lower()
 
 
 def generate_test_program_file(lang: str, args: argparse.Namespace, templated: bool, run_ix):
