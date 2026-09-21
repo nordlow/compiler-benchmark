@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal"
     exit 0
 }
 
@@ -192,12 +192,12 @@ if should_install "swift"; then
     echo ">> Installing Swift..."
     if [ "$OS" == "arch" ]; then
         ${PKG_MAN} swift-bin
-	else
-		SWIFT_URL=https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz
-		wget -q --show-progress -c "$SWIFT_URL" -O - | tar -xz -C "$INSTALL_DIR" && \
-			"$INSTALL_DIR/swiftly" init --quiet-shell-followup && \
-			. "${SWIFTLY_HOME_DIR:-$HOME/.local/share/swiftly}/env.sh" && \
-			hash -r
+    else
+        SWIFT_URL=https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz
+        wget -q --show-progress -c "$SWIFT_URL" -O - | tar -xz -C "$INSTALL_DIR" && \
+            "$INSTALL_DIR/swiftly" init --quiet-shell-followup && \
+            . "${SWIFTLY_HOME_DIR:-$HOME/.local/share/swiftly}/env.sh" && \
+            hash -r
     fi
 fi
 
@@ -279,6 +279,16 @@ if should_install "pareas"; then
     cp build/pareas "$BIN_DIR/pareas"
     popd
     rm -rf "$PAREAS_TMP"
+fi
+
+# Crystal
+if should_install "crystal"; then
+    echo ">> Installing Crystal..."
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} crystal shards
+    else
+        curl -fsSL https://crystal-lang.org/install.sh | sudo bash
+    fi
 fi
 
 # --- Finalization ---
