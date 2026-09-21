@@ -15,6 +15,7 @@ compilers. Supported languages are:
 - [Fortran](https://gcc.gnu.org/wiki/GFortran) (using `gfortran`),
 - [Pascal](https://www.freepascal.org/) (using `fpc`),
 - [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
+- [Hare](https://harelang.org/) (using `hare`),
 - [Go](https://golang.org/) (using `go` or `gccgo`),
 - [Swift](https://swift.org/) (using `swiftc`),
 - [Rust](https://www.rust-lang.org/) (using `rustc`),

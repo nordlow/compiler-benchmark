@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -320,6 +320,45 @@ if should_install "fortran" || should_install "gfortran"; then
         ${PKG_MAN} gcc-fortran
     else
         ${PKG_MAN} gfortran
+    fi
+fi
+
+# Hare
+if should_install "hare"; then
+    echo ">> Installing Hare..."
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} hare qbe harec
+    else
+        # Ensure QBE backend is present
+        if ! command -v qbe &> /dev/null; then
+            ${PKG_MAN} qbe 2>/dev/null || {
+                QBE_TMP=$(mktemp -d)
+                git clone --depth 1 git://c9x.me/qbe.git "$QBE_TMP"
+                make -C "$QBE_TMP" PREFIX="$INSTALL_DIR" install
+                rm -rf "$QBE_TMP"
+            }
+        fi
+
+        # Try apt first; otherwise bootstrap harec and hare into INSTALL_DIR
+        if ! ${PKG_MAN} hare harec 2>/dev/null; then
+            HAREC_TMP=$(mktemp -d)
+            git clone --depth 1 https://git.sr.ht/~sircmpwn/harec "$HAREC_TMP"
+            pushd "$HAREC_TMP"
+            cp configs/linux.mk config.mk
+            make
+            make install PREFIX="$INSTALL_DIR"
+            popd
+            rm -rf "$HAREC_TMP"
+
+            HARE_TMP=$(mktemp -d)
+            git clone --depth 1 https://git.sr.ht/~sircmpwn/hare "$HARE_TMP"
+            pushd "$HARE_TMP"
+            cp configs/linux.mk config.mk
+            make
+            make install PREFIX="$INSTALL_DIR"
+            popd
+            rm -rf "$HARE_TMP"
+        fi
     fi
 fi
 
