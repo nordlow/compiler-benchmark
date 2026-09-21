@@ -1082,7 +1082,7 @@ def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templa
         cexe_flags = ['-Cn', '-O-']
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = ['-O-']
+        cexe_flags = ['-O-', '-B', '-Aas']
         out_flag_and_exe = ['-o' + out_binary(lang)]
     else:
         return None
