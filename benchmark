@@ -333,7 +333,7 @@ def match_lang_cexe(args: argparse.Namespace, lang: str, cexe_name: str):
             return None
     except KeyError:
         pass
-    cexe_path = which(cexe_name)
+    cexe_path = which(cexe_name, path=args.path)
     return cexe_path
 
 
@@ -2230,6 +2230,10 @@ def main():
     parser.add_argument('--languages', '--langs', type=str,
                         default=','.join(LANGUAGE_EXES.keys()),
                         help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd,D:gdc,D:ldmd2.')
+
+    parser.add_argument('--path', type=str,
+                        default=None,
+                        help='Path in which to look for compilers')
 
     parser.add_argument('--operations', '--ops', type=str,
                         default=','.join(SUPPORTED_OPERATIONS),
