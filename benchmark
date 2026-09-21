@@ -49,9 +49,10 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Scheme': ['scheme', ],
                  'Crystal': ['crystal', ],
                  'Pascal': ['fpc', ],
+                 'Haskell': ['ghc', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
-                                 'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal']
+                                 'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal', 'Haskell']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
@@ -1105,6 +1106,39 @@ def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templa
                  results=results)
 
 
+def bm_Haskell(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
+    lang = 'Haskell'
+    cexe = match_lang_cexe(args, lang, 'ghc')
+    if not cexe:
+        return None
+
+    if op == 'check':
+        cexe_flags = ['-fno-code', '-v0', '-dynamic']
+        out_flag_and_exe = []
+    elif op == 'build':
+        cexe_flags = ['-O0', '-v0', '-dynamic']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        return None
+
+    try:
+        version = get_version(sp.run([cexe, '--version'], stdout=sp.PIPE))
+    except Exception:
+        version = 'unknown'
+
+    compile_file(code_paths,
+                 out_flag_and_exe=out_flag_and_exe,
+                 cexe=cexe,
+                 runner=(op == 'build'),
+                 cexe_flags=cexe_flags,
+                 args=args,
+                 op=op,
+                 compiler_version=version,
+                 lang=lang,
+                 templated=templated,
+                 results=results)
+
+
 def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Scheme'
 
@@ -1487,6 +1521,7 @@ LANG_PROPERTIES = {
     'scheme': ('scm', 'int'),
     'crystal': ('cr', 'Int64'),
     'pascal': ('pas', 'Int64'),
+    'haskell': ('hs', 'Int64'),
 }
 
 
@@ -1589,6 +1624,8 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
         fil.write(Tm('    ${T}_sum += ${F}(${N}_i64)').substitute(T=typ.lower(), N=n, F=fn))
     elif lang == 'pascal':
         fil.write(Tm('  ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
+    elif lang == 'haskell':
+        fil.write(Tm('    modifyIORef\' ${T}_sum (\\s -> s + ${F} ${N})').substitute(T=typ.lower(), N=n, F=fn))
     elif lang == 'c3':
         fn = "calc::" + fn;
         if templated:
@@ -1598,14 +1635,22 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
     else:
         fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell'):
         fil.write(';')          # statement terminator
 
     fil.write('\n')
 
 
 def generate_test_language_specific_prefix(lang: str, program_name, fil, templated: bool):
-    if lang == 'pascal':
+    if lang == 'haskell':
+        fil.write('''module Main where
+
+import Data.Int (Int64)
+import Data.IORef (newIORef, modifyIORef', readIORef)
+import System.Exit (exitWith, ExitCode(..))
+
+''')
+    elif lang == 'pascal':
         fil.write('program ' + program_name + ';\n\n')
     elif lang == 'go':
         fil.write('package ' + program_name + ';\n')
@@ -1721,8 +1766,15 @@ main()
         fil.write(Tm('''  Halt(${T}_sum mod 256);
 end.
 ''').substitute(T=types[0]))
-    else:
+    elif lang == 'haskell':
+        fil.write(Tm('''    s <- readIORef ${T}_sum
+    let code = fromIntegral (s `mod` 256)
+    exitWith (if code == 0 then ExitSuccess else ExitFailure code)
+''').substitute(T=types[0].lower()))
+    elif lang in ('c', 'c++'):
         fil.write(Tm('''    return ${T}_sum;\n}\n''').substitute(T=types[0]))
+    else:
+        raise NotImplementedError(f"Language '{lang}' has no postfix exit handler defined")
 
     if lang in ('c#', 'java'):
         fil.write('}\n')            # one extra closing brace for class
@@ -1786,6 +1838,8 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
         elif lang == 'mojo':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + nconst # TODO: Add xtarg
+        elif lang == 'haskell':
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + ' x + ' + nconst
         elif lang == 'scheme':
             call = function_name(typ, findex, fheight - 1)
             expr = f'(+ x ({call} x) {nconst})'
@@ -1902,6 +1956,13 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
     elif lang == 'pascal':
         fil.write(Tm('function ${F}(x: ${T}): ${T}; begin ${F} := ${X}; end;\n').substitute(
             T=typ, F=str(fname), X=expr))
+    elif lang == 'haskell':
+        if templated:
+            fil.write(Tm('${F} :: Num a => a -> a\n${F} x = ${X}\n').substitute(
+                F=str(fname), X=expr))
+        else:
+            fil.write(Tm('${F} :: ${T} -> ${T}\n${F} x = ${X}\n').substitute(
+                T=typ, F=str(fname), X=expr))
     elif lang == 'python' or lang == 'mojo':
         if templated:
             # doesn't have compile-time templates, but we can use type hints
@@ -1970,6 +2031,8 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
         fil.write('def main\n')
     elif lang == 'pascal':
         fil.write('var\n')
+    elif lang == 'haskell':
+        fil.write('main :: IO ()\nmain = do\n')
     else:
         assert False
 
@@ -2027,6 +2090,8 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         fil.write(Tm('    ${T}_sum = 0_i64\n').substitute(T=typ.lower()))
     elif lang == 'pascal':
         fil.write(Tm('  ${T}_sum: ${T};\n').substitute(T=typ))
+    elif lang == 'haskell':
+        fil.write(Tm('    ${V}_sum <- newIORef (0 :: ${T})\n').substitute(V=typ.lower(), T=typ))
     else:
         assert False
 
@@ -2061,7 +2126,7 @@ def main():
     args = parser.parse_args()
     install_missing_modules()
 
-    args.languages = list(map(lambda x: 'Pascal' if x.lower() in ('pascal', 'fpc') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
+    args.languages = list(map(lambda x: 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
                               args.languages.split(',')))  # into a list
     args.language_exes = {}
     for language_exes_spec in args.languages:
@@ -2214,6 +2279,12 @@ def main():
             if op in ('check', 'compile', 'build'):
                 for templated in (False,):
                     bm_Pascal(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
+
+    if 'Haskell' in args.language_exes:
+        for op in args.operations:
+            if op in ('check', 'build'):
+                for templated in (False, True):
+                    bm_Haskell(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Mojo' in args.language_exes:
         if 'build' in args.operations:

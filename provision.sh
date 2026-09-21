@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -299,6 +299,17 @@ if should_install "fpc" || should_install "pascal"; then
     else
         sudo add-apt-repository -y universe || true
         ${PKG_MAN} fpc
+    fi
+fi
+
+# Haskell (GHC)
+if should_install "ghc" || should_install "haskell"; then
+    echo ">> Installing Haskell (GHC)..."
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} ghc ghc-static
+    else
+        sudo add-apt-repository -y universe || true
+        ${PKG_MAN} ghc
     fi
 fi
 

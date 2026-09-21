@@ -29,6 +29,7 @@ compilers. Supported languages are:
 - [Mojo](https://www.modular.com/mojo) (using `mojo`),
 - [Scheme](https://cisco.github.io/ChezScheme/) (using `scheme`),
 - [Crystal](https://crystal-lang.org/) (using `crystal`),
+- [Haskell](https://www.haskell.org/) (using `ghc`),
 
 ## Languages with Bytecode Compilers:
 
