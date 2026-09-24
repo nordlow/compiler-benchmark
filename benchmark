@@ -1236,9 +1236,25 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
 
     try:
         if stdin_text is not None:
+            import psutil
             comp_proc = sp.Popen(p_args, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-            outs, errs = comp_proc.communicate(input=stdin_text.encode('utf-8'))
-            rss_mu = "unavailable"
+            comp_proc.stdin.write(stdin_text.encode('utf-8'))
+            comp_proc.stdin.close()
+            try:
+                p = psutil.Process(comp_proc.pid)
+                max_rss = 0
+                while comp_proc.poll() is None:
+                    try:
+                        rss = p.memory_info().rss
+                        if rss > max_rss:
+                            max_rss = rss
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        break
+                    time.sleep(1.0 / sample_rate)
+                rss_mu = max_rss if max_rss > 0 else "missing"
+            except Exception:
+                rss_mu = "sampling error"
+            outs, errs = comp_proc.communicate()
             returncode = comp_proc.returncode
         else:
             pt = ProcessTimer(args=p_args)
@@ -1302,9 +1318,25 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
 
     try:
         if stdin_text is not None:
+            import psutil
             comp_proc = sp.Popen(p_args, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-            outs, errs = comp_proc.communicate(input=stdin_text.encode('utf-8'))
-            rss_mu = "unavailable"
+            comp_proc.stdin.write(stdin_text.encode('utf-8'))
+            comp_proc.stdin.close()
+            try:
+                p = psutil.Process(comp_proc.pid)
+                max_rss = 0
+                while comp_proc.poll() is None:
+                    try:
+                        rss = p.memory_info().rss
+                        if rss > max_rss:
+                            max_rss = rss
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        break
+                    time.sleep(1.0 / sample_rate)
+                rss_mu = max_rss if max_rss > 0 else "missing"
+            except Exception:
+                rss_mu = "sampling error"
+            outs, errs = comp_proc.communicate()
             returncode = comp_proc.returncode
         else:
             pt = ProcessTimer(args=p_args)
@@ -1411,6 +1443,7 @@ def compile_file(code_paths: list,
         'check': CHECK_DUR_PER_FUNC_IX,
         'compile': COMPILE_DUR_PER_FUNC_IX,
         'build': BUILD_DUR_PER_FUNC_IX,
+        'run': RUN_DUR_PER_FUNC_IX,
     }.get(op)
     if op_dur_col is not None:
         row[op_dur_col] = dur_min / total_funcs
@@ -1965,7 +1998,7 @@ LANGUAGE_BENCHMARKS = [
         lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=True),
     ], ('build',), (False,)),
     ('Julia', [bm_Julia], ('build',), (False, True)),
-    ('Scheme', [bm_Scheme], ('check', 'build', 'run'), (False,)),
+    ('Scheme', [bm_Scheme], ('build', 'run'), (False,)),
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
 ]
 
