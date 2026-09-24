@@ -1045,29 +1045,24 @@ def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templa
     if not cexe:
         return None
 
-    version = get_compiler_version(cexe)
-
-    if op == 'run':
-        cexe_flags = ['--script']
-        stdin_input = None
-    elif op == 'build':
-        cexe_flags = ['-q']
-        stdin_input = '(compile-file "main_{}.scm")'
-    else:
+    if op != 'build':
         return None
+
+    version = get_compiler_version(cexe)
+    out_target = out_binary(lang)
 
     compile_file(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
-                 runner=False,
-                 cexe_flags=cexe_flags,
+                 runner=[cexe, '--script'],
+                 cexe_flags=['-q'],
                  args=args,
                  op=op,
                  compiler_version=version,
                  lang=lang,
                  templated=templated,
                  results=results,
-                 stdin_input=stdin_input)
+                 stdin_input=f'(compile-script "main_{{}}.scm" "{out_target}")')
 
 
 def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, cexe_flags=None):
@@ -1998,7 +1993,7 @@ LANGUAGE_BENCHMARKS = [
         lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=True),
     ], ('build',), (False,)),
     ('Julia', [bm_Julia], ('build',), (False, True)),
-    ('Scheme', [bm_Scheme], ('build', 'run'), (False,)),
+    ('Scheme', [bm_Scheme], ('build',), (False,)),
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
 ]
 
@@ -2038,8 +2033,29 @@ def main():
     args = parser.parse_args()
     install_missing_modules()
 
-    args.languages = list(map(lambda x: 'Hare' if x.lower() == 'hare' else 'Fortran' if x.lower() in ('fortran', 'gfortran') else 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else 'Scheme' if x.lower() in ('scheme', 'chez') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
-                              args.languages.split(',')))
+    lang_aliases = {
+        'hare': 'Hare',
+        'fortran': 'Fortran',
+        'gfortran': 'Fortran',
+        'haskell': 'Haskell',
+        'ghc': 'Haskell',
+        'pascal': 'Pascal',
+        'fpc': 'Pascal',
+        'scheme': 'Scheme',
+        'chez': 'Scheme',
+        'ocaml': 'OCaml',
+    }
+
+    def normalize_lang_spec(spec: str) -> str:
+        name, sep, exes = spec.partition(':')
+        canonical = lang_aliases.get(name.lower(), name.capitalize())
+        return f"{canonical}{sep}{exes}" if sep else canonical
+
+    args.languages = [
+        normalize_lang_spec(spec.strip())
+        for spec in args.languages.split(',')
+        if spec.strip()
+    ]
     args.language_exes = {}
     for language_exes_spec in args.languages:
         split = language_exes_spec.split(':')
