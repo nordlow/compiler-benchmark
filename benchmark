@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO use class Row
 
 import sys
 import argparse
@@ -76,35 +75,6 @@ VERSIONS = [''] + [f"-{i}" for i in RANGE]
 HOME = expanduser('~')
 
 
-class Row:                      # TODO use
-    """Result row."""
-    __slots__ = ['lang',
-                 'templated',
-                 'check_dur_per_func',
-                 'build_dur_per_func',
-                 'run_dur_per_func',
-                 'rss_mu',
-                 'cexe_version',
-                 'cexe_path']
-
-    def __init__(self,
-                 lang,
-                 templated,
-                 check_dur_per_func,
-                 build_dur_per_func,
-                 run_dur_per_func,
-                 rss_mu,
-                 cexe_version,
-                 cexe_path):
-        self.lang = lang
-        self.templated = templated
-        self.check_dur_per_func = check_dur_per_func
-        self.build_dur_per_func = build_dur_per_func
-        self.run_dur_per_func = run_dur_per_func
-        self.rss_mu = rss_mu
-        self.cexe_version = cexe_version
-        self.cexe_path = cexe_path
-
 
 MARKDOWN_TABLE_TITLES = [
     'Lang-uage',
@@ -135,57 +105,6 @@ MARKDOWN_TABLE_LENGTH = CEXE_PATH_IX + 1
 
 assert len(MARKDOWN_TABLE_TITLES) == MARKDOWN_TABLE_LENGTH
 
-
-def table_row(row,
-              args,
-              lang,
-              op,
-              cexe_path,
-              compiler_version,
-              ast_check_dur,
-              check_dur,
-              compile_dur,
-              build_dur,
-              run_dur,
-              check_rss_mu,
-              build_rss_mu,
-              templated: bool):
-
-    if cexe_path.startswith(HOME):
-        cexe_path = os.path.join('~', cexe_path.removeprefix(HOME))
-
-    row[LANG_IX] = lang
-    row[TEMPLATED_IX] = 'Yes' if templated else 'No'
-
-    if ast_check_dur is not None:
-        row[AST_CHECK_DUR_PER_FUNC_IX] = ast_check_dur / (args.function_count * args.function_depth)
-
-    if check_dur is not None:
-        row[CHECK_DUR_PER_FUNC_IX] = check_dur / (args.function_count * args.function_depth)
-
-    if compile_dur is not None:
-        row[COMPILE_DUR_PER_FUNC_IX] = compile_dur / (args.function_count * args.function_depth)
-
-    if build_dur is not None:
-        row[BUILD_DUR_PER_FUNC_IX] = build_dur / (args.function_count * args.function_depth)
-
-    if run_dur is not None:
-        row[RUN_DUR_PER_FUNC_IX] = run_dur / (args.function_count * args.function_depth)
-
-    if isinstance(check_rss_mu, (int, float)):
-        row[CHECK_RSS_MU_IX] = check_rss_mu / (args.function_count * args.function_depth)
-    elif check_rss_mu is not None:
-        row[CHECK_RSS_MU_IX] = check_rss_mu
-
-    if isinstance(build_rss_mu, (int, float)):
-        row[BUILD_RSS_MU_IX] = build_rss_mu / (args.function_count * args.function_depth)
-    elif build_rss_mu is not None:
-        row[BUILD_RSS_MU_IX] = build_rss_mu
-
-    row[CEXE_VERSION_IX] = compiler_version
-    row[CEXE_PATH_IX] = os.path.basename(cexe_path)
-
-    return row
 
 
 RANDOMIZE_FLAG = True
@@ -1295,34 +1214,160 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
                  results=results)
 
 
+def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
+    """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
+    if has_stdin:
+        return [cexe] + cexe_flags + out_flags
+    if os.path.basename(cexe).startswith('odin'):
+        cmd = [cexe_flags[0]] if cexe_flags else []
+        remaining = cexe_flags[1:] if cexe_flags else []
+        return [cexe] + cmd + [src_name, '-file'] + remaining + out_flags
+    return [cexe] + cexe_flags + out_flags + [src_name]
+
+
+def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_text: str | None = None):
+    """Execute compiler process in work_dir and measure duration, RSS, and exit code."""
+    from process_timer import ProcessTimer
+    cwd = os.getcwd()
+    os.chdir(work_dir)
+    cstart = timer()
+    outs, errs = b'', b''
+    returncode = -1
+    rss_mu = None
+
+    try:
+        if stdin_text is not None:
+            comp_proc = sp.Popen(p_args, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+            outs, errs = comp_proc.communicate(input=stdin_text.encode('utf-8'))
+            rss_mu = "unavailable"
+            returncode = comp_proc.returncode
+        else:
+            pt = ProcessTimer(args=p_args)
+            try:
+                while pt.poll():
+                    time.sleep(1.0 / sample_rate)
+            except Exception:
+                rss_mu = "sampling error"
+            finally:
+                if rss_mu is None and getattr(pt, 'max_rss_mu', 0) != 0:
+                    rss_mu = pt.max_rss_mu
+                rss_mu = rss_mu or "missing"
+
+            outs, errs = pt.comp_proc.communicate()
+            returncode = pt.comp_proc.returncode
+    finally:
+        os.chdir(cwd)
+
+    dur = timer() - cstart
+    return dur, returncode, outs, errs, rss_mu
+
+
+def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_name: str, run_count: int):
+    """Execute the produced binary or script, handling tool-specific quirks (e.g., cproc chmod)."""
+    if op == 'run' and runner:
+        run_args = (runner if isinstance(runner, list) else [runner]) + [src_name]
+        return run_compiled_file(run_args, run_count=run_count)
+
+    if op == 'build' and runner and lang != 'Python':
+        outb_path = os.path.join(lang_dir, out_binary(lang))
+        if runner is True:
+            if cexe.endswith('cproc') and os.path.exists(outb_path):
+                os.chmod(outb_path, os.stat(outb_path).st_mode | stat.S_IEXEC)
+            return run_compiled_file(outb_path, run_count=run_count)
+        if isinstance(runner, list):
+            return run_compiled_file(runner + [outb_path], run_count=run_count)
+
+    return None
+
+
+def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
+    """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
+    if has_stdin:
+        return [cexe] + cexe_flags + out_flags
+    if os.path.basename(cexe).startswith('odin'):
+        cmd = [cexe_flags[0]] if cexe_flags else []
+        remaining = cexe_flags[1:] if cexe_flags else []
+        return [cexe] + cmd + [src_name, '-file'] + remaining + out_flags
+    return [cexe] + cexe_flags + out_flags + [src_name]
+
+
+def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_text: str | None = None):
+    """Execute compiler in work_dir and measure duration, RSS, and exit code."""
+    from process_timer import ProcessTimer
+    cwd = os.getcwd()
+    os.chdir(work_dir)
+    cstart = timer()
+    outs, errs = b'', b''
+    returncode = -1
+    rss_mu = None
+
+    try:
+        if stdin_text is not None:
+            comp_proc = sp.Popen(p_args, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+            outs, errs = comp_proc.communicate(input=stdin_text.encode('utf-8'))
+            rss_mu = "unavailable"
+            returncode = comp_proc.returncode
+        else:
+            pt = ProcessTimer(args=p_args)
+            try:
+                while pt.poll():
+                    time.sleep(1.0 / sample_rate)
+            except Exception:
+                rss_mu = "sampling error"
+            finally:
+                if rss_mu is None and getattr(pt, 'max_rss_mu', 0) != 0:
+                    rss_mu = pt.max_rss_mu
+                rss_mu = rss_mu or "missing"
+
+            outs, errs = pt.comp_proc.communicate()
+            returncode = pt.comp_proc.returncode
+    finally:
+        os.chdir(cwd)
+
+    dur = timer() - cstart
+    return dur, returncode, outs, errs, rss_mu
+
+
+def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_name: str, run_count: int):
+    """Execute target binary or script, handling compiler-specific quirks (e.g., cproc chmod)."""
+    if op == 'run' and runner:
+        run_args = (runner if isinstance(runner, list) else [runner]) + [src_name]
+        return run_compiled_file(run_args, run_count=run_count)
+
+    if op == 'build' and runner and lang != 'Python':
+        outb_path = os.path.join(lang_dir, out_binary(lang))
+        if runner is True:
+            if cexe.endswith('cproc') and os.path.exists(outb_path):
+                os.chmod(outb_path, os.stat(outb_path).st_mode | stat.S_IEXEC)
+            return run_compiled_file(outb_path, run_count=run_count)
+        if isinstance(runner, list):
+            return run_compiled_file(runner + [outb_path], run_count=run_count)
+
+    return None
+
+
 def compile_file(code_paths: list,
-                 out_flag_and_exe,
+                 out_flag_and_exe: list,
                  cexe: str,
                  runner,
                  cexe_flags: list[str],
                  args: argparse.Namespace,
                  op: str,
-                 compiler_version=None,
-                 lang=None,
+                 compiler_version: str | None = None,
+                 lang: str = None,
                  templated: bool = False,
-                 results: dict[tuple, list] = {},
-                 stdin_input: str|None = None):
-    key: tuple = (lang, templated, cexe)
-
-    lang_dir = out_directory(lang)
-    abs_lang_dir = os.path.abspath(lang_dir)
-
-    if key not in results:
-        row = [None] * MARKDOWN_TABLE_LENGTH
-        results[key] = row
-    else:
-        row = results[key]
+                 results: dict = {},
+                 stdin_input: str | None = None):
+    key = (lang, templated, cexe)
+    row = results.setdefault(key, [None] * MARKDOWN_TABLE_LENGTH)
+    lang_dir = os.path.abspath(out_directory(lang))
+    total_funcs = args.function_count * args.function_depth
 
     durs = []
     rss_mu = None
-    for run_ix in range(0, args.run_count):
-        src_key = sourceIdOf(lang, templated, run_ix)
 
+    for run_ix in range(args.run_count):
+        src_key = sourceIdOf(lang, templated, run_ix)
         if src_key in code_paths:
             src_path = code_paths[src_key]
         else:
@@ -1330,102 +1375,56 @@ def compile_file(code_paths: list,
             code_paths[src_key] = src_path
         src_name = os.path.basename(src_path)
 
-        cstart = timer()
-        if stdin_input:
-            p_args = [cexe] + cexe_flags + out_flag_and_exe
-        else:
-            if lang == 'Odin':
-                if cexe_flags and cexe_flags[0] in ['build', 'check']:
-                    cmd = [cexe_flags[0]]
-                    remaining_flags = cexe_flags[1:]
-                    p_args = [cexe] + cmd + [src_name, '-file'] + remaining_flags + out_flag_and_exe
-                else:
-                    p_args = [cexe] + cexe_flags + [src_name, '-file'] + out_flag_and_exe
-            else:
-                p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
-        cwd = os.getcwd()
-        os.chdir(lang_dir)
-        from process_timer import ProcessTimer
+        p_args = build_compiler_cmd(cexe, cexe_flags, out_flag_and_exe, src_name, has_stdin=bool(stdin_input))
+        stdin_text = stdin_input.format(run_ix) if stdin_input else None
 
-        if stdin_input:
-            formatted_stdin = stdin_input.format(run_ix)
-            import subprocess as sp
-            comp_proc = sp.Popen(p_args, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
-            outs, errs = comp_proc.communicate(input=formatted_stdin.encode('utf-8'))
-            rss_mu = "unavailable"
-            pt = type('obj', (object,), {'comp_proc': comp_proc})()
-        else:
-            pt = ProcessTimer(args=p_args)
-            try:
-                while pt.poll():
-                    time.sleep(1.0 / args.sample_rate)
-            except Exception:
-                rss_mu = "sampling error"
-            finally:
-                if rss_mu is None and pt.max_rss_mu != 0:
-                    rss_mu = pt.max_rss_mu
-                if rss_mu is None:
-                    rss_mu = "missing"
+        dur, returncode, outs, errs, rss = measure_compilation(p_args, lang_dir, args.sample_rate, stdin_text)
+        rss_mu = rss
 
-            outs, errs = pt.comp_proc.communicate()
-        os.chdir(cwd)
-
-        if pt.comp_proc.returncode != 0 and op != 'run':
-            print("WARNING: Compilation `" + ' '.join([cexe] + cexe_flags) +
-                  "` of source file `" + src_name +
-                  "` exited with return code " + str(pt.comp_proc.returncode) +
-                  ("`\n  - stdout:\n" + str(outs) if outs else "") +
-                  ("`\n  - stderr:\n" + errs.decode('utf8') if errs else ""),
-                  file=sys.stderr)
+        if returncode != 0 and op != 'run':
+            cmd_str = ' '.join(p_args)
+            err_str = errs.decode('utf8', errors='ignore') if errs else ''
+            print(f"WARNING: Compilation `{cmd_str}` of source file `{src_name}` exited with return code {returncode}", file=sys.stderr)
+            if err_str:
+                print(f"  - stderr: {err_str}", file=sys.stderr)
             if rss_mu and isinstance(rss_mu, (int, float)):
-                if op == 'check':
-                    row[CHECK_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
-                if op == 'build':
-                    row[BUILD_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
+                slot = CHECK_RSS_MU_IX if op == 'check' else (BUILD_RSS_MU_IX if op == 'build' else None)
+                if slot:
+                    row[slot] = rss_mu / total_funcs
             return None
 
-        durs.append(timer() - cstart)
+        durs.append(dur)
 
     dur_min = min(durs)
-    run_dur_min = None
-    if op == 'run':
-        if runner:
-            run_args = runner + [src_name] if isinstance(runner, list) else [src_name]
-            run_dur_min = run_compiled_file(run_args, run_count=args.run_count)
-    elif op == 'build':
-        outb = out_binary(lang)
-        if runner and lang != 'Python':
-            if runner is True:
-                if (cexe.endswith('cproc')):
-                    outb_path = os.path.join(abs_lang_dir, outb)
-                    st = os.stat(outb_path)
-                    os.chmod(outb_path, st.st_mode | stat.S_IEXEC)
-                run_dur_min = run_compiled_file(os.path.join(lang_dir, outb))
-            elif isinstance(runner, list):
-                run_dur_min = run_compiled_file(runner + [outb])
-        elif out_flag_and_exe:
-            if runner is not False:
-                print("TODO run " + outb + " using runner " + str(runner))
+    run_dur_min = run_target_binary(cexe, lang, lang_dir, runner, op, src_name, args.run_count)
 
-    compiler_version_str = ' version ' + str(compiler_version) if compiler_version is not None else ''
+    version_str = f' version {compiler_version}' if compiler_version is not None else ''
     cop = op.capitalize()
-    print('- {} took {:1.3f} seconds (using "{}"{})'.
-          format(cop, dur_min, cexe, compiler_version_str))
+    print(f'- {cop} took {dur_min:1.3f} seconds (using "{cexe}"{version_str})')
 
-    return table_row(row=row,
-                     args=args,
-                     lang=lang,
-                     op=op,
-                     cexe_path=cexe,
-                     compiler_version=compiler_version,
-                     ast_check_dur=dur_min if op == 'ast-check' else None,
-                     check_dur=dur_min if op == 'check' else None,
-                     compile_dur=dur_min if op == 'compile' else None,
-                     build_dur=dur_min if op == 'build' else None,
-                     run_dur=run_dur_min,
-                     check_rss_mu=rss_mu if op == 'check' else None,
-                     build_rss_mu=rss_mu if op == 'build' else None,
-                     templated=templated)
+    row[LANG_IX] = lang
+    row[TEMPLATED_IX] = 'Yes' if templated else 'No'
+    row[CEXE_VERSION_IX] = compiler_version
+    row[CEXE_PATH_IX] = os.path.basename(cexe)
+
+    op_dur_col = {
+        'ast-check': AST_CHECK_DUR_PER_FUNC_IX,
+        'check': CHECK_DUR_PER_FUNC_IX,
+        'compile': COMPILE_DUR_PER_FUNC_IX,
+        'build': BUILD_DUR_PER_FUNC_IX,
+    }.get(op)
+    if op_dur_col is not None:
+        row[op_dur_col] = dur_min / total_funcs
+
+    if run_dur_min is not None:
+        row[RUN_DUR_PER_FUNC_IX] = run_dur_min / total_funcs
+
+    op_rss_col = {'check': CHECK_RSS_MU_IX, 'build': BUILD_RSS_MU_IX}.get(op)
+    if op_rss_col is not None and rss_mu is not None:
+        row[op_rss_col] = (rss_mu / total_funcs) if isinstance(rss_mu, (int, float)) else rss_mu
+
+    return row
+
 
 
 def run_compiled_file(args: argparse.Namespace, run_count=1):
