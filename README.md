@@ -32,6 +32,7 @@ compilers. Supported languages are:
 - [Scheme](https://cisco.github.io/ChezScheme/) (using `scheme`),
 - [Crystal](https://crystal-lang.org/) (using `crystal`),
 - [Haskell](https://www.haskell.org/) (using `ghc`),
+- [Odin](https://odin-lang.org/) (using `odin`),
 
 ## Languages with Bytecode Compilers:
 
