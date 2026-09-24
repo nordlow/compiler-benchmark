@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin"
     exit 0
 }
 
@@ -32,22 +32,22 @@ fi
 for i in "$@"; do
     case $i in
         --languages=*)
-        REQUESTED_LANGS="${i#*=}"
-        if [ "$REQUESTED_LANGS" == "all" ]; then
-            INSTALL_ALL=true
-        else
-            IFS=',' read -ra ADDR <<< "$REQUESTED_LANGS"
-            for lang in "${ADDR[@]}"; do
-                SELECTED[$(echo "$lang" | tr '[:upper:]' '[:lower:]')]=true
-            done
-        fi
-        shift
-        ;;
+			REQUESTED_LANGS="${i#*=}"
+			if [ "$REQUESTED_LANGS" == "all" ]; then
+				INSTALL_ALL=true
+			else
+				IFS=',' read -ra ADDR <<< "$REQUESTED_LANGS"
+				for lang in "${ADDR[@]}"; do
+					SELECTED[$(echo "$lang" | tr '[:upper:]' '[:lower:]')]=true
+				done
+			fi
+			shift
+			;;
         --help)
             show_help
             ;;
         *)
-        ;;
+			;;
     esac
 done
 
@@ -179,6 +179,38 @@ if should_install "zig"; then
     else
         ZIG_URL=$(curl -s https://ziglang.org/download/index.json | grep -oP '"tarball":\s*"\Khttps://ziglang.org/builds/zig-linux-x86_64-[^"]+' | head -n 1)
         wget -q --show-progress -c "$ZIG_URL" -O - | tar -xJ -C "$INSTALL_DIR"
+    fi
+fi
+
+# --- Odin ---
+if should_install "odin"; then
+    echo ">> Installing Odin..."
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} odin
+    else
+        ODIN_ARCH=$( [ "$(uname -m)" == "x86_64" ] && echo "amd64" || echo "arm64" )
+        # Query GitHub API with a scrape fallback in case of rate limits
+        ODIN_URL=$(curl -sL https://api.github.com/repos/odin-lang/Odin/releases/latest | grep -oP '"browser_download_url":\s*"\Khttps://github.com/odin-lang/Odin/releases/download/[^"]+linux-'"${ODIN_ARCH}"'[^"]+\.tar\.gz' | head -n 1 || true)
+        if [ -z "$ODIN_URL" ]; then
+            ODIN_URL=$(curl -sL "https://github.com/odin-lang/Odin/releases/latest" | grep -oP 'href="\K/odin-lang/Odin/releases/download/[^"]+linux-'"${ODIN_ARCH}"'[^"]+\.tar\.gz' | head -n 1 | sed 's|^|https://github.com|')
+        fi
+
+        if [ -n "$ODIN_URL" ]; then
+            ODIN_TMP=$(mktemp -d)
+            wget -q --show-progress -c "$ODIN_URL" -O "$ODIN_TMP/odin.tar.gz"
+            tar -xzf "$ODIN_TMP/odin.tar.gz" -C "$ODIN_TMP"
+            # Locate the extracted directory containing the binary, core, and base libs
+            EXTRACTED_DIR=$(find "$ODIN_TMP" -maxdepth 2 -type f -name "odin" -exec dirname {} \; | head -n 1)
+            if [ -n "$EXTRACTED_DIR" ]; then
+                rm -rf "$INSTALL_DIR/odin"
+                mv "$EXTRACTED_DIR" "$INSTALL_DIR/odin"
+                ln -sf "$INSTALL_DIR/odin/odin" "$BIN_DIR/odin"
+            fi
+            rm -rf "$ODIN_TMP"
+        else
+            echo "Error: Failed to fetch Odin release URL." >&2
+            exit 1
+        fi
     fi
 fi
 
