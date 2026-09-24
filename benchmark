@@ -77,18 +77,15 @@ VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
 HOME = expanduser('~')
 
-
-
 MARKDOWN_TABLE_TITLES = [
     'Lang-uage',
-    'Temp-lated',
-    'AST-Chk Time [us/fn]',
-    'Chk Time [us/fn]',
-    'Cmp Time [us/fn]',
-    'Bld Time [us/fn]',
-    'Run Time [us/fn]',
-    'Chk RSS [kB/fn]',
-    'Bld RSS [kB/fn]',
+    'AST-Chk Time [us/fn] (P/T)',
+    'Chk Time [us/fn] (P/T)',
+    'Cmp Time [us/fn] (P/T)',
+    'Bld Time [us/fn] (P/T)',
+    'Run Time [us/fn] (P/T)',
+    'Chk RSS [kB/fn] (P/T)',
+    'Bld RSS [kB/fn] (P/T)',
     'Version',
     'Exec',
 ]
@@ -104,9 +101,11 @@ CHECK_RSS_MU_IX = 7        # check RSS memory usage
 BUILD_RSS_MU_IX = 8        # build RSS memory usage
 CEXE_VERSION_IX = 9
 CEXE_PATH_IX = 10
-MARKDOWN_TABLE_LENGTH = CEXE_PATH_IX + 1
+RAW_ROW_LENGTH = CEXE_PATH_IX + 1
+MARKDOWN_TABLE_LENGTH = len(MARKDOWN_TABLE_TITLES)
 
-assert len(MARKDOWN_TABLE_TITLES) == MARKDOWN_TABLE_LENGTH
+# The merged table has 1 fewer column than the raw row (no separate 'Temp-lated' column)
+assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 1
 
 
 
@@ -262,6 +261,51 @@ def repeat_to_length(string_to_expand, length: int):
 def markdown_header(text: str, nr: int):
     return '#' * nr + ' ' + text
 
+def merge_plain_and_templated_results(results: Results):
+    metric_cols = [
+        AST_CHECK_DUR_PER_FUNC_IX,
+        CHECK_DUR_PER_FUNC_IX,
+        COMPILE_DUR_PER_FUNC_IX,
+        BUILD_DUR_PER_FUNC_IX,
+        RUN_DUR_PER_FUNC_IX,
+        CHECK_RSS_MU_IX,
+        BUILD_RSS_MU_IX,
+    ]
+    merged = {}
+    grouped = {}
+    for (lang, templated, cexe), row in results.items():
+        grouped.setdefault((lang, cexe), {})[templated] = row
+
+    for (lang, cexe), variants in grouped.items():
+        row_plain = variants.get(False)
+        row_tmpl = variants.get(True)
+        base_row = row_plain if row_plain is not None else row_tmpl
+        merged_row = [base_row[LANG_IX]]
+
+        for col in metric_cols:
+            val_p = str(row_plain[col]).strip() if row_plain and row_plain[col] is not None else None
+            val_t = str(row_tmpl[col]).strip() if row_tmpl and row_tmpl[col] is not None else None
+
+            p_na = (val_p is None or val_p == 'N/A')
+            t_na = (val_t is None or val_t == 'N/A')
+
+            if p_na and t_na:
+                cell = 'N/A'
+            elif row_tmpl is None:  # Language has no templated variant benchmarked
+                cell = f"{val_p} / -" if not p_na else 'N/A'
+            elif p_na:
+                cell = f"- / {val_t}"
+            elif t_na:
+                cell = f"{val_p} / -"
+            else:
+                cell = f"{val_p} / {val_t}"
+            merged_row.append(cell)
+
+        merged_row.extend([base_row[CEXE_VERSION_IX], base_row[CEXE_PATH_IX]])
+        merged[(lang, cexe)] = merged_row
+
+    return merged
+
 
 def markdown_table(titles: list[str], results: Results):
     fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX)
@@ -272,27 +316,24 @@ def markdown_table(titles: list[str], results: Results):
     fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX)
     fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX)
 
-    result = ''
-    result += '| '
-    for col in titles:
-        result += str(col) + ' | '
-    result += '\n'
+    merged_results = merge_plain_and_templated_results(results)
 
-    result += '| '
-    for ix, col in enumerate(range(len(titles))):
-        if ix == TEMPLATED_IX:
-            result += repeat_to_length("-", len(titles[ix])) + ' | '
-        else:
-            result += ':' + repeat_to_length("-", len(titles[ix]) - 2) + ':' + ' | '
-    result += '\n'
+    # Sort rows by Language, then Compiler Executable
+    sorted_rows = sorted(merged_results.values(), key=lambda r: (r[0].lower(), str(r[-1]).lower()))
 
-    for key, row in results.items():
-        result += '| '
-        for ix, cl in enumerate(range(len(titles))):
-            col = row[ix]
-            col_str = str(col) if col is not None else 'N/A'
-            result += col_str + repeat_to_length(" ", len(titles[ix]) - len(col_str)) + ' | '
-        result += '\n'
+    # Compute dynamic column widths for proper markdown alignment
+    col_widths = [len(t) for t in titles]
+    for row in sorted_rows:
+        for idx, cell in enumerate(row):
+            col_widths[idx] = max(col_widths[idx], len(str(cell)))
+
+    # Header
+    result = '| ' + ' | '.join(str(titles[i]).ljust(col_widths[i]) for i in range(len(titles))) + ' |\n'
+    # Separator
+    result += '| ' + ' | '.join(':' + '-' * (col_widths[i] - 2) + ':' for i in range(len(titles))) + ' |\n'
+    # Data rows
+    for row in sorted_rows:
+        result += '| ' + ' | '.join(str(row[i]).ljust(col_widths[i]) for i in range(len(row))) + ' |\n'
     return result
 
 
@@ -1348,7 +1389,7 @@ def compile_file(code_paths: list,
                  results: dict = {},
                  stdin_input: str | None = None):
     key = (lang, templated, cexe)
-    row = results.setdefault(key, [None] * MARKDOWN_TABLE_LENGTH)
+    row = results.setdefault(key, [None] * RAW_ROW_LENGTH)
     row[LANG_IX] = lang
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
     row[CEXE_VERSION_IX] = compiler_version
