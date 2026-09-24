@@ -46,7 +46,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Pareas': ['pareas', ],
                  'Python': ['python3', 'python', 'pypy3', 'pypy', ],
                  'Mojo': ['mojo', ],
-                 'Scheme': ['scheme', ],
+                 'Scheme': ['chez', 'scheme', ],
                  'Crystal': ['crystal', ],
                  'Pascal': ['fpc', ],
                  'Haskell': ['ghc', ],
@@ -144,7 +144,7 @@ def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
                 return parts[2][2:].split('~')[0].split('ubuntu')[0]
         if base.startswith('c3c') and ':' in out:
             return out.split(':')[1].split()[0]
-        if base.startswith('scheme'):
+        if base.startswith(('scheme', 'chez')):
             return out
         for part in out.split():
             clean = part.strip(',;:()')
@@ -1041,12 +1041,11 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
 
 def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Scheme'
-    cexe = match_lang_cexe(args, lang, 'scheme')
+    cexe = match_lang_cexe(args, lang, 'chez') or match_lang_cexe(args, lang, 'scheme')
     if not cexe:
         return None
 
-    version_run = sp.run([cexe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
-    version = version_run.stderr.decode('utf-8').strip()
+    version = get_compiler_version(cexe)
 
     if op == 'run':
         cexe_flags = ['--script']
@@ -2006,7 +2005,7 @@ def main():
     args = parser.parse_args()
     install_missing_modules()
 
-    args.languages = list(map(lambda x: 'Hare' if x.lower() == 'hare' else 'Fortran' if x.lower() in ('fortran', 'gfortran') else 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
+    args.languages = list(map(lambda x: 'Hare' if x.lower() == 'hare' else 'Fortran' if x.lower() in ('fortran', 'gfortran') else 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else 'Scheme' if x.lower() in ('scheme', 'chez') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
                               args.languages.split(',')))
     args.language_exes = {}
     for language_exes_spec in args.languages:
