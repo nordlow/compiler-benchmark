@@ -132,6 +132,7 @@ if should_install "csharp"; then
     fi
 fi
 
+# D
 if should_install "dmd"; then
     echo ">> Installing DMD..."
     if [ "$OS" == "arch" ]; then
@@ -144,24 +145,25 @@ if should_install "dmd"; then
     fi
 fi
 
+# Nim
 if should_install "nim"; then
     echo ">> Installing Nim..."
     if [ "$OS" == "arch" ]; then ${PKG_MAN} nim; else curl https://nim-lang.org/choosenim/init.sh -sSf | sh -s -- -y; fi
 fi
 
-# --- Rust ---
+# Rust
 if should_install "rust"; then
     echo ">> Installing Rust..."
     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
 fi
 
-# --- C3 ---
+# C3
 if should_install "c3"; then
     echo ">> Installing C3..."
     curl -fsSL https://raw.githubusercontent.com/c3lang/c3c/refs/heads/master/install/install.sh | C3_VERSION=0.8.1 bash
 fi
 
-# --- Vlang ---
+# V
 if should_install "vlang"; then
     echo ">> Installing Vlang..."
     V_ZIP=$(mktemp /tmp/vlang.XXXXXX.zip)
@@ -171,7 +173,7 @@ if should_install "vlang"; then
     rm "$V_ZIP"
 fi
 
-# --- Zig ---
+# Zig
 if should_install "zig"; then
     echo ">> Installing Zig..."
     if [ "$OS" == "arch" ]; then
@@ -182,7 +184,7 @@ if should_install "zig"; then
     fi
 fi
 
-# --- Odin ---
+# ODin
 if should_install "odin"; then
     echo ">> Installing Odin..."
     if [ "$OS" == "arch" ]; then
@@ -214,12 +216,12 @@ if should_install "odin"; then
     fi
 fi
 
+# Swift
 if should_install "circle"; then
     echo ">> Installing Circle..."
     CIRCLE_VER=$(wget -q -O - "https://www.circle-lang.org/linux/" | grep -oP 'build_\K\d+(?=\.tgz)' | sort -nr | head -n 1)
     wget -q --show-progress -c "https://www.circle-lang.org/linux/build_${CIRCLE_VER}.tgz" -O - | tar -xz -C "${INSTALL_DIR}"
 fi
-
 if should_install "swift"; then
     echo ">> Installing Swift..."
     if [ "$OS" == "arch" ]; then
@@ -394,7 +396,6 @@ if should_install "hare"; then
     fi
 fi
 
-# --- Finalization ---
 echo "--------------------------------------------------------"
 echo "✅ Requested installations complete for $OS!"
 echo "--------------------------------------------------------"
