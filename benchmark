@@ -57,7 +57,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Hare': ['hare', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
-                                 'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal', 'Haskell']
+                                 'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal', 'Haskell', 'Nim']
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
@@ -1116,20 +1116,22 @@ def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated
     if not cexe:
         return None
 
-    cexe_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
+    common_flags = ['--hints:off', '--checks:off', '--stacktrace:off', '--errorMax:1']
 
     if op == 'check':
-        cexe_flags += ['check']
+        cexe_flags = common_flags + ['check']
+        out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags += ['c', '--mm:refc', '--opt:none']
+        cexe_flags = common_flags + ['c', '--mm:refc', '--opt:none']
+        out_flag_and_exe = ['--out:' + out_binary(lang)]
     else:
         return None
 
     version = get_compiler_version(cexe)
     compile_file(code_paths,
-                 out_flag_and_exe=['--out:' + out_binary(lang)],
+                 out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,
+                 runner=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
