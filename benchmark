@@ -10,7 +10,6 @@ import stat
 import os.path
 from shutil import which
 import time
-# from pprint import pprint
 import random
 from datetime import datetime
 from os.path import expanduser
@@ -74,7 +73,6 @@ ROOT_PATH = 'generated'
 RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
-# instead of home = os.getenv('HOME') that doesn’t work on Windows
 HOME = expanduser('~')
 
 
@@ -225,9 +223,8 @@ Results = dict[tuple, list]
 
 
 def fill_in_speedups(results: Results, column_ix: int):
-    # calculate minimum
-    min_key = None               # key of minimum
-    min_val = None               # value of minimum
+    min_key = None
+    min_val = None
     for key, result in results.items():
         if isinstance(result[column_ix], (int, float)):
             if min_val is None or (min_val > result[column_ix]):
@@ -244,9 +241,9 @@ def fill_in_speedups(results: Results, column_ix: int):
 
 def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
     if isinstance(abs_n, str):
-        return '{:>13}'.format(abs_n)            # propagate as is
+        return '{:>13}'.format(abs_n)
     if abs_n is None:
-        return '{:>6}'.format('N/A')  # https://en.wikipedia.org/wiki/N/A
+        return '{:>6}'.format('N/A')
     if abs_n == min_val:
         rel_str = " (best)"
     else:
@@ -288,7 +285,7 @@ def repeat_to_length(string_to_expand, length: int):
     return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
 
 
-def markdown_header(text: str, nr: int):        # Markdown header
+def markdown_header(text: str, nr: int):
     return '#' * nr + ' ' + text
 
 
@@ -302,7 +299,6 @@ def markdown_table(titles: list[str], results: Results):
     fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX)
 
     result = ''
-
     result += '| '
     for col in titles:
         result += str(col) + ' | '
@@ -327,7 +323,6 @@ def markdown_table(titles: list[str], results: Results):
 
 
 def match_lang_cexe(args: argparse.Namespace, lang: str, cexe_name: str):
-    """Return compiler executable of lang."""
     try:
         if args.language_exes[lang] and cexe_name not in args.language_exes[lang]:
             return None
@@ -379,13 +374,6 @@ def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argpar
     elif op == 'build':
         cexe_flags = []
         out_flag_and_exe = ['-o', out_binary(lang)]
-        # Disable build for now until I find out how to fix linker errors:
-        # ld: error: unable to find library -l:crt1.o
-        # ld: error: unable to find library -l:crti.o
-        # ld: error: unable to find library -lc
-        # ld: error: unable to find library -l:crtn.o
-        # cproc: link: process 2424876 exited with status 1
-        # return False
     else:
         return None
 
@@ -414,7 +402,7 @@ def bm_C_using_tcc(results: Results, lang: str, code_paths: list, args: argparse
         cexe_flags = ['-c']
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = []  # TODO add version that skips linking via: cexe_flags = ['-c']
+        cexe_flags = []
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
@@ -445,7 +433,7 @@ def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args: argpars
         cexe_flags = ['-c']
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = []  # TODO add version that skips linking via: cexe_flags = ['-c']
+        cexe_flags = []
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
@@ -467,12 +455,12 @@ def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args: argpars
 def gcc_clang_op_flags(op, lang):
     if op == 'check':
         cexe_flags = ['-fsyntax-only']
-        out_flag_and_exe = [] # Use ['-o', '/dev/null'] to silence warnings if needed
+        out_flag_and_exe = []
     elif op == 'compile':
         cexe_flags = ['-c']
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = []  # TODO add version that skips linking via: cexe_flags = ['-c']
+        cexe_flags = []
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return (None, None)
@@ -549,7 +537,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
     d_flags = []
     use_betterC = True
     if use_betterC:
-        d_flags += ['-betterC'] # for fair comparison with C and C3
+        d_flags += ['-betterC']
     if use_dips:
         d_flags += ['-w', '-dip1008', '-dip1000']
 
@@ -575,7 +563,6 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
     if not exes:
         exes = LANGUAGE_EXES[lang]
 
-    # dmd
     for cexe in filter(lambda cexe: which(cexe), exes):
         if not cexe or not which(cexe):
             continue
@@ -631,7 +618,7 @@ def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated
         cexe_flags = ['--check-only']
         out_flag_and_exe = []
     elif op == 'compile':
-        return None             # no supported
+        return None
     elif op == 'build':
         cexe_flags = []
         out_flag_and_exe = ['--of=' + out_binary(lang)]
@@ -641,11 +628,11 @@ def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated
     compile_file(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,  # os.name == 'nt', # only on Windows for now. TODO https://forum.dlang.org/post/cjbaiikzfbqkjqoukljc@forum.dlang.org
+                 runner=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
-                 compiler_version='master',  # TODO lookup Git version
+                 compiler_version='master',
                  lang=lang,
                  templated=templated,
                  results=results)
@@ -657,22 +644,17 @@ def bm_CSharp_using_mcs(results: Results, code_paths, args: argparse.Namespace, 
     if not cexe:
         return
 
-    # Standard flags
     cexe_flags = ['-target:exe']
 
-    # Handle 'check' operation for mcs
     check_temp_file = None
     if op == 'check':
-        # Create a dummy filename for the check operation
         check_temp_file = out_binary(lang) + ".check_tmp"
         out_flag = ['-out:' + check_temp_file]
     else:
         out_flag = ['-out:' + out_binary(lang)]
 
-    # Version extraction
     try:
         version_output = sp.run([cexe, '--version'], stdout=sp.PIPE, stderr=sp.STDOUT).stdout.decode('utf-8')
-        # mcs version string is usually: "Mono C# compiler version X.X.X.X"
         version = version_output.split()[4]
     except (IndexError, sp.CalledProcessError, Exception):
         version = "unknown"
@@ -690,7 +672,6 @@ def bm_CSharp_using_mcs(results: Results, code_paths, args: argparse.Namespace, 
                      templated=templated,
                      results=results)
     finally:
-        # Cleanup: Remove the temporary file created by the 'check' operation
         if check_temp_file and os.path.exists(check_temp_file):
             try:
                 os.remove(check_temp_file)
@@ -705,13 +686,9 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
         return
 
     cexe_flags = ['-target:exe']
-
-    # If operation is 'check', use -refonly to speed up processing
-    # and skip full executable generation logic.
     if op == 'check':
         cexe_flags.append('-refonly')
 
-    # Extract version
     try:
         version_proc = sp.run([cexe, '-version'], stdout=sp.PIPE, stderr=sp.STDOUT)
         version = version_proc.stdout.decode('utf-8').split()[0]
@@ -724,7 +701,7 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
                  runner=True,
                  cexe_flags=cexe_flags,
                  args=args,
-                 op=op, # Passes 'build' or 'check'
+                 op=op,
                  compiler_version=version,
                  lang=lang,
                  templated=templated,
@@ -738,7 +715,7 @@ def bm_Go(results: Results, code_paths, args: argparse.Namespace, op, templated:
 
 def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Go'
-    version = None              # unknown
+    version = None
     if op == 'build':
         cexe = which('go')
         cexe_flags = ['build']
@@ -746,10 +723,10 @@ def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, t
         out_flag_and_exe = ['-o', out_binary(lang)]
     elif op == 'check':
         cexe = which('gotype')
-        if  not cexe:
+        if not cexe:
             return None
         cexe_flags = []
-        version_exe = which('go')  # guess it be same as `go`
+        version_exe = which('go')
         if version_exe is not None:
             version = sp.run([version_exe, 'version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[2][2:]
         out_flag_and_exe = []
@@ -781,7 +758,7 @@ def bm_Go_using_gccgo(results: Results, code_paths, args: argparse.Namespace, op
             return
         version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[3]
         compile_file(code_paths,
-                     out_flag_and_exe=[],  # TODO this fails out_flag_and_exe=['-o', out_binary(lang)],
+                     out_flag_and_exe=[],
                      cexe=cexe,
                      runner=True,
                      cexe_flags=[] if op == 'build' else ['-fsyntax-only', '-S'],
@@ -831,7 +808,6 @@ def bm_Hylo(results: Results, code_paths, args: argparse.Namespace, op, template
         out_flag_and_exe = []
     else:
         return None
-    # Extract version string from 'hc --version'
     version_run = sp.run([cexe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
     version = version_run.stdout.decode('utf-8').split()[-1]
     compile_file(code_paths,
@@ -849,20 +825,15 @@ def bm_Hylo(results: Results, code_paths, args: argparse.Namespace, op, template
 
 def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, bytecode):
     lang = 'OCaml'
-    if bytecode:
-        cexe = match_lang_cexe(args, lang, 'ocamlc')
-    else:
-        cexe = match_lang_cexe(args, lang, 'ocamlopt')
+    cexe = match_lang_cexe(args, lang, 'ocamlc' if bytecode else 'ocamlopt')
     if not cexe:
         return
     version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[0]
     compile_file(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
-                 runner=([which('ocamlrun')] if
-                         bytecode else
-                         True),
-                 cexe_flags=['-c'] if bytecode else  ['-linscan'],
+                 runner=([which('ocamlrun')] if bytecode else True),
+                 cexe_flags=['-c'] if bytecode else ['-linscan'],
                  args=args,
                  op=op,
                  compiler_version=version,
@@ -872,7 +843,7 @@ def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templat
 
 
 def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
-    lang = 'V'                                   # vlang.io
+    lang = 'V'
     cexe = match_lang_cexe(args, lang, 'v')
     if not cexe:
         return
@@ -881,13 +852,14 @@ def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
                  runner=True,
-                 cexe_flags=[], # -backend flag fails
+                 cexe_flags=[],
                  args=args,
                  op=op,
                  compiler_version=version,
                  lang=lang,
                  templated=templated,
                  results=results)
+
 
 def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C3'
@@ -926,14 +898,15 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
                  results=results)
 
 
-zig_no_llvm_build_flags = ['-fno-llvm', '-fno-lld', '-fno-clang'] # See https://stackoverflow.com/a/78995648/683710 and https://github.com/ziglang/zig/issues/6251
+zig_no_llvm_build_flags = ['-fno-llvm', '-fno-lld', '-fno-clang']
+
 
 def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Zig'
     cexe = match_lang_cexe(args, lang, 'zig')
     if not cexe:
         return
-    if op == 'ast-check':       # full syntactic analysis and partial semantic analysis
+    if op == 'ast-check':
         cexe_flags = ['ast-check']
         out_flag_and_exe = []
     elif op == 'check':
@@ -953,7 +926,7 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
                  cexe=cexe,
                  runner=True,
                  cexe_flags=cexe_flags,
-                 args=args,  # no syntax flag currently so compile to object file instead
+                 args=args,
                  op=op,
                  compiler_version=version,
                  lang=lang,
@@ -963,7 +936,6 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
 
 def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Odin'
-
     cexe = match_lang_cexe(args, lang, 'odin')
     if not cexe:
         return None
@@ -993,7 +965,6 @@ def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, template
 
 def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Python'
-
     cexe = match_lang_cexe(args, lang, 'python3') or \
         match_lang_cexe(args, lang, 'python') or \
         match_lang_cexe(args, lang, 'pypy3') or \
@@ -1002,7 +973,6 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
         return None
 
     if op in ('build', 'check'):
-        # Both build and check use py_compile to avoid full execution
         cexe_flags = ['-m', 'py_compile']
         runner = False
     elif op == 'run':
@@ -1019,7 +989,7 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
                  out_flag_and_exe=[],
                  cexe=cexe,
                  runner=runner,
-                 cexe_flags=cexe_flags, # Pass the flags we defined above
+                 cexe_flags=cexe_flags,
                  args=args,
                  op=op,
                  compiler_version=version,
@@ -1030,7 +1000,6 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
 
 def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Mojo'
-
     cexe = match_lang_cexe(args, lang, 'mojo')
     if not cexe:
         return None
@@ -1041,7 +1010,7 @@ def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, template
                  cexe=cexe,
                  runner=True,
                  cexe_flags=['build', '-O0'],
-                 args=args,  # no syntax flag currently so compile to object file instead
+                 args=args,
                  op=op,
                  compiler_version=version,
                  lang=lang,
@@ -1076,6 +1045,7 @@ def bm_Crystal(results: Results, code_paths, args: argparse.Namespace, op, templ
                  lang=lang,
                  templated=templated,
                  results=results)
+
 
 def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Pascal'
@@ -1196,7 +1166,6 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
     except Exception:
         version = 'unknown'
 
-    # Guarantee a 100% cold build by isolating and clearing the cache for this operation
     cache_dir = os.path.join(tempfile.gettempdir(), f'hare_cache_{op}')
     shutil.rmtree(cache_dir, ignore_errors=True)
     os.environ['HARECACHE'] = cache_dir
@@ -1214,7 +1183,6 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
                      templated=templated,
                      results=results)
     finally:
-        # Clean up temporary check binary
         if check_temp_file and os.path.exists(check_temp_file):
             try:
                 os.remove(check_temp_file)
@@ -1224,7 +1192,6 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
 
 def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Scheme'
-
     cexe = match_lang_cexe(args, lang, 'scheme')
     if not cexe:
         return None
@@ -1236,9 +1203,7 @@ def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templa
         cexe_flags = ['--script']
         stdin_input = None
     elif op == 'build':
-        # For build operation: echo '(compile-file "main_0.scm")' | scheme -q
         cexe_flags = ['-q']
-        # Generate the stdin input dynamically based on run_ix
         stdin_input = '(compile-file "main_{}.scm")'
     else:
         return None
@@ -1263,15 +1228,12 @@ def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated
     if not cexe:
         return None
 
-    # tcc_exe = which('tcc')
-    # cexe_flags = ['--hints:off', '--checks:off', '--stacktrace:off'] + ([('--cc:tcc')] if tcc_exe else [])
     cexe_flags = ['--hints:off', '--checks:off', '--stacktrace:off']
 
     if op == 'check':
         cexe_flags += ['check']
     elif op == 'build':
-        # the bottleneck is clang compilation
-        cexe_flags += ['c', '--mm:refc', '--opt:none']  # TODO detect when --gc:arc is available
+        cexe_flags += ['c', '--mm:refc', '--opt:none']
     else:
         return None
 
@@ -1281,7 +1243,7 @@ def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated
                  cexe=cexe,
                  runner=True,
                  cexe_flags=cexe_flags,
-                 args=args,  # no syntax flag currently so compile to object file instead
+                 args=args,
                  op=op,
                  compiler_version=version,
                  lang=lang,
@@ -1298,12 +1260,6 @@ def set_rustup_channel(channel):
 
 def rust_flags(channel):
     flags = RUSTC_FLAGS
-    if channel == 'nightly':
-        process = sp.Popen('rustc -Z help', shell=True, stdout=sp.PIPE)
-        output, error = process.communicate()
-        # Disabled because this gives error even on nightly:
-        # if 'threads=val' in output.decode('utf-8'):
-        #     flags += RUSTC_NIGHTLY_FLAGS
     return flags
 
 
@@ -1330,7 +1286,6 @@ def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, template
         for cexe in exes:
             version = sp.run([cexe, '--version'], stdout=sp.PIPE).stdout.decode('utf-8').split()[1]
             if op == 'check':
-                # `cargo check` uses `rustc --emit=metadata`
                 check_args = ['--emit=metadata']
                 out_flag_and_exe = []
             elif op == 'build':
@@ -1342,7 +1297,7 @@ def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, template
                          out_flag_and_exe=out_flag_and_exe,
                          cexe=cexe,
                          runner=True,
-                         cexe_flags=cexe_flags,  # https://github.com/rust-lang/rfcs/issues/1476
+                         cexe_flags=cexe_flags,
                          args=args,
                          op=op,
                          compiler_version=version,
@@ -1363,9 +1318,6 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
         task = sp.run([cexe, '-version'], stdout=sp.PIPE, stderr=sp.PIPE)
         version = task.stdout.decode('utf-8').split()[1]
     except Exception:
-        print("WARNING: Failed to decode version from neither stdout:" + str(task.stdout) + " nor stderr:" + str(task.stderr) +
-              " of command " + str([cexe, '-version']) + ", defaulting version of " + lang + " to `none`",
-              file=sys.stderr)
         version = 'unknown'
     compile_file(code_paths,
                  out_flag_and_exe=[],
@@ -1432,34 +1384,31 @@ def compile_file(code_paths: list,
     key: tuple = (lang, templated, cexe)
 
     lang_dir = out_directory(lang)
-    abs_lang_dir = os.path.abspath(lang_dir)  # compute before any chdir
+    abs_lang_dir = os.path.abspath(lang_dir)
 
     if key not in results:
-        row = [None] * MARKDOWN_TABLE_LENGTH  # preallocate
+        row = [None] * MARKDOWN_TABLE_LENGTH
         results[key] = row
     else:
         row = results[key]
 
-    # op
-    durs = [] # compilation durations
-    rss_mu = None # RSS memory usage
+    durs = []
+    rss_mu = None
     for run_ix in range(0, args.run_count):
         src_key = sourceIdOf(lang, templated, run_ix)
 
         if src_key in code_paths:
-            src_path = code_paths[src_key]  # retrieve from cache
+            src_path = code_paths[src_key]
         else:
-            src_path = generate_test_program_file(lang, args, templated, run_ix)  # generate
-            code_paths[src_key] = src_path  # store in cache
+            src_path = generate_test_program_file(lang, args, templated, run_ix)
+            code_paths[src_key] = src_path
         src_name = os.path.basename(src_path)
 
-        cstart = timer()        # compilation start
-        # NEW: Don't add src_name to p_args if using stdin_input
+        cstart = timer()
         if stdin_input:
             p_args = [cexe] + cexe_flags + out_flag_and_exe
         else:
             if lang == 'Odin':
-                # Pass src_name and -file flag to compile only this single file
                 if cexe_flags and cexe_flags[0] in ['build', 'check']:
                     cmd = [cexe_flags[0]]
                     remaining_flags = cexe_flags[1:]
@@ -1477,15 +1426,15 @@ def compile_file(code_paths: list,
             import subprocess as sp
             comp_proc = sp.Popen(p_args, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
             outs, errs = comp_proc.communicate(input=formatted_stdin.encode('utf-8'))
-            rss_mu = "unavailable"  # Can't measure RSS with this approach
-            pt = type('obj', (object,), {'comp_proc': comp_proc})()  # Mock pt object
+            rss_mu = "unavailable"
+            pt = type('obj', (object,), {'comp_proc': comp_proc})()
         else:
             pt = ProcessTimer(args=p_args)
             try:
                 while pt.poll():
-                    time.sleep(1.0 / args.sample_rate)  # poll as often as possible
+                    time.sleep(1.0 / args.sample_rate)
             except Exception:
-                rss_mu = "sampling error"  # precision of maximum is uncertain
+                rss_mu = "sampling error"
             finally:
                 if rss_mu is None and pt.max_rss_mu != 0:
                     rss_mu = pt.max_rss_mu
@@ -1493,9 +1442,8 @@ def compile_file(code_paths: list,
                     rss_mu = "missing"
 
             outs, errs = pt.comp_proc.communicate()
-        os.chdir(cwd)           # restore
+        os.chdir(cwd)
 
-        # For 'run' operations, the exit code is often the result (e.g. 244), not an error.
         if pt.comp_proc.returncode != 0 and op != 'run':
             print("WARNING: Compilation `" + ' '.join([cexe] + cexe_flags) +
                   "` of source file `" + src_name +
@@ -1510,22 +1458,10 @@ def compile_file(code_paths: list,
                     row[BUILD_RSS_MU_IX] = rss_mu / (args.function_count * args.function_depth)
             return None
 
-        if False: # hide everything for now if command succeeds
-            if outs:
-                if lang != 'Scheme' and not outs.startswith(b'/usr/bin/ld: warning'):
-                    print('stdout:', outs)
-            if errs:
-                if lang == 'Ada':
-                    errs = errs.lstrip(b'x86_64-linux-gnu-gcc-10 -c -Igenerated/ada/ -I- generated/ada/main.adb\n')
-                if lang != 'Ada' and len(errs) and not errs.startswith(b'/usr/bin/ld: warning'):  # skip ld warning
-                    print('output:', errs)
-
         durs.append(timer() - cstart)
 
-    dur_min = min(durs)         # duration minimum
-
-    # run
-    run_dur_min = None             # run duration minimum
+    dur_min = min(durs)
+    run_dur_min = None
     if op == 'run':
         if runner:
             run_args = runner + [src_name] if isinstance(runner, list) else [src_name]
@@ -1533,8 +1469,8 @@ def compile_file(code_paths: list,
     elif op == 'build':
         outb = out_binary(lang)
         if runner and lang != 'Python':
-            if runner is True:      # binary should be runnable
-                if (cexe.endswith('cproc')):  # cproc forgets to set executable bit
+            if runner is True:
+                if (cexe.endswith('cproc')):
                     outb_path = os.path.join(abs_lang_dir, outb)
                     st = os.stat(outb_path)
                     os.chmod(outb_path, st.st_mode | stat.S_IEXEC)
@@ -1570,14 +1506,11 @@ def run_compiled_file(args: argparse.Namespace, run_count=1):
     durs = []
     for _ in range(0, run_count):
         cstart = timer()
-        # We use check=False because for these benchmarks,
-        # the exit code is often the calculated sum, not an error.
         sp.run(args, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
         durs.append(timer() - cstart)
     return min(durs) if durs else None
 
 
-# Declarative language properties: (extension, int64_type)
 LANG_PROPERTIES = {
     'c': ('c', 'long'),
     'c++': ('cpp', 'long'),
@@ -1624,7 +1557,7 @@ def language_file_extension(lang):
 def generate_test_program_file(lang: str, args: argparse.Namespace, templated: bool, run_ix):
     program_name = DEFAULT_PROGRAM_NAME
 
-    llang = lang.lower()        # lowered language
+    llang = lang.lower()
     types = long_type_of_lang(llang)
     ext = language_file_extension(llang)
     dir_path = os.path.join(ROOT_PATH, llang)
@@ -1660,7 +1593,7 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
     with open(path, 'w') as fil:
         fil.write(buf.getvalue())
     end = timer()
-    dur = (end - start)  # time dur
+    dur = (end - start)
     print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
 
     return path
@@ -1674,11 +1607,11 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
 
     fn = Tm('add_${T}_n${N}').substitute(T=typ, N=n)
 
-    if lang == 'zig' and templated:  # Zig needs explicit template type
+    if lang == 'zig' and templated:
         fil.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
-    elif lang == 'v' and templated:  # Zig needs explicit template type for now. See: https://github.com/vlang/v/issues/5818
+    elif lang == 'v' and templated:
         fil.write(Tm('    ${T}_sum += ${F}[${T}](${N})').substitute(T=typ, N=n, F=fn))
-    elif lang == 'odin' and templated:  # Odin needs explicit type casting for polymorphic procs
+    elif lang == 'odin' and templated:
         fil.write(Tm('    ${T}_sum += ${F}(${T}(${N}))').substitute(T=typ, N=n, F=fn))
     elif lang == 'ocaml':
         fil.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
@@ -1703,7 +1636,7 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
     elif lang == 'fortran':
         fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N}_${T})').substitute(T=typ, N=n, F=fn))
     elif lang == 'c3':
-        fn = "calc::" + fn;
+        fn = "calc::" + fn
         if templated:
             fil.write(Tm('    ${T}_sum += ${F}{${T}}(${N})').substitute(T=typ, N=n, F=fn))
         else:
@@ -1712,61 +1645,28 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
         fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
     if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran'):
-        fil.write(';')          # statement terminator
+        fil.write(';')
 
     fil.write('\n')
 
 
 def generate_test_language_specific_prefix(lang: str, program_name, fil, templated: bool):
-    if lang == 'hare':
-        fil.write('''use os;
-
-''')
-    elif lang == 'fortran':
-        fil.write('''module calc
-    use, intrinsic :: iso_fortran_env, only: int64
-    implicit none
-contains
-''')
-    elif lang == 'haskell':
-        fil.write('''module Main where
-
-import Data.Int (Int64)
-import Data.IORef (newIORef, modifyIORef', readIORef)
-import System.Exit (exitWith, ExitCode(..))
-
-''')
-    elif lang == 'pascal':
-        fil.write('program ' + program_name + ';\n\n')
-    elif lang == 'go':
-        fil.write('package ' + program_name + ';\n')
-        fil.write('// import ("os")\n\n')  # fails with `gotype`
-    elif lang == 'rust':
-        fil.write('use std::process::exit;\n')
-        if templated:
-            fil.write('use std::ops::Add;\n')
-    elif lang in ('swift', 'hylo'):
-        fil.write('import Foundation\n\n')
-    elif lang == 'c#':
-        fil.write('using System;\n\n')
-        fil.write('public class HelloWorld {\n')
-    elif lang == 'java':
-        fil.write('class HelloWorld {\n')
-    elif lang == 'ada':
-        fil.write('with System;\n\n')
-        fil.write('with GNAT.OS_Lib;\n\n')
-    elif lang == 'odin':
-        fil.write('package ' + program_name + '\n\n')
-        fil.write('import "core:os"\n\n')
-    elif lang == 'python':
-        fil.write('import sys\n\n')
-    elif lang == 'c3':
-        if templated:
-            fil.write('module calc<T>;\n\n')
-        else:
-            fil.write('module calc;\n\n')
-    elif lang == 'vox':
-        fil.write('''enum u32 stdin = 0;
+    prefixes = {
+        'hare': 'use os;\n\n',
+        'fortran': 'module calc\n    use, intrinsic :: iso_fortran_env, only: int64\n    implicit none\ncontains\n',
+        'haskell': "module Main where\n\nimport Data.Int (Int64)\nimport Data.IORef (newIORef, modifyIORef', readIORef)\nimport System.Exit (exitWith, ExitCode(..))\n\n",
+        'pascal': f"program {program_name};\n\n",
+        'go': f"package {program_name};\n// import (\"os\")\n\n",
+        'rust': 'use std::process::exit;\n' + ('use std::ops::Add;\n' if templated else ''),
+        'swift': 'import Foundation\n\n',
+        'hylo': 'import Foundation\n\n',
+        'c#': 'using System;\n\npublic class HelloWorld {\n',
+        'java': 'class HelloWorld {\n',
+        'ada': 'with System;\n\nwith GNAT.OS_Lib;\n\n',
+        'odin': f"package {program_name}\n\nimport \"core:os\"\n\n",
+        'python': 'import sys\n\n',
+        'c3': 'module calc<T>;\n\n' if templated else 'module calc;\n\n',
+        'vox': '''enum u32 stdin = 0;
 enum u32 stdout = 1;
 enum u32 stderr = 2;
 
@@ -1779,99 +1679,48 @@ void sys_write(u32 fd, u8* buf, u64 count);
 void write(u32 fd, u8[] data) {
 	sys_write(fd, data.ptr, data.length);
 }
-''')
-    elif lang == 'scheme':
-        fil.write('''#!/usr/bin/env scheme --script
+''',
+        'scheme': '#!/usr/bin/env scheme --script\n\n',
+    }
+    fil.write(prefixes.get(lang, ''))
 
-''')
 
 def generate_test_language_specific_postfix(lang: str, types: list, fil):
-    if lang == 'rust':
-        fil.write(Tm('    exit((${T}_sum % 4294967296) as i32);\n}\n').substitute(T=types[0]))
-    elif lang == 'd':
-        fil.write(Tm('    return cast(int)${T}_sum;\n}\n').substitute(T=types[0]))
-    elif lang == 'nim':
-        fil.write(Tm('    quit(int(${T}_sum))\n\n').substitute(T=types[0]))
-    elif lang in ('swift', 'hylo'):
-        fil.write(Tm('    exit(Int32(${T}_sum))\n}\n').substitute(T=types[0]))
-    elif lang == 'go':
-        fil.write(Tm('    // os.Exit(int(${T}_sum));\n').substitute(T=types[0]))
-        fil.write(Tm('}\n').substitute(T=types[0]))
-    elif lang == 'c#':
-        fil.write(Tm('        Environment.Exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
-    elif lang == 'java':
-        fil.write(Tm('        System.exit(${T}_sum == 42 ? 1 : 0);\n    }\n').substitute(T=types[0]))
-    elif lang == 'zig':
-        fil.write(Tm('\n}\n').substitute(T=types[0]))
-    elif lang == 'nim':
-        fil.write(Tm('\n\n').substitute(T=types[0]))
-    elif lang == 'c3':
-        fil.write(Tm('        return (int)(${T}_sum);\n}\n').substitute(T=types[0]))
-    elif lang == 'pareas':
-        fil.write(Tm('    return ${T}_sum;\n}\n').substitute(T=types[0]))
-    elif lang == 'python' or lang == 'mojo':
-        fil.write(Tm('    sys.exit(int(${T}_sum) & 0xFFFFFFFF)\n\n').substitute(T=types[0]))
-        fil.write('if __name__ == "__main__":\n')
-        fil.write('    main()\n')
-    elif lang == 'julia':
-        fil.write(Tm('''    return ${T}_sum;
-end
-
-main()
-''').substitute(T=types[0]))
-    elif lang == 'd':
-        fil.write(Tm('''    return cast(int)${T}_sum;
-}
-''').substitute(T=types[0]))
-    elif lang == 'vox':
-        # TODO: use exit(i32(${T}_sum)) when it doesn’t segfault:
-        fil.write(Tm('''    exit(0);
-    return 0;
-}
-''').substitute(T=types[0]))
-    elif lang == 'ada':
-        fil.write(Tm('''   GNAT.OS_Lib.OS_Exit(Integer(${T}_sum));
-end Main;
-''').substitute(T=types[0]))
-    elif lang == 'ocaml':
-        fil.write(Tm('    exit (if ${T}_sum = 42.0 then 1 else 0)\n').substitute(T=types[0]))
-    elif lang == 'odin':
-        fil.write(Tm('    os.exit(int(${T}_sum))\n}\n').substitute(T=types[0]))
-    elif lang == 'v':
-        fil.write(Tm('''    exit(int(${T}_sum >> 32))\n}\n''').substitute(T=types[0]))
-    elif lang == 'scheme':
-        fil.write(Tm('''    ${T}_sum))
-(exit (main))\n''').substitute(T=types[0]))
-    elif lang == 'crystal':
-        fil.write(Tm('''    exit((${T}_sum % 256).to_i32)
-end
-
-main()
-''').substitute(T=types[0].lower()))
-    elif lang == 'pascal':
-        fil.write(Tm('''  Halt(${T}_sum mod 256);
-end.
-''').substitute(T=types[0]))
-    elif lang == 'haskell':
-        fil.write(Tm('''    s <- readIORef ${T}_sum
-    let code = fromIntegral (s `mod` 256)
-    exitWith (if code == 0 then ExitSuccess else ExitFailure code)
-''').substitute(T=types[0].lower()))
-    elif lang == 'fortran':
-        fil.write(Tm('''    call exit(int(mod(${T}_sum, 256_${T})))
-end program main
-''').substitute(T=types[0]))
-    elif lang == 'hare':
-        fil.write(Tm('''    os::exit((${T}_sum % 256): int);
-};
-''').substitute(T=types[0]))
-    elif lang in ('c', 'c++'):
-        fil.write(Tm('''    return ${T}_sum;\n}\n''').substitute(T=types[0]))
+    t = types[0]
+    tl = t.lower()
+    postfixes = {
+        'rust': f"    exit(({t}_sum % 4294967296) as i32);\n}}\n",
+        'd': f"    return cast(int){t}_sum;\n}}\n",
+        'nim': f"    quit(int({t}_sum))\n\n",
+        'swift': f"    exit(Int32({t}_sum))\n}}\n",
+        'hylo': f"    exit(Int32({t}_sum))\n}}\n",
+        'go': f"    // os.Exit(int({t}_sum));\n}}\n",
+        'c#': f"        Environment.Exit({t}_sum == 42 ? 1 : 0);\n    }}\n}}\n",
+        'java': f"        System.exit({t}_sum == 42 ? 1 : 0);\n    }}\n}}\n",
+        'zig': "\n}\n",
+        'c3': f"        return (int)({t}_sum);\n}}\n",
+        'pareas': f"    return {t}_sum;\n}}\n",
+        'python': f"    sys.exit(int({t}_sum) & 0xFFFFFFFF)\n\nif __name__ == '__main__':\n    main()\n",
+        'mojo': f"    sys.exit(int({t}_sum) & 0xFFFFFFFF)\n\nif __name__ == '__main__':\n    main()\n",
+        'julia': f"    return {t}_sum;\nend\n\nmain()\n",
+        'vox': "    exit(0);\n    return 0;\n}\n",
+        'ada': f"   GNAT.OS_Lib.OS_Exit(Integer({t}_sum));\nend Main;\n",
+        'ocaml': f"    exit (if {t}_sum = 42.0 then 1 else 0)\n",
+        'odin': f"    os.exit(int({t}_sum))\n}}\n",
+        'v': f"    exit(int({t}_sum >> 32))\n}}\n",
+        'scheme': f"    {t}_sum))\n(exit (main))\n",
+        'crystal': f"    exit(({tl}_sum % 256).to_i32)\nend\n\nmain()\n",
+        'pascal': f"  Halt({t}_sum mod 256);\nend.\n",
+        'haskell': f"    s <- readIORef {tl}_sum\n    let code = fromIntegral (s `mod` 256)\n    exitWith (if code == 0 then ExitSuccess else ExitFailure code)\n",
+        'fortran': f"    call exit(int(mod({t}_sum, 256_{t})))\nend program main\n",
+        'hare': f"    os::exit(({t}_sum % 256): int);\n}};\n",
+        'c': f"    return {t}_sum;\n}}\n",
+        'c++': f"    return {t}_sum;\n}}\n",
+    }
+    if lang in postfixes:
+        fil.write(postfixes[lang])
     else:
         raise NotImplementedError(f"Language '{lang}' has no postfix exit handler defined")
-
-    if lang in ('c#', 'java'):
-        fil.write('}\n')            # one extra closing brace for class
 
 
 def generate_main_test_function_definition_set(lang: str, types: list[str], args: argparse.Namespace, fil, templated: bool):
@@ -1901,7 +1750,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
 
     if fheight == 0:
         if lang == 'rust' and templated:
-            expr = 'x'          # because Rust is picky
+            expr = 'x'
         elif lang == 'ocaml':
             expr = 'x +. ' + nconst + '.0'
         elif lang == 'scheme':
@@ -1912,7 +1761,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             expr = 'x + ' + nconst
     else:
         if lang == 'zig' and templated:
-            xtarg = typ + ', '  # Zig needs explicit template parameter
+            xtarg = typ + ', '
         else:
             xtarg = ''
         if lang == 'rust' and templated:
@@ -1931,7 +1780,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
         elif lang == 'pareas':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
         elif lang == 'mojo':
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + nconst # TODO: Add xtarg
+            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + nconst
         elif lang == 'haskell':
             expr = 'x + ' + function_name(typ, findex, fheight - 1) + ' x + ' + nconst
         elif lang == 'scheme':
@@ -1970,7 +1819,6 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
                             M='template<typename T=int> ' if templated else '',
                             X=expr))
     elif lang in ('d', 'vox'):
-        # See: https://forum.dlang.org/post/sfldpxiieahuiizvgjeb@forum.dlang.org
         fil.write(Tm('${T} ${F}${M}(${T} x)${Q} { return ${X}; }\n')
                 .substitute(T='T' if templated else typ,
                             F=str(fname),
@@ -2065,7 +1913,6 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
                 T=typ, F=str(fname), X=expr))
     elif lang == 'python' or lang == 'mojo':
         if templated:
-            # doesn't have compile-time templates, but we can use type hints
             fil.write(Tm('def ${F}(x: ${T}) -> ${T}:\n    return ${X}\n\n').substitute(
                 T='int', F=str(fname), X=expr))
         else:
@@ -2076,84 +1923,44 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
 
 
 def generate_test_main_header(lang: str, types: list, fil, templated: bool):
-    if lang in ['c', 'c++']:
-        # `cproc` cannot handle this skip for now:
-        # fil.write('int main(__attribute__((unused)) int argc, __attribute__((unused)) char* argv[]) {\n')
-        fil.write('int main(void) {\n')
-    elif lang == 'ada':
-        fil.write('procedure Main is\n')
-    elif lang == 'c#':
-        fil.write('    public static void Main(string[] args) {\n')
-    elif lang == 'java':
-        fil.write('    public static void main(String args[]) {\n')
-    elif lang == 'd':
-        use_betterC = True
-        if use_betterC:
-            fil.write('extern(C) int main() @safe {\n')
-        else:
-            fil.write('int main() @safe {\n')
-    elif lang == 'vox':
-        fil.write('i32 main() {\n')
-    elif lang == 'rust':
-        fil.write(Tm('fn main() {\n').substitute(T=types[0]))
-    elif lang in ('swift', 'hylo'):
-        fil.write(Tm('func main() {\n').substitute(T=types[0]))
-    elif lang == 'zig':
-        fil.write(Tm('pub fn main() void {\n').substitute(T=types[0]))
-    elif lang == 'c3':
-        fil.write('module main;\n\n')
-        fil.write('import calc;\n\n')
-        fil.write(Tm('fn int main(String[] args) {\n').substitute(T=types[0]))
-    elif lang == 'go':
-        fil.write(Tm('func main() {\n').substitute(T=types[0]))
-    elif lang == 'v':
-        fil.write(Tm('fn main() {\n').substitute(T=types[0]))
-    elif lang == 'julia':
-        fil.write(Tm('function main()${QT}\n').substitute(QT=(('::' + types[0]) if templated else '')))
-    elif lang == 'ocaml':
-        fil.write('let () = \n')
-    elif lang == 'nim':
-        fil.write('when isMainModule:\n')
-    elif lang == 'pareas':
-        fil.write('fn main[]: int {\n')
-    elif lang == 'python':
-        if templated:
-            fil.write('def main() -> int:\n')
-        else:
-            fil.write('def main():\n')
-    elif lang == 'mojo':
-        fil.write('fn main() -> int:\n')
-    elif lang == 'odin':
-        fil.write(Tm('main :: proc() {\n').substitute(T=types[0]))
-    elif lang == 'scheme':
-        fil.write('(define (main)\n')
-    elif lang == 'crystal':
-        fil.write('def main\n')
-    elif lang == 'pascal':
-        fil.write('var\n')
-    elif lang == 'haskell':
-        fil.write('main :: IO ()\nmain = do\n')
-    elif lang == 'hare':
-        fil.write('export fn main() void = {\n')
-    elif lang == 'fortran':
-        fil.write('''end module calc
+    t = types[0]
+    headers = {
+        'c': 'int main(void) {\n',
+        'c++': 'int main(void) {\n',
+        'ada': 'procedure Main is\n',
+        'c#': '    public static void Main(string[] args) {\n',
+        'java': '    public static void main(String args[]) {\n',
+        'd': 'extern(C) int main() @safe {\n',
+        'vox': 'i32 main() {\n',
+        'rust': 'fn main() {\n',
+        'swift': 'func main() {\n',
+        'hylo': 'func main() {\n',
+        'zig': 'pub fn main() void {\n',
+        'c3': 'module main;\n\nimport calc;\n\nfn int main(String[] args) {\n',
+        'go': 'func main() {\n',
+        'v': 'fn main() {\n',
+        'julia': f"function main(){'::' + t if templated else ''}\n",
+        'ocaml': 'let () = \n',
+        'nim': 'when isMainModule:\n',
+        'pareas': 'fn main[]: int {\n',
+        'python': 'def main() -> int:\n' if templated else 'def main():\n',
+        'mojo': 'fn main() -> int:\n',
+        'odin': 'main :: proc() {\n',
+        'scheme': '(define (main)\n',
+        'crystal': 'def main\n',
+        'pascal': 'var\n',
+        'haskell': 'main :: IO ()\nmain = do\n',
+        'hare': 'export fn main() void = {\n',
+        'fortran': 'end module calc\n\nprogram main\n    use, intrinsic :: iso_fortran_env, only: int64\n    use calc\n    implicit none\n',
+    }
+    fil.write(headers[lang])
 
-program main
-    use, intrinsic :: iso_fortran_env, only: int64
-    use calc
-    implicit none
-''')
-    else:
-        assert False
 
-def generate_test_main_middle(lang: str, types: list, fil, _templated: bool):
+def generate_test_main_middle(lang: str, types: list, fil, _templated: bool = False):
     if lang == 'pascal':
-        fil.write('begin\n')
-        for typ in types:
-            fil.write(f'  {typ}_sum := 0;\n')
+        fil.write('begin\n' + ''.join(f"  {typ}_sum := 0;\n" for typ in types))
     elif lang == 'fortran':
-        for typ in types:
-            fil.write(f'    {typ}_sum = 0\n')
+        fil.write(''.join(f"    {typ}_sum = 0\n" for typ in types))
     elif lang == 'ada':
         fil.write('begin\n')
     elif lang == 'scheme':
@@ -2163,54 +1970,36 @@ def generate_test_main_middle(lang: str, types: list, fil, _templated: bool):
 
 def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
     if lang in ('c', 'c3', 'c++', 'd', 'vox'):
-        fil.write(Tm('    ${T} ${T}_sum = 0;\n').substitute(T=typ))
-    elif lang in ['ada']:
-        fil.write(Tm('   ${T}_sum : ${T} := 0;\n').substitute(T=typ))
-    elif lang in ['c#']:
-        fil.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
-    elif lang in ['java']:
-        fil.write(Tm('        ${T} ${T}_sum = 0;\n').substitute(T=typ))
-    elif lang == 'rust':
-        fil.write(Tm('    let mut ${T}_sum : ${T} = 0;\n').substitute(T=typ))
-    elif lang in ('swift', 'hylo'):
-        fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
-    elif lang == 'nim':
-        fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
-    elif lang == 'zig':
-        fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
+        fil.write(f"    {typ} {typ}_sum = 0;\n")
+    elif lang in ('c#', 'java'):
+        fil.write(f"        {typ} {typ}_sum = 0;\n")
+    elif lang in ('swift', 'hylo', 'nim', 'zig', 'pareas', 'mojo'):
+        fil.write(f"    var {typ}_sum: {typ} = 0;\n")
     elif lang == 'go':
-        fil.write(Tm('    var ${T}_sum ${T} = 0;\n').substitute(T=typ))
+        fil.write(f"    var {typ}_sum {typ} = 0;\n")
+    elif lang == 'rust':
+        fil.write(f"    let mut {typ}_sum : {typ} = 0;\n")
+    elif lang in ('odin', 'hare'):
+        fil.write(f"    {typ}_sum: {typ} = 0\n" if lang == 'odin' else f"    let {typ}_sum: {typ} = 0;\n")
     elif lang == 'v':
-        fil.write(Tm('    mut ${T}_sum := ${T}(0)\n').substitute(T=typ))
+        fil.write(f"    mut {typ}_sum := {typ}(0)\n")
     elif lang == 'julia':
-        fil.write(Tm('    ${T}_sum${QT} = 0;\n').substitute(T=typ, QT=(('::' + typ) if templated else '')))
+        qt = f"::{typ}" if templated else ""
+        fil.write(f"    {typ}_sum{qt} = 0;\n")
     elif lang == 'ocaml':
-        fil.write(Tm('    let ${T}_sum = 0.0 in\n').substitute(T=typ))
-    elif lang == 'pareas':
-        fil.write(Tm('    var ${T}_sum: ${T} = 0;\n').substitute(T=typ))
+        fil.write(f"    let {typ}_sum = 0.0 in\n")
     elif lang == 'python':
-        if templated:
-            fil.write(Tm('    ${T}_sum: ${T} = 0\n').substitute(T=typ))
-        else:
-            fil.write(Tm('    ${T}_sum = 0\n').substitute(T=typ))
-    elif lang == 'odin':
-        fil.write(Tm('    ${T}_sum: ${T} = 0\n').substitute(T=typ))
-    elif lang == 'mojo':
-        fil.write(Tm('    var ${T}_sum: ${T} = 0\n').substitute(T=typ))
-    elif lang == 'scheme':
-        pass # variables are declared in the let binding in generate_test_main_middle
+        fil.write(f"    {typ}_sum: {typ} = 0\n" if templated else f"    {typ}_sum = 0\n")
     elif lang == 'crystal':
-        fil.write(Tm('    ${T}_sum = 0_i64\n').substitute(T=typ.lower()))
+        fil.write(f"    {typ.lower()}_sum = 0_i64\n")
     elif lang == 'pascal':
-        fil.write(Tm('  ${T}_sum: ${T};\n').substitute(T=typ))
+        fil.write(f"  {typ}_sum: {typ};\n")
     elif lang == 'haskell':
-        fil.write(Tm('    ${V}_sum <- newIORef (0 :: ${T})\n').substitute(V=typ.lower(), T=typ))
+        fil.write(f"    {typ.lower()}_sum <- newIORef (0 :: {typ})\n")
     elif lang == 'fortran':
-        fil.write(Tm('    integer(${T}) :: ${T}_sum\n').substitute(T=typ))
-    elif lang == 'hare':
-        fil.write(Tm('    let ${T}_sum: ${T} = 0;\n').substitute(T=typ))
-    else:
-        assert False
+        fil.write(f"    integer({typ}) :: {typ}_sum\n")
+    elif lang == 'ada':
+        fil.write(f"   {typ}_sum : {typ} := 0;\n")
 
 
 def main():
@@ -2248,7 +2037,7 @@ def main():
     install_missing_modules()
 
     args.languages = list(map(lambda x: 'Hare' if x.lower() == 'hare' else 'Fortran' if x.lower() in ('fortran', 'gfortran') else 'Haskell' if x.lower() in ('haskell', 'ghc') else 'Pascal' if x.lower() in ('pascal', 'fpc') else ('OCaml' if x.lower() == 'ocaml' else x.capitalize()),
-                              args.languages.split(',')))  # into a list
+                              args.languages.split(',')))
     args.language_exes = {}
     for language_exes_spec in args.languages:
         split = language_exes_spec.split(':')
@@ -2268,7 +2057,7 @@ def main():
     if not args.language_exes:
         args.language_exes = LANGUAGE_EXES
 
-    args.operations = list(map(lambda x: x.lower(), args.operations.split(',')))  # into a list of capitalized names
+    args.operations = list(map(lambda x: x.lower(), args.operations.split(',')))
     filtered_operations = []
     for operation in args.operations:
         if operation in SUPPORTED_OPERATIONS:
@@ -2278,7 +2067,7 @@ def main():
     args.operations = filtered_operations
 
     code_paths = {}
-    results = {}            # tuple(LANGUAGE, TEMPLATEFLAG) => list
+    results = {}
 
     print(markdown_header('Benchmark:', 1))
 
@@ -2308,8 +2097,6 @@ def main():
                 bm_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
 
     if 'Ada' in args.language_exes:
-        # if 'check' in args.operations:
-        #     bm_Ada_using_gcc(results=results,lang='Ada', code_paths=code_paths, args=args, op='check', templated=False)
         if 'build' in args.operations:
             bm_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='build', templated=False)
 
@@ -2423,8 +2210,6 @@ def main():
         if 'build' in args.operations:
             bm_Mojo(results=results, code_paths=code_paths, args=args, op='build', templated=False)
 
-    # Julia and Ocaml take too long otherwise. So let them participate by
-    # truncating size because ops/function are measured
     function_count = args.function_count
     function_depth = args.function_depth
     if args.function_count * args.function_depth >= 10000:
@@ -2453,7 +2238,6 @@ def main():
     args.function_depth = function_depth
 
     print()
-
     print(markdown_table(MARKDOWN_TABLE_TITLES, results))
 
 
