@@ -1459,14 +1459,13 @@ def compile_file(code_paths: list,
             p_args = [cexe] + cexe_flags + out_flag_and_exe
         else:
             if lang == 'Odin':
-                # Odin expects: odin <command> <directory> [flags]
-                # Split cexe_flags to get command and remaining flags
+                # Pass src_name and -file flag to compile only this single file
                 if cexe_flags and cexe_flags[0] in ['build', 'check']:
                     cmd = [cexe_flags[0]]
                     remaining_flags = cexe_flags[1:]
-                    p_args = [cexe] + cmd + ['.'] + remaining_flags + out_flag_and_exe
+                    p_args = [cexe] + cmd + [src_name, '-file'] + remaining_flags + out_flag_and_exe
                 else:
-                    p_args = [cexe] + cexe_flags + ['.'] + out_flag_and_exe
+                    p_args = [cexe] + cexe_flags + [src_name, '-file'] + out_flag_and_exe
             else:
                 p_args = [cexe] + cexe_flags + out_flag_and_exe + [src_name]
         cwd = os.getcwd()
@@ -1630,16 +1629,6 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
     ext = language_file_extension(llang)
     dir_path = os.path.join(ROOT_PATH, llang)
     os.makedirs(dir_path, exist_ok=True)
-
-    # For Odin, clean up all .odin files in the directory before generating new ones
-    # This prevents conflicts when odin checks all files in the directory
-    if llang == 'odin' and run_ix == 0:
-        import glob
-        for old_file in glob.glob(os.path.join(dir_path, '*.odin')):
-            try:
-                os.remove(old_file)
-            except OSError:
-                pass  # Ignore errors if file doesn't exist
 
     path = (os.path.join(dir_path, program_name + ('_t' if templated else '') +
                          ('_' + str(run_ix) if lang.lower() != 'ada' else '') +
