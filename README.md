@@ -37,7 +37,7 @@ compilers. Supported languages are:
 ## Languages with Bytecode Compilers:
 
 - [OCaml](https://ocaml.org/) (using `ocamlopt`),
-- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) (using `mcs`), and
+- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) (using `mcs` and `csc`), and
 - [Java](https://www.oracle.com/java/) (using `javac`).
 
 A subset of these can be installed on Linux via the script
