@@ -2,6 +2,7 @@
 
 
 import sys
+import re
 import argparse
 import subprocess as sp
 import os
@@ -243,25 +244,28 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
 Results = dict[tuple, list]
 
 
-def fill_in_speedups(results: Results, column_ix: int, values_mode: str = 'absolute'):
-    min_key = None
-    min_val = None
+def fill_in_speedups(results: Results, column_ix: int, values_mode: str = 'absolute', highlight: bool = False):
+    # Track the smallest value per column separately for the plain (P) and
+    # templated (T) variant of each language, so each half of a merged
+    # "P / T" cell gets its own winner highlighted independently.
+    min_vals = {False: None, True: None}
     for key, result in results.items():
+        templated = key[1]
         if isinstance(result[column_ix], (int, float)):
-            if min_val is None or (min_val > result[column_ix]):
-                min_key = key
-                min_val = result[column_ix]
-    if min_key is not None:
-        rel_tag = results[min_key][CEXE_PATH_IX]
-        for key, result in results.items():
-            result[column_ix] = stringify_metrics(abs_n=result[column_ix],
-                                                  min_val=min_val,
-                                                  column_ix=column_ix,
-                                                  rel_tag=rel_tag,
-                                                  values_mode=values_mode)
+            if min_vals[templated] is None or (min_vals[templated] > result[column_ix]):
+                min_vals[templated] = result[column_ix]
+
+    for key, result in results.items():
+        templated = key[1]
+        result[column_ix] = stringify_metrics(abs_n=result[column_ix],
+                                              min_val=min_vals[templated],
+                                              column_ix=column_ix,
+                                              rel_tag=None,
+                                              values_mode=values_mode,
+                                              highlight=highlight)
 
 
-def stringify_metrics(abs_n, min_val, column_ix, rel_tag, values_mode: str = 'absolute'):
+def stringify_metrics(abs_n, min_val, column_ix, rel_tag, values_mode: str = 'absolute', highlight: bool = False):
     if isinstance(abs_n, str):
         return '{:>13}'.format(abs_n)
     if abs_n is None:
@@ -278,7 +282,21 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag, values_mode: str = 'ab
     else:
         abs_str = str(abs_n)
 
-    if abs_n == min_val:
+    is_min = min_val is not None and abs_n == min_val
+    abs_str = abs_str.strip()
+
+    # Highlight (color + bold) the smallest raw value in the column with a
+    # badge so the winner stands out visually wherever the table is
+    # rendered. Only applied when explicitly requested via `highlight`, and
+    # then uniformly across every values_mode -- absolute, relative, and
+    # both -- rather than only the absolute value.
+    def _hl(text: str) -> str:
+        return (
+            f'<span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">{text}</span>'
+            if highlight and is_min else text
+        )
+
+    if is_min:
         rel_str = " **1.0**"
         rel_only = " **1.0**"
     else:
@@ -287,11 +305,11 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag, values_mode: str = 'ab
         rel_only = factor_str(rel_n)
 
     if values_mode == 'relative':
-        return rel_only
+        return _hl(rel_only)
     elif values_mode == 'both':
-        return abs_str + rel_str
+        return _hl(abs_str) + rel_str
     else:
-        return abs_str.strip()
+        return _hl(abs_str)
 
 
 def to_str_in_microseconds(dur):
@@ -368,34 +386,43 @@ def merge_plain_and_templated_results(results: Results):
     return merged
 
 
-def markdown_table(titles: list[str], results: Results, values_mode: str = 'absolute'):
-    fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode)
-    fill_in_speedups(results=results, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode)
+def markdown_table(titles: list[str], results: Results, values_mode: str = 'absolute', highlight: bool = False):
+    fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
+    fill_in_speedups(results=results, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
 
     merged_results = merge_plain_and_templated_results(results)
 
     # Sort rows by Language, then Compiler Executable
     sorted_rows = sorted(merged_results.values(), key=lambda r: (r[0].lower(), str(r[-1]).lower()))
 
-    # Compute dynamic column widths for proper markdown alignment
+    # Compute dynamic column widths for proper markdown alignment, based on
+    # the *visible* text -- the <span> tags used to color-highlight the
+    # smallest value in a column don't count towards the visible width.
+    def _visible_len(cell) -> int:
+        return len(re.sub(r'<[^>]+>', '', str(cell)))
+
+    def _pad(cell, width: int) -> str:
+        cell = str(cell)
+        return cell + ' ' * max(width - _visible_len(cell), 0)
+
     col_widths = [len(t) for t in titles]
     for row in sorted_rows:
         for idx, cell in enumerate(row):
-            col_widths[idx] = max(col_widths[idx], len(str(cell)))
+            col_widths[idx] = max(col_widths[idx], _visible_len(cell))
 
     # Header
-    result = '| ' + ' | '.join(str(titles[i]).ljust(col_widths[i]) for i in range(len(titles))) + ' |\n'
+    result = '| ' + ' | '.join(_pad(titles[i], col_widths[i]) for i in range(len(titles))) + ' |\n'
     # Separator
     result += '| ' + ' | '.join(':' + '-' * (col_widths[i] - 2) + ':' for i in range(len(titles))) + ' |\n'
     # Data rows
     for row in sorted_rows:
-        result += '| ' + ' | '.join(str(row[i]).ljust(col_widths[i]) for i in range(len(row))) + ' |\n'
+        result += '| ' + ' | '.join(_pad(row[i], col_widths[i]) for i in range(len(row))) + ' |\n'
     return result
 
 
@@ -2163,6 +2190,10 @@ def main():
     parser.add_argument('--relative', '--rel', action='store_true',
                         help='Display relative numeric values (shortcut for --values=relative).')
 
+    parser.add_argument('--highlight-min', '--hl', action='store_true',
+                        help='Color- and bold-highlight the smallest (best) raw value in each column, '
+                             'in whichever --values mode is selected (absolute, relative, or both).')
+
     args = parser.parse_args()
     if args.relative:
         args.values = 'relative'
@@ -2264,7 +2295,7 @@ def main():
                 _merge_results(results, res)
 
     print()
-    print(markdown_table(table_titles(args.values), results, values_mode=args.values))
+    print(markdown_table(table_titles(args.values), results, values_mode=args.values, highlight=args.highlight_min))
 
 
 def install_missing_modules():
