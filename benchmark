@@ -86,6 +86,7 @@ MARKDOWN_TABLE_TITLES = [
     'Run [us/f] (P/T)',
     'Check RSS [kB/f] (P/T)',
     'Build RSS [kB/f] (P/T)',
+    'Output Size [B/f] (P/T)',
     'Version',
     'Exec',
 ]
@@ -99,8 +100,9 @@ BUILD_DUR_PER_FUNC_IX = 5       # build duration
 RUN_DUR_PER_FUNC_IX = 6       # run duration
 CHECK_RSS_MU_IX = 7        # check RSS memory usage
 BUILD_RSS_MU_IX = 8        # build RSS memory usage
-CEXE_VERSION_IX = 9
-CEXE_PATH_IX = 10
+OUTPUT_SIZE_IX = 9         # output binary size per function
+CEXE_VERSION_IX = 10
+CEXE_PATH_IX = 11
 RAW_ROW_LENGTH = CEXE_PATH_IX + 1
 MARKDOWN_TABLE_LENGTH = len(MARKDOWN_TABLE_TITLES)
 
@@ -184,6 +186,32 @@ def out_binary(lang):
     return DEFAULT_PROGRAM_NAME
 
 
+def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
+    if not os.path.isfile(path):
+        return False
+    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme'):
+        return False
+    if os.path.basename(cexe).startswith('ocamlc'):
+        return False
+    try:
+        with open(path, 'rb') as f:
+            magic = f.read(4)
+            macho_magics = {
+                bytes([0xfe, 0xed, 0xfa, 0xce]),
+                bytes([0xfe, 0xed, 0xfa, 0xcf]),
+                bytes([0xce, 0xfa, 0xed, 0xfe]),
+                bytes([0xcf, 0xfa, 0xed, 0xfe]),
+                bytes([0xca, 0xfe, 0xba, 0xbe]),
+            }
+            return (
+                magic.startswith(bytes([0x7f, 0x45, 0x4c, 0x46])) or
+                magic in macho_magics or
+                (magic.startswith(b"MZ") and lang.lower() != 'c#')
+            )
+    except OSError:
+        return False
+
+
 def sourceIdOf(lang: str, templated: bool, run_ix):
     if lang in TEMPLATED_SUPPORTED_LANGUAGES:
         key = lang + ('-Templated' if templated else '-Untemplated')
@@ -236,6 +264,8 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
         return to_str_memory_usage(abs_n) + rel_str
     elif column_ix == BUILD_RSS_MU_IX:
         return to_str_memory_usage(abs_n) + rel_str
+    elif column_ix == OUTPUT_SIZE_IX:
+        return to_str_output_size(abs_n) + rel_str
 
 
 def to_str_in_microseconds(dur):
@@ -254,6 +284,10 @@ def to_str_memory_usage(mu):
     return '{:6.1f}'.format(mu / 1e3)
 
 
+def to_str_output_size(size):
+    return '{:6.1f}'.format(size)
+
+
 def repeat_to_length(string_to_expand, length: int):
     return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
 
@@ -270,6 +304,7 @@ def merge_plain_and_templated_results(results: Results):
         RUN_DUR_PER_FUNC_IX,
         CHECK_RSS_MU_IX,
         BUILD_RSS_MU_IX,
+        OUTPUT_SIZE_IX,
     ]
     merged = {}
     grouped = {}
@@ -315,6 +350,7 @@ def markdown_table(titles: list[str], results: Results):
     fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX)
     fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX)
     fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX)
+    fill_in_speedups(results=results, column_ix=OUTPUT_SIZE_IX)
 
     merged_results = merge_plain_and_templated_results(results)
 
@@ -1432,6 +1468,15 @@ def compile_file(code_paths: list,
     dur_min = min(durs)
     run_dur_min = run_target_binary(cexe, lang, lang_dir, runner, op, src_name, args.run_count)
 
+    output_size = None
+    if op == 'build':
+        outb_path = os.path.join(lang_dir, out_binary(lang))
+        if is_machine_code_binary(outb_path, lang, cexe):
+            try:
+                output_size = os.path.getsize(outb_path)
+            except OSError:
+                output_size = None
+
     version_str = f' version {compiler_version}' if compiler_version is not None else ''
     cop = op.capitalize()
     print(f'- {cop} took {dur_min:1.3f} seconds (using "{cexe}"{version_str})')
@@ -1457,6 +1502,9 @@ def compile_file(code_paths: list,
     op_rss_col = {'check': CHECK_RSS_MU_IX, 'build': BUILD_RSS_MU_IX}.get(op)
     if op_rss_col is not None and rss_mu is not None:
         row[op_rss_col] = (rss_mu / total_funcs) if isinstance(rss_mu, (int, float)) else rss_mu
+
+    if output_size is not None:
+        row[OUTPUT_SIZE_IX] = output_size / total_funcs
 
     return row
 
