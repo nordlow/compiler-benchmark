@@ -1928,6 +1928,51 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         fil.write(f"   {typ}_sum : {typ} := 0;\n")
 
 
+
+LANGUAGE_BENCHMARKS = [
+    ('Zig', [bm_Zig], ('ast-check', 'check', 'compile', 'build'), (False, True)),
+    ('D', [lambda r, cp, a, op, t: bm_D(r, cp, a, op, t, use_dips=False)], ('check', 'compile', 'build'), (False, True)),
+    ('Odin', [bm_Odin], ('check', 'build'), (False, True)),
+    ('C', [
+        lambda r, cp, a, op, t: bm_C_using_tcc(r, 'C', cp, a, op, t),
+        lambda r, cp, a, op, t: bm_C_using_cuik(r, 'C', cp, a, op, t),
+        lambda r, cp, a, op, t: bm_C_using_cproc(r, 'C', cp, a, op, t),
+        lambda r, cp, a, op, t: bm_C_and_Cxx_using_gcc(r, 'C', cp, a, op, t),
+        lambda r, cp, a, op, t: bm_C_and_Cxx_using_clang(r, 'C', cp, a, op, t),
+    ], ('check', 'compile', 'build'), (False,)),
+    ('C++', [
+        lambda r, cp, a, op, t: bm_C_and_Cxx_using_gcc(r, 'C++', cp, a, op, t),
+        lambda r, cp, a, op, t: bm_C_and_Cxx_using_clang(r, 'C++', cp, a, op, t),
+    ], ('check', 'compile', 'build'), (False, True)),
+    ('Ada', [lambda r, cp, a, op, t: bm_Ada_using_gcc(r, 'Ada', cp, a, op, t)], ('build',), (False,)),
+    ('Go', [bm_Go], ('check', 'build'), (False, True)),
+    ('Swift', [bm_Swift], ('check', 'build'), (False, True)),
+    ('Hylo', [bm_Hylo], ('check', 'build'), (False, True)),
+    ('V', [bm_V], ('build',), (False, True)),
+    ('C3', [bm_C3], ('check', 'compile', 'build'), (False, True)),
+    ('Rust', [bm_Rust], ('check', 'build'), (False, True)),
+    ('Nim', [bm_Nim], ('check', 'build'), (False, True)),
+    ('C#', [bm_CSharp_using_mcs, bm_CSharp_using_csc], ('check', 'build'), (False,)),
+    ('Java', [bm_Java], ('check', 'build'), (False,)),
+    ('Pareas', [bm_Pareas], ('check', 'build'), (False,)),
+    ('Python', [bm_Python], ('check', 'build', 'run'), (False, True)),
+    ('Mojo', [bm_Mojo], ('build',), (False,)),
+    ('Crystal', [bm_Crystal], ('check', 'build'), (False, True)),
+    ('Pascal', [bm_Pascal], ('check', 'compile', 'build'), (False,)),
+    ('Haskell', [bm_Haskell], ('check', 'build'), (False, True)),
+    ('Fortran', [lambda r, cp, a, op, t: bm_Fortran_using_gcc(r, 'Fortran', cp, a, op, t)], ('check', 'compile', 'build'), (False,)),
+    ('Hare', [bm_Hare], ('check', 'build'), (False,)),
+    ('OCaml', [
+        lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=False),
+        lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=True),
+    ], ('build',), (False,)),
+    ('Julia', [bm_Julia], ('build',), (False, True)),
+    ('Scheme', [bm_Scheme], ('check', 'build', 'run'), (False,)),
+    ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
+]
+
+
+
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -1998,171 +2043,19 @@ def main():
     print(markdown_header('Benchmark:', 1))
 
     for op in args.operations:
-        if 'Vox' in args.language_exes:
-            for templated in (False, True):
-                bm_Vox(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-        if 'D' in args.language_exes:
-            for templated in (False, True):
-                bm_D(results=results, code_paths=code_paths, args=args, op=op, templated=templated, use_dips=False)
-        if 'Zig' in args.language_exes:
-            for templated in (False, True):
-                bm_Zig(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-        if 'Odin' in args.language_exes:
-            for templated in (False, True):
-                bm_Odin(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-        if 'C' in args.language_exes:
-            for templated in (False,):
-                bm_C_using_tcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                bm_C_using_cuik(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                bm_C_using_cproc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                bm_C_and_Cxx_using_gcc(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-                bm_C_and_Cxx_using_clang(results=results, lang='C', code_paths=code_paths, args=args, op=op, templated=templated)
-        if 'C++' in args.language_exes:
-            for templated in (False, True):
-                bm_C_and_Cxx_using_gcc(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
-                bm_C_and_Cxx_using_clang(results=results, lang='C++', code_paths=code_paths, args=args, op=op, templated=templated)
+        for lang, runners, ops, templated_variants in LANGUAGE_BENCHMARKS:
+            if lang not in args.language_exes or op not in ops:
+                continue
 
-    if 'Ada' in args.language_exes:
-        if 'build' in args.operations:
-            bm_Ada_using_gcc(results=results, lang='Ada', code_paths=code_paths, args=args, op='build', templated=False)
+            orig_fc, orig_fd = args.function_count, args.function_depth
+            if lang in ('OCaml', 'Julia') and orig_fc * orig_fd >= 10000:
+                args.function_count, args.function_depth = 200, 200
 
-    if 'Go' in args.language_exes:
-        if 'check' in args.operations:
-            for templated in (False, True):
-                bm_Go(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
-        if 'build' in args.operations:
-            for templated in (False, True):
-                bm_Go(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
+            for templated in templated_variants:
+                for runner in runners:
+                    runner(results, code_paths, args, op, templated)
 
-    if 'Swift' in args.language_exes:
-        if 'check' in args.operations:
-            for templated in (False, True):
-                bm_Swift(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
-        if 'build' in args.operations:
-            for templated in (False, True):
-                bm_Swift(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
-
-    if 'Hylo' in args.language_exes:
-        if 'check' in args.operations:
-            for templated in (False, True):
-                bm_Hylo(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
-        if 'build' in args.operations:
-            for templated in (False, True):
-                bm_Hylo(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
-
-    if 'V' in args.language_exes:
-        if 'build' in args.operations:
-            for templated in (False, True):
-                bm_V(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
-
-    if 'C3' in args.language_exes:
-        for op in args.operations:
-            for templated in (False, True):
-                bm_C3(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Rust' in args.language_exes:
-        if 'check' in args.operations:
-            for templated in (False, True):
-                bm_Rust(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
-        if 'build' in args.operations:
-            for templated in (False, True):
-                bm_Rust(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
-
-    if 'Nim' in args.language_exes:
-        if 'check' in args.operations:
-            for templated in (False, True):
-                bm_Nim(results=results, code_paths=code_paths, args=args, op='check', templated=templated)
-        if 'build' in args.operations:
-            for templated in (False, True):
-                bm_Nim(results=results, code_paths=code_paths, args=args, op='build', templated=templated)
-
-    if 'C#' in args.language_exes:
-        if 'check' in args.operations:
-            bm_CSharp_using_mcs(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-            bm_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-        if 'build' in args.operations:
-            bm_CSharp_using_mcs(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-            bm_CSharp_using_csc(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-
-    if 'Java' in args.language_exes:
-        if 'check' in args.operations:
-            bm_Java(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-        if 'build' in args.operations:
-            bm_Java(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-
-    if 'Pareas' in args.language_exes:
-        if 'check' in args.operations:
-            bm_Pareas(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-        if 'build' in args.operations:
-            bm_Pareas(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-
-    if 'Python' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'build', 'run'):
-                for templated in (False, True):
-                    bm_Python(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Crystal' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'build'):
-                for templated in (False, True):
-                    bm_Crystal(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Pascal' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'compile', 'build'):
-                for templated in (False,):
-                    bm_Pascal(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Haskell' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'build'):
-                for templated in (False, True):
-                    bm_Haskell(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Fortran' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'compile', 'build'):
-                for templated in (False,):
-                    bm_Fortran_using_gcc(results=results, lang='Fortran', code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Hare' in args.language_exes:
-        for op in args.operations:
-            if op in ('check', 'build'):
-                for templated in (False,):
-                    bm_Hare(results=results, code_paths=code_paths, args=args, op=op, templated=templated)
-
-    if 'Mojo' in args.language_exes:
-        if 'build' in args.operations:
-            bm_Mojo(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-
-    function_count = args.function_count
-    function_depth = args.function_depth
-    if args.function_count * args.function_depth >= 10000:
-        args.function_count = 200
-        args.function_depth = 200
-
-    if 'OCaml' in args.language_exes:
-        if 'build' in args.operations:
-            bm_OCaml(results=results, code_paths=code_paths, args=args, op='build', templated=False, bytecode=False)
-            bm_OCaml(results=results, code_paths=code_paths, args=args, op='build', templated=False, bytecode=True)
-
-    if 'Julia' in args.language_exes:
-        if 'build' in args.operations:
-            bm_Julia(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-            bm_Julia(results=results, code_paths=code_paths, args=args, op='build', templated=True)
-
-    if 'Scheme' in args.language_exes:
-        if 'check' in args.operations:
-            bm_Scheme(results=results, code_paths=code_paths, args=args, op='check', templated=False)
-        if 'build' in args.operations:
-            bm_Scheme(results=results, code_paths=code_paths, args=args, op='build', templated=False)
-        if 'run' in args.operations:
-            bm_Scheme(results=results, code_paths=code_paths, args=args, op='run', templated=False)
-
-    args.function_count = function_count
-    args.function_depth = function_depth
-
+            args.function_count, args.function_depth = orig_fc, orig_fd
     print()
     print(markdown_table(MARKDOWN_TABLE_TITLES, results))
 
