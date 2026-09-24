@@ -2100,6 +2100,10 @@ def main():
             # These languages scale poorly on deeply nested functions with large synthetic function counts[1], an explicit limit is enforced:
             if lang in ('OCaml', 'Julia') and task_args.function_count * task_args.function_depth >= 10000:
                 task_args.function_count, task_args.function_depth = 200, 200
+            # Nim compiler has a hard limit of 50 recursive generic instantiations:
+            if lang == 'Nim' and task_args.function_depth > 50:
+                print(f"Warning: Capping Nim function depth (--function-depth) from {task_args.function_depth} to 50 due to compiler generic recursion limit")
+                task_args.function_depth = 50
 
             for templated in templated_variants:
                 for r_idx in range(len(runners)):
