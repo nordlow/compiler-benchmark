@@ -180,6 +180,8 @@ def out_directory(lang):
 
 
 def out_binary(lang):
+    if lang.lower() == 'python':
+        return DEFAULT_PROGRAM_NAME + '.pyc'
     return DEFAULT_PROGRAM_NAME
 
 
@@ -859,19 +861,31 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
     if not cexe:
         return None
 
-    if op in ('build', 'check'):
-        cexe_flags = ['-m', 'py_compile']
+    target_pyc = out_binary(lang)
+
+    if op == 'check':
+        # Fast in-memory syntax/AST check without writing bytecode to disk
+        cexe_flags = ['-c', 'import sys; compile(open(sys.argv[1], "rb").read(), sys.argv[1], "exec")']
+        out_flag_and_exe = []
         runner = False
-    elif op == 'run':
-        cexe_flags = []
-        runner = [cexe]
+    elif op == 'compile':
+        # Compile source to standalone .pyc without running
+        cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
+        out_flag_and_exe = [target_pyc]
+        runner = False
+    elif op == 'build':
+        # Compile source to standalone .pyc and execute via run_target_binary
+        cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
+        out_flag_and_exe = [target_pyc]
+        # -S skips 'import site' (~10x faster startup); -O runs optimized bytecode
+        runner = [cexe, '-S', '-O']
     else:
         return None
 
     version = get_compiler_version(cexe)
 
     compile_file(code_paths,
-                 out_flag_and_exe=[],
+                 out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=runner,
                  cexe_flags=cexe_flags,
@@ -1309,11 +1323,7 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
 
 def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_name: str, run_count: int):
     """Execute target binary or script, handling compiler-specific quirks (e.g., cproc chmod)."""
-    if op == 'run' and runner:
-        run_args = (runner if isinstance(runner, list) else [runner]) + [src_name]
-        return run_compiled_file(run_args, run_count=run_count)
-
-    if op == 'build' and runner and lang != 'Python':
+    if op == 'build' and runner:
         outb_path = os.path.join(lang_dir, out_binary(lang))
         if runner is True:
             if cexe.endswith('cproc') and os.path.exists(outb_path):
@@ -1934,7 +1944,7 @@ LANGUAGE_BENCHMARKS = [
     ('C#', [bm_CSharp_using_mcs, bm_CSharp_using_csc], ('check', 'build'), (False,)),
     ('Java', [bm_Java], ('check', 'build'), (False,)),
     ('Pareas', [bm_Pareas], ('check', 'build'), (False,)),
-    ('Python', [bm_Python], ('check', 'build', 'run'), (False, True)),
+    ('Python', [bm_Python], ('check', 'compile', 'build'), (False, True)),
     ('Mojo', [bm_Mojo], ('build',), (False,)),
     ('Crystal', [bm_Crystal], ('check', 'build'), (False, True)),
     ('Pascal', [bm_Pascal], ('check', 'compile', 'build'), (False,)),
