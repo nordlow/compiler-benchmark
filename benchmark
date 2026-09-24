@@ -77,19 +77,37 @@ VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
 HOME = expanduser('~')
 
-MARKDOWN_TABLE_TITLES = [
-    'Lang-uage',
-    'AST-C [us/f]',
-    'Check [us/f]',
-    'Compile [us/f]',
-    'Build [us/f]',
-    'Run [us/f]',
-    'Check RSS [kB/f]',
-    'Build RSS [kB/f]',
-    'Output Size [B/f]',
-    'Version',
-    'Exec',
+class Column:
+    def __init__(self, name: str, unit: str | None = None):
+        self.name = name
+        self.unit = unit
+
+    def header(self, values_mode: str = 'absolute') -> str:
+        if not self.unit or (values_mode == 'relative' and self.unit == 'us/f'):
+            return self.name
+        return f"{self.name} [{self.unit}]"
+
+
+TABLE_COLUMNS = [
+    Column('Lang-uage'),
+    Column('AST-C', 'us/f'),
+    Column('Check', 'us/f'),
+    Column('Compile', 'us/f'),
+    Column('Build', 'us/f'),
+    Column('Run', 'us/f'),
+    Column('Check RSS', 'kB/f'),
+    Column('Build RSS', 'kB/f'),
+    Column('Output Size', 'B/f'),
+    Column('Version'),
+    Column('Exec'),
 ]
+
+
+def table_titles(values_mode: str = 'absolute') -> list[str]:
+    return [col.header(values_mode) for col in TABLE_COLUMNS]
+
+
+MARKDOWN_TABLE_TITLES = table_titles('absolute')
 
 LANG_IX = 0
 TEMPLATED_IX = 1
@@ -2244,7 +2262,7 @@ def main():
                 _merge_results(results, res)
 
     print()
-    print(markdown_table(MARKDOWN_TABLE_TITLES, results, values_mode=args.values))
+    print(markdown_table(table_titles(args.values), results, values_mode=args.values))
 
 
 def install_missing_modules():
