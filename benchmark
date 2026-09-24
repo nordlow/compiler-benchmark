@@ -79,13 +79,13 @@ HOME = expanduser('~')
 
 MARKDOWN_TABLE_TITLES = [
     'Lang-uage',
-    'AST-Chk Time [us/f] (P/T)',
-    'Chk Time [us/f] (P/T)',
-    'Cmp Time [us/f] (P/T)',
-    'Bld Time [us/f] (P/T)',
-    'Run Time [us/f] (P/T)',
-    'Chk RSS [kB/f] (P/T)',
-    'Bld RSS [kB/f] (P/T)',
+    'AST-Check [us/f] (P/T)',
+    'Check [us/f] (P/T)',
+    'Compile [us/f] (P/T)',
+    'Build [us/f] (P/T)',
+    'Run [us/f] (P/T)',
+    'Check RSS [kB/f] (P/T)',
+    'Build RSS [kB/f] (P/T)',
     'Version',
     'Exec',
 ]
