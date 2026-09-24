@@ -1047,19 +1047,27 @@ def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templa
 
     version = get_compiler_version(cexe)
     out_target = out_binary(lang)
-    devnull = os.devnull.replace('\\', '/')
 
     if op == 'check':
         cexe_flags = ['-q']
-        stdin_input = f'(compile-file "main_{{}}.scm" "{devnull}")'
+        # Skip shebang line if present (ASCII 35 = '#', 10 = newline), then read and expand AST
+        stdin_input = (
+            '(reset-handler abort) '
+            '(call-with-input-file "main_{}.scm" '
+            '(lambda (p) '
+            '(unless (eof-object? (peek-char p)) '
+            '(when (eqv? (char->integer (peek-char p)) 35) '
+            '(let skip () (let ([c (read-char p)]) (unless (or (eof-object? c) (eqv? (char->integer c) 10)) (skip)))))) '
+            '(let f () (let ([x (read p)]) (unless (eof-object? x) (expand x) (f))))))'
+        )
         runner = False
     elif op == 'compile':
         cexe_flags = ['-q']
-        stdin_input = '(compile-file "main_{}.scm")'
+        stdin_input = '(reset-handler abort) (compile-file "main_{}.scm")'
         runner = False
     elif op == 'build':
         cexe_flags = ['-q']
-        stdin_input = f'(compile-script "main_{{}}.scm" "{out_target}")'
+        stdin_input = f'(reset-handler abort) (compile-script "main_{{}}.scm" "{out_target}")'
         runner = [cexe, '--script']
     else:
         return None
