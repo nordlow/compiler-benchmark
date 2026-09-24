@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme"
     exit 0
 }
 
@@ -108,13 +108,13 @@ if should_install "llvm"; then
     fi
 fi
 
-# Repository Languages (Java, Julia, OCaml, Python, Scheme, TCC)
+# Repository Languages (Java, Julia, OCaml, Python, TCC)
 if should_install "repo"; then
     echo ">> Installing Repository Languages..."
     if [ "$OS" == "arch" ]; then
-        ${PKG_MAN} jdk-openjdk julia ocaml python-psutil chezscheme tcc go
+        ${PKG_MAN} jdk-openjdk julia ocaml python-psutil tcc go
     else
-        ${PKG_MAN} openjdk-21-jdk julia ocaml python3-psutil chezscheme tcc golang-go
+        ${PKG_MAN} openjdk-21-jdk julia ocaml python3-psutil tcc golang-go
     fi
 fi
 
@@ -184,7 +184,7 @@ if should_install "zig"; then
     fi
 fi
 
-# ODin
+# Odin
 if should_install "odin"; then
     echo ">> Installing Odin..."
     if [ "$OS" == "arch" ]; then
@@ -393,6 +393,38 @@ if should_install "hare"; then
             popd
             rm -rf "$HARE_TMP"
         fi
+    fi
+fi
+
+# Scheme (Chez Scheme)
+if should_install "scheme" || should_install "chezscheme" || should_install "chez-scheme"; then
+    echo ">> Installing Chez Scheme..."
+    if [ "$OS" == "arch" ]; then
+        if command -v yay &> /dev/null; then
+            yay -S --noconfirm --needed chez-scheme # or chez-scheme-git
+        elif command -v paru &> /dev/null; then
+            paru -S --noconfirm --needed chez-scheme # or chez-scheme-git
+        else
+            echo ">> Neither yay nor paru found; building chez-scheme from AUR using makepkg..."
+            AUR_TMP=$(mktemp -d)
+            git clone --depth 1 https://aur.archlinux.org/chez-scheme.git "$AUR_TMP"
+            pushd "$AUR_TMP"
+            makepkg -si --noconfirm
+            popd
+            rm -rf "$AUR_TMP"
+        fi
+    else
+        ${PKG_MAN} chezscheme
+    fi
+
+    # Ensure binary is symlinked as 'scheme' in BIN_DIR if not already present in PATH
+    if ! command -v scheme &> /dev/null; then
+        for alt in chezscheme chez-scheme chez; do
+            if command -v "$alt" &> /dev/null; then
+                ln -sf "$(command -v "$alt")" "$BIN_DIR/scheme"
+                break
+            fi
+        done
     fi
 fi
 
