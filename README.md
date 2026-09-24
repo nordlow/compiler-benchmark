@@ -36,7 +36,7 @@ compilers. Supported languages are:
 
 ## Languages with Bytecode Compilers:
 
-- [OCaml](https://ocaml.org/) (using `ocamlopt`),
+- [OCaml](https://ocaml.org/) (using `ocamlopt` and `ocamlc`),
 - [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) (using `mcs` and `csc`), and
 - [Java](https://www.oracle.com/java/) (using `javac`).
 
