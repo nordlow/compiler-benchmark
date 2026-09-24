@@ -79,14 +79,14 @@ HOME = expanduser('~')
 
 MARKDOWN_TABLE_TITLES = [
     'Lang-uage',
-    'AST-Check [us/f] (P/T)',
-    'Check [us/f] (P/T)',
-    'Compile [us/f] (P/T)',
-    'Build [us/f] (P/T)',
-    'Run [us/f] (P/T)',
-    'Check RSS [kB/f] (P/T)',
-    'Build RSS [kB/f] (P/T)',
-    'Output Size [B/f] (P/T)',
+    'AST-Check [us/f]',
+    'Check [us/f]',
+    'Compile [us/f]',
+    'Build [us/f]',
+    'Run [us/f]',
+    'Check RSS [kB/f]',
+    'Build RSS [kB/f]',
+    'Output Size [B/f]',
     'Version',
     'Exec',
 ]
@@ -223,7 +223,7 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
 Results = dict[tuple, list]
 
 
-def fill_in_speedups(results: Results, column_ix: int):
+def fill_in_speedups(results: Results, column_ix: int, values_mode: str = 'absolute'):
     min_key = None
     min_val = None
     for key, result in results.items():
@@ -237,35 +237,41 @@ def fill_in_speedups(results: Results, column_ix: int):
             result[column_ix] = stringify_metrics(abs_n=result[column_ix],
                                                   min_val=min_val,
                                                   column_ix=column_ix,
-                                                  rel_tag=rel_tag)
+                                                  rel_tag=rel_tag,
+                                                  values_mode=values_mode)
 
 
-def stringify_metrics(abs_n, min_val, column_ix, rel_tag):
+def stringify_metrics(abs_n, min_val, column_ix, rel_tag, values_mode: str = 'absolute'):
     if isinstance(abs_n, str):
         return '{:>13}'.format(abs_n)
     if abs_n is None:
         return '{:>6}'.format('N/A')
+
+    if column_ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX):
+        abs_str = to_str_in_microseconds(abs_n)
+    elif column_ix == RUN_DUR_PER_FUNC_IX:
+        abs_str = to_str_in_nanoseconds(abs_n)
+    elif column_ix in (CHECK_RSS_MU_IX, BUILD_RSS_MU_IX):
+        abs_str = to_str_memory_usage(abs_n)
+    elif column_ix == OUTPUT_SIZE_IX:
+        abs_str = to_str_output_size(abs_n)
+    else:
+        abs_str = str(abs_n)
+
     if abs_n == min_val:
-        rel_str = " (best)"
+        rel_str = " best"
+        rel_only = "best"
     else:
         rel_n = abs_n / min_val
-        rel_str = " (" + factor_str(rel_n) + "x" ")"
-    if column_ix == AST_CHECK_DUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + rel_str
-    elif column_ix == CHECK_DUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + rel_str
-    elif column_ix == COMPILE_DUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + rel_str
-    elif column_ix == BUILD_DUR_PER_FUNC_IX:
-        return to_str_in_microseconds(abs_n) + rel_str
-    elif column_ix == RUN_DUR_PER_FUNC_IX:
-        return to_str_in_nanoseconds(abs_n) + rel_str
-    elif column_ix == CHECK_RSS_MU_IX:
-        return to_str_memory_usage(abs_n) + rel_str
-    elif column_ix == BUILD_RSS_MU_IX:
-        return to_str_memory_usage(abs_n) + rel_str
-    elif column_ix == OUTPUT_SIZE_IX:
-        return to_str_output_size(abs_n) + rel_str
+        rel_str = " (" + factor_str(rel_n) + "x)"
+        rel_only = factor_str(rel_n) + "x"
+
+    if values_mode == 'relative':
+        return rel_only
+    elif values_mode == 'both':
+        return abs_str + rel_str
+    else:
+        return abs_str.strip()
 
 
 def to_str_in_microseconds(dur):
@@ -342,15 +348,15 @@ def merge_plain_and_templated_results(results: Results):
     return merged
 
 
-def markdown_table(titles: list[str], results: Results):
-    fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX)
-    fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX)
-    fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX)
-    fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX)
-    fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX)
-    fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX)
-    fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX)
-    fill_in_speedups(results=results, column_ix=OUTPUT_SIZE_IX)
+def markdown_table(titles: list[str], results: Results, values_mode: str = 'absolute'):
+    fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode)
+    fill_in_speedups(results=results, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode)
 
     merged_results = merge_plain_and_templated_results(results)
 
@@ -2129,7 +2135,17 @@ def main():
                         default=5,
                         help='Number of runs for each compilation')
 
+    parser.add_argument('--values', '--val', type=str,
+                        choices=['absolute', 'relative', 'both'],
+                        default='absolute',
+                        help='Whether to display absolute, relative, or both numeric values in the table.')
+
+    parser.add_argument('--relative', '--rel', action='store_true',
+                        help='Display relative numeric values (shortcut for --values=relative).')
+
     args = parser.parse_args()
+    if args.relative:
+        args.values = 'relative'
     install_missing_modules()
 
     lang_aliases = {
@@ -2228,7 +2244,7 @@ def main():
                 _merge_results(results, res)
 
     print()
-    print(markdown_table(MARKDOWN_TABLE_TITLES, results))
+    print(markdown_table(MARKDOWN_TABLE_TITLES, results, values_mode=args.values))
 
 
 def install_missing_modules():
