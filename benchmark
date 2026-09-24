@@ -1759,7 +1759,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
             fil.write(Tm('func ${F}(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
     elif lang == 'nim':
         if templated:
-            fil.write(Tm('proc ${F}<${T}>(x: ${T}): ${T} =\n  return ${X}\n').substitute(T='T',
+            fil.write(Tm('proc ${F}[${T}](x: ${T}): ${T} =\n  return ${X}\n').substitute(T='T',
                                                                                        F=str(fname),
                                                                                        N=nconst,
                                                                                        H=str(fheight),
