@@ -2089,6 +2089,7 @@ def main():
                 continue
 
             task_args = copy.deepcopy(args)
+            # These languages scale poorly on deeply nested functions with large synthetic function counts[1], an explicit limit is enforced:
             if lang in ('OCaml', 'Julia') and task_args.function_count * task_args.function_depth >= 10000:
                 task_args.function_count, task_args.function_depth = 200, 200
 
