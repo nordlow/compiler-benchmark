@@ -568,11 +568,12 @@ def bm_CSharp_using_mcs(results: Results, code_paths, args: argparse.Namespace, 
     except (IndexError, sp.CalledProcessError, Exception):
         version = "unknown"
 
+    mono_exe = which('mono')
     try:
         compile_file(code_paths,
                      out_flag_and_exe=out_flag,
                      cexe=cexe,
-                     runner=True,
+                     runner=[mono_exe] if mono_exe else True,
                      cexe_flags=cexe_flags,
                      args=args,
                      op=op,
@@ -599,11 +600,12 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
         cexe_flags.append('-refonly')
 
     version = get_compiler_version(cexe)
+    mono_exe = which('mono')
 
     compile_file(code_paths,
                  out_flag_and_exe=['-out:' + out_binary(lang)],
                  cexe=cexe,
-                 runner=True,
+                 runner=[mono_exe] if mono_exe else True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1320,12 +1322,12 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
 
 
 def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_name: str, run_count: int):
-    """Execute target binary or script, handling compiler-specific quirks (e.g., cproc chmod)."""
+    """Execute target binary or script, handling compiler-specific quirks."""
     if op == 'build' and runner:
         outb_path = os.path.join(lang_dir, out_binary(lang))
         if runner is True:
-            if cexe.endswith('cproc') and os.path.exists(outb_path):
-                os.chmod(outb_path, os.stat(outb_path).st_mode | stat.S_IEXEC)
+            if os.path.exists(outb_path) and not os.access(outb_path, os.X_OK):
+                os.chmod(outb_path, os.stat(outb_path).st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
             return run_compiled_file(outb_path, run_count=run_count)
         if isinstance(runner, list):
             return run_compiled_file(runner + [outb_path], run_count=run_count)
