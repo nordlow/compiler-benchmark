@@ -163,7 +163,7 @@ and `function-depth` exceeds 10000.
 ## AMD Ryzen AI 7 350 (8+8) @ 5.09 GHz
 
 The output on an AMD Ryzen Threadripper 3960X 24-Core Processor
-running Ubuntu 22.04 for the sample call
+running Arch Linux for the sample call
 
     LD_PRELOAD=/usr/lib/libmimalloc.so ./benchmark --languages=D:dmd,Zig --run-count=1 --rel --hl
 
