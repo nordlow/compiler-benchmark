@@ -79,7 +79,7 @@ HOME = expanduser('~')
 
 MARKDOWN_TABLE_TITLES = [
     'Lang-uage',
-    'AST-Check [us/f]',
+    'AST-C [us/f]',
     'Check [us/f]',
     'Compile [us/f]',
     'Build [us/f]',
