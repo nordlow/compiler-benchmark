@@ -1520,7 +1520,7 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
 
     if lang == 'zig' and templated:
         fil.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
-    elif lang == 'v' and templated:
+    elif lang in ('nim', 'v') and templated:
         fil.write(Tm('    ${T}_sum += ${F}[${T}](${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'odin' and templated:
         fil.write(Tm('    ${T}_sum += ${F}(${T}(${N}))').substitute(T=typ, N=n, F=fn))
