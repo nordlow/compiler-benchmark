@@ -108,13 +108,13 @@ if should_install "llvm"; then
     fi
 fi
 
-# Repository Languages (Java, Julia, OCaml, Python, TCC)
+# Repository Languages (Java, Julia, OCaml, Python, PyPy3, TCC)
 if should_install "repo"; then
     echo ">> Installing Repository Languages..."
     if [ "$OS" == "arch" ]; then
-        ${PKG_MAN} jdk-openjdk julia ocaml python-psutil tcc go
+        ${PKG_MAN} jdk-openjdk julia ocaml python-psutil tcc go pypy3
     else
-        ${PKG_MAN} openjdk-21-jdk julia ocaml python3-psutil tcc golang-go
+        ${PKG_MAN} openjdk-21-jdk julia ocaml python3-psutil tcc golang-go pypy3
     fi
 fi
 

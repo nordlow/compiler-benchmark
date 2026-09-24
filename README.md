@@ -27,7 +27,7 @@ compilers. Supported languages are:
 - [Vox](https://github.com/MrSmith33/vox) (using `vox`),
 - [C3](https://github.com/c3lang/c3c) (using `c3c`),
 - [Pareas](https://github.com/Snektron/pareas) (using `pareas`),
-- [Python](https://www.python.org/) (using `python`),
+- [Python](https://www.python.org/) (using `python3` and `pypy3`),
 - [Mojo](https://www.modular.com/mojo) (using `mojo`),
 - [Scheme](https://cisco.github.io/ChezScheme/) (using `scheme`),
 - [Crystal](https://crystal-lang.org/) (using `crystal`),

@@ -854,47 +854,43 @@ def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, template
 
 def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Python'
-    cexe = match_lang_cexe(args, lang, 'python3') or \
-        match_lang_cexe(args, lang, 'python') or \
-        match_lang_cexe(args, lang, 'pypy3') or \
-        match_lang_cexe(args, lang, 'pypy')
-    if not cexe:
-        return None
-
     target_pyc = out_binary(lang)
 
-    if op == 'check':
-        # Fast in-memory syntax/AST check without writing bytecode to disk
-        cexe_flags = ['-c', 'import sys; compile(open(sys.argv[1], "rb").read(), sys.argv[1], "exec")']
-        out_flag_and_exe = []
-        runner = False
-    elif op == 'compile':
-        # Compile source to standalone .pyc without running
-        cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
-        out_flag_and_exe = [target_pyc]
-        runner = False
-    elif op == 'build':
-        # Compile source to standalone .pyc and execute via run_target_binary
-        cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
-        out_flag_and_exe = [target_pyc]
-        # -S skips 'import site' (~10x faster startup); -O runs optimized bytecode
-        runner = [cexe, '-S', '-O']
-    else:
-        return None
+    exes = args.language_exes.get(lang) or LANGUAGE_EXES[lang]
 
-    version = get_compiler_version(cexe)
+    for cexe_name in exes:
+        cexe = match_lang_cexe(args, lang, cexe_name)
+        if not cexe:
+            continue
 
-    compile_file(code_paths,
-                 out_flag_and_exe=out_flag_and_exe,
-                 cexe=cexe,
-                 runner=runner,
-                 cexe_flags=cexe_flags,
-                 args=args,
-                 op=op,
-                 compiler_version=version,
-                 lang=lang,
-                 templated=templated,
-                 results=results)
+        if op == 'check':
+            cexe_flags = ['-c', 'import sys; compile(open(sys.argv[1], "rb").read(), sys.argv[1], "exec")']
+            out_flag_and_exe = []
+            runner = False
+        elif op == 'compile':
+            cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
+            out_flag_and_exe = [target_pyc]
+            runner = False
+        elif op == 'build':
+            cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
+            out_flag_and_exe = [target_pyc]
+            runner = [cexe, '-S', '-O']
+        else:
+            continue
+
+        version = get_compiler_version(cexe)
+
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     cexe=cexe,
+                     runner=runner,
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
 
 
 def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
