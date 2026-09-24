@@ -1982,10 +1982,13 @@ def _run_task(task):
     lang, runners, _, _ = LANGUAGE_BENCHMARKS[b_idx]
     runner = runners[r_idx]
     task_results, task_code_paths = {}, {}
+    success = False
     try:
         runner(task_results, task_code_paths, task_args, op, templated)
+        success = True
     finally:
-        shutil.rmtree(out_directory(lang), ignore_errors=True)
+        if success:
+            shutil.rmtree(out_directory(lang), ignore_errors=True)
     return task_results
 
 
