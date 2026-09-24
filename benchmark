@@ -15,6 +15,9 @@ from os.path import expanduser
 
 from string import Template as Tm
 from timeit import default_timer as timer
+import multiprocessing as mp
+import copy
+import builtins
 
 import importlib
 import tempfile
@@ -64,7 +67,7 @@ RUSTC_FLAGS = []  # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 
 # Requires: rustup component add rustc-codegen-cranelift-preview --toolchain nightly
 # Call: cargo +nightly rustc -- -Zcodegen-backend=cranelift
-RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=8', '-Zcodegen-backend=cranelift']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
+RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=1', '-Zcodegen-backend=cranelift']  # See: https://blog.rust-lang.org/2023/11/09/parallel-rustc.html
 
 JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
@@ -161,8 +164,19 @@ def find_compiler_versions(args: argparse.Namespace, lang: str, base_name: str):
         if cexe:
             yield cexe
 
+def get_available_cpus() -> list[int]:
+    if hasattr(os, 'sched_getaffinity'):
+        try:
+            cpus = sorted(list(os.sched_getaffinity(0)))
+            if cpus:
+                return cpus
+        except Exception:
+            pass
+    count = os.cpu_count() or 1
+    return list(range(count))
+
 def out_directory(lang):
-    return os.path.join(ROOT_PATH, lang.lower())
+    return os.path.join(ROOT_PATH, f"proc_{os.getpid()}", lang.lower())
 
 
 def out_binary(lang):
@@ -1451,7 +1465,7 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
     llang = lang.lower()
     types = long_type_of_lang(llang)
     ext = language_file_extension(llang)
-    dir_path = os.path.join(ROOT_PATH, llang)
+    dir_path = out_directory(lang)
     os.makedirs(dir_path, exist_ok=True)
 
     path = (os.path.join(dir_path, program_name + ('_t' if templated else '') +
@@ -1937,6 +1951,46 @@ LANGUAGE_BENCHMARKS = [
 ]
 
 
+def _worker_init(cpu_list, idx_counter, lock, print_lock):
+    with lock:
+        idx = idx_counter.value
+        idx_counter.value += 1
+    cpu_id = cpu_list[idx % len(cpu_list)]
+    if hasattr(os, 'sched_setaffinity'):
+        try:
+            os.sched_setaffinity(0, {cpu_id})
+        except Exception:
+            pass
+    orig_print = builtins.print
+    def _locked_print(*args, **kwargs):
+        with print_lock:
+            orig_print(*args, **kwargs)
+            sys.stdout.flush()
+    builtins.print = _locked_print
+
+
+def _run_task(task):
+    b_idx, r_idx, op, templated, task_args = task
+    lang, runners, _, _ = LANGUAGE_BENCHMARKS[b_idx]
+    runner = runners[r_idx]
+    task_results, task_code_paths = {}, {}
+    try:
+        runner(task_results, task_code_paths, task_args, op, templated)
+    finally:
+        shutil.rmtree(out_directory(lang), ignore_errors=True)
+    return task_results
+
+
+def _merge_results(target, incoming):
+    for key, row in incoming.items():
+        if key not in target:
+            target[key] = list(row)
+        else:
+            for i, val in enumerate(row):
+                if val is not None:
+                    target[key][i] = val
+
+
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -2028,20 +2082,40 @@ def main():
 
     print(markdown_header('Benchmark:', 1))
 
+    tasks = []
     for op in args.operations:
-        for lang, runners, ops, templated_variants in LANGUAGE_BENCHMARKS:
+        for b_idx, (lang, runners, ops, templated_variants) in enumerate(LANGUAGE_BENCHMARKS):
             if lang not in args.language_exes or op not in ops:
                 continue
 
-            orig_fc, orig_fd = args.function_count, args.function_depth
-            if lang in ('OCaml', 'Julia') and orig_fc * orig_fd >= 10000:
-                args.function_count, args.function_depth = 200, 200
+            task_args = copy.deepcopy(args)
+            if lang in ('OCaml', 'Julia') and task_args.function_count * task_args.function_depth >= 10000:
+                task_args.function_count, task_args.function_depth = 200, 200
 
             for templated in templated_variants:
-                for runner in runners:
-                    runner(results, code_paths, args, op, templated)
+                for r_idx in range(len(runners)):
+                    tasks.append((b_idx, r_idx, op, templated, task_args))
 
-            args.function_count, args.function_depth = orig_fc, orig_fd
+    cpus = get_available_cpus()
+    print(f"Running benchmarks in parallel across {len(cpus)} CPU core(s) (1 worker per core)...")
+    manager = mp.Manager()
+    idx_counter = manager.Value('i', 0)
+    lock = manager.Lock()
+    print_lock = manager.Lock()
+
+    orig_print = builtins.print
+    def _locked_print(*args, **kwargs):
+        with print_lock:
+            orig_print(*args, **kwargs)
+            sys.stdout.flush()
+    builtins.print = _locked_print
+
+    with mp.Pool(processes=len(cpus), initializer=_worker_init,
+                 initargs=(cpus, idx_counter, lock, print_lock)) as pool:
+        for res in pool.imap_unordered(_run_task, tasks):
+            if res:
+                _merge_results(results, res)
+
     print()
     print(markdown_table(MARKDOWN_TABLE_TITLES, results))
 
