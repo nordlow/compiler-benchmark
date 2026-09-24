@@ -83,8 +83,10 @@ class Column:
         self.unit = unit
 
     def header(self, values_mode: str = 'absolute') -> str:
-        if not self.unit or (values_mode == 'relative' and self.unit == 'us/f'):
+        if not self.unit:
             return self.name
+        if values_mode == 'relative':
+            return f"{self.name} [x]"
         return f"{self.name} [{self.unit}]"
 
 
@@ -277,8 +279,8 @@ def stringify_metrics(abs_n, min_val, column_ix, rel_tag, values_mode: str = 'ab
         abs_str = str(abs_n)
 
     if abs_n == min_val:
-        rel_str = " 1.0"
-        rel_only = "1.0"
+        rel_str = " *1*"
+        rel_only = " *1*"
     else:
         rel_n = abs_n / min_val
         rel_str = " (" + factor_str(rel_n) + ")"
