@@ -160,6 +160,21 @@ OCaml's optimizing native compiler `ocamlopt` is very slow for large
 inputs and is therefore disabled when the product of `function-count`
 and `function-depth` exceeds 10000.
 
+## AMD Ryzen AI 7 350 (8+8) @ 5.09 GHz
+
+The output on an AMD Ryzen Threadripper 3960X 24-Core Processor
+running Ubuntu 22.04 for the sample call
+
+    LD_PRELOAD=/usr/lib/libmimalloc.so ./benchmark --languages=D:dmd,Zig --run-count=1
+
+results in the following table (copied from the output at the end).
+
+| Lang-uage | AST-C [us/f] | Check [us/f] | Compile [us/f] | Build [us/f]  | Run [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] | Version                         | Exec |
+| :-------: | :----------: | :----------: | :------------: | :-----------: | :--------: | :--------------: | :--------------: | :---------------: | :-----------------------------: | :--: |
+| D         | N/A          | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">6.8</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">9.6</span>    | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">11.4</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">20.0</span>    | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">13.9</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">27.0</span>   | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">104</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">57</span>   | 5.0 / 12.0       | 16.9 / 24.6      | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">178.5</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">194.5</span>     | v2.113.0-beta.1-954-gcaf246a4c8 | dmd  |
+| Zig       | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">5.2</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">6.3</span>    | 29.2 / 34.3  | 95.0 / 111.9   | 106.1 / 105.2 | 106 / 103  | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">4.9</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">5.6</span>        | <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">10.1</span> / <span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">12.7</span>      | 1500.6 / 1520.5   | 0.17.0-dev.2163+89ff10d56       | zig  |
+
+
 ## Sample Run on AMD Ryzen Threadripper 3960X 24-Core
 
 The output on an AMD Ryzen Threadripper 3960X 24-Core Processor
