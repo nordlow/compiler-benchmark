@@ -1347,6 +1347,10 @@ def compile_file(code_paths: list,
                  stdin_input: str | None = None):
     key = (lang, templated, cexe)
     row = results.setdefault(key, [None] * MARKDOWN_TABLE_LENGTH)
+    row[LANG_IX] = lang
+    row[TEMPLATED_IX] = 'Yes' if templated else 'No'
+    row[CEXE_VERSION_IX] = compiler_version
+    row[CEXE_PATH_IX] = os.path.basename(cexe)
     lang_dir = os.path.abspath(out_directory(lang))
     total_funcs = args.function_count * args.function_depth
 
