@@ -41,7 +41,7 @@ compilers. Supported languages are:
 - [Java](https://www.oracle.com/java/) (using `javac`).
 
 A subset of these can be installed on Linux via the script
-`./provision.sh`. This scripts has currently solely been tested on
+`./provision.sh`. This script has currently solely been tested on
 Arch Linux.
 
 ## How it works
