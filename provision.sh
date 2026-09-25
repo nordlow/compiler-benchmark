@@ -338,7 +338,7 @@ if should_install "cuik"; then
         find . -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/__debugbreak/__builtin_trap/g' {} +
         sed -i '1i #include <ctype.h>' common/common.c || true
         CFLAGS="-D__debugbreak=__builtin_trap -include ctype.h" luajit build.lua -x64 -driver -cuik -tb
-        cp cuik "$BIN_DIR/cuik"
+		install -m 755 bin/cuik "$BIN_DIR/cuik"
         popd
         rm -rf "$CUIK_TMP"
     fi
