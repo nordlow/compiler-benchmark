@@ -28,38 +28,55 @@ DEFAULT_PROGRAM_NAME = 'main'
 
 SUPPORTED_OPERATIONS = ['ast-check', 'check', 'compile', 'build', 'run']
 
-LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
-                 'C3': ['c3c', ],
-                 'C++': ['g++', 'clang++', ],
-                 'D': ['dmd', 'ldmd2', 'gdc', ],
-                 'Zig': ['zig', ],
-                 'Odin': ['odin', ],
-                 'Nim': ['nim', ],
-                 'Rust': ['rustc', ],
-                 'Ada': ['gnat', ],
-                 'Vox': ['vox', ],
-                 'C#': ['mcs',  # mcs is Mono C# compiler version 6.12.0.200
-                        'csc'],  # csc is Microsoft (R) Visual C# Compiler
-                 'Go': ['go', 'gccgo', ],
-                 'V': ['v', ],
-                 'Swift': ['swiftc', ],
-                 'Hylo': ['hc', ],
-                 'Java': ['javac', ],
-                 'Julia': ['julia', ],
-                 'OCaml': ['ocamlc', 'ocamlopt', ],
-                 'Pareas': ['pareas', ],
-                 'Python': ['python3', 'python', 'pypy3', 'pypy', ],
-                 'Mojo': ['mojo', ],
-                 'Scheme': ['chez', 'scheme', ],
-                 'Crystal': ['crystal', ],
-                 'Pascal': ['fpc', ],
-                 'Haskell': ['ghc', ],
-                 'Fortran': ['gfortran', ],
-                 'Hare': ['hare', ],
-                 'Lua': ['luajit', ],
-                 }
-TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
-                                 'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal', 'Haskell', 'Nim']
+class Lang(str):
+    """Type wrapper representing a programming language name."""
+    pass
+
+
+class Exec(str):
+    """Type wrapper representing a compiler or runner executable name."""
+    pass
+
+
+LANG_EXES: dict[Lang, list[Exec]] = {
+    Lang('C'): [Exec('tcc'), Exec('cuik'), Exec('cproc'), Exec('gcc'), Exec('clang')],
+    Lang('C3'): [Exec('c3c')],
+    Lang('C++'): [Exec('g++'), Exec('clang++')],
+    Lang('D'): [Exec('dmd'), Exec('ldmd2'), Exec('gdc')],
+    Lang('Zig'): [Exec('zig')],
+    Lang('Odin'): [Exec('odin')],
+    Lang('Nim'): [Exec('nim')],
+    Lang('Rust'): [Exec('rustc')],
+    Lang('Ada'): [Exec('gnat')],
+    Lang('Vox'): [Exec('vox')],
+    Lang('C#'): [Exec('mcs'),  # mcs is Mono C# compiler version 6.12.0.200
+                     Exec('csc')],  # csc is Microsoft (R) Visual C# Compiler
+    Lang('Go'): [Exec('go'), Exec('gccgo')],
+    Lang('V'): [Exec('v')],
+    Lang('Swift'): [Exec('swiftc')],
+    Lang('Hylo'): [Exec('hc')],
+    Lang('Java'): [Exec('javac')],
+    Lang('Julia'): [Exec('julia')],
+    Lang('OCaml'): [Exec('ocamlc'), Exec('ocamlopt')],
+    Lang('Pareas'): [Exec('pareas')],
+    Lang('Python'): [Exec('python3'), Exec('python'), Exec('pypy3'), Exec('pypy')],
+    Lang('Mojo'): [Exec('mojo')],
+    Lang('Scheme'): [Exec('chez'), Exec('scheme')],
+    Lang('Crystal'): [Exec('crystal')],
+    Lang('Pascal'): [Exec('fpc')],
+    Lang('Haskell'): [Exec('ghc')],
+    Lang('Fortran'): [Exec('gfortran')],
+    Lang('Hare'): [Exec('hare')],
+    Lang('Lua'): [Exec('luajit')],
+}
+
+TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
+    Lang(l) for l in [
+        'C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
+        'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal',
+        'Haskell', 'Nim'
+    ]
+]
 
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
@@ -608,7 +625,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
         return
 
     if not exes:
-        exes = LANGUAGE_EXES[lang]
+        exes = LANG_EXES[lang]
 
     for cexe in filter(lambda cexe: which(cexe), exes):
         if not cexe or not which(cexe):
@@ -996,7 +1013,7 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
     lang = 'Python'
     target_pyc = out_binary(lang)
 
-    exes = args.language_exes.get(lang) or LANGUAGE_EXES[lang]
+    exes = args.language_exes.get(lang) or LANG_EXES[lang]
 
     for cexe_name in exes:
         cexe = match_lang_cexe(args, lang, cexe_name)
@@ -1037,7 +1054,7 @@ def bm_Lua(results: Results, code_paths: list, args: argparse.Namespace, op: str
     lang = 'Lua'
     target_luac = out_binary(lang)
 
-    exes = args.language_exes.get(lang) or LANGUAGE_EXES[lang]
+    exes = args.language_exes.get(lang) or LANG_EXES[lang]
 
     for cexe_name in exes:
         cexe = match_lang_cexe(args, lang, cexe_name)
@@ -1348,7 +1365,7 @@ def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, template
     except KeyError:
         return
     if not exes:
-        exes = LANGUAGE_EXES[lang]
+        exes = LANG_EXES[lang]
 
     for channel in rustup_channels:
         if rustup_exe is not None:
@@ -2232,7 +2249,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--languages', '--langs', type=str,
-                        default=','.join(LANGUAGE_EXES.keys()),
+                        default=','.join(LANG_EXES.keys()),
                         help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd,D:gdc,D:ldmd2.')
 
     parser.add_argument('--path', type=str,
@@ -2310,7 +2327,7 @@ def main():
         else:
             language = split[0]
             exes = []
-        if language not in LANGUAGE_EXES:
+        if language not in LANG_EXES:
             print('Warning: Ignoring unsupported language ' + language)
             continue
         if language in args.language_exes:
@@ -2318,7 +2335,7 @@ def main():
         else:
             args.language_exes[language] = exes
     if not args.language_exes:
-        args.language_exes = LANGUAGE_EXES
+        args.language_exes = LANG_EXES
 
     args.operations = list(map(lambda x: x.lower(), args.operations.split(',')))
     filtered_operations = []
