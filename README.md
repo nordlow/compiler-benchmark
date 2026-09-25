@@ -138,8 +138,8 @@ The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest,
 secondly closely followed by the C compiler Cuik, and thirdly D's
 `dmd`.
 
-The performance of both GCC and Clang gets significanly worse with
-each new release (currently 8, 9, 10 in the table below).
+The performance of both GCC and Clang sometimes worsen with a newer
+release.
 
 The templated (generic) C++ source checks about 3 times slower than
 the non-generic one using `gcc-8` but only about 2.3 times slower for
