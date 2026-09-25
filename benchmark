@@ -2349,19 +2349,19 @@ def main():
         args.values = ValuesMode(args.values)
     install_missing_modules()
 
-    lang_aliases: dict[str, Lang] = {
-        "hare": Lang("Hare"),
-        "fortran": Lang("Fortran"),
-        "gfortran": Lang("Fortran"),
-        "haskell": Lang("Haskell"),
-        "ghc": Lang("Haskell"),
-        "pascal": Lang("Pascal"),
-        "fpc": Lang("Pascal"),
-        "scheme": Lang("Scheme"),
-        "chez": Lang("Scheme"),
-        "ocaml": Lang("OCaml"),
-        "lua": Lang("Lua"),
-        "luajit": Lang("Lua"),
+    lang_aliases: dict[Exec, Lang] = {
+        Exec("hare"): Lang("Hare"),
+        Exec("fortran"): Lang("Fortran"),
+        Exec("gfortran"): Lang("Fortran"),
+        Exec("haskell"): Lang("Haskell"),
+        Exec("ghc"): Lang("Haskell"),
+        Exec("pascal"): Lang("Pascal"),
+        Exec("fpc"): Lang("Pascal"),
+        Exec("scheme"): Lang("Scheme"),
+        Exec("chez"): Lang("Scheme"),
+        Exec("ocaml"): Lang("OCaml"),
+        Exec("lua"): Lang("Lua"),
+        Exec("luajit"): Lang("Lua"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
