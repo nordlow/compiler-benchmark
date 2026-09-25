@@ -2349,24 +2349,24 @@ def main():
         args.values = ValuesMode(args.values)
     install_missing_modules()
 
-    lang_aliases = {
-        'hare': 'Hare',
-        'fortran': 'Fortran',
-        'gfortran': 'Fortran',
-        'haskell': 'Haskell',
-        'ghc': 'Haskell',
-        'pascal': 'Pascal',
-        'fpc': 'Pascal',
-        'scheme': 'Scheme',
-        'chez': 'Scheme',
-        'ocaml': 'OCaml',
-        'lua': 'Lua',
-        'luajit': 'Lua',
+    lang_aliases: dict[str, Lang] = {
+        "hare": Lang("Hare"),
+        "fortran": Lang("Fortran"),
+        "gfortran": Lang("Fortran"),
+        "haskell": Lang("Haskell"),
+        "ghc": Lang("Haskell"),
+        "pascal": Lang("Pascal"),
+        "fpc": Lang("Pascal"),
+        "scheme": Lang("Scheme"),
+        "chez": Lang("Scheme"),
+        "ocaml": Lang("OCaml"),
+        "lua": Lang("Lua"),
+        "luajit": Lang("Lua"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
-        name, sep, exes = spec.partition(':')
-        canonical = lang_aliases.get(name.lower(), name.capitalize())
+        name, sep, exes = spec.partition(":")
+        canonical = lang_aliases.get(name.lower(), Lang(name.capitalize()))
         return f"{canonical}{sep}{exes}" if sep else canonical
 
     args.languages = [
