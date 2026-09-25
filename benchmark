@@ -1382,9 +1382,13 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
     cexe = match_lang_cexe(args, lang, 'javac')
     if not cexe:
         return None
+    if args.function_count * args.function_depth > 10000:
+        args = copy.deepcopy(args)
+        args.function_count = min(args.function_count, 100)
+        args.function_depth = min(args.function_depth, 100)
     cexe_flags = ['-Xdiags:verbose']
     if op == 'check':
-        cexe_flags += ['-proc:only']
+        cexe_flags += ['-proc:only', '-Xlint:-options']
     version = get_compiler_version(cexe)
     compile_file(code_paths,
                  out_flag_and_exe=[],
@@ -2340,6 +2344,11 @@ def main():
             # These languages scale poorly on deeply nested functions with large synthetic function counts[1], an explicit limit is enforced:
             if lang in ('OCaml', 'Julia') and task_args.function_count * task_args.function_depth >= 10000:
                 task_args.function_count, task_args.function_depth = 200, 200
+            # Java class format limit: JVM constant pool cannot exceed 65535 entries per class
+            if lang == 'Java' and task_args.function_count * task_args.function_depth > 10000:
+                print(f"Warning: Capping Java function count/depth from {task_args.function_count}x{task_args.function_depth} to 100x100 due to JVM constant pool limits")
+                task_args.function_count, task_args.function_depth = 100, 100
+
             # LuaJIT limit: chunk constant table limit is 65536
             if lang == 'Lua' and task_args.function_count * task_args.function_depth > 20000:
                 print(f"Warning: Capping Lua function count/depth from {task_args.function_count}x{task_args.function_depth} to 150x150 due to LuaJIT chunk constant limits")
