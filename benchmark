@@ -2334,6 +2334,16 @@ def main():
 
     print(markdown_header('Benchmark:', 1))
 
+    # Compiler / runtime scaling & stability limits
+    OCAML_JULIA_MAX_TOTAL_FUNCS = 10_000
+    OCAML_JULIA_CAPPED_DIM = 200
+    JAVA_MAX_TOTAL_FUNCS = 10_000
+    JAVA_CAPPED_DIM = 100
+    LUA_MAX_TOTAL_FUNCS = 20_000
+    LUA_CAPPED_DIM = 150
+    NIM_MAX_DEPTH = 50
+    CUIK_MAX_DIM = 100
+
     tasks = []
     for op in args.operations:
         for b_idx, (lang, runners, ops, templated_variants) in enumerate(LANGUAGE_BENCHMARKS):
@@ -2341,36 +2351,56 @@ def main():
                 continue
 
             task_args = copy.deepcopy(args)
-            # These languages scale poorly on deeply nested functions with large synthetic function counts[1], an explicit limit is enforced:
-            if lang in ('OCaml', 'Julia') and task_args.function_count * task_args.function_depth >= 10000:
-                task_args.function_count, task_args.function_depth = 200, 200
+            total_funcs = task_args.function_count * task_args.function_depth
+
+            # These languages scale poorly on deeply nested functions with large synthetic function counts, an explicit limit is enforced:
+            if lang in ('OCaml', 'Julia') and total_funcs >= OCAML_JULIA_MAX_TOTAL_FUNCS:
+                task_args.function_count = OCAML_JULIA_CAPPED_DIM
+                task_args.function_depth = OCAML_JULIA_CAPPED_DIM
+
             # Java class format limit: JVM constant pool cannot exceed 65535 entries per class
-            if lang == 'Java' and task_args.function_count * task_args.function_depth > 10000:
-                print(f"Warning: Capping Java function count/depth from {task_args.function_count}x{task_args.function_depth} to 100x100 due to JVM constant pool limits")
-                task_args.function_count, task_args.function_depth = 100, 100
+            if lang == 'Java' and total_funcs > JAVA_MAX_TOTAL_FUNCS:
+                print(
+                    f"Warning: Capping Java function count/depth from {task_args.function_count}x{task_args.function_depth} "
+                    f"to {JAVA_CAPPED_DIM}x{JAVA_CAPPED_DIM} due to JVM constant pool limits"
+                )
+                task_args.function_count = JAVA_CAPPED_DIM
+                task_args.function_depth = JAVA_CAPPED_DIM
 
             # LuaJIT limit: chunk constant table limit is 65536
-            if lang == 'Lua' and task_args.function_count * task_args.function_depth > 20000:
-                print(f"Warning: Capping Lua function count/depth from {task_args.function_count}x{task_args.function_depth} to 150x150 due to LuaJIT chunk constant limits")
-                task_args.function_count, task_args.function_depth = 150, 150
+            if lang == 'Lua' and total_funcs > LUA_MAX_TOTAL_FUNCS:
+                print(
+                    f"Warning: Capping Lua function count/depth from {task_args.function_count}x{task_args.function_depth} "
+                    f"to {LUA_CAPPED_DIM}x{LUA_CAPPED_DIM} due to LuaJIT chunk constant limits"
+                )
+                task_args.function_count = LUA_CAPPED_DIM
+                task_args.function_depth = LUA_CAPPED_DIM
 
-            # Nim compiler has a hard limit of 50 recursive generic instantiations:
-            if lang == 'Nim' and task_args.function_depth > 50:
-                print(f"Warning: Capping Nim function depth (--function-depth) from {task_args.function_depth} to 50 due to compiler generic recursion limit")
-                task_args.function_depth = 50
+            # Nim compiler has a hard limit of recursive generic instantiations:
+            if lang == 'Nim' and task_args.function_depth > NIM_MAX_DEPTH:
+                print(
+                    f"Warning: Capping Nim function depth (--function-depth) from {task_args.function_depth} "
+                    f"to {NIM_MAX_DEPTH} due to compiler generic recursion limit"
+                )
+                task_args.function_depth = NIM_MAX_DEPTH
 
             for templated in templated_variants:
-                for r_idx in range(len(runners)):
+                for r_idx, runner in enumerate(runners):
                     r_args = copy.deepcopy(task_args)
-                    runner = runners[r_idx]
                     is_cuik = 'bm_C_using_cuik' in getattr(runner.__code__, 'co_names', ())
                     if is_cuik and match_lang_cexe(r_args, 'C', 'cuik'):
-                        if r_args.function_count > 100:
-                            print(f"Warning: Capping Cuik function count (--function-count) from {r_args.function_count} to 100 due to compiler stability limit")
-                            r_args.function_count = 100
-                        if r_args.function_depth > 100:
-                            print(f"Warning: Capping Cuik function depth (--function-depth) from {r_args.function_depth} to 100 due to compiler stability limit")
-                            r_args.function_depth = 100
+                        if r_args.function_count > CUIK_MAX_DIM:
+                            print(
+                                f"Warning: Capping Cuik function count (--function-count) from {r_args.function_count} "
+                                f"to {CUIK_MAX_DIM} due to compiler stability limit"
+                            )
+                            r_args.function_count = CUIK_MAX_DIM
+                        if r_args.function_depth > CUIK_MAX_DIM:
+                            print(
+                                f"Warning: Capping Cuik function depth (--function-depth) from {r_args.function_depth} "
+                                f"to {CUIK_MAX_DIM} due to compiler stability limit"
+                            )
+                            r_args.function_depth = CUIK_MAX_DIM
                     tasks.append((b_idx, r_idx, op, templated, r_args))
 
     cpus = get_available_cpus()
