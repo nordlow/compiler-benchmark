@@ -264,13 +264,18 @@ fi
 # Cuik
 if should_install "cuik"; then
     echo ">> Building Cuik..."
-    if [ "$OS" == "arch" ]; then ${PKG_MAN} luajit; else ${PKG_MAN} luajit; fi
+    if [ "$OS" == "arch" ]; then
+        ${PKG_MAN} luajit ninja
+    else
+        ${PKG_MAN} luajit ninja-build
+    fi
     CUIK_TMP=$(mktemp -d)
-    git clone --depth 1 https://github.com/RealNeGate/Cuik/ "$CUIK_TMP"
+    # Clone recursively with submodules
+    git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/RealNeGate/Cuik/ "$CUIK_TMP"
     pushd "$CUIK_TMP"
     sed -i 's/-Werror//g' build.lua
     find . -type f \( -name "*.c" -o -name "*.h" \) -exec sed -i 's/__debugbreak/__builtin_trap/g' {} +
-    sed -i '1i #include <ctype.h>' common/common.c
+    sed -i '1i #include <ctype.h>' common/common.c || true
     CFLAGS="-D__debugbreak=__builtin_trap -include ctype.h" luajit build.lua -x64 -driver -cuik -tb
     cp cuik "$BIN_DIR/cuik"
     popd
