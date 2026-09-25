@@ -148,14 +148,11 @@ corresponding slowdown for generic D (`dmd`) is about 2.5 times. On
 the other hand, the generic Rust version interestingly is processed
 2-3 times faster than the non-generic version.
 
-Julia's JIT-compiler is (currently) very memory hungry. A maximum
-recommended product of `function-count` and `function-depth` for Julia
-is 5000. Julia will therefore be excluded from the benchmark when this
-maximum is reached.
-
-OCaml's optimizing native compiler `ocamlopt` is very slow for large
-inputs and is therefore disabled when the product of `function-count`
-and `function-depth` exceeds 10000.
+Both OCaml Julia an Julia scale poorly on deeply nested functions with
+large synthetic function counts, an explicit maximum limit is
+therefore enforced. Moreover, the Nim compiler has a hard limit of 50
+recursive generic instantiations so therefore `--function-depth` is
+automatically truncated down to 50.
 
 ## AMD Ryzen AI 7 350 (8+8) @ 5.09 GHz
 
