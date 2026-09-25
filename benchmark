@@ -2342,8 +2342,8 @@ def main():
                 task_args.function_count, task_args.function_depth = 200, 200
             # LuaJIT limit: chunk constant table limit is 65536
             if lang == 'Lua' and task_args.function_count * task_args.function_depth > 20000:
-                print(f"Warning: Capping Lua function count/depth from {task_args.function_count}x{task_args.function_depth} to 100x100 due to LuaJIT chunk constant limits")
-                task_args.function_count, task_args.function_depth = 100, 100
+                print(f"Warning: Capping Lua function count/depth from {task_args.function_count}x{task_args.function_depth} to 150x150 due to LuaJIT chunk constant limits")
+                task_args.function_count, task_args.function_depth = 150, 150
 
             # Nim compiler has a hard limit of 50 recursive generic instantiations:
             if lang == 'Nim' and task_args.function_depth > 50:
