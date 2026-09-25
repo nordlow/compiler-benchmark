@@ -510,6 +510,11 @@ def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args: argpars
     if not cexe:
         return
 
+    if args.function_count > 100 or args.function_depth > 100:
+        args = copy.deepcopy(args)
+        args.function_count = min(args.function_count, 100)
+        args.function_depth = min(args.function_depth, 100)
+
     if op == 'check':
         cexe_flags = ['-c', '-xe']
         out_flag_and_exe = []
@@ -2283,7 +2288,17 @@ def main():
 
             for templated in templated_variants:
                 for r_idx in range(len(runners)):
-                    tasks.append((b_idx, r_idx, op, templated, task_args))
+                    r_args = copy.deepcopy(task_args)
+                    runner = runners[r_idx]
+                    is_cuik = 'bm_C_using_cuik' in getattr(runner.__code__, 'co_names', ())
+                    if is_cuik and match_lang_cexe(r_args, 'C', 'cuik'):
+                        if r_args.function_count > 100:
+                            print(f"Warning: Capping Cuik function count (--function-count) from {r_args.function_count} to 100 due to compiler stability limit")
+                            r_args.function_count = 100
+                        if r_args.function_depth > 100:
+                            print(f"Warning: Capping Cuik function depth (--function-depth) from {r_args.function_depth} to 100 due to compiler stability limit")
+                            r_args.function_depth = 100
+                    tasks.append((b_idx, r_idx, op, templated, r_args))
 
     cpus = get_available_cpus()
     print(f"Running benchmarks in parallel across {len(cpus)} CPU core(s) (1 worker per core)...")
