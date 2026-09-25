@@ -1504,17 +1504,24 @@ def compile_file(code_paths: list,
         dur, returncode, outs, errs, rss = measure_compilation(p_args, lang_dir, args.sample_rate, stdin_text)
         rss_mu = rss
 
+        err_str = errs.decode('utf8', errors='ignore') if errs else ''
+        has_err = bool(err_str.strip())
+        if has_err:
+            setattr(args, 'has_stderr', True)
+
         if returncode != 0 and op != 'run':
+            setattr(args, 'has_stderr', True)
             cmd_str = ' '.join(p_args)
-            err_str = errs.decode('utf8', errors='ignore') if errs else ''
             print(f"WARNING: Compilation `{cmd_str}` of source file `{src_name}` exited with return code {returncode}", file=sys.stderr)
-            if err_str:
-                print(f"  - stderr: {err_str}", file=sys.stderr)
+            if has_err:
+                print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
             if rss_mu and isinstance(rss_mu, (int, float)):
                 slot = CHECK_RSS_MU_IX if op == 'check' else (BUILD_RSS_MU_IX if op == 'build' else None)
                 if slot:
                     row[slot] = rss_mu / total_funcs
             return None
+        elif has_err:
+            print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
 
         durs.append(dur)
 
@@ -2121,7 +2128,9 @@ def _worker_init(cpu_list, idx_counter, lock, print_lock):
     def _locked_print(*args, **kwargs):
         with print_lock:
             orig_print(*args, **kwargs)
-            sys.stdout.flush()
+            dest = kwargs.get('file') or sys.stdout
+            if hasattr(dest, 'flush'):
+                dest.flush()
     builtins.print = _locked_print
 
 
@@ -2131,9 +2140,11 @@ def _run_task(task):
     runner = runners[r_idx]
     task_results, task_code_paths = {}, {}
     success = False
+    task_args.has_stderr = False
     try:
         runner(task_results, task_code_paths, task_args, op, templated)
-        success = True
+        if not getattr(task_args, 'has_stderr', False):
+            success = True
     finally:
         if success:
             shutil.rmtree(out_directory(lang), ignore_errors=True)
@@ -2285,7 +2296,9 @@ def main():
     def _locked_print(*args, **kwargs):
         with print_lock:
             orig_print(*args, **kwargs)
-            sys.stdout.flush()
+            dest = kwargs.get('file') or sys.stdout
+            if hasattr(dest, 'flush'):
+                dest.flush()
     builtins.print = _locked_print
 
     with mp.Pool(processes=len(cpus), initializer=_worker_init,
