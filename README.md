@@ -118,7 +118,7 @@ effectively disabled by this randomization.
 
 ## Generics
 
-For each languages `$LANG` that supports generics an additional
+For each language `$LANG` that supports generics an additional
 templated source file `main_t.$LANG` will be generated alongside
 `main.$LANG` equivalent to the contents of `main.$LANG` apart from
 that all functions (except `main`) are templated. This templated
