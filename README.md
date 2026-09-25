@@ -138,15 +138,16 @@ The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest,
 secondly closely followed by the C compiler Cuik, and thirdly D's
 `dmd`.
 
+In non-generic checking, `dmd` (3.0x), `gcc` (5.7x), and `clang++`
+(10.4x) are among the fastest compiled languages relative to TCC. When
+switching to generic code (normalized to `dmd` = 1.0x), `clang++`
+remains competitive at 3.8× DMD check time, while `g++-15` and `g++`
+(16) require roughly 6.8–6.9× DMD check time. Rust (`rustc`) performs
+significantly better relative to the field in generic mode (8.2× `dmd`
+build time vs. 72.2× `tcc` in non-generic mode).
+
 The performance of both GCC and Clang sometimes worsen with a newer
 release.
-
-The templated (generic) C++ source checks about 3 times slower than
-the non-generic one using `gcc-8` but only about 2.3 times slower for
-`gcc-10`. For `clang++-10` the slowdown is only about 1.6. The
-corresponding slowdown for generic D (`dmd`) is about 2.5 times. On
-the other hand, the generic Rust version interestingly is processed
-2-3 times faster than the non-generic version.
 
 Both OCaml Julia an Julia scale poorly on deeply nested functions with
 large synthetic function counts, an explicit maximum limit is
