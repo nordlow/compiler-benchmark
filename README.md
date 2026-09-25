@@ -43,10 +43,6 @@ compilers. Supported languages are:
 A subset of these can be installed on Linux via the script
 `./provision.sh`.
 
-## Install Python 3 packages
-
-./install-python-packages.sh
-
 ## How it works
 
 A benchmark is typically performed as
