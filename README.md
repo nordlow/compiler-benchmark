@@ -33,6 +33,7 @@ compilers. Supported languages are:
 - [Crystal](https://crystal-lang.org/) (using `crystal`),
 - [Haskell](https://www.haskell.org/) (using `ghc`),
 - [Odin](https://odin-lang.org/) (using `odin`),
+- [Lua](https://www.lua.org/) (using `luajit`),
 
 ## Languages with Bytecode Compilers:
 
