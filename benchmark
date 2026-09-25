@@ -14,7 +14,7 @@ import random
 from datetime import datetime
 from os.path import expanduser
 from enum import Enum
-from typing import NamedTuple
+from typing import NamedTuple, NewType
 
 from string import Template as Tm
 from timeit import default_timer as timer
@@ -26,14 +26,10 @@ import importlib
 import tempfile
 import shutil
 
-class Lang(str):
-    """Type wrapper representing a programming language name."""
-    pass
-
-
-class Exec(str):
-    """Type wrapper representing a compiler or runner executable name."""
-    pass
+Lang = NewType("Lang", str)
+Exec = NewType("Exec", str)
+FileExt = NewType("FileExt", str)
+TypeName = NewType("TypeName", str)
 
 
 class Op(str, Enum):
@@ -56,16 +52,6 @@ class ValuesMode(str, Enum):
 
     def __str__(self) -> str:
         return self.value
-
-
-class FileExt(str):
-    """Source file extension without leading dot."""
-    pass
-
-
-class TypeName(str):
-    """Target language integer/scalar type identifier."""
-    pass
 
 
 class LangSpec(NamedTuple):
