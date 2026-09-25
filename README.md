@@ -156,8 +156,7 @@ automatically truncated down to 50.
 
 ## AMD Ryzen AI 7 350 (8+8) @ 5.09 GHz
 
-The output on an AMD Ryzen Threadripper 3960X 24-Core Processor
-running Arch Linux for the sample call
+The output on Arch Linux (as of 2026-09) for the sample call
 
     ./benchmark --function-count=200 --function-depth=200 --run-count=5 --rel --hl
 
@@ -203,8 +202,7 @@ results in the following table (copied from the output at the end).
 
 ## Sample Run on AMD Ryzen Threadripper 3960X 24-Core
 
-The output on an AMD Ryzen Threadripper 3960X 24-Core Processor
-running Ubuntu 22.04 for the sample call
+The output on Ubuntu 22.04 for the sample call
 
     ./benchmark --function-count=200 --function-depth=200 --run-count=1
 
