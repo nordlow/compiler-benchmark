@@ -128,15 +128,14 @@ templated functions.
 
 ## Conclusions (from sample run shown below)
 
-TCC build speed is varstly superior because of its single-pass
+TCC's build speed is varstly superior because of its single-pass
 code-generation architecture. This is possible because parsing C code
 doesn’t have to deal with forward declarations and thereby limiting
 the parsing (and memory allocation) scope to a single function.
 
 The Tiny C compiler (TCC) (`tcc`) is by a large margin, the fastest,
-closely followed by the C compiler Cuik, Vox and D's `dmd`. Note that
-Vox is an experimental language and Cuik is an experimental C
-compiler.
+secondly closely followed by the C compiler Cuik, and thirdly D's
+`dmd`.
 
 The performance of both GCC and Clang gets significanly worse with
 each new release (currently 8, 9, 10 in the table below).
