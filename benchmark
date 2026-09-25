@@ -13,6 +13,8 @@ import time
 import random
 from datetime import datetime
 from os.path import expanduser
+from enum import Enum
+from typing import NamedTuple
 
 from string import Template as Tm
 from timeit import default_timer as timer
@@ -24,10 +26,6 @@ import importlib
 import tempfile
 import shutil
 
-DEFAULT_PROGRAM_NAME = 'main'
-
-SUPPORTED_OPERATIONS = ['ast-check', 'check', 'compile', 'build', 'run']
-
 class Lang(str):
     """Type wrapper representing a programming language name."""
     pass
@@ -36,6 +34,62 @@ class Lang(str):
 class Exec(str):
     """Type wrapper representing a compiler or runner executable name."""
     pass
+
+
+class Op(str, Enum):
+    """Supported compiler benchmark operations."""
+    AST_CHECK = "ast-check"
+    CHECK = "check"
+    COMPILE = "compile"
+    BUILD = "build"
+    RUN = "run"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class ValuesMode(str, Enum):
+    """Output display mode for metrics."""
+    ABSOLUTE = "absolute"
+    RELATIVE = "relative"
+    BOTH = "both"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class FileExt(str):
+    """Source file extension without leading dot."""
+    pass
+
+
+class TypeName(str):
+    """Target language integer/scalar type identifier."""
+    pass
+
+
+class LangSpec(NamedTuple):
+    """Language file extension and 64-bit scalar type specification."""
+    extension: FileExt
+    int_type: TypeName
+
+
+class ResultKey(NamedTuple):
+    """Composite lookup key for benchmark results."""
+    lang: Lang
+    templated: bool
+    cexe: Exec
+
+
+DEFAULT_PROGRAM_NAME = "main"
+
+SUPPORTED_OPERATIONS: list[Op] = [
+    Op.AST_CHECK,
+    Op.CHECK,
+    Op.COMPILE,
+    Op.BUILD,
+    Op.RUN,
+]
 
 
 LANG_EXES: dict[Lang, list[Exec]] = {
@@ -261,7 +315,7 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
     return key + "-" + str(run_ix)
 
 
-Results = dict[tuple, list]
+Results = dict[ResultKey, list]
 
 
 def fill_in_speedups(results: Results, column_ix: int, values_mode: str = 'absolute', highlight: bool = False):
@@ -1549,7 +1603,7 @@ def compile_file(code_paths: list,
                  templated: bool = False,
                  results: dict = {},
                  stdin_input: str | None = None):
-    key = (lang, templated, cexe)
+    key = ResultKey(Lang(lang), templated, Exec(cexe))
     row = results.setdefault(key, [None] * RAW_ROW_LENGTH)
     row[LANG_IX] = lang
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
@@ -1651,48 +1705,48 @@ def run_compiled_file(args: argparse.Namespace, run_count=1):
     return min(durs) if durs else None
 
 
-LANG_PROPERTIES = {
-    'c': ('c', 'long'),
-    'c++': ('cpp', 'long'),
-    'c3': ('c3', 'long'),
-    'd': ('d', 'long'),
-    'rust': ('rs', 'i64'),
-    'zig': ('zig', 'i64'),
-    'odin': ('odin', 'i64'),
-    'nim': ('nim', 'int64'),
-    'ada': ('adb', 'Long_Integer'),
-    'vox': ('vx', 'i64'),
-    'c#': ('cs', 'long'),
-    'go': ('go', 'int64'),
-    'v': ('v', 'i64'),
-    'swift': ('swift', 'Int64'),
-    'hylo': ('hylo', 'Int64'),
-    'java': ('java', 'long'),
-    'julia': ('jl', 'Int64'),
-    'ocaml': ('ml', 'float'),
-    'pareas': ('par', 'int'),
-    'python': ('py', 'Int'),
-    'mojo': ('mojo', 'Int'),
-    'scheme': ('scm', 'int'),
-    'crystal': ('cr', 'Int64'),
-    'pascal': ('pas', 'Int64'),
-    'haskell': ('hs', 'Int64'),
-    'fortran': ('f90', 'int64'),
-    'hare': ('ha', 'i64'),
-    'lua': ('lua', 'int'),
+LANG_PROPERTIES: dict[Lang, LangSpec] = {
+    Lang("c"): LangSpec(FileExt("c"), TypeName("long")),
+    Lang("c++"): LangSpec(FileExt("cpp"), TypeName("long")),
+    Lang("c3"): LangSpec(FileExt("c3"), TypeName("long")),
+    Lang("d"): LangSpec(FileExt("d"), TypeName("long")),
+    Lang("rust"): LangSpec(FileExt("rs"), TypeName("i64")),
+    Lang("zig"): LangSpec(FileExt("zig"), TypeName("i64")),
+    Lang("odin"): LangSpec(FileExt("odin"), TypeName("i64")),
+    Lang("nim"): LangSpec(FileExt("nim"), TypeName("int64")),
+    Lang("ada"): LangSpec(FileExt("adb"), TypeName("Long_Integer")),
+    Lang("vox"): LangSpec(FileExt("vx"), TypeName("i64")),
+    Lang("c#"): LangSpec(FileExt("cs"), TypeName("long")),
+    Lang("go"): LangSpec(FileExt("go"), TypeName("int64")),
+    Lang("v"): LangSpec(FileExt("v"), TypeName("i64")),
+    Lang("swift"): LangSpec(FileExt("swift"), TypeName("Int64")),
+    Lang("hylo"): LangSpec(FileExt("hylo"), TypeName("Int64")),
+    Lang("java"): LangSpec(FileExt("java"), TypeName("long")),
+    Lang("julia"): LangSpec(FileExt("jl"), TypeName("Int64")),
+    Lang("ocaml"): LangSpec(FileExt("ml"), TypeName("float")),
+    Lang("pareas"): LangSpec(FileExt("par"), TypeName("int")),
+    Lang("python"): LangSpec(FileExt("py"), TypeName("Int")),
+    Lang("mojo"): LangSpec(FileExt("mojo"), TypeName("Int")),
+    Lang("scheme"): LangSpec(FileExt("scm"), TypeName("int")),
+    Lang("crystal"): LangSpec(FileExt("cr"), TypeName("Int64")),
+    Lang("pascal"): LangSpec(FileExt("pas"), TypeName("Int64")),
+    Lang("haskell"): LangSpec(FileExt("hs"), TypeName("Int64")),
+    Lang("fortran"): LangSpec(FileExt("f90"), TypeName("int64")),
+    Lang("hare"): LangSpec(FileExt("ha"), TypeName("i64")),
+    Lang("lua"): LangSpec(FileExt("lua"), TypeName("int")),
 }
 
 
-def long_type_of_lang(lang):
-    prop = LANG_PROPERTIES.get(lang.lower())
+def long_type_of_lang(lang: str) -> list[TypeName]:
+    prop = LANG_PROPERTIES.get(Lang(lang.lower()))
     if prop:
-        return [prop[1]]
+        return [prop.int_type]
     raise NotImplementedError(f"Missing integer type configuration for '{lang}'")
 
 
-def language_file_extension(lang):
-    prop = LANG_PROPERTIES.get(lang.lower())
-    return prop[0] if prop else lang.lower()
+def language_file_extension(lang: str) -> FileExt:
+    prop = LANG_PROPERTIES.get(Lang(lang.lower()))
+    return prop.extension if prop else FileExt(lang.lower())
 
 
 def generate_test_program_file(lang: str, args: argparse.Namespace, templated: bool, run_ix):
@@ -2290,7 +2344,9 @@ def main():
 
     args = parser.parse_args()
     if args.relative:
-        args.values = 'relative'
+        args.values = ValuesMode.RELATIVE
+    else:
+        args.values = ValuesMode(args.values)
     install_missing_modules()
 
     lang_aliases = {
@@ -2337,13 +2393,13 @@ def main():
     if not args.language_exes:
         args.language_exes = LANG_EXES
 
-    args.operations = list(map(lambda x: x.lower(), args.operations.split(',')))
-    filtered_operations = []
-    for operation in args.operations:
-        if operation in SUPPORTED_OPERATIONS:
-            filtered_operations.append(operation)
-        else:
-            print('Warning: Ignoring unsupported operation ' + operation)
+    raw_ops = [x.strip().lower() for x in args.operations.split(",") if x.strip()]
+    filtered_operations: list[Op] = []
+    for op_str in raw_ops:
+        try:
+            filtered_operations.append(Op(op_str))
+        except ValueError:
+            print("Warning: Ignoring unsupported operation " + op_str)
     args.operations = filtered_operations
 
     code_paths = {}
