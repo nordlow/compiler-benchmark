@@ -273,7 +273,13 @@ fi
 if should_install "swift"; then
     echo ">> Checking Swift..."
     if [ "$OS" == "arch" ]; then
-        pkg_install swift-bin
+		if command -v yay &> /dev/null; then
+            yay -S --noconfirm --needed swift-bin
+        elif command -v paru &> /dev/null; then
+            paru -S --noconfirm --needed swift-bin
+		else
+			pkg_install swift
+		fi
     else
         if ! command -v swift &>/dev/null; then
             SWIFT_URL=https://download.swift.org/swiftly/linux/swiftly-$(uname -m).tar.gz
