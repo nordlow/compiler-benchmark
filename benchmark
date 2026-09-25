@@ -431,13 +431,13 @@ def merge_plain_and_templated_results(results: Results):
             if p_na and t_na:
                 cell = 'N/A'
             elif row_tmpl is None:  # Language has no templated variant benchmarked
-                cell = f"{val_p} / -" if not p_na else 'N/A'
+                cell = f"{val_p},-" if not p_na else 'N/A'
             elif p_na:
-                cell = f"- / {val_t}"
+                cell = f"-,{val_t}"
             elif t_na:
-                cell = f"{val_p} / -"
+                cell = f"{val_p},-"
             else:
-                cell = f"{val_p} / {val_t}"
+                cell = f"{val_p},{val_t}"
             merged_row.append(cell)
 
         merged_row.extend([base_row[CEXE_VERSION_IX], base_row[CEXE_PATH_IX]])
