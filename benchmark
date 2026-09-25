@@ -1046,7 +1046,7 @@ def bm_Lua(results: Results, code_paths: list, args: argparse.Namespace, op: str
 
         if op == 'check':
             cexe_flags = ['-b']
-            out_flag_and_exe = ['/dev/null']
+            out_flag_and_exe = [os.devnull]
             runner = False
         elif op == 'compile':
             cexe_flags = ['-b']
