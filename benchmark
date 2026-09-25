@@ -56,6 +56,7 @@ LANGUAGE_EXES = {'C': ['tcc', 'cuik', 'cproc', 'gcc', 'clang', ],
                  'Haskell': ['ghc', ],
                  'Fortran': ['gfortran', ],
                  'Hare': ['hare', ],
+                 'Lua': ['luajit', ],
                  }
 TEMPLATED_SUPPORTED_LANGUAGES = ['C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
                                  'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal', 'Haskell', 'Nim']
@@ -148,7 +149,7 @@ def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
 
     if base.startswith(('odin', 'zig', 'hare', 'go')):
         cmd = [cexe, 'version']
-    elif base.startswith('tcc'):
+    elif base.startswith(('tcc', 'luajit')):
         cmd = [cexe, '-v']
     elif base.startswith('fpc'):
         cmd = [cexe, '-iV']
@@ -204,13 +205,15 @@ def out_directory(lang):
 def out_binary(lang):
     if lang.lower() == 'python':
         return DEFAULT_PROGRAM_NAME + '.pyc'
+    if lang.lower() == 'lua':
+        return DEFAULT_PROGRAM_NAME + '.luac'
     return DEFAULT_PROGRAM_NAME
 
 
 def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
     if not os.path.isfile(path):
         return False
-    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme'):
+    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme', 'lua'):
         return False
     if os.path.basename(cexe).startswith('ocamlc'):
         return False
@@ -1030,6 +1033,47 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
                      results=results)
 
 
+def bm_Lua(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    lang = 'Lua'
+    target_luac = out_binary(lang)
+
+    exes = args.language_exes.get(lang) or LANGUAGE_EXES[lang]
+
+    for cexe_name in exes:
+        cexe = match_lang_cexe(args, lang, cexe_name)
+        if not cexe:
+            continue
+
+        if op == 'check':
+            cexe_flags = ['-b']
+            out_flag_and_exe = ['/dev/null']
+            runner = False
+        elif op == 'compile':
+            cexe_flags = ['-b']
+            out_flag_and_exe = [target_luac]
+            runner = False
+        elif op == 'build':
+            cexe_flags = ['-b']
+            out_flag_and_exe = [target_luac]
+            runner = [cexe]
+        else:
+            continue
+
+        version = get_compiler_version(cexe)
+
+        compile_file(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     cexe=cexe,
+                     runner=runner,
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+
+
 def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Mojo'
     cexe = match_lang_cexe(args, lang, 'mojo')
@@ -1400,6 +1444,8 @@ def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: s
         cmd = [cexe_flags[0]] if cexe_flags else []
         remaining = cexe_flags[1:] if cexe_flags else []
         return [cexe] + cmd + [src_name, '-file'] + remaining + out_flags
+    if os.path.basename(cexe).startswith('luajit') and '-b' in cexe_flags:
+        return [cexe] + cexe_flags + [src_name] + out_flags
     return [cexe] + cexe_flags + out_flags + [src_name]
 
 
@@ -1612,6 +1658,7 @@ LANG_PROPERTIES = {
     'haskell': ('hs', 'Int64'),
     'fortran': ('f90', 'int64'),
     'hare': ('ha', 'i64'),
+    'lua': ('lua', 'int'),
 }
 
 
@@ -1714,10 +1761,12 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
             fil.write(Tm('    ${T}_sum += ${F}{${T}}(${N})').substitute(T=typ, N=n, F=fn))
         else:
             fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
+    elif lang == 'lua':
+        fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     else:
         fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua'):
         fil.write(';')
 
     fil.write('\n')
@@ -1725,6 +1774,7 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
 
 def generate_test_language_specific_prefix(lang: str, program_name, fil, templated: bool):
     prefixes = {
+        'lua': '',
         'hare': 'use os;\n\n',
         'fortran': 'module calc\n    use, intrinsic :: iso_fortran_env, only: int64\n    implicit none\ncontains\n',
         'haskell': "module Main where\n\nimport Data.Int (Int64)\nimport Data.IORef (newIORef, modifyIORef', readIORef)\nimport System.Exit (exitWith, ExitCode(..))\n\n",
@@ -1762,6 +1812,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, fil):
     t = types[0]
     tl = t.lower()
     postfixes = {
+        'lua': f"    os.exit(math.floor({t}_sum) % 256)\nend\n\nmain()\n",
         'rust': f"    exit(({t}_sum % 4294967296) as i32);\n}}\n",
         'd': f"    return cast(int){t}_sum;\n}}\n",
         'nim': f"    quit(int({t}_sum))\n\n",
@@ -1867,7 +1918,9 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
     else:
         fname = function_name(typ, findex, fheight)
 
-    if lang in ('c'):
+    if lang == 'lua':
+        fil.write(Tm('function ${F}(x) return ${X} end\n').substitute(F=str(fname), X=expr))
+    elif lang in ('c'):
         fil.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
     elif lang in ('c3'):
         if templated:
@@ -1998,6 +2051,7 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
 def generate_test_main_header(lang: str, types: list, fil, templated: bool):
     t = types[0]
     headers = {
+        'lua': 'function main()\n',
         'c': 'int main(void) {\n',
         'c++': 'int main(void) {\n',
         'ada': 'procedure Main is\n',
@@ -2042,7 +2096,9 @@ def generate_test_main_middle(lang: str, types: list, fil, _templated: bool = Fa
 
 
 def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
-    if lang in ('c', 'c3', 'c++', 'd', 'vox'):
+    if lang == 'lua':
+        fil.write(f"    local {typ}_sum = 0\n")
+    elif lang in ('c', 'c3', 'c++', 'd', 'vox'):
         fil.write(f"    {typ} {typ}_sum = 0;\n")
     elif lang in ('c#', 'java'):
         fil.write(f"        {typ} {typ}_sum = 0;\n")
@@ -2103,6 +2159,7 @@ LANGUAGE_BENCHMARKS = [
     ('Java', [bm_Java], ('check', 'build'), (False,)),
     ('Pareas', [bm_Pareas], ('check', 'build'), (False,)),
     ('Python', [bm_Python], ('check', 'compile', 'build'), (False, True)),
+    ('Lua', [bm_Lua], ('check', 'compile', 'build'), (False,)),
     ('Mojo', [bm_Mojo], ('build',), (False,)),
     ('Crystal', [bm_Crystal], ('check', 'build'), (False, True)),
     ('Pascal', [bm_Pascal], ('check', 'compile', 'build'), (False,)),
@@ -2226,6 +2283,8 @@ def main():
         'scheme': 'Scheme',
         'chez': 'Scheme',
         'ocaml': 'OCaml',
+        'lua': 'Lua',
+        'luajit': 'Lua',
     }
 
     def normalize_lang_spec(spec: str) -> str:
@@ -2281,6 +2340,11 @@ def main():
             # These languages scale poorly on deeply nested functions with large synthetic function counts[1], an explicit limit is enforced:
             if lang in ('OCaml', 'Julia') and task_args.function_count * task_args.function_depth >= 10000:
                 task_args.function_count, task_args.function_depth = 200, 200
+            # LuaJIT limit: chunk constant table limit is 65536
+            if lang == 'Lua' and task_args.function_count * task_args.function_depth > 20000:
+                print(f"Warning: Capping Lua function count/depth from {task_args.function_count}x{task_args.function_depth} to 100x100 due to LuaJIT chunk constant limits")
+                task_args.function_count, task_args.function_depth = 100, 100
+
             # Nim compiler has a hard limit of 50 recursive generic instantiations:
             if lang == 'Nim' and task_args.function_depth > 50:
                 print(f"Warning: Capping Nim function depth (--function-depth) from {task_args.function_depth} to 50 due to compiler generic recursion limit")
