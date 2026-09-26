@@ -201,12 +201,6 @@ results in the following table (copied from the output at the end).
 | V         | N/A          | N/A             | N/A            | 861.0 / 1177.8  | 419 / 115     | N/A              | 31.3 / sampling error | 132.3 / 132.2     | 0.5.0                           | v        |
 | Zig       | 4.2 / 7.3    | 24.4 / 36.8     | 189.4 / 159.0  | 223.7 / 178.6   | 139 / 112     | 5.0 / 5.6        | 10.0 / 12.7           | 1500.6 / 1520.5   | 0.17.0-dev.2163+89ff10d56       | zig      |
 
-## TODO
-
-- Add function `benchmark_CSharp_using_dotnet()` that calls `dotnet build`. On
-  my Ubuntu 22.04, both `dotnet new` and `dotnet build` segfaults so won’t waste
-  time with this for now.
-
 ## References
 
 - [Go compilation times compared to C++, D, Rust, Pascal (cross-posted)](https://www.reddit.com/r/golang/comments/55k7n4/go_compilation_times_compared_to_c_d_rust_pascal/)
