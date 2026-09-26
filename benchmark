@@ -2354,7 +2354,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--languages', '--langs', type=str,
-                        default=','.join(LANG_EXES.keys()),
+                        default=None,
                         help='Languages (optionally combined with compilers) to benchmark separated by comma. For instance --languages=C:tcc,D:dmd,D:gdc,D:ldmd2.')
 
     parser.add_argument('--path', type=str,
@@ -2420,9 +2420,11 @@ def main():
         canonical = lang_aliases.get(name.lower(), Lang(name.capitalize()))
         return f"{canonical}{sep}{exes}" if sep else canonical
 
+    user_specified_languages = args.languages is not None
+    raw_languages = args.languages if user_specified_languages else ','.join(LANG_EXES.keys())
     args.languages = [
         normalize_lang_spec(spec.strip())
-        for spec in args.languages.split(',')
+        for spec in raw_languages.split(',')
         if spec.strip()
     ]
     args.language_exes = {}
@@ -2430,18 +2432,37 @@ def main():
         split = language_exes_spec.split(':')
         if len(split) == 2:
             language = split[0]
-            exes = split[1]. split(',')
+            exes = [e.strip() for e in split[1].split(',') if e.strip()]
         else:
             language = split[0]
             exes = []
         if language not in LANG_EXES:
             print('Warning: Ignoring unsupported language ' + language)
             continue
+
+        candidate_exes = exes if exes else [str(e) for e in LANG_EXES[language]]
+        found_exes = [
+            exe for exe in candidate_exes
+            if any(which(f"{exe}{v}", path=args.path) for v in VERSIONS)
+        ]
+        if not found_exes:
+            if user_specified_languages:
+                exe_str = candidate_exes[0] if len(candidate_exes) == 1 else f"any of {', '.join(candidate_exes)}"
+                print(f"Warning: Ignoring unsupported language {language} ({exe_str} binary not found in PATH)")
+            continue
+
+        if user_specified_languages and exes:
+            missing_exes = [exe for exe in exes if exe not in found_exes]
+            for m in missing_exes:
+                print(f"Warning: Compiler binary '{m}' for language {language} not found in PATH")
+
+        actual_exes = found_exes if exes else []
         if language in args.language_exes:
-            args.language_exes[language] += exes
+            args.language_exes[language] += actual_exes
         else:
-            args.language_exes[language] = exes
-    if not args.language_exes:
+            args.language_exes[language] = actual_exes
+
+    if not args.language_exes and not user_specified_languages:
         args.language_exes = LANG_EXES
 
     raw_ops = [x.strip().lower() for x in args.operations.split(",") if x.strip()]
