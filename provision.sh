@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony"
     exit 0
 }
 
@@ -235,7 +235,7 @@ if should_install "odin"; then
     if [ "$OS" == "arch" ]; then
         pkg_install odin
     else
-        if ! command -v odin &>/dev/null && [ ! -f "$BIN_DIR/odin" ]; then
+        if ! command -v odin &>/dev/null; then
             ODIN_ARCH=$( [ "$(uname -m)" == "x86_64" ] && echo "amd64" || echo "arm64" )
             ODIN_URL=$(curl -sL https://api.github.com/repos/odin-lang/Odin/releases/latest | grep -oP '"browser_download_url":\s*"\Khttps://github.com/odin-lang/Odin/releases/download/[^"]+linux-'"${ODIN_ARCH}"'[^"]+\.tar\.gz' | head -n 1 || true)
             if [ -z "$ODIN_URL" ]; then
@@ -495,6 +495,29 @@ if should_install "scheme" || should_install "chezscheme" || should_install "che
                 break
             fi
         done
+    fi
+fi
+
+# Pony (ponyc) - Prebuilt binary unpacked into INSTALL_DIR
+if should_install "pony" || should_install "ponyc"; then
+    echo ">> Checking Pony (ponyc)..."
+    if [ "$OS" != "arch" ]; then
+        echo ">> Skipping Pony: only Arch Linux is currently supported."
+    elif command -v ponyc &>/dev/null || [ -f "$BIN_DIR/ponyc" ]; then
+        echo ">> Pony compiler (ponyc) is already installed."
+    else
+        PONY_URL=$(curl -sL https://api.github.com/repos/ponylang/ponyc/releases/latest \
+					   | grep -oP '"browser_download_url":\s*"\Khttps://[^"]+ponyc-x86-64-unknown-linux-ubuntu[0-9.]+\.tar\.gz' \
+					   | head -n 1 || true)
+        if [ -z "$PONY_URL" ]; then
+            echo "Error: Failed to find compatible prebuilt ponyc release asset." >&2
+            exit 1
+        fi
+        echo ">> Downloading Pony from: $PONY_URL"
+        PONY_TMP=$(mktemp -d)
+        wget -q --show-progress -c "$PONY_URL" -O "$PONY_TMP/ponyc.tar.gz"
+        tar -xzf "$PONY_TMP/ponyc.tar.gz" --strip-components=1 -C "$INSTALL_DIR"
+        rm -rf "$PONY_TMP"
     fi
 fi
 
