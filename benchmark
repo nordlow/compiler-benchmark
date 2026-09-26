@@ -109,13 +109,14 @@ LANG_EXES: dict[Lang, list[Exec]] = {
     Lang('Hare'): [Exec('hare')],
     Lang('Lua'): [Exec('luajit')],
     Lang('Pony'): [Exec('ponyc')],
+    Lang('TypeScript'): [Exec('tsc')],
 }
 
 TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
     Lang(l) for l in [
         'C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
         'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal',
-        'Haskell', 'Nim'
+        'Haskell', 'Nim', 'TypeScript'
     ]
 ]
 
@@ -263,13 +264,15 @@ def out_binary(lang):
         return DEFAULT_PROGRAM_NAME + '.pyc'
     if lang.lower() == 'lua':
         return DEFAULT_PROGRAM_NAME + '.luac'
+    if lang.lower() == 'typescript':
+        return DEFAULT_PROGRAM_NAME + '.js'
     return DEFAULT_PROGRAM_NAME
 
 
 def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
     if not os.path.isfile(path):
         return False
-    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme', 'lua'):
+    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme', 'lua', 'typescript'):
         return False
     if os.path.basename(cexe).startswith('ocamlc'):
         return False
@@ -1520,6 +1523,44 @@ def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, template
                  results=results)
 
 
+def bm_TypeScript(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    lang = 'TypeScript'
+    cexe = resolve_compiler_path(args, lang, 'tsc')
+    if not cexe:
+        return None
+
+    target_js = out_binary(lang)
+    node_exe = which('node')
+
+    if op == 'check':
+        cexe_flags = ['--noEmit']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'compile':
+        cexe_flags = ['--outFile', target_js]
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = ['--outFile', target_js]
+        out_flag_and_exe = []
+        exec_cmd = [node_exe] if node_exe else False
+    else:
+        return None
+
+    version = get_compiler_version(cexe)
+    benchmark_compiler_op(code_paths,
+                 out_flag_and_exe=out_flag_and_exe,
+                 cexe=cexe,
+                 exec_cmd=exec_cmd,
+                 cexe_flags=cexe_flags,
+                 args=args,
+                 op=op,
+                 compiler_version=version,
+                 lang=lang,
+                 templated=templated,
+                 results=results)
+
+
 def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
     if has_stdin:
@@ -1747,6 +1788,7 @@ LANG_PROPERTIES: dict[Lang, LangSpec] = {
     Lang("hare"): LangSpec(FileExt("ha"), TypeName("i64")),
     Lang("lua"): LangSpec(FileExt("lua"), TypeName("int")),
     Lang("pony"): LangSpec(FileExt("pony"), TypeName("I64")),
+    Lang("typescript"): LangSpec(FileExt("ts"), TypeName("number")),
 }
 
 
@@ -1860,6 +1902,8 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
         sink.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pony':
         sink.write(Tm('    ${T}_sum = ${T}_sum + Calc.${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
+    elif lang == 'typescript' and templated:
+        sink.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
@@ -1902,6 +1946,7 @@ void write(u32 fd, u8[] data) {
 ''',
         'scheme': '#!/usr/bin/env scheme --script\n\n',
         'pony': 'primitive Calc\n',
+        'typescript': 'declare var process: any;\n\n',
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -1939,6 +1984,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'c': f"    return {t}_sum;\n}}\n",
         'c++': f"    return {t}_sum;\n}}\n",
         'pony': f"    env.exitcode(({tl}_sum % 256).i32())\n",
+        'typescript': f"    process.exit({t}_sum % 256);\n}}\n\nmain();\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
@@ -2138,6 +2184,10 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                 return f"(define ({fname} x) {expr})\n"
             elif llang == 'pony':
                 return f"  fun {fname}(x: {typ}): {typ} => {expr}\n"
+            elif llang == 'typescript':
+                if templated:
+                    return f"function {fname}<T extends {typ}>(x: T): {typ} {{ return {expr}; }}\n"
+                return f"function {fname}(x: {typ}): {typ} {{ return {expr}; }}\n"
             return ""
 
     return emit
@@ -2197,6 +2247,7 @@ def generate_test_main_header(lang: str, types: list, sink, templated: bool):
         'hare': 'export fn main() void = {\n',
         'fortran': 'end module calc\n\nprogram main\n    use, intrinsic :: iso_fortran_env, only: int64\n    use calc\n    implicit none\n',
         'pony': 'actor Main\n  new create(env: Env) =>\n',
+        'typescript': 'function main() {\n',
     }
     sink.write(headers[lang])
 
@@ -2220,7 +2271,7 @@ def generate_main_test_function_variable(lang: str, typ, sink, templated: bool):
         sink.write(f"    {typ} {typ}_sum = 0;\n")
     elif lang in ('c#', 'java'):
         sink.write(f"        {typ} {typ}_sum = 0;\n")
-    elif lang in ('swift', 'hylo', 'nim', 'zig', 'pareas', 'mojo'):
+    elif lang in ('swift', 'hylo', 'nim', 'zig', 'pareas', 'mojo', 'typescript'):
         sink.write(f"    var {typ}_sum: {typ} = 0;\n")
     elif lang == 'go':
         sink.write(f"    var {typ}_sum {typ} = 0;\n")
@@ -2294,6 +2345,7 @@ LANGUAGE_BENCHMARKS = [
     ('Scheme', [bm_Scheme], ('check', 'compile', 'build'), (False,)),
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
     ('Pony', [bm_Pony], ('check', 'build'), (False,)),
+    ('TypeScript', [bm_TypeScript], ('check', 'compile', 'build'), (False, True)),
 ]
 
 
@@ -2413,6 +2465,9 @@ def main():
         Exec("ocaml"): Lang("OCaml"),
         Exec("lua"): Lang("Lua"),
         Exec("luajit"): Lang("Lua"),
+        Exec("typescript"): Lang("TypeScript"),
+        Exec("ts"): Lang("TypeScript"),
+        Exec("tsc"): Lang("TypeScript"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
