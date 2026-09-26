@@ -136,7 +136,7 @@ $$\langle\text{plain}\rangle,\langle\text{templated}\rangle$$
 
 ## Generics & Synthetic Code Structure
 
-For languages supporting generics (`C++`, `Java`, `D`, `Swift`, `Hylo`, `Vox`, `Rust`, `Zig`, `Odin`, `V`, `C3`, `Julia`, `Mojo`, `Crystal`, `Haskell`, `Nim`, `Python`), the benchmark emits an un-templated test file `main.<ext>` and a templated test file `main_t.<ext>`. In the templated file, all functions (except `main`) are generic and instantiated for the language's 64-bit scalar type.
+For languages supporting generics, the benchmark emits an un-templated test file `main.<ext>` and a templated test file `main_t.<ext>`. In the templated file, all functions (except `main`) are generic and instantiated for the language's 64-bit scalar type.
 
 ### Semantic Checking Differences
 
