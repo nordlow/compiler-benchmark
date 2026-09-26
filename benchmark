@@ -304,7 +304,7 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
 Results = dict[ResultKey, list]
 
 
-def fill_in_speedups(results: Results, column_ix: int, values_mode: str = 'absolute', highlight: bool = False):
+def format_metric_columns(results: Results, column_ix: int, values_mode: str = 'absolute', highlight: bool = False):
     # Track the smallest value per column separately for the plain (P) and
     # templated (T) variant of each language, so each half of a merged
     # "P / T" cell gets its own winner highlighted independently.
@@ -445,14 +445,14 @@ def merge_plain_and_templated_results(results: Results):
 
 
 def markdown_table(titles: list[str], results: Results, values_mode: str = 'absolute', highlight: bool = False):
-    fill_in_speedups(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
-    fill_in_speedups(results=results, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=results, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
 
     merged_results = merge_plain_and_templated_results(results)
 
