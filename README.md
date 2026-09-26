@@ -28,6 +28,7 @@ Benchmarks compilation speeds, memory consumption (peak RSS), and binary output 
 - [V](https://vlang.io/) (using `v`)
 - [Vox](https://github.com/MrSmith33/vox) (using `vox`)
 - [Zig](https://ziglang.org/) (using `zig`)
+- [Dart](https://dart.dev/) (using `dart`)
 
 ### Bytecode, VM, and JIT/Scripting Toolchains
 - [C#](https://learn.microsoft.com/dotnet/csharp/) (using `csc` or `mcs`, executed via `mono`)
@@ -37,6 +38,7 @@ Benchmarks compilation speeds, memory consumption (peak RSS), and binary output 
 - [OCaml Bytecode](https://ocaml.org/) (using `ocamlc`, executed via `ocamlrun`)
 - [Python](https://www.python.org/) (using `python3`, `python`, `pypy3`, `pypy`)
 - [Scheme](https://cisco.github.io/ChezScheme/) (using `chez`, `scheme`)
+- [TypeScript](https://www.typescriptlang.org/) (using `tsc`)
 
 A subset of these compilers can be installed on Linux via `./provision.sh` (tested on Arch Linux).
 
