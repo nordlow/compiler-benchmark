@@ -499,7 +499,7 @@ def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, 
     if op_flag is None:
         return None
     for cexe in find_compiler_versions(args, lang, 'gnat'):
-        compile_file(code_paths, ['-o', out_binary(lang)], cexe, True, op_flag, args, op,
+        benchmark_compiler_op(code_paths, ['-o', out_binary(lang)], cexe, True, op_flag, args, op,
                      get_compiler_version(cexe), lang, templated, results)
 
 def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
@@ -519,7 +519,7 @@ def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argpar
     else:
         return None
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -550,7 +550,7 @@ def bm_C_using_tcc(results: Results, lang: str, code_paths: list, args: argparse
         return None
 
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -586,7 +586,7 @@ def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args: argpars
         return None
 
     version = "~master"
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -621,7 +621,7 @@ def bm_C_and_Cxx_using_gcc(results: Results, lang, code_paths, args: argparse.Na
     flags = (C_WARN_FLAGS if lang == 'C' else CXX_WARN_FLAGS) + cexe_flags
     base = 'gcc' if lang == 'C' else 'g++'
     for cexe in find_compiler_versions(args, lang, base):
-        compile_file(code_paths, out_flag_and_exe, cexe, True, flags, args, op,
+        benchmark_compiler_op(code_paths, out_flag_and_exe, cexe, True, flags, args, op,
                      get_compiler_version(cexe), lang, templated, results)
 
 def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.Namespace, op, templated: bool):
@@ -631,7 +631,7 @@ def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.
     warn = (C_WARN_FLAGS + ['-fno-color-diagnostics', '-fno-caret-diagnostics', '-fno-diagnostics-show-option']) if lang == 'C' else CXX_WARN_FLAGS
     base = 'clang' if lang == 'C' else 'clang++'
     for cexe in find_compiler_versions(args, lang, base):
-        compile_file(code_paths, out_flag_and_exe, cexe, True, warn + cexe_flags, args, op,
+        benchmark_compiler_op(code_paths, out_flag_and_exe, cexe, True, warn + cexe_flags, args, op,
                      get_compiler_version(cexe), lang, templated, results)
 
 def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips: bool):
@@ -670,7 +670,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
             continue
         if cexe.startswith('dmd'):
             version = get_compiler_version(cexe)
-            compile_file(code_paths=code_paths,
+            benchmark_compiler_op(code_paths=code_paths,
                          out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                          cexe=cexe,
                          runner=True,
@@ -683,7 +683,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                          results=results)
         elif cexe.startswith('ldmd2'):
             version = get_compiler_version(cexe)
-            compile_file(code_paths=code_paths,
+            benchmark_compiler_op(code_paths=code_paths,
                          out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                          cexe=cexe,
                          runner=True,
@@ -697,7 +697,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
         elif cexe.startswith('gdc'):
             cexe_flags = ['-fsyntax-only'] if op == 'check' else []
             version = get_compiler_version(cexe)
-            compile_file(code_paths=code_paths,
+            benchmark_compiler_op(code_paths=code_paths,
                          out_flag_and_exe=['-o' + out_binary(lang)] if op == 'build' else [],
                          cexe=cexe,
                          runner=True,
@@ -727,7 +727,7 @@ def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated
     else:
         return None
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=True,
@@ -763,7 +763,7 @@ def bm_CSharp_using_mcs(results: Results, code_paths, args: argparse.Namespace, 
 
     mono_exe = which('mono')
     try:
-        compile_file(code_paths,
+        benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag,
                      cexe=cexe,
                      runner=[mono_exe] if mono_exe else True,
@@ -795,7 +795,7 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
     version = get_compiler_version(cexe)
     mono_exe = which('mono')
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-out:' + out_binary(lang)],
                  cexe=cexe,
                  runner=[mono_exe] if mono_exe else True,
@@ -835,7 +835,7 @@ def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, t
     if not cexe:
         return
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=True,
@@ -851,7 +851,7 @@ def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, t
 def bm_Go_using_gccgo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Go'
     for cexe in find_compiler_versions(args, lang, 'gccgo'):
-        compile_file(code_paths, [], cexe, True, [] if op == 'build' else ['-fsyntax-only', '-S'],
+        benchmark_compiler_op(code_paths, [], cexe, True, [] if op == 'build' else ['-fsyntax-only', '-S'],
                      args, op, get_compiler_version(cexe), lang, templated, results)
 
 def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
@@ -866,7 +866,7 @@ def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templat
     else:
         return None
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
                  runner=True,
@@ -894,7 +894,7 @@ def bm_Hylo(results: Results, code_paths, args: argparse.Namespace, op, template
         return None
     version_run = sp.run([cexe, '--version'], stdout=sp.PIPE, stderr=sp.PIPE)
     version = version_run.stdout.decode('utf-8').split()[-1]
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=True,
@@ -913,7 +913,7 @@ def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templat
     if not cexe:
         return
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
                  runner=([which('ocamlrun')] if bytecode else True),
@@ -932,7 +932,7 @@ def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: 
     if not cexe:
         return
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
                  runner=True,
@@ -969,7 +969,7 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
         return
 
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=runner,
@@ -1005,7 +1005,7 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
     else:
         return None
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=True,
@@ -1034,7 +1034,7 @@ def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, template
         return None
 
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=True,
@@ -1075,7 +1075,7 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
 
         version = get_compiler_version(cexe)
 
-        compile_file(code_paths,
+        benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
                      runner=runner,
@@ -1116,7 +1116,7 @@ def bm_Lua(results: Results, code_paths: list, args: argparse.Namespace, op: str
 
         version = get_compiler_version(cexe)
 
-        compile_file(code_paths,
+        benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
                      runner=runner,
@@ -1136,7 +1136,7 @@ def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, template
         return None
 
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
                  runner=True,
@@ -1165,7 +1165,7 @@ def bm_Crystal(results: Results, code_paths, args: argparse.Namespace, op, templ
         return None
 
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -1198,7 +1198,7 @@ def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templa
     except Exception:
         version = 'unknown'
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -1231,7 +1231,7 @@ def bm_Haskell(results: Results, code_paths, args: argparse.Namespace, op, templ
     except Exception:
         version = 'unknown'
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -1250,7 +1250,7 @@ def bm_Fortran_using_gcc(results: Results, lang: str, code_paths: list, args: ar
         return None
     out_flag = ['-o', out_binary(lang)] if op == 'build' else []
     for cexe in find_compiler_versions(args, lang, 'gfortran'):
-        compile_file(code_paths, out_flag, cexe, True, op_flags,
+        benchmark_compiler_op(code_paths, out_flag, cexe, True, op_flags,
                      args, op, get_compiler_version(cexe), lang, templated, results)
 
 def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
@@ -1280,7 +1280,7 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
     os.environ['HARECACHE'] = cache_dir
 
     try:
-        compile_file(code_paths,
+        benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
                      runner=(op == 'build'),
@@ -1332,7 +1332,7 @@ def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templa
     else:
         return None
 
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
                  runner=runner,
@@ -1364,7 +1364,7 @@ def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated
         return None
 
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -1419,7 +1419,7 @@ def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, template
             else:
                 continue
             cexe_flags = ([] if op == 'build' else check_args) + rust_flags(channel)
-            compile_file(code_paths,
+            benchmark_compiler_op(code_paths,
                          out_flag_and_exe=out_flag_and_exe,
                          cexe=cexe,
                          runner=True,
@@ -1445,7 +1445,7 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
     if op == 'check':
         cexe_flags += ['-proc:only', '-Xlint:-options']
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
                  runner=[which('java'), '-classpath', '.'],
@@ -1463,7 +1463,7 @@ def bm_Pareas(results: Results, code_paths, args: argparse.Namespace, op, templa
     cexe = match_lang_cexe(args, lang, 'pareas')
     if not cexe:
         return None
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
                  runner=False,
@@ -1482,7 +1482,7 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
     if not cexe:
         return None
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
                  runner=False,
@@ -1509,7 +1509,7 @@ def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, template
     else:
         return None
     version = get_compiler_version(cexe)
-    compile_file(code_paths,
+    benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
                  runner=(op == 'build'),
@@ -1605,7 +1605,7 @@ def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_
     return None
 
 
-def compile_file(code_paths: list,
+def benchmark_compiler_op(code_paths: list,
                  out_flag_and_exe: list,
                  cexe: str,
                  runner,
