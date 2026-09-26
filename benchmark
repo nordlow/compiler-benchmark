@@ -110,13 +110,14 @@ LANG_EXES: dict[Lang, list[Exec]] = {
     Lang('Lua'): [Exec('luajit')],
     Lang('Pony'): [Exec('ponyc')],
     Lang('TypeScript'): [Exec('tsc')],
+    Lang('Dart'): [Exec('dart')],
 }
 
 TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
     Lang(l) for l in [
         'C++', 'Java', 'D', 'Swift', 'Hylo', 'Vox', 'Rust',
         'Zig', 'Odin', 'V', 'C3', 'Julia', 'Mojo', 'Crystal',
-        'Haskell', 'Nim', 'TypeScript'
+        'Haskell', 'Nim', 'TypeScript', 'Dart'
     ]
 ]
 
@@ -1561,6 +1562,41 @@ def bm_TypeScript(results: Results, code_paths: list, args: argparse.Namespace, 
                  results=results)
 
 
+def bm_Dart(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    lang = 'Dart'
+    cexe = resolve_compiler_path(args, lang, 'dart')
+    if not cexe:
+        return None
+
+    if op == 'check':
+        cexe_flags = ['analyze', '--no-fatal-warnings']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'compile':
+        cexe_flags = ['compile', 'aot-snapshot']
+        out_flag_and_exe = ['-o', out_binary(lang) + '.aot']
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = ['compile', 'exe']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+        exec_cmd = True
+    else:
+        return None
+
+    version = get_compiler_version(cexe)
+    benchmark_compiler_op(code_paths,
+                 out_flag_and_exe=out_flag_and_exe,
+                 cexe=cexe,
+                 exec_cmd=exec_cmd,
+                 cexe_flags=cexe_flags,
+                 args=args,
+                 op=op,
+                 compiler_version=version,
+                 lang=lang,
+                 templated=templated,
+                 results=results)
+
+
 def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
     if has_stdin:
@@ -1789,6 +1825,7 @@ LANG_PROPERTIES: dict[Lang, LangSpec] = {
     Lang("lua"): LangSpec(FileExt("lua"), TypeName("int")),
     Lang("pony"): LangSpec(FileExt("pony"), TypeName("I64")),
     Lang("typescript"): LangSpec(FileExt("ts"), TypeName("number")),
+    Lang("dart"): LangSpec(FileExt("dart"), TypeName("int")),
 }
 
 
@@ -1902,7 +1939,7 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
         sink.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pony':
         sink.write(Tm('    ${T}_sum = ${T}_sum + Calc.${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
-    elif lang == 'typescript' and templated:
+    elif lang in ('typescript', 'dart') and templated:
         sink.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
@@ -1947,6 +1984,7 @@ void write(u32 fd, u8[] data) {
         'scheme': '#!/usr/bin/env scheme --script\n\n',
         'pony': 'primitive Calc\n',
         'typescript': 'declare var process: any;\n\n',
+        'dart': "import 'dart:io';\n\n",
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -1985,6 +2023,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'c++': f"    return {t}_sum;\n}}\n",
         'pony': f"    env.exitcode(({tl}_sum % 256).i32())\n",
         'typescript': f"    process.exit({t}_sum % 256);\n}}\n\nmain();\n",
+        'dart': f"    exit({t}_sum % 256);\n}}\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
@@ -2188,6 +2227,10 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                 if templated:
                     return f"function {fname}<T extends {typ}>(x: T): {typ} {{ return {expr}; }}\n"
                 return f"function {fname}(x: {typ}): {typ} {{ return {expr}; }}\n"
+            elif llang == 'dart':
+                if templated:
+                    return f"{typ} {fname}<T extends {typ}>(T x) {{ return {expr}; }}\n"
+                return f"{typ} {fname}({typ} x) {{ return {expr}; }}\n"
             return ""
 
     return emit
@@ -2248,6 +2291,7 @@ def generate_test_main_header(lang: str, types: list, sink, templated: bool):
         'fortran': 'end module calc\n\nprogram main\n    use, intrinsic :: iso_fortran_env, only: int64\n    use calc\n    implicit none\n',
         'pony': 'actor Main\n  new create(env: Env) =>\n',
         'typescript': 'function main() {\n',
+        'dart': 'void main() {\n',
     }
     sink.write(headers[lang])
 
@@ -2267,7 +2311,7 @@ def generate_test_main_middle(lang: str, types: list, sink, _templated: bool = F
 def generate_main_test_function_variable(lang: str, typ, sink, templated: bool):
     if lang == 'lua':
         sink.write(f"    local {typ}_sum = 0\n")
-    elif lang in ('c', 'c3', 'c++', 'd', 'vox'):
+    elif lang in ('c', 'c3', 'c++', 'd', 'vox', 'dart'):
         sink.write(f"    {typ} {typ}_sum = 0;\n")
     elif lang in ('c#', 'java'):
         sink.write(f"        {typ} {typ}_sum = 0;\n")
@@ -2346,6 +2390,7 @@ LANGUAGE_BENCHMARKS = [
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
     ('Pony', [bm_Pony], ('check', 'build'), (False,)),
     ('TypeScript', [bm_TypeScript], ('check', 'compile', 'build'), (False, True)),
+    ('Dart', [bm_Dart], ('check', 'compile', 'build'), (False, True)),
 ]
 
 
@@ -2468,6 +2513,7 @@ def main():
         Exec("typescript"): Lang("TypeScript"),
         Exec("ts"): Lang("TypeScript"),
         Exec("tsc"): Lang("TypeScript"),
+        Exec("dart"): Lang("Dart"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
