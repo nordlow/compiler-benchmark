@@ -1807,8 +1807,8 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
 
     generate_test_language_specific_postfix(llang, types, buf)
 
-    with open(path, 'w') as fil:
-        fil.write(buf.getvalue())
+    with open(path, 'w') as sink:
+        sink.write(buf.getvalue())
     end = timer()
     dur = (end - start)
     print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
@@ -1816,62 +1816,62 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
     return path
 
 
-def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
+def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
     n = str(findex)
 
     if lang in ('c#', 'java'):
-        fil.write('    ')
+        sink.write('    ')
 
     fn = Tm('add_${T}_n${N}').substitute(T=typ, N=n)
 
     if lang == 'zig' and templated:
-        fil.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}(${T}, ${N})').substitute(T=typ, N=n, F=fn))
     elif lang in ('nim', 'v') and templated:
-        fil.write(Tm('    ${T}_sum += ${F}[${T}](${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}[${T}](${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'odin' and templated:
-        fil.write(Tm('    ${T}_sum += ${F}(${T}(${N}))').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}(${T}(${N}))').substitute(T=typ, N=n, F=fn))
     elif lang == 'ocaml':
-        fil.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    let ${T}_sum = ${T}_sum +. (${F} ${N}.0) in').substitute(T=typ, N=n, F=fn))
     elif lang == 'ada':
-        fil.write(Tm('   ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('   ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'vox':
-        fil.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else '', F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}${X}(${N})').substitute(T=typ, N=n, X='[' + typ + ']' if templated else '', F=fn))
     elif lang in ('swift', 'hylo'):
-        fil.write(Tm('    ${T}_sum += ${F}(x: ${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}(x: ${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pareas':
-        fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}[${N}]').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum = ${T}_sum + ${F}[${N}]').substitute(T=typ, N=n, F=fn))
     elif lang == 'python' or lang == 'mojo':
-        fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'scheme':
-        fil.write(Tm('    (set! ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    (set! ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
     elif lang == 'crystal':
-        fil.write(Tm('    ${T}_sum += ${F}(${N}_i64)').substitute(T=typ.lower(), N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}(${N}_i64)').substitute(T=typ.lower(), N=n, F=fn))
     elif lang == 'pascal':
-        fil.write(Tm('  ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('  ${T}_sum := ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'haskell':
-        fil.write(Tm('    modifyIORef\' ${T}_sum (\\s -> s + ${F} ${N})').substitute(T=typ.lower(), N=n, F=fn))
+        sink.write(Tm('    modifyIORef\' ${T}_sum (\\s -> s + ${F} ${N})').substitute(T=typ.lower(), N=n, F=fn))
     elif lang == 'fortran':
-        fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N}_${T})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N}_${T})').substitute(T=typ, N=n, F=fn))
     elif lang == 'c3':
         fn = "calc::" + fn
         if templated:
-            fil.write(Tm('    ${T}_sum += ${F}{${T}}(${N})').substitute(T=typ, N=n, F=fn))
+            sink.write(Tm('    ${T}_sum += ${F}{${T}}(${N})').substitute(T=typ, N=n, F=fn))
         else:
-            fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
+            sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'lua':
-        fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'pony':
-        fil.write(Tm('    ${T}_sum = ${T}_sum + Calc.${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
+        sink.write(Tm('    ${T}_sum = ${T}_sum + Calc.${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
     else:
-        fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
+        sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
     if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony'):
-        fil.write(';')
+        sink.write(';')
 
-    fil.write('\n')
+    sink.write('\n')
 
 
-def generate_test_language_specific_prefix(lang: str, program_name, fil, templated: bool):
+def generate_test_language_specific_prefix(lang: str, program_name, sink, templated: bool):
     prefixes = {
         'lua': '',
         'hare': 'use os;\n\n',
@@ -1905,10 +1905,10 @@ void write(u32 fd, u8[] data) {
         'scheme': '#!/usr/bin/env scheme --script\n\n',
         'pony': 'primitive Calc\n',
     }
-    fil.write(prefixes.get(lang, ''))
+    sink.write(prefixes.get(lang, ''))
 
 
-def generate_test_language_specific_postfix(lang: str, types: list, fil):
+def generate_test_language_specific_postfix(lang: str, types: list, sink):
     t = types[0]
     tl = t.lower()
     postfixes = {
@@ -1943,7 +1943,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, fil):
         'pony': f"    env.exitcode(({tl}_sum % 256).i32())\n",
     }
     if lang in postfixes:
-        fil.write(postfixes[lang])
+        sink.write(postfixes[lang])
     else:
         raise NotImplementedError(f"Language '{lang}' has no postfix exit handler defined")
 
@@ -2145,8 +2145,8 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
     return emit
 
 
-def generate_main_test_function_definition_set(lang: str, types: list[str], args: argparse.Namespace, fil, templated: bool):
-    write = fil.write
+def generate_main_test_function_definition_set(lang: str, types: list[str], args: argparse.Namespace, sink, templated: bool):
+    write = sink.write
     func_count = args.function_count
     func_depth = args.function_depth
     rand_pool = RAND_STR_POOL
@@ -2167,7 +2167,7 @@ def generate_main_test_function_definition_set(lang: str, types: list[str], args
 
 
 
-def generate_test_main_header(lang: str, types: list, fil, templated: bool):
+def generate_test_main_header(lang: str, types: list, sink, templated: bool):
     t = types[0]
     headers = {
         'lua': 'function main()\n',
@@ -2200,57 +2200,57 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
         'fortran': 'end module calc\n\nprogram main\n    use, intrinsic :: iso_fortran_env, only: int64\n    use calc\n    implicit none\n',
         'pony': 'actor Main\n  new create(env: Env) =>\n',
     }
-    fil.write(headers[lang])
+    sink.write(headers[lang])
 
 
-def generate_test_main_middle(lang: str, types: list, fil, _templated: bool = False):
+def generate_test_main_middle(lang: str, types: list, sink, _templated: bool = False):
     if lang == 'pascal':
-        fil.write('begin\n' + ''.join(f"  {typ}_sum := 0;\n" for typ in types))
+        sink.write('begin\n' + ''.join(f"  {typ}_sum := 0;\n" for typ in types))
     elif lang == 'fortran':
-        fil.write(''.join(f"    {typ}_sum = 0\n" for typ in types))
+        sink.write(''.join(f"    {typ}_sum = 0\n" for typ in types))
     elif lang == 'ada':
-        fil.write('begin\n')
+        sink.write('begin\n')
     elif lang == 'scheme':
         bindings = ' '.join([f'({typ}_sum 0)' for typ in types])
-        fil.write(f'  (let ({bindings})\n')
+        sink.write(f'  (let ({bindings})\n')
 
 
-def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
+def generate_main_test_function_variable(lang: str, typ, sink, templated: bool):
     if lang == 'lua':
-        fil.write(f"    local {typ}_sum = 0\n")
+        sink.write(f"    local {typ}_sum = 0\n")
     elif lang in ('c', 'c3', 'c++', 'd', 'vox'):
-        fil.write(f"    {typ} {typ}_sum = 0;\n")
+        sink.write(f"    {typ} {typ}_sum = 0;\n")
     elif lang in ('c#', 'java'):
-        fil.write(f"        {typ} {typ}_sum = 0;\n")
+        sink.write(f"        {typ} {typ}_sum = 0;\n")
     elif lang in ('swift', 'hylo', 'nim', 'zig', 'pareas', 'mojo'):
-        fil.write(f"    var {typ}_sum: {typ} = 0;\n")
+        sink.write(f"    var {typ}_sum: {typ} = 0;\n")
     elif lang == 'go':
-        fil.write(f"    var {typ}_sum {typ} = 0;\n")
+        sink.write(f"    var {typ}_sum {typ} = 0;\n")
     elif lang == 'rust':
-        fil.write(f"    let mut {typ}_sum : {typ} = 0;\n")
+        sink.write(f"    let mut {typ}_sum : {typ} = 0;\n")
     elif lang in ('odin', 'hare'):
-        fil.write(f"    {typ}_sum: {typ} = 0\n" if lang == 'odin' else f"    let {typ}_sum: {typ} = 0;\n")
+        sink.write(f"    {typ}_sum: {typ} = 0\n" if lang == 'odin' else f"    let {typ}_sum: {typ} = 0;\n")
     elif lang == 'v':
-        fil.write(f"    mut {typ}_sum := {typ}(0)\n")
+        sink.write(f"    mut {typ}_sum := {typ}(0)\n")
     elif lang == 'julia':
         qt = f"::{typ}" if templated else ""
-        fil.write(f"    {typ}_sum{qt} = 0;\n")
+        sink.write(f"    {typ}_sum{qt} = 0;\n")
     elif lang == 'ocaml':
-        fil.write(f"    let {typ}_sum = 0.0 in\n")
+        sink.write(f"    let {typ}_sum = 0.0 in\n")
     elif lang == 'python':
-        fil.write(f"    {typ}_sum: {typ} = 0\n" if templated else f"    {typ}_sum = 0\n")
+        sink.write(f"    {typ}_sum: {typ} = 0\n" if templated else f"    {typ}_sum = 0\n")
     elif lang == 'crystal':
-        fil.write(f"    {typ.lower()}_sum = 0_i64\n")
+        sink.write(f"    {typ.lower()}_sum = 0_i64\n")
     elif lang == 'pascal':
-        fil.write(f"  {typ}_sum: {typ};\n")
+        sink.write(f"  {typ}_sum: {typ};\n")
     elif lang == 'haskell':
-        fil.write(f"    {typ.lower()}_sum <- newIORef (0 :: {typ})\n")
+        sink.write(f"    {typ.lower()}_sum <- newIORef (0 :: {typ})\n")
     elif lang == 'fortran':
-        fil.write(f"    integer({typ}) :: {typ}_sum\n")
+        sink.write(f"    integer({typ}) :: {typ}_sum\n")
     elif lang == 'ada':
-        fil.write(f"   {typ}_sum : {typ} := 0;\n")
+        sink.write(f"   {typ}_sum : {typ} := 0;\n")
     elif lang == 'pony':
-        fil.write(f"    var {typ.lower()}_sum: {typ} = 0\n")
+        sink.write(f"    var {typ.lower()}_sum: {typ} = 0\n")
 
 
 
