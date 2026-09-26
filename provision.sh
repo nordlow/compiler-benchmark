@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -545,6 +545,12 @@ if should_install "dart"; then
             rm -f "$DART_ZIP"
         fi
     fi
+fi
+
+# SBCL (Common Lisp)
+if should_install "sbcl" || should_install "lisp" || should_install "common-lisp"; then
+    echo ">> Checking SBCL (Common Lisp)..."
+    pkg_install sbcl
 fi
 
 echo "--------------------------------------------------------"
