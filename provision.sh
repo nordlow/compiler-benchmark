@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -528,6 +528,22 @@ if should_install "typescript" || should_install "ts" || should_install "tsc"; t
         pkg_install typescript nodejs
     else
         pkg_install node-typescript nodejs
+    fi
+fi
+
+# Dart
+if should_install "dart"; then
+    echo ">> Checking Dart..."
+    if [ "$OS" == "arch" ]; then
+        pkg_install dart
+    else
+        if ! command -v dart &>/dev/null; then
+            DART_ZIP=$(mktemp /tmp/dartsdk.XXXXXX.zip)
+            curl -s -L -o "$DART_ZIP" "https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip"
+            unzip -o -qq "$DART_ZIP" -d "$INSTALL_DIR"
+            ln -sf "$INSTALL_DIR/dart-sdk/bin/dart" "$BIN_DIR/dart"
+            rm -f "$DART_ZIP"
+        fi
     fi
 fi
 
