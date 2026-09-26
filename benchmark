@@ -522,7 +522,7 @@ def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argpar
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -553,7 +553,7 @@ def bm_C_using_tcc(results: Results, lang: str, code_paths: list, args: argparse
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -589,7 +589,7 @@ def bm_C_using_cuik(results: Results, lang: str, code_paths: list, args: argpars
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -673,7 +673,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
             benchmark_compiler_op(code_paths=code_paths,
                          out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                          cexe=cexe,
-                         runner=True,
+                         exec_cmd=True,
                          cexe_flags=d_flags + cexe_flags,
                          args=args,
                          op=op,
@@ -686,7 +686,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
             benchmark_compiler_op(code_paths=code_paths,
                          out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                          cexe=cexe,
-                         runner=True,
+                         exec_cmd=True,
                          cexe_flags=d_flags + cexe_flags,
                          args=args,
                          op=op,
@@ -700,7 +700,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
             benchmark_compiler_op(code_paths=code_paths,
                          out_flag_and_exe=['-o' + out_binary(lang)] if op == 'build' else [],
                          cexe=cexe,
-                         runner=True,
+                         exec_cmd=True,
                          cexe_flags=cexe_flags,
                          args=args,
                          op=op,
@@ -730,7 +730,7 @@ def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -766,7 +766,7 @@ def bm_CSharp_using_mcs(results: Results, code_paths, args: argparse.Namespace, 
         benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag,
                      cexe=cexe,
-                     runner=[mono_exe] if mono_exe else True,
+                     exec_cmd=[mono_exe] if mono_exe else True,
                      cexe_flags=cexe_flags,
                      args=args,
                      op=op,
@@ -798,7 +798,7 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-out:' + out_binary(lang)],
                  cexe=cexe,
-                 runner=[mono_exe] if mono_exe else True,
+                 exec_cmd=[mono_exe] if mono_exe else True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -838,7 +838,7 @@ def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, t
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -869,7 +869,7 @@ def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templat
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -897,7 +897,7 @@ def bm_Hylo(results: Results, code_paths, args: argparse.Namespace, op, template
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -916,7 +916,7 @@ def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templat
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
-                 runner=([which('ocamlrun')] if bytecode else True),
+                 exec_cmd=([which('ocamlrun')] if bytecode else True),
                  cexe_flags=['-c'] if bytecode else ['-linscan'],
                  args=args,
                  op=op,
@@ -935,7 +935,7 @@ def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: 
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=[],
                  args=args,
                  op=op,
@@ -956,15 +956,15 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
     if op == 'check':
         cexe_flags = ['compile-only'] + common_flags + ['-C']
         out_flag_and_exe = []
-        runner = False
+        exec_cmd = False
     elif op == 'compile':
         cexe_flags = ['compile-only'] + common_flags
         out_flag_and_exe = []
-        runner = False
+        exec_cmd = False
     elif op == 'build':
         cexe_flags = ['compile'] + common_flags
         out_flag_and_exe = ['-o', out_binary(lang)]
-        runner = True
+        exec_cmd = True
     else:
         return
 
@@ -972,7 +972,7 @@ def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated:
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=runner,
+                 exec_cmd=exec_cmd,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1008,7 +1008,7 @@ def bm_Zig(results: Results, code_paths, args: argparse.Namespace, op, templated
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1037,7 +1037,7 @@ def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, template
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1061,15 +1061,15 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
         if op == 'check':
             cexe_flags = ['-c', 'import sys; compile(open(sys.argv[1], "rb").read(), sys.argv[1], "exec")']
             out_flag_and_exe = []
-            runner = False
+            exec_cmd = False
         elif op == 'compile':
             cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
             out_flag_and_exe = [target_pyc]
-            runner = False
+            exec_cmd = False
         elif op == 'build':
             cexe_flags = ['-O', '-c', 'import py_compile, sys; py_compile.compile(sys.argv[2], cfile=sys.argv[1], doraise=True)']
             out_flag_and_exe = [target_pyc]
-            runner = [cexe, '-S', '-O']
+            exec_cmd = [cexe, '-S', '-O']
         else:
             continue
 
@@ -1078,7 +1078,7 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
         benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
-                     runner=runner,
+                     exec_cmd=exec_cmd,
                      cexe_flags=cexe_flags,
                      args=args,
                      op=op,
@@ -1102,15 +1102,15 @@ def bm_Lua(results: Results, code_paths: list, args: argparse.Namespace, op: str
         if op == 'check':
             cexe_flags = ['-b']
             out_flag_and_exe = [os.devnull]
-            runner = False
+            exec_cmd = False
         elif op == 'compile':
             cexe_flags = ['-b']
             out_flag_and_exe = [target_luac]
-            runner = False
+            exec_cmd = False
         elif op == 'build':
             cexe_flags = ['-b']
             out_flag_and_exe = [target_luac]
-            runner = [cexe]
+            exec_cmd = [cexe]
         else:
             continue
 
@@ -1119,7 +1119,7 @@ def bm_Lua(results: Results, code_paths: list, args: argparse.Namespace, op: str
         benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
-                     runner=runner,
+                     exec_cmd=exec_cmd,
                      cexe_flags=cexe_flags,
                      args=args,
                      op=op,
@@ -1139,7 +1139,7 @@ def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, template
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
-                 runner=True,
+                 exec_cmd=True,
                  cexe_flags=['build', '-O0'],
                  args=args,
                  op=op,
@@ -1168,7 +1168,7 @@ def bm_Crystal(results: Results, code_paths, args: argparse.Namespace, op, templ
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1201,7 +1201,7 @@ def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templa
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1234,7 +1234,7 @@ def bm_Haskell(results: Results, code_paths, args: argparse.Namespace, op, templ
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1283,7 +1283,7 @@ def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, template
         benchmark_compiler_op(code_paths,
                      out_flag_and_exe=out_flag_and_exe,
                      cexe=cexe,
-                     runner=(op == 'build'),
+                     exec_cmd=(op == 'build'),
                      cexe_flags=cexe_flags,
                      args=args,
                      op=op,
@@ -1320,22 +1320,22 @@ def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templa
             '(let skip () (let ([c (read-char p)]) (unless (or (eof-object? c) (eqv? (char->integer c) 10)) (skip)))))) '
             '(let f () (let ([x (read p)]) (unless (eof-object? x) (expand x) (f))))))'
         )
-        runner = False
+        exec_cmd = False
     elif op == 'compile':
         cexe_flags = ['-q']
         stdin_input = '(reset-handler abort) (compile-file "main_{}.scm")'
-        runner = False
+        exec_cmd = False
     elif op == 'build':
         cexe_flags = ['-q']
         stdin_input = f'(reset-handler abort) (compile-script "main_{{}}.scm" "{out_target}")'
-        runner = [cexe, '--script']
+        exec_cmd = [cexe, '--script']
     else:
         return None
 
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
-                 runner=runner,
+                 exec_cmd=exec_cmd,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1367,7 +1367,7 @@ def bm_Nim(results: Results, code_paths, args: argparse.Namespace, op, templated
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1422,7 +1422,7 @@ def bm_Rust(results: Results, code_paths, args: argparse.Namespace, op, template
             benchmark_compiler_op(code_paths,
                          out_flag_and_exe=out_flag_and_exe,
                          cexe=cexe,
-                         runner=True,
+                         exec_cmd=True,
                          cexe_flags=cexe_flags,
                          args=args,
                          op=op,
@@ -1448,7 +1448,7 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
-                 runner=[which('java'), '-classpath', '.'],
+                 exec_cmd=[which('java'), '-classpath', '.'],
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1466,7 +1466,7 @@ def bm_Pareas(results: Results, code_paths, args: argparse.Namespace, op, templa
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=['-o', out_binary(lang)],
                  cexe=cexe,
-                 runner=False,
+                 exec_cmd=False,
                  cexe_flags=['--check'] if op == 'check' else [],
                  args=args,
                  op=op,
@@ -1485,7 +1485,7 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
-                 runner=False,
+                 exec_cmd=False,
                  cexe_flags=JULIA_FLAGS,
                  args=args,
                  op=op,
@@ -1512,7 +1512,7 @@ def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, template
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 runner=(op == 'build'),
+                 exec_cmd=(op == 'build'),
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
@@ -1591,16 +1591,16 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
     return dur, returncode, outs, errs, rss_mu
 
 
-def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_name: str, run_count: int):
+def run_target_binary(cexe: str, lang: str, lang_dir: str, exec_cmd, op: str, src_name: str, run_count: int):
     """Execute target binary or script, handling compiler-specific quirks."""
-    if op == 'build' and runner:
+    if op == 'build' and exec_cmd:
         outb_path = os.path.join(lang_dir, out_binary(lang))
-        if runner is True:
+        if exec_cmd is True:
             if os.path.exists(outb_path) and not os.access(outb_path, os.X_OK):
                 os.chmod(outb_path, os.stat(outb_path).st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
             return run_compiled_file(outb_path, run_count=run_count)
-        if isinstance(runner, list):
-            return run_compiled_file(runner + [outb_path], run_count=run_count)
+        if isinstance(exec_cmd, list):
+            return run_compiled_file(exec_cmd + [outb_path], run_count=run_count)
 
     return None
 
@@ -1608,7 +1608,7 @@ def run_target_binary(cexe: str, lang: str, lang_dir: str, runner, op: str, src_
 def benchmark_compiler_op(code_paths: list,
                  out_flag_and_exe: list,
                  cexe: str,
-                 runner,
+                 exec_cmd,
                  cexe_flags: list[str],
                  args: argparse.Namespace,
                  op: str,
@@ -1666,7 +1666,7 @@ def benchmark_compiler_op(code_paths: list,
         durs.append(dur)
 
     dur_min = min(durs)
-    run_dur_min = run_target_binary(cexe, lang, lang_dir, runner, op, src_name, args.run_count)
+    run_dur_min = run_target_binary(cexe, lang, lang_dir, exec_cmd, op, src_name, args.run_count)
 
     output_size = None
     if op == 'build':
