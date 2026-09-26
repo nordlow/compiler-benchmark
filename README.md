@@ -34,6 +34,7 @@ compilers. Supported languages are:
 - [Haskell](https://www.haskell.org/) (using `ghc`),
 - [Odin](https://odin-lang.org/) (using `odin`),
 - [Lua](https://www.lua.org/) (using `luajit`),
+- [Pony](https://www.ponylang.io/) (using `ponyc`),
 
 ## Languages with Bytecode Compilers:
 

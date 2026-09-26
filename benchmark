@@ -108,6 +108,7 @@ LANG_EXES: dict[Lang, list[Exec]] = {
     Lang('Fortran'): [Exec('gfortran')],
     Lang('Hare'): [Exec('hare')],
     Lang('Lua'): [Exec('luajit')],
+    Lang('Pony'): [Exec('ponyc')],
 }
 
 TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
@@ -1497,6 +1498,33 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
                  results=results)
 
 
+def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
+    lang = 'Pony'
+    cexe = match_lang_cexe(args, lang, 'ponyc')
+    if not cexe:
+        return None
+    if op == 'check':
+        cexe_flags = ['--pass=verify', '--verbose=0']
+        out_flag_and_exe = []
+    elif op == 'build':
+        cexe_flags = ['--debug', '--verbose=0']
+        out_flag_and_exe = ['-o', '.', '-b', out_binary(lang)]
+    else:
+        return None
+    version = get_compiler_version(cexe)
+    compile_file(code_paths,
+                 out_flag_and_exe=out_flag_and_exe,
+                 cexe=cexe,
+                 runner=(op == 'build'),
+                 cexe_flags=cexe_flags,
+                 args=args,
+                 op=op,
+                 compiler_version=version,
+                 lang=lang,
+                 templated=templated,
+                 results=results)
+
+
 def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
     if has_stdin:
@@ -1507,6 +1535,9 @@ def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: s
         return [cexe] + cmd + [src_name, '-file'] + remaining + out_flags
     if os.path.basename(cexe).startswith('luajit') and '-b' in cexe_flags:
         return [cexe] + cexe_flags + [src_name] + out_flags
+    if os.path.basename(cexe).startswith('ponyc'):
+        pkg_dir = os.path.dirname(src_name) or '.'
+        return [cexe] + cexe_flags + out_flags + [pkg_dir]
     return [cexe] + cexe_flags + out_flags + [src_name]
 
 
@@ -1608,7 +1639,7 @@ def compile_file(code_paths: list,
         else:
             src_path = generate_test_program_file(lang, args, templated, run_ix)
             code_paths[src_key] = src_path
-        src_name = os.path.basename(src_path)
+        src_name = os.path.relpath(src_path, lang_dir)
 
         p_args = build_compiler_cmd(cexe, cexe_flags, out_flag_and_exe, src_name, has_stdin=bool(stdin_input))
         stdin_text = stdin_input.format(run_ix) if stdin_input else None
@@ -1720,6 +1751,7 @@ LANG_PROPERTIES: dict[Lang, LangSpec] = {
     Lang("fortran"): LangSpec(FileExt("f90"), TypeName("int64")),
     Lang("hare"): LangSpec(FileExt("ha"), TypeName("i64")),
     Lang("lua"): LangSpec(FileExt("lua"), TypeName("int")),
+    Lang("pony"): LangSpec(FileExt("pony"), TypeName("I64")),
 }
 
 
@@ -1742,6 +1774,13 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
     types = long_type_of_lang(llang)
     ext = language_file_extension(llang)
     dir_path = out_directory(lang)
+
+    if llang == 'pony':
+        # ponyc compiles an entire package directory rather than a single
+        # file, so isolate each generated program in its own subdirectory
+        # to avoid multiple `actor Main` definitions colliding.
+        dir_path = os.path.join(dir_path, 'run' + ('_t' if templated else '') + '_' + str(run_ix))
+
     os.makedirs(dir_path, exist_ok=True)
 
     path = (os.path.join(dir_path, program_name + ('_t' if templated else '') +
@@ -1824,10 +1863,12 @@ def generate_test_function_call(lang: str, findex, typ, fil, templated: bool):
             fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'lua':
         fil.write(Tm('    ${T}_sum = ${T}_sum + ${F}(${N})').substitute(T=typ, N=n, F=fn))
+    elif lang == 'pony':
+        fil.write(Tm('    ${T}_sum = ${T}_sum + Calc.${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
     else:
         fil.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony'):
         fil.write(';')
 
     fil.write('\n')
@@ -1865,6 +1906,7 @@ void write(u32 fd, u8[] data) {
 }
 ''',
         'scheme': '#!/usr/bin/env scheme --script\n\n',
+        'pony': 'primitive Calc\n',
     }
     fil.write(prefixes.get(lang, ''))
 
@@ -1901,6 +1943,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, fil):
         'hare': f"    os::exit(({t}_sum % 256): int);\n}};\n",
         'c': f"    return {t}_sum;\n}}\n",
         'c++': f"    return {t}_sum;\n}}\n",
+        'pony': f"    env.exitcode(({tl}_sum % 256).i32())\n",
     }
     if lang in postfixes:
         fil.write(postfixes[lang])
@@ -2107,6 +2150,8 @@ def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, 
                 F=str(fname), X=expr))
     elif lang == 'scheme':
         fil.write(f'(define ({fname} x) {expr})\n')
+    elif lang == 'pony':
+        fil.write(Tm('  fun ${F}(x: ${T}): ${T} => ${X}\n').substitute(T=typ, F=str(fname), X=expr))
 
 
 def generate_test_main_header(lang: str, types: list, fil, templated: bool):
@@ -2140,6 +2185,7 @@ def generate_test_main_header(lang: str, types: list, fil, templated: bool):
         'haskell': 'main :: IO ()\nmain = do\n',
         'hare': 'export fn main() void = {\n',
         'fortran': 'end module calc\n\nprogram main\n    use, intrinsic :: iso_fortran_env, only: int64\n    use calc\n    implicit none\n',
+        'pony': 'actor Main\n  new create(env: Env) =>\n',
     }
     fil.write(headers[lang])
 
@@ -2190,6 +2236,8 @@ def generate_main_test_function_variable(lang: str, typ, fil, templated: bool):
         fil.write(f"    integer({typ}) :: {typ}_sum\n")
     elif lang == 'ada':
         fil.write(f"   {typ}_sum : {typ} := 0;\n")
+    elif lang == 'pony':
+        fil.write(f"    var {typ.lower()}_sum: {typ} = 0\n")
 
 
 
@@ -2234,6 +2282,7 @@ LANGUAGE_BENCHMARKS = [
     ('Julia', [bm_Julia], ('build',), (False, True)),
     ('Scheme', [bm_Scheme], ('check', 'compile', 'build'), (False,)),
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
+    ('Pony', [bm_Pony], ('check', 'build'), (False,)),
 ]
 
 
