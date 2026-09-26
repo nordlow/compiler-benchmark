@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -518,6 +518,16 @@ if should_install "pony" || should_install "ponyc"; then
         wget -q --show-progress -c "$PONY_URL" -O "$PONY_TMP/ponyc.tar.gz"
         tar -xzf "$PONY_TMP/ponyc.tar.gz" --strip-components=1 -C "$INSTALL_DIR"
         rm -rf "$PONY_TMP"
+    fi
+fi
+
+# TypeScript (tsc & node)
+if should_install "typescript" || should_install "ts" || should_install "tsc"; then
+    echo ">> Checking TypeScript..."
+    if [ "$OS" == "arch" ]; then
+        pkg_install typescript nodejs
+    else
+        pkg_install node-typescript nodejs
     fi
 fi
 
