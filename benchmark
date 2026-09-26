@@ -24,6 +24,7 @@ import builtins
 import importlib
 import tempfile
 import shutil
+import atexit
 
 Lang = NewType("Lang", str)
 Exec = NewType("Exec", str)
@@ -131,6 +132,7 @@ RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=1', '-Zcodegen-backend=cranelift']  # See:
 JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
 ROOT_PATH = 'generated'
+MAIN_PID = os.getpid()
 RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
@@ -2324,14 +2326,20 @@ def _run_task(task):
     task_results, task_code_paths = {}, {}
     success = False
     task_args.has_stderr = False
+    lang_dir = out_directory(lang)
+    proc_dir = os.path.dirname(lang_dir)
     try:
         runner(task_results, task_code_paths, task_args, op, templated)
         if not getattr(task_args, 'has_stderr', False):
             success = True
     finally:
         if success:
-            shutil.rmtree(out_directory(lang), ignore_errors=True)
-    return task_results
+            shutil.rmtree(lang_dir, ignore_errors=True)
+            try:
+                os.rmdir(proc_dir)
+            except OSError:
+                pass
+    return task_results, os.getpid()
 
 
 def _merge_results(target, incoming):
@@ -2527,6 +2535,27 @@ def main():
     lock = manager.Lock()
     print_lock = manager.Lock()
 
+    root_existed_at_start = os.path.exists(ROOT_PATH)
+    call_proc_dirs = {os.path.abspath(os.path.join(ROOT_PATH, f"proc_{MAIN_PID}"))}
+
+    def cleanup_call_empty_dirs():
+        if os.getpid() != MAIN_PID:
+            return
+        for proc_dir in sorted(call_proc_dirs, key=len, reverse=True):
+            if os.path.isdir(proc_dir):
+                for dirpath, _, _ in os.walk(proc_dir, topdown=False):
+                    try:
+                        os.rmdir(dirpath)
+                    except OSError:
+                        pass
+        if not root_existed_at_start and os.path.isdir(ROOT_PATH):
+            try:
+                os.rmdir(ROOT_PATH)
+            except OSError:
+                pass
+
+    atexit.register(cleanup_call_empty_dirs)
+
     orig_print = builtins.print
     def _locked_print(*args, **kwargs):
         with print_lock:
@@ -2536,11 +2565,18 @@ def main():
                 dest.flush()
     builtins.print = _locked_print
 
-    with mp.Pool(processes=len(cpus), initializer=_worker_init,
-                 initargs=(cpus, idx_counter, lock, print_lock)) as pool:
-        for res in pool.imap_unordered(_run_task, tasks):
-            if res:
-                _merge_results(results, res)
+    try:
+        with mp.Pool(processes=len(cpus), initializer=_worker_init,
+                     initargs=(cpus, idx_counter, lock, print_lock)) as pool:
+            for p in getattr(pool, '_pool', []):
+                if getattr(p, 'pid', None):
+                    call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{p.pid}")))
+            for res, worker_pid in pool.imap_unordered(_run_task, tasks):
+                call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{worker_pid}")))
+                if res:
+                    _merge_results(results, res)
+    finally:
+        cleanup_call_empty_dirs()
 
     print()
     print(markdown_table(table_titles(args.values), results, values_mode=args.values, highlight=args.highlight_min))
