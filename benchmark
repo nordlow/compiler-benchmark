@@ -151,7 +151,7 @@ class Column:
 
 
 TABLE_COLUMNS = [
-    Column('Lang-uage'),
+    Column('Language (Exec)'),
     Column('AST-C', 'us/f'),
     Column('Check', 'us/f'),
     Column('Compile', 'us/f'),
@@ -161,7 +161,6 @@ TABLE_COLUMNS = [
     Column('Build RSS', 'kB/f'),
     Column('Output Size', 'B/f'),
     Column('Version'),
-    Column('Exec'),
 ]
 
 
@@ -186,7 +185,7 @@ CEXE_PATH_IX = 11
 RAW_ROW_LENGTH = CEXE_PATH_IX + 1
 
 # The merged table has 1 fewer column than the raw row (no separate 'Temp-lated' column)
-assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 1
+assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 2
 
 
 
@@ -416,7 +415,7 @@ def merge_plain_and_templated_results(results: Results):
         row_plain = variants.get(False)
         row_tmpl = variants.get(True)
         base_row = row_plain if row_plain is not None else row_tmpl
-        merged_row = [base_row[LANG_IX]]
+        merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]})"]
 
         for col in metric_cols:
             val_p = str(row_plain[col]).strip() if row_plain and row_plain[col] is not None else None
@@ -437,7 +436,7 @@ def merge_plain_and_templated_results(results: Results):
                 cell = f"{val_p},{val_t}"
             merged_row.append(cell)
 
-        merged_row.extend([base_row[CEXE_VERSION_IX], base_row[CEXE_PATH_IX]])
+        merged_row.append(base_row[CEXE_VERSION_IX])
         merged[(lang, cexe)] = merged_row
 
     return merged
@@ -456,7 +455,7 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = 'abso
     merged_results = merge_plain_and_templated_results(results)
 
     # Sort rows by Language, then Compiler Executable
-    sorted_rows = sorted(merged_results.values(), key=lambda r: (r[0].lower(), str(r[-1]).lower()))
+    sorted_rows = sorted(merged_results.values(), key=lambda r: r[0].lower())
 
     # Compute dynamic column widths for proper markdown alignment, based on
     # the *visible* text -- the <span> tags used to color-highlight the
