@@ -183,7 +183,7 @@ The caching of the Go reference compiler `go`, for instance, is effectively disa
 
 Because synthetic code generators create tens of thousands of deeply nested symbols, certain compilers encounter internal limits. The benchmark automatically enforces the following stability caps:
 
-- **Both OCaml and Julia** scale poorly on deeply nested functions with large synthetic function counts, so an explicit maximum limit of $200 \times 200$ ($10{,}000$ functions maximum) is enforced.
+- **Both OCaml and Julia** scale poorly on deeply nested functions with large synthetic function counts, so an explicit maximum limit of $200 \times 200$ is enforced.
 - **Nim**: The Nim compiler has a hard limit of 50 recursive generic instantiations, so `--function-depth` is automatically truncated down to `50`.
 - **Java**: Capped to $100 \times 100$ ($10{,}000$ functions) to avoid exceeding the JVM $65{,}535$ constant pool entry limit per class file.
 - **Lua / LuaJIT**: Capped to $150 \times 150$ to avoid exceeding the LuaJIT bytecode chunk constant table limit ($65{,}536$).
