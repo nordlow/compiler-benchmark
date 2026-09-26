@@ -1537,11 +1537,11 @@ def bm_TypeScript(results: Results, code_paths: list, args: argparse.Namespace, 
         out_flag_and_exe = []
         exec_cmd = False
     elif op == 'compile':
-        cexe_flags = ['--outFile', target_js]
+        cexe_flags = ['--ignoreDeprecations', '6.0', '--outFile', target_js]
         out_flag_and_exe = []
         exec_cmd = False
     elif op == 'build':
-        cexe_flags = ['--outFile', target_js]
+        cexe_flags = ['--ignoreDeprecations', '6.0', '--outFile', target_js]
         out_flag_and_exe = []
         exec_cmd = [node_exe] if node_exe else False
     else:
