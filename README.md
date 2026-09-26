@@ -8,20 +8,20 @@ compilers. Supported languages are:
 - [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using
   [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/),
   [`cproc`](https://github.com/michaelforney/cproc),
-  [`Cuik`](https://github.com/RealNeGate/Cuik/), and
+  [`Cuik`](https://github.com/RealNeGate/Cuik/),
   [`tcc`](https://bellard.org/tcc/)),
-- [C\+\+](http://www.cplusplus.org/) (using [`g++`](https://gcc.gnu.org/) and
+- [C\+\+](http://www.cplusplus.org/) (using [`g++`](https://gcc.gnu.org/)
   [`clang++`](https://clang.llvm.org/)),
 - [Fortran](https://gcc.gnu.org/wiki/GFortran) (using `gfortran`),
 - [Pascal](https://www.freepascal.org/) (using `fpc`),
-- [D](https://dlang.org/) (using `dmd` `ldmd2`, and `gdc`),
-- [Go](https://golang.org/) (using `go` or `gccgo`),
+- [D](https://dlang.org/) (using `dmd`, `ldmd2`, and `gdc`),
+- [Go](https://golang.org/) (using `go` and `gccgo`),
 - [Swift](https://swift.org/) (using `swiftc`),
 - [Rust](https://www.rust-lang.org/) (using `rustc`),
 - [Nim](https://nim-lang.org/) (using `nim`),
 - [Julia](https://julialang.org/) (using `julia`),
 - [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnatgcc`),
-- [Zig](https://ziglang.org/) (using `zig`), and
+- [Zig](https://ziglang.org/) (using `zig`),
 - [V](https://vlang.io/) (using `v`),
 - [Hare](https://harelang.org/) (using `hare`),
 - [Vox](https://github.com/MrSmith33/vox) (using `vox`),
@@ -39,7 +39,7 @@ compilers. Supported languages are:
 ## Languages with Bytecode Compilers:
 
 - [OCaml](https://ocaml.org/) (using `ocamlopt` and `ocamlc`),
-- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) (using `mcs` and `csc`), and
+- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) (using `mcs` and `csc`),
 - [Java](https://www.oracle.com/java/) (using `javac`).
 
 A subset of these can be installed on Linux via the script
