@@ -12,7 +12,6 @@ from shutil import which
 import time
 import random
 from datetime import datetime
-from os.path import expanduser
 from enum import Enum
 from typing import NamedTuple, NewType
 
@@ -135,7 +134,6 @@ ROOT_PATH = 'generated'
 RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
-HOME = expanduser('~')
 
 class Column:
     def __init__(self, name: str, unit: str | None = None):
@@ -184,7 +182,6 @@ OUTPUT_SIZE_IX = 9         # output binary size per function
 CEXE_VERSION_IX = 10
 CEXE_PATH_IX = 11
 RAW_ROW_LENGTH = CEXE_PATH_IX + 1
-MARKDOWN_TABLE_LENGTH = len(MARKDOWN_TABLE_TITLES)
 
 # The merged table has 1 fewer column than the raw row (no separate 'Temp-lated' column)
 assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 1
@@ -393,8 +390,6 @@ def to_str_output_size(size):
     return '{:6.1f}'.format(size)
 
 
-def repeat_to_length(string_to_expand, length: int):
-    return (string_to_expand * (int(length / len(string_to_expand)) + 1))[:length]
 
 
 def markdown_header(text: str, nr: int):
@@ -1951,207 +1946,223 @@ def generate_test_language_specific_postfix(lang: str, types: list, fil):
         raise NotImplementedError(f"Language '{lang}' has no postfix exit handler defined")
 
 
-def generate_main_test_function_definition_set(lang: str, types: list[str], args: argparse.Namespace, fil, templated: bool):
-    for typ in types:
-        for findex in range(0, args.function_count):
-            for fheight in range(0, args.function_depth):
-                generate_test_function_definition(args, lang, typ, findex, fheight, fil, templated=templated)
-            fil.write('\n')
-        fil.write('\n')
+RAND_POOL_SIZE = 4096
+RAND_POOL_MASK = RAND_POOL_SIZE - 1
+RAND_STR_POOL = [str(random.randint(0, 100000)) for _ in range(RAND_POOL_SIZE)]
 
 
-def function_name(typ, findex, fheight):
+def function_name(typ: str, findex: int, fheight: int | None = None) -> str:
+    """Fast f-string based function name formatter (no string.Template overhead)."""
     if fheight is not None:
-        return Tm('add_${T}_n${N}_h${H}').substitute(T=typ,
-                                                     N=str(findex),
-                                                     H=str(fheight))
+        return f"add_{typ}_n{findex}_h{fheight}"
+    return f"add_{typ}_n{findex}"
+
+
+def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
+    """
+    Returns a specialized closure (findex, fheight, nconst) -> str for the given language.
+    Eliminates all language-based branch checks from inside the 40,000-iteration loop.
+    """
+    llang = lang.lower()
+
+    # Pre-select definition templates and expression rules per language
+    if llang == 'c':
+        def emit(findex: int, fheight: int, nconst: str) -> str:
+            if fheight == 0:
+                expr = f"x + {nconst}"
+            else:
+                prev = function_name(typ, findex, fheight - 1)
+                expr = f"x + {prev}(x) + {nconst}"
+            fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+            return f"{typ} {fname}({typ} x) {{ return {expr}; }}\n"
+
+    elif llang == 'c++':
+        tmpl_prefix = 'template<typename T=int> ' if templated else ''
+        def emit(findex: int, fheight: int, nconst: str) -> str:
+            if fheight == 0:
+                expr = f"x + {nconst}"
+            else:
+                prev = function_name(typ, findex, fheight - 1)
+                expr = f"x + {prev}(x) + {nconst}"
+            fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+            return f"{tmpl_prefix}{typ} {fname}({typ} x) {{ return {expr}; }}\n"
+
+    elif llang == 'rust':
+        if templated:
+            def emit(findex: int, fheight: int, nconst: str) -> str:
+                if fheight == 0:
+                    expr = "x"
+                else:
+                    prev = function_name(typ, findex, fheight - 1)
+                    expr = f"x + {prev}(x)"
+                fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+                return f"fn {fname}<T: Copy + Add<Output = T>>(x: T) -> T {{ {expr} }}\n"
+        else:
+            def emit(findex: int, fheight: int, nconst: str) -> str:
+                if fheight == 0:
+                    expr = f"x + {nconst}"
+                else:
+                    prev = function_name(typ, findex, fheight - 1)
+                    expr = f"x + {prev}(x) + {nconst}"
+                fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+                return f"fn {fname}(x: {typ}) -> {typ} {{ {expr} }}\n"
+
+    elif llang == 'zig':
+        if templated:
+            def emit(findex: int, fheight: int, nconst: str) -> str:
+                if fheight == 0:
+                    expr = f"x + {nconst}"
+                else:
+                    prev = function_name(typ, findex, fheight - 1)
+                    expr = f"x + {prev}({typ}, x) + {nconst}"
+                fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+                return f"fn {fname}(comptime T: type, x: T) T {{ return {expr}; }}\n"
+        else:
+            def emit(findex: int, fheight: int, nconst: str) -> str:
+                if fheight == 0:
+                    expr = f"x + {nconst}"
+                else:
+                    prev = function_name(typ, findex, fheight - 1)
+                    expr = f"x + {prev}(x) + {nconst}"
+                fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+                return f"fn {fname}(x: {typ}) {typ} {{ return {expr}; }}\n"
+
+    elif llang == 'go':
+        def emit(findex: int, fheight: int, nconst: str) -> str:
+            if fheight == 0:
+                expr = f"x + {nconst}"
+            else:
+                prev = function_name(typ, findex, fheight - 1)
+                expr = f"x + {prev}(x) + {nconst}"
+            fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+            return f"func {fname}(x {typ}) {typ} {{ return {expr} }}\n"
+
+    # Generic fallback handling all other languages with fast f-strings
     else:
-        return Tm('add_${T}_n${N}').substitute(T=typ,
-                                               N=str(findex))
+        def emit(findex: int, fheight: int, nconst: str) -> str:
+            # Replicates the existing logic, but replacing all Tm(...) with f-strings
+            if fheight == 0:
+                if llang == 'ocaml':
+                    expr = f"x +. {nconst}.0"
+                elif llang == 'scheme':
+                    expr = f"(+ x {nconst})"
+                elif llang == 'c3' and templated:
+                    expr = f"x + (Type){nconst}"
+                else:
+                    expr = f"x + {nconst}"
+            else:
+                xtarg = f"{typ}, " if (llang == 'zig' and templated) else ''
+                prev = function_name(typ, findex, fheight - 1)
+                if llang == 'v' and templated:
+                    expr = f"x + {prev}[{typ}](x) + {nconst}"
+                elif llang == 'vox' and templated:
+                    expr = f"x + {prev}[{typ}](x) + {nconst}"
+                elif llang == 'ocaml':
+                    expr = f"x +. ({prev}{xtarg} x) +. {nconst}.0"
+                elif llang in ('swift', 'hylo'):
+                    expr = f"x + {prev}(x: {xtarg}x) + {nconst}"
+                elif llang == 'pareas':
+                    expr = f"x + {prev}[x] + {nconst}"
+                elif llang == 'mojo':
+                    expr = f"x + {prev}(x) + {nconst}"
+                elif llang == 'haskell':
+                    expr = f"x + {prev} x + {nconst}"
+                elif llang == 'scheme':
+                    expr = f"(+ x ({prev} x) {nconst})"
+                else:
+                    expr = f"x + {prev}({xtarg}x) + {nconst}"
+
+            fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+
+            if llang == 'lua':
+                return f"function {fname}(x) return {expr} end\n"
+            elif llang == 'c3':
+                if templated:
+                    return f"fn Type {fname}(Type x) <Type> {{ return {expr}; }}\n"
+                return f"fn {typ} {fname}({typ} x) {{ return {expr}; }}\n"
+            elif llang == 'ada':
+                return f"   function {fname} (x: {typ}) return {typ} is ({expr});\n"
+            elif llang == 'c#':
+                return f"    static {typ} {fname}({typ} x) {{ return {expr}; }}\n"
+            elif llang == 'java':
+                return f"    static {typ} {fname}({typ} x) {{ return {expr}; }}\n"
+            elif llang in ('d', 'vox'):
+                t_str = 'T' if templated else typ
+                m_str = ('(T)' if llang == 'd' else '[T]') if templated else ''
+                q_str = ' @safe pure nothrow @nogc' if llang == 'd' else ''
+                return f"{t_str} {fname}{m_str}({t_str} x){q_str} {{ return {expr}; }}\n"
+            elif llang in ('swift', 'hylo'):
+                if templated:
+                    return f"func {fname}<T: BinaryInteger>(x: T) -> T {{ return {expr} }}\n"
+                return f"func {fname}(x: {typ}) -> {typ} {{ return {expr} }}\n"
+            elif llang == 'nim':
+                if templated:
+                    return f"proc {fname}[T](x: T): T =\n  return {expr}\n"
+                return f"proc {fname}(x: {typ}): {typ} = \n  return {expr}\n"
+            elif llang == 'ocaml':
+                return f"let {fname} x = {expr}\n"
+            elif llang == 'v':
+                if templated:
+                    return f"fn {fname}[T](x T) T {{ return {expr} }}\n"
+                return f"fn {fname}(x {typ}) {typ} {{ return {expr} }}\n"
+            elif llang == 'julia':
+                qt = '' if templated else f"::{typ}"
+                return f"function {fname}(x{qt}){qt}\n    return {expr}\nend;\n"
+            elif llang == 'pareas':
+                return f"fn {fname}[x: {typ}]: {typ} {{ return {expr}; }}\n"
+            elif llang == 'mojo':
+                return f"fn {fname}(x: {typ}) -> {typ}: return {expr}\n"
+            elif llang == 'odin':
+                if templated:
+                    return f"{fname} :: proc(x: $T) -> T {{ return {expr} }}\n"
+                return f"{fname} :: proc(x: {typ}) -> {typ} {{ return {expr} }}\n"
+            elif llang == 'crystal':
+                if templated:
+                    return f"def {fname}(x); return {expr}; end\n"
+                return f"def {fname}(x : {typ}) : {typ}; return {expr}; end\n"
+            elif llang == 'pascal':
+                return f"function {fname}(x: {typ}): {typ}; begin {fname} := {expr}; end;\n"
+            elif llang == 'fortran':
+                return f"function {fname}(x) result(r); integer({typ}), value :: x; integer({typ}) :: r; r = {expr}; end function\n"
+            elif llang == 'hare':
+                return f"fn {fname}(x: {typ}) {typ} = {{ return {expr}; }};\n"
+            elif llang == 'haskell':
+                if templated:
+                    return f"{fname} :: Num a => a -> a\n{fname} x = {expr}\n"
+                return f"{fname} :: {typ} -> {typ}\n{fname} x = {expr}\n"
+            elif llang in ('python', 'mojo'):
+                if templated:
+                    return f"def {fname}(x: int) -> int:\n    return {expr}\n\n"
+                return f"def {fname}(x):\n    return {expr}\n\n"
+            elif llang == 'scheme':
+                return f"(define ({fname} x) {expr})\n"
+            elif llang == 'pony':
+                return f"  fun {fname}(x: {typ}): {typ} => {expr}\n"
+            return ""
+
+    return emit
 
 
-def generate_test_function_definition(args: argparse.Namespace, lang: str, typ, findex: int, fheight: int, fil, templated: bool):
-    if RANDOMIZE_FLAG:
-        nconst = str(random.randint(0, 100000))
-    else:
-        nconst = str(findex)
+def generate_main_test_function_definition_set(lang: str, types: list[str], args: argparse.Namespace, fil, templated: bool):
+    write = fil.write
+    func_count = args.function_count
+    func_depth = args.function_depth
+    rand_pool = RAND_STR_POOL
+    mask = RAND_POOL_MASK
+    rand_idx = 0
+    for typ in types:
+        emitter = get_function_emitter(lang, typ, templated, func_depth)
+        for findex in range(func_count):
+            chunk = []
+            for fheight in range(func_depth):
+                nconst = rand_pool[rand_idx & mask] if RANDOMIZE_FLAG else str(findex)
+                rand_idx += 1
+                chunk.append(emitter(findex, fheight, nconst))
+            chunk.append('\n')
+            write(''.join(chunk))
+        write('\n')
 
-    if fheight == 0:
-        if lang == 'rust' and templated:
-            expr = 'x'
-        elif lang == 'ocaml':
-            expr = 'x +. ' + nconst + '.0'
-        elif lang == 'scheme':
-            expr = f'(+ x {nconst})'
-        elif lang == 'c3' and templated:
-            expr = 'x + (Type)' + nconst
-        else:
-            expr = 'x + ' + nconst
-    else:
-        if lang == 'zig' and templated:
-            xtarg = typ + ', '
-        else:
-            xtarg = ''
-        if lang == 'rust' and templated:
-            call = function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x)'
-            expr = 'x + ' + call
-        elif lang == 'v' and templated:
-            call = function_name(typ, findex, fheight - 1) + Tm('[${T}](x)').substitute(T=typ)
-            expr = 'x + ' + call
-        elif lang == 'vox' and templated:
-            call = function_name(typ, findex, fheight - 1) + Tm('[${T}](x)').substitute(T=typ)
-            expr = 'x + ' + call
-        elif lang == 'ocaml':
-            expr = 'x +. (' + function_name(typ, findex, fheight - 1) + xtarg + ' x) +. ' + nconst + '.0'
-        elif lang in ('swift', 'hylo'):
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x: ' + xtarg + 'x) + ' + nconst
-        elif lang == 'pareas':
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '[x] + ' + nconst
-        elif lang == 'mojo':
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(x) + ' + nconst
-        elif lang == 'haskell':
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + ' x + ' + nconst
-        elif lang == 'scheme':
-            call = function_name(typ, findex, fheight - 1)
-            expr = f'(+ x ({call} x) {nconst})'
-        else:
-            expr = 'x + ' + function_name(typ, findex, fheight - 1) + '(' + xtarg + 'x) + ' + nconst
 
-    if fheight == args.function_depth - 1:
-        fname = function_name(typ, findex, fheight=None)
-    else:
-        fname = function_name(typ, findex, fheight)
-
-    if lang == 'lua':
-        fil.write(Tm('function ${F}(x) return ${X} end\n').substitute(F=str(fname), X=expr))
-    elif lang in ('c'):
-        fil.write(Tm('${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, X=expr))
-    elif lang in ('c3'):
-        if templated:
-            fil.write(Tm('fn Type ${F}(Type x) <Type> { return ${X}; }\n').substitute(
-                F=str(fname),
-                X=expr))
-        else:
-            fil.write(Tm('fn ${T} ${F}(${T} x) { return ${X}; }\n').substitute(
-                T=typ,
-                F=str(fname),
-                X=expr))
-    elif lang in ['ada']:
-        fil.write(Tm('''   function ${F} (x: ${T}) return ${T} is (${X});
-''').substitute(T=typ, F=str(fname), N=nconst, X=expr))
-    elif lang in ['c#']:
-        fil.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang in ['java']:
-        fil.write(Tm('    static ${T} ${F}(${T} x) { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang in ['c++']:
-        fil.write(Tm('${M}${T} ${F}($T x) { return ${X}; }\n')
-                .substitute(T=typ, F=str(fname), N=nconst, H=str(fheight),
-                            M='template<typename T=int> ' if templated else '',
-                            X=expr))
-    elif lang in ('d', 'vox'):
-        fil.write(Tm('${T} ${F}${M}(${T} x)${Q} { return ${X}; }\n')
-                .substitute(T='T' if templated else typ,
-                            F=str(fname),
-                            N=nconst,
-                            H=str(fheight),
-                            M=('(T)' if lang == 'd' else '[T]') if templated else '',
-                            Q=' @safe pure nothrow @nogc' if lang == 'd' else '',
-                            X=expr))
-    elif lang == 'rust':
-        if templated:
-            fil.write(Tm('fn ${F}<${T} : ${R}>(x: ${T}) -> ${T} { ${X} }\n').substitute(T='T',
-                                                                                      R='Copy + Add<Output = T>',
-                                                                                      F=str(fname),
-                                                                                      N=nconst,
-                                                                                      H=str(fheight),
-                                                                                      X=expr))
-        else:
-            fil.write(Tm('fn ${F}(x: ${T}) -> ${T} { ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang in ('swift', 'hylo'):
-        if templated:
-            fil.write(Tm('func ${F}<${T}: BinaryInteger>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
-                                                                                        F=str(fname),
-                                                                                        N=nconst,
-                                                                                        H=str(fheight),
-                                                                                        X=expr))
-        else:
-            fil.write(Tm('func ${F}(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'nim':
-        if templated:
-            fil.write(Tm('proc ${F}[${T}](x: ${T}): ${T} =\n  return ${X}\n').substitute(T='T',
-                                                                                       F=str(fname),
-                                                                                       N=nconst,
-                                                                                       H=str(fheight),
-                                                                                       X=expr))
-        else:
-            fil.write(Tm('proc ${F}(x: ${T}): ${T} = \n  return ${X}\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'c3':
-        if templated:
-            fil.write(Tm('fn ${F}<${T}>(x: ${T}) -> ${T} { return ${X} }\n').substitute(T='T',
-                                                                                        F=str(fname),
-                                                                                        N=nconst,
-                                                                                        H=str(fheight),
-                                                                                        X=expr))
-        else:
-            fil.write(Tm('fn ${T} ${F}(${T} x) { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'zig':
-        if templated:
-            fil.write(Tm('fn ${F}(comptime T: type, x: T) T { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-        else:
-            fil.write(Tm('fn ${F}(x: ${T}) ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'go':
-        fil.write(Tm('func ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'ocaml':
-        fil.write(Tm('let ${F} x = ${X}\n').substitute(F=str(fname), X=expr))
-    elif lang == 'v':
-        if templated:
-            fil.write(Tm('fn ${F}[${T}](x ${T}) ${T} { return ${X} }\n').substitute(T='T', F=str(fname), N=nconst, H=str(fheight), X=expr))
-        else:
-            fil.write(Tm('fn ${F}(x ${T}) ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'julia':
-        fil.write(Tm('function ${F}(x${QT})${QT}\n    return ${X}\nend;\n').substitute(QT=('' if templated else ('::' + typ)),
-                                                                                     F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'pareas':
-        fil.write(Tm('fn ${F}[x: ${T}]: ${T} { return ${X}; }\n').substitute(T=typ, F=str(fname), X=expr))
-    elif lang == 'mojo':
-        fil.write(Tm('fn ${F}(x: ${T}) -> ${T}: return ${X}\n').substitute(T=typ, F=str(fname), X=expr))
-    elif lang == 'odin':
-        if templated:
-            fil.write(Tm('${F} :: proc(x: $$T) -> T { return ${X} }\n').substitute(F=str(fname), N=nconst, H=str(fheight), X=expr))
-        else:
-            fil.write(Tm('${F} :: proc(x: ${T}) -> ${T} { return ${X} }\n').substitute(T=typ, F=str(fname), N=nconst, H=str(fheight), X=expr))
-    elif lang == 'crystal':
-        if templated:
-            fil.write(Tm('def ${F}(x); return ${X}; end\n').substitute(F=str(fname), X=expr))
-        else:
-            fil.write(Tm('def ${F}(x : ${T}) : ${T}; return ${X}; end\n').substitute(T=typ, F=str(fname), X=expr))
-    elif lang == 'pascal':
-        fil.write(Tm('function ${F}(x: ${T}): ${T}; begin ${F} := ${X}; end;\n').substitute(
-            T=typ, F=str(fname), X=expr))
-    elif lang == 'fortran':
-        fil.write(Tm('function ${F}(x) result(r); integer(${T}), value :: x; integer(${T}) :: r; r = ${X}; end function\n').substitute(
-            T=typ, F=str(fname), X=expr))
-    elif lang == 'hare':
-        fil.write(Tm('fn ${F}(x: ${T}) ${T} = { return ${X}; };\n').substitute(
-            T=typ, F=str(fname), X=expr))
-    elif lang == 'haskell':
-        if templated:
-            fil.write(Tm('${F} :: Num a => a -> a\n${F} x = ${X}\n').substitute(
-                F=str(fname), X=expr))
-        else:
-            fil.write(Tm('${F} :: ${T} -> ${T}\n${F} x = ${X}\n').substitute(
-                T=typ, F=str(fname), X=expr))
-    elif lang == 'python' or lang == 'mojo':
-        if templated:
-            fil.write(Tm('def ${F}(x: ${T}) -> ${T}:\n    return ${X}\n\n').substitute(
-                T='int', F=str(fname), X=expr))
-        else:
-            fil.write(Tm('def ${F}(x):\n    return ${X}\n\n').substitute(
-                F=str(fname), X=expr))
-    elif lang == 'scheme':
-        fil.write(f'(define ({fname} x) {expr})\n')
-    elif lang == 'pony':
-        fil.write(Tm('  fun ${F}(x: ${T}): ${T} => ${X}\n').substitute(T=typ, F=str(fname), X=expr))
 
 
 def generate_test_main_header(lang: str, types: list, fil, templated: bool):
@@ -2333,7 +2344,6 @@ def _merge_results(target, incoming):
                     target[key][i] = val
 
 
-
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -2437,7 +2447,6 @@ def main():
             print("Warning: Ignoring unsupported operation " + op_str)
     args.operations = filtered_operations
 
-    code_paths = {}
     results = {}
 
     print(markdown_header('Benchmark:', 1))
