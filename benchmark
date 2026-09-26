@@ -111,6 +111,7 @@ LANG_EXES: dict[Lang, list[Exec]] = {
     Lang('Pony'): [Exec('ponyc')],
     Lang('TypeScript'): [Exec('tsc')],
     Lang('Dart'): [Exec('dart')],
+    Lang('Common Lisp'): [Exec('sbcl')],
 }
 
 TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
@@ -1597,10 +1598,69 @@ def bm_Dart(results: Results, code_paths: list, args: argparse.Namespace, op: st
                  results=results)
 
 
+def bm_CommonLisp(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    lang = 'Common Lisp'
+    cexe = resolve_compiler_path(args, lang, 'sbcl')
+    if not cexe:
+        return None
+
+    if op == 'check':
+        cexe_flags = [
+            '--noinform',
+            '--non-interactive',
+            '--no-sysinit',
+            '--no-userinit',
+            '--eval',
+            '(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (multiple-value-bind (out warn fail) (compile-file "{}" :output-file nil :verbose nil :print nil) (when fail (sb-ext:exit :code 1))))',
+        ]
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'compile':
+        cexe_flags = [
+            '--noinform',
+            '--non-interactive',
+            '--no-sysinit',
+            '--no-userinit',
+            '--eval',
+            '(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (multiple-value-bind (out warn fail) (compile-file "{}" :output-file "main.fasl" :verbose nil :print nil) (when fail (sb-ext:exit :code 1))))',
+        ]
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = [
+            '--noinform',
+            '--non-interactive',
+            '--no-sysinit',
+            '--no-userinit',
+            '--eval',
+            '(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (multiple-value-bind (out warn fail) (compile-file "{}" :verbose nil :print nil) (if fail (sb-ext:exit :code 1) (progn (load out :verbose nil :print nil) (when (probe-file "main") (delete-file "main")) (sb-ext:save-lisp-and-die "main" :toplevel (quote cl-user::main) :executable t)))))',
+        ]
+        out_flag_and_exe = []
+        exec_cmd = True
+    else:
+        return None
+
+    version = get_compiler_version(cexe)
+    benchmark_compiler_op(code_paths,
+                 out_flag_and_exe=out_flag_and_exe,
+                 cexe=cexe,
+                 exec_cmd=exec_cmd,
+                 cexe_flags=cexe_flags,
+                 args=args,
+                 op=op,
+                 compiler_version=version,
+                 lang=lang,
+                 templated=templated,
+                 results=results)
+
+
 def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
     if has_stdin:
         return [cexe] + cexe_flags + out_flags
+    if os.path.basename(cexe).startswith('sbcl'):
+        formatted_flags = [f.format(src_name) if '{}' in f else f for f in cexe_flags]
+        return [cexe] + formatted_flags + out_flags
     if os.path.basename(cexe).startswith('odin'):
         cmd = [cexe_flags[0]] if cexe_flags else []
         remaining = cexe_flags[1:] if cexe_flags else []
@@ -1826,6 +1886,7 @@ LANG_PROPERTIES: dict[Lang, LangSpec] = {
     Lang("pony"): LangSpec(FileExt("pony"), TypeName("I64")),
     Lang("typescript"): LangSpec(FileExt("ts"), TypeName("number")),
     Lang("dart"): LangSpec(FileExt("dart"), TypeName("int")),
+    Lang("common lisp"): LangSpec(FileExt("lisp"), TypeName("int")),
 }
 
 
@@ -1941,10 +2002,12 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
         sink.write(Tm('    ${T}_sum = ${T}_sum + Calc.${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
     elif lang in ('typescript', 'dart') and templated:
         sink.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
+    elif lang == 'common lisp':
+        sink.write(Tm('    (setf ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony', 'common lisp'):
         sink.write(';')
 
     sink.write('\n')
@@ -1985,6 +2048,7 @@ void write(u32 fd, u8[] data) {
         'pony': 'primitive Calc\n',
         'typescript': 'declare var process: any;\n\n',
         'dart': "import 'dart:io';\n\n",
+        'common lisp': '(in-package :cl-user)\n\n',
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -2024,6 +2088,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'pony': f"    env.exitcode(({tl}_sum % 256).i32())\n",
         'typescript': f"    process.exit({t}_sum % 256);\n}}\n\nmain();\n",
         'dart': f"    exit({t}_sum % 256);\n}}\n",
+        'common lisp': f"    (sb-ext:exit :code (mod {t}_sum 256))))\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
@@ -2129,7 +2194,7 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
             if fheight == 0:
                 if llang == 'ocaml':
                     expr = f"x +. {nconst}.0"
-                elif llang == 'scheme':
+                elif llang in ('scheme', 'common lisp'):
                     expr = f"(+ x {nconst})"
                 elif llang == 'c3' and templated:
                     expr = f"x + (Type){nconst}"
@@ -2152,7 +2217,7 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                     expr = f"x + {prev}(x) + {nconst}"
                 elif llang == 'haskell':
                     expr = f"x + {prev} x + {nconst}"
-                elif llang == 'scheme':
+                elif llang in ('scheme', 'common lisp'):
                     expr = f"(+ x ({prev} x) {nconst})"
                 else:
                     expr = f"x + {prev}({xtarg}x) + {nconst}"
@@ -2231,6 +2296,8 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                 if templated:
                     return f"{typ} {fname}<T extends {typ}>(T x) {{ return {expr}; }}\n"
                 return f"{typ} {fname}({typ} x) {{ return {expr}; }}\n"
+            elif llang == 'common lisp':
+                return f"(defun {fname} (x) {expr})\n"
             return ""
 
     return emit
@@ -2292,6 +2359,7 @@ def generate_test_main_header(lang: str, types: list, sink, templated: bool):
         'pony': 'actor Main\n  new create(env: Env) =>\n',
         'typescript': 'function main() {\n',
         'dart': 'void main() {\n',
+        'common lisp': '(defun main ()\n',
     }
     sink.write(headers[lang])
 
@@ -2303,7 +2371,7 @@ def generate_test_main_middle(lang: str, types: list, sink, _templated: bool = F
         sink.write(''.join(f"    {typ}_sum = 0\n" for typ in types))
     elif lang == 'ada':
         sink.write('begin\n')
-    elif lang == 'scheme':
+    elif lang in ('scheme', 'common lisp'):
         bindings = ' '.join([f'({typ}_sum 0)' for typ in types])
         sink.write(f'  (let ({bindings})\n')
 
@@ -2391,6 +2459,7 @@ LANGUAGE_BENCHMARKS = [
     ('Pony', [bm_Pony], ('check', 'build'), (False,)),
     ('TypeScript', [bm_TypeScript], ('check', 'compile', 'build'), (False, True)),
     ('Dart', [bm_Dart], ('check', 'compile', 'build'), (False, True)),
+    ('Common Lisp', [bm_CommonLisp], ('check', 'compile', 'build'), (False,)),
 ]
 
 
@@ -2514,6 +2583,11 @@ def main():
         Exec("ts"): Lang("TypeScript"),
         Exec("tsc"): Lang("TypeScript"),
         Exec("dart"): Lang("Dart"),
+        Exec("common lisp"): Lang("Common Lisp"),
+        Exec("commonlisp"): Lang("Common Lisp"),
+        Exec("common-lisp"): Lang("Common Lisp"),
+        Exec("lisp"): Lang("Common Lisp"),
+        Exec("sbcl"): Lang("Common Lisp"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
