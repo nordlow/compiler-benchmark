@@ -1611,7 +1611,7 @@ def bm_CommonLisp(results: Results, code_paths: list, args: argparse.Namespace, 
             '--no-sysinit',
             '--no-userinit',
             '--eval',
-            '(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (multiple-value-bind (out warn fail) (compile-file "{}" :output-file nil :verbose nil :print nil) (when fail (sb-ext:exit :code 1))))',
+            '(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (unwind-protect (multiple-value-bind (out warn fail) (compile-file "{}" :output-file "main.check.fasl" :verbose nil :print nil) (when fail (sb-ext:exit :code 1))) (when (probe-file "main.check.fasl") (delete-file "main.check.fasl"))))',
         ]
         out_flag_and_exe = []
         exec_cmd = False
