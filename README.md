@@ -30,6 +30,7 @@ Benchmarks compilation speeds, memory consumption (peak RSS), and binary output 
 - [Zig](https://ziglang.org/) (using `zig`)
 - [Dart](https://dart.dev/) (using `dart`)
 - [SBCL](https://www.sbcl.org/) (using `sbcl`)
+- [Guile](https://www.gnu.org/software/guile/) (using `guile`)
 
 ### Bytecode, VM, and JIT/Scripting Toolchains
 - [C#](https://learn.microsoft.com/dotnet/csharp/) (using `csc` or `mcs`, executed via `mono`)
