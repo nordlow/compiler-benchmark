@@ -2,6 +2,22 @@
 
 Benchmarks compilation speeds, memory consumption (peak RSS), and binary output sizes across different programming languages and compilers.
 
+### ⚠️ Scope & Methodology Notes
+
+* **What this measures:** Raw front-end symbol ingestion, AST
+  traversal, and unoptimized code-generation scaling under a massive,
+  single translation unit consisting of synthetic arithmetic call
+  chains.
+* **Architectural tradeoffs:** Compilers with single-pass
+  architectures (e.g., `tcc`) or minimal semantic models will
+  naturally outperform multi-pass optimizing compilers (e.g., `rustc`,
+  `ghc`, `swiftc`) that perform trait resolution, lifetime/borrow
+  validation, or multi-stage IR lowering.
+* **Synthetic vs. Real-world:** Real-world build times are heavily
+  driven by header parsing (`#include`), package/module resolution,
+  standard library footprint, and cross-crate/module parallelism, none
+  of which are exercised by isolated arithmetic trees.
+
 ## Supported Languages and Compilers
 
 ### Native Ahead-of-Time (AOT) Compilers
