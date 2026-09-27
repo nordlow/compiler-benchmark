@@ -13,7 +13,7 @@ import time
 import random
 from datetime import datetime
 from enum import Enum
-from typing import NamedTuple, NewType
+from typing import NamedTuple, NewType, override
 
 from string import Template as Tm
 from timeit import default_timer as timer
@@ -40,6 +40,7 @@ class Op(str, Enum):
     BUILD = "build"
     RUN = "run"
 
+    @override
     def __str__(self) -> str:
         return self.value
 
@@ -50,6 +51,7 @@ class ValuesMode(str, Enum):
     RELATIVE = "relative"
     BOTH = "both"
 
+    @override
     def __str__(self) -> str:
         return self.value
 
