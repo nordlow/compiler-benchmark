@@ -112,6 +112,7 @@ LANG_EXES: dict[Lang, list[Exec]] = {
     Lang('TypeScript'): [Exec('tsc')],
     Lang('Dart'): [Exec('dart')],
     Lang('Common Lisp'): [Exec('sbcl')],
+    Lang('Guile'): [Exec('guild')],
 }
 
 TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
@@ -268,13 +269,15 @@ def out_binary(lang):
         return DEFAULT_PROGRAM_NAME + '.luac'
     if lang.lower() == 'typescript':
         return DEFAULT_PROGRAM_NAME + '.js'
+    if lang.lower() == 'guile':
+        return DEFAULT_PROGRAM_NAME + '.go'
     return DEFAULT_PROGRAM_NAME
 
 
 def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
     if not os.path.isfile(path):
         return False
-    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme', 'lua', 'typescript'):
+    if lang.lower() in ('python', 'java', 'c#', 'julia', 'scheme', 'lua', 'typescript', 'guile'):
         return False
     if os.path.basename(cexe).startswith('ocamlc'):
         return False
@@ -1654,6 +1657,53 @@ def bm_CommonLisp(results: Results, code_paths: list, args: argparse.Namespace, 
                  results=results)
 
 
+def bm_Guile(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    lang = 'Guile'
+    cexe = resolve_compiler_path(args, lang, 'guild') or resolve_compiler_path(args, lang, 'guile')
+    if not cexe:
+        return None
+
+    guile_exe = resolve_compiler_path(args, lang, 'guile') or which('guile')
+    target_go = out_binary(lang)
+    check_temp_file = None
+
+    if op == 'check':
+        check_temp_file = os.path.join(out_directory(lang), target_go + '.check_tmp')
+        cexe_flags = ['compile', '-W0', '-o', target_go + '.check_tmp']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'compile':
+        cexe_flags = ['compile', '-W0', '-o', target_go]
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = ['compile', '-W0', '-o', target_go]
+        out_flag_and_exe = []
+        exec_cmd = [guile_exe, '-c', '(load-compiled (car (reverse (command-line))))'] if guile_exe else False
+    else:
+        return None
+
+    version = get_compiler_version(cexe)
+    try:
+        benchmark_compiler_op(code_paths,
+                     out_flag_and_exe=out_flag_and_exe,
+                     cexe=cexe,
+                     exec_cmd=exec_cmd,
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
+    finally:
+        if check_temp_file and os.path.exists(check_temp_file):
+            try:
+                os.remove(check_temp_file)
+            except OSError:
+                pass
+
+
 def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
     if has_stdin:
@@ -1887,6 +1937,7 @@ LANG_PROPERTIES: dict[Lang, LangSpec] = {
     Lang("typescript"): LangSpec(FileExt("ts"), TypeName("number")),
     Lang("dart"): LangSpec(FileExt("dart"), TypeName("int")),
     Lang("common lisp"): LangSpec(FileExt("lisp"), TypeName("int")),
+    Lang("guile"): LangSpec(FileExt("scm"), TypeName("int")),
 }
 
 
@@ -1980,7 +2031,7 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
         sink.write(Tm('    ${T}_sum = ${T}_sum + ${F}[${N}]').substitute(T=typ, N=n, F=fn))
     elif lang == 'python' or lang == 'mojo':
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
-    elif lang == 'scheme':
+    elif lang in ('scheme', 'guile'):
         sink.write(Tm('    (set! ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
     elif lang == 'crystal':
         sink.write(Tm('    ${T}_sum += ${F}(${N}_i64)').substitute(T=typ.lower(), N=n, F=fn))
@@ -2007,7 +2058,7 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony', 'common lisp'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony', 'common lisp', 'guile'):
         sink.write(';')
 
     sink.write('\n')
@@ -2049,6 +2100,7 @@ void write(u32 fd, u8[] data) {
         'typescript': 'declare var process: any;\n\n',
         'dart': "import 'dart:io';\n\n",
         'common lisp': '(in-package :cl-user)\n\n',
+        'guile': '',
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -2089,6 +2141,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'typescript': f"    process.exit({t}_sum % 256);\n}}\n\nmain();\n",
         'dart': f"    exit({t}_sum % 256);\n}}\n",
         'common lisp': f"    (sb-ext:exit :code (mod {t}_sum 256))))\n",
+        'guile': f"    {t}_sum))\n(exit (main))\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
@@ -2194,7 +2247,7 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
             if fheight == 0:
                 if llang == 'ocaml':
                     expr = f"x +. {nconst}.0"
-                elif llang in ('scheme', 'common lisp'):
+                elif llang in ('scheme', 'common lisp', 'guile'):
                     expr = f"(+ x {nconst})"
                 elif llang == 'c3' and templated:
                     expr = f"x + (Type){nconst}"
@@ -2217,7 +2270,7 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                     expr = f"x + {prev}(x) + {nconst}"
                 elif llang == 'haskell':
                     expr = f"x + {prev} x + {nconst}"
-                elif llang in ('scheme', 'common lisp'):
+                elif llang in ('scheme', 'common lisp', 'guile'):
                     expr = f"(+ x ({prev} x) {nconst})"
                 else:
                     expr = f"x + {prev}({xtarg}x) + {nconst}"
@@ -2284,7 +2337,7 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                 if templated:
                     return f"def {fname}(x: int) -> int:\n    return {expr}\n\n"
                 return f"def {fname}(x):\n    return {expr}\n\n"
-            elif llang == 'scheme':
+            elif llang in ('scheme', 'guile'):
                 return f"(define ({fname} x) {expr})\n"
             elif llang == 'pony':
                 return f"  fun {fname}(x: {typ}): {typ} => {expr}\n"
@@ -2360,6 +2413,7 @@ def generate_test_main_header(lang: str, types: list, sink, templated: bool):
         'typescript': 'function main() {\n',
         'dart': 'void main() {\n',
         'common lisp': '(defun main ()\n',
+        'guile': '(define (main)\n',
     }
     sink.write(headers[lang])
 
@@ -2371,7 +2425,7 @@ def generate_test_main_middle(lang: str, types: list, sink, _templated: bool = F
         sink.write(''.join(f"    {typ}_sum = 0\n" for typ in types))
     elif lang == 'ada':
         sink.write('begin\n')
-    elif lang in ('scheme', 'common lisp'):
+    elif lang in ('scheme', 'common lisp', 'guile'):
         bindings = ' '.join([f'({typ}_sum 0)' for typ in types])
         sink.write(f'  (let ({bindings})\n')
 
@@ -2460,6 +2514,7 @@ LANGUAGE_BENCHMARKS = [
     ('TypeScript', [bm_TypeScript], ('check', 'compile', 'build'), (False, True)),
     ('Dart', [bm_Dart], ('check', 'compile', 'build'), (False, True)),
     ('Common Lisp', [bm_CommonLisp], ('check', 'compile', 'build'), (False,)),
+    ('Guile', [bm_Guile], ('check', 'compile', 'build'), (False,)),
 ]
 
 
@@ -2588,6 +2643,8 @@ def main():
         Exec("common-lisp"): Lang("Common Lisp"),
         Exec("lisp"): Lang("Common Lisp"),
         Exec("sbcl"): Lang("Common Lisp"),
+        Exec("guile"): Lang("Guile"),
+        Exec("guild"): Lang("Guile"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
