@@ -450,44 +450,92 @@ def merge_plain_and_templated_results(results: Results):
     return merged
 
 
-def markdown_table(titles: list[str], results: Results, values_mode: str = 'absolute', highlight: bool = False):
-    format_metric_columns(results=results, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=results, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
+TIERS = [
+    (
+        1,
+        "Tier 1: Single-Pass / Minimalist Compilers",
+        "No SSA optimization, no borrow checking, trivial type systems, instant code emission.",
+    ),
+    (
+        2,
+        "Tier 2: Modern Systems Languages (Ahead-of-Time)",
+        "Full type inference, monomorphization/generics, semantic safety, module systems.",
+    ),
+    (
+        3,
+        "Tier 3: Managed & VM / JIT / Scripting",
+        "Bytecode emission, runtime metadata, GC runtimes.",
+    ),
+]
 
-    merged_results = merge_plain_and_templated_results(results)
 
-    # Sort rows by Language, then Compiler Executable
+def get_semantic_tier(lang: str, cexe: str) -> int:
+    base = os.path.basename(cexe).lower()
+    for prefix in ("tcc", "cuik", "cproc"):
+        if base.startswith(prefix):
+            return 1
+    llang = lang.lower()
+    if llang in (
+        "c#", "java", "julia", "lua", "python", "scheme",
+        "typescript", "dart", "common lisp", "guile", "haskell",
+        "ocaml", "crystal",
+    ):
+        return 3
+    return 2
+
+
+def render_single_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False) -> str:
+    res_copy = {k: list(v) for k, v in results.items()}
+    format_metric_columns(results=res_copy, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
+
+    merged_results = merge_plain_and_templated_results(res_copy)
     sorted_rows = sorted(merged_results.values(), key=lambda r: r[0].lower())
 
-    # Compute dynamic column widths for proper markdown alignment, based on
-    # the *visible* text -- the <span> tags used to color-highlight the
-    # smallest value in a column don't count towards the visible width.
     def _visible_len(cell) -> int:
-        return len(re.sub(r'<[^>]+>', '', str(cell)))
+        return len(re.sub("<[^>]+>", "", str(cell)))
 
     def _pad(cell, width: int) -> str:
         cell = str(cell)
-        return cell + ' ' * max(width - _visible_len(cell), 0)
+        return cell + " " * max(width - _visible_len(cell), 0)
 
     col_widths = [len(t) for t in titles]
     for row in sorted_rows:
         for idx, cell in enumerate(row):
             col_widths[idx] = max(col_widths[idx], _visible_len(cell))
 
-    # Header
-    result = '| ' + ' | '.join(_pad(titles[i], col_widths[i]) for i in range(len(titles))) + ' |\n'
-    # Separator
-    result += '| ' + ' | '.join(':' + '-' * (col_widths[i] - 2) + ':' for i in range(len(titles))) + ' |\n'
-    # Data rows
+    nl = chr(10)
+    lines = []
+    lines.append("| " + " | ".join(_pad(titles[i], col_widths[i]) for i in range(len(titles))) + " |")
+    lines.append("| " + " | ".join(":" + "-" * (col_widths[i] - 2) + ":" for i in range(len(titles))) + " |")
     for row in sorted_rows:
-        result += '| ' + ' | '.join(_pad(row[i], col_widths[i]) for i in range(len(row))) + ' |\n'
-    return result
+        lines.append("| " + " | ".join(_pad(row[i], col_widths[i]) for i in range(len(row))) + " |")
+    return nl.join(lines) + nl
+
+
+def markdown_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False) -> str:
+    tiered_results: dict[int, Results] = {1: {}, 2: {}, 3: {}}
+    for key, row in results.items():
+        lang, _, cexe = key
+        tier = get_semantic_tier(str(lang), str(cexe))
+        tiered_results[tier][key] = list(row)
+
+    nl = chr(10)
+    sections = []
+    for tier_id, title, desc in TIERS:
+        t_res = tiered_results.get(tier_id)
+        if not t_res:
+            continue
+        tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight)
+        sections.append("### " + title + nl + "*" + desc + "*" + nl + nl + tbl)
+
+    return (nl + nl).join(sections)
 
 
 def resolve_compiler_path(args: argparse.Namespace, lang: str, cexe_name: str):
