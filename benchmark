@@ -2858,7 +2858,8 @@ def main():
                     tasks.append((b_idx, r_idx, op, templated, r_args))
 
     cpus = get_available_cpus()
-    print(f"Running benchmarks in parallel across {len(cpus)} CPU core(s) (1 worker per core)...")
+    cpu_use_count = len(cpus) - 2
+    print(f"Running benchmarks in parallel across {cpu_use_count} CPU core(s) (1 worker per core)...")
     manager = mp.Manager()
     idx_counter = manager.Value('i', 0)
     lock = manager.Lock()
@@ -2895,7 +2896,7 @@ def main():
     builtins.print = _locked_print
 
     try:
-        with mp.Pool(processes=len(cpus), initializer=_worker_init,
+        with mp.Pool(processes=cpu_use_count, initializer=_worker_init,
                      initargs=(cpus, idx_counter, lock, print_lock)) as pool:
             for p in getattr(pool, '_pool', []):
                 if getattr(p, 'pid', None):
