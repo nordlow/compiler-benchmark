@@ -845,23 +845,34 @@ def bm_CSharp_using_csc(results: Results, code_paths, args: argparse.Namespace, 
         return
 
     cexe_flags = ['-target:exe']
-    if op == 'check':
-        cexe_flags.append('-refonly')
-
     version = get_compiler_version(cexe)
     mono_exe = which('mono')
 
-    benchmark_compiler_op(code_paths,
-                 out_flag_and_exe=['-out:' + out_binary(lang)],
-                 cexe=cexe,
-                 exec_cmd=[mono_exe] if mono_exe else True,
-                 cexe_flags=cexe_flags,
-                 args=args,
-                 op=op,
-                 compiler_version=version,
-                 lang=lang,
-                 templated=templated,
-                 results=results)
+    if op == 'check':
+        with tempfile.NamedTemporaryFile(suffix='.check_tmp') as tmp_file:
+            benchmark_compiler_op(code_paths,
+                         out_flag_and_exe=['-out:' + tmp_file.name],
+                         cexe=cexe,
+                         exec_cmd=[mono_exe] if mono_exe else True,
+                         cexe_flags=cexe_flags + ['-refonly'],
+                         args=args,
+                         op=op,
+                         compiler_version=version,
+                         lang=lang,
+                         templated=templated,
+                         results=results)
+    else:
+        benchmark_compiler_op(code_paths,
+                     out_flag_and_exe=['-out:' + out_binary(lang)],
+                     cexe=cexe,
+                     exec_cmd=[mono_exe] if mono_exe else True,
+                     cexe_flags=cexe_flags,
+                     args=args,
+                     op=op,
+                     compiler_version=version,
+                     lang=lang,
+                     templated=templated,
+                     results=results)
 
 
 def bm_Go(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
@@ -1656,16 +1667,27 @@ def bm_CommonLisp(results: Results, code_paths: list, args: argparse.Namespace, 
         return None
 
     if op == 'check':
-        cexe_flags = [
-            '--noinform',
-            '--non-interactive',
-            '--no-sysinit',
-            '--no-userinit',
-            '--eval',
-            '(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (unwind-protect (multiple-value-bind (out warn fail) (compile-file "{}" :output-file "main.check.fasl" :verbose nil :print nil) (when fail (sb-ext:exit :code 1))) (when (probe-file "main.check.fasl") (delete-file "main.check.fasl"))))',
-        ]
-        out_flag_and_exe = []
-        exec_cmd = False
+        with tempfile.NamedTemporaryFile(suffix='.check.fasl') as tmp_file:
+            cexe_flags = [
+                '--noinform',
+                '--non-interactive',
+                '--no-sysinit',
+                '--no-userinit',
+                '--eval',
+                f'(progn (setf *error-output* (make-broadcast-stream) *compile-verbose* nil *compile-print* nil) (declaim (sb-ext:muffle-conditions style-warning sb-ext:compiler-note)) (multiple-value-bind (out warn fail) (compile-file "{{}}" :output-file "{tmp_file.name}" :verbose nil :print nil) (when fail (sb-ext:exit :code 1))))',
+            ]
+            version = get_compiler_version(cexe)
+            return benchmark_compiler_op(code_paths,
+                         out_flag_and_exe=[],
+                         cexe=cexe,
+                         exec_cmd=False,
+                         cexe_flags=cexe_flags,
+                         args=args,
+                         op=op,
+                         compiler_version=version,
+                         lang=lang,
+                         templated=templated,
+                         results=results)
     elif op == 'compile':
         cexe_flags = [
             '--noinform',
