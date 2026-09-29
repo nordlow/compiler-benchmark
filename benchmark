@@ -1010,12 +1010,22 @@ def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: 
     cexe = resolve_compiler_path(args, lang, 'v')
     if not cexe:
         return
+    if op == 'check':
+        cexe_flags = ['-check']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = []
+        out_flag_and_exe = ['-o', out_binary(lang)]
+        exec_cmd = True
+    else:
+        return None
     version = get_compiler_version(cexe)
     benchmark_compiler_op(code_paths,
-                 out_flag_and_exe=['-o', out_binary(lang)],
+                 out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 exec_cmd=True,
-                 cexe_flags=[],
+                 exec_cmd=exec_cmd,
+                 cexe_flags=cexe_flags,
                  args=args,
                  op=op,
                  compiler_version=version,
@@ -2573,7 +2583,7 @@ LANGUAGE_BENCHMARKS = [
     ('Go', [bm_Go], ('check', 'build'), (False, True)),
     ('Swift', [bm_Swift], ('check', 'build'), (False, True)),
     ('Hylo', [bm_Hylo], ('check', 'build'), (False, True)),
-    ('V', [bm_V], ('build',), (False, True)),
+    ('V', [bm_V], ('check', 'build'), (False, True)),
     ('C3', [bm_C3], ('check', 'compile', 'build'), (False, True)),
     ('Rust', [bm_Rust], ('check', 'build'), (False, True)),
     ('Nim', [bm_Nim], ('check', 'build'), (False, True)),
