@@ -137,7 +137,7 @@ RUSTC_NIGHTLY_FLAGS = ['-Z', 'threads=1', '-Zcodegen-backend=cranelift']  # See:
 
 JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
-ROOT_PATH = 'generated'
+ROOT_PATH = os.path.abspath('generated')
 MAIN_PID = os.getpid()
 RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
@@ -261,7 +261,7 @@ def get_available_cpus() -> list[int]:
     return list(range(count))
 
 def out_directory(lang):
-    return os.path.join(ROOT_PATH, f"proc_{os.getpid()}", lang.lower())
+    return os.path.abspath(os.path.join(ROOT_PATH, f"proc_{os.getpid()}", lang.lower()))
 
 
 def out_binary(lang):
