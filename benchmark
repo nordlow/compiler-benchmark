@@ -1568,12 +1568,18 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
     cexe = resolve_compiler_path(args, lang, 'julia')
     if not cexe:
         return None
+    if op == 'check':
+        cexe_flags = ['-e', 'ex = Meta.parse("begin\\n" * read(ARGS[1], String) * "\\nend"); if isa(ex, Expr) && ex.head === :error; error(string(ex.args[1])); end', '--']
+    elif op == 'build':
+        cexe_flags = JULIA_FLAGS
+    else:
+        return None
     version = get_compiler_version(cexe)
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=[],
                  cexe=cexe,
                  exec_cmd=False,
-                 cexe_flags=JULIA_FLAGS,
+                 cexe_flags=cexe_flags,
                  args=args,
                  op=op,
                  compiler_version=version,
@@ -2602,7 +2608,7 @@ LANGUAGE_BENCHMARKS = [
         lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=False),
         lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=True),
     ], ('build',), (False,)),
-    ('Julia', [bm_Julia], ('build',), (False, True)),
+    ('Julia', [bm_Julia], ('check', 'build'), (False, True)),
     ('Scheme', [bm_Scheme], ('check', 'compile', 'build'), (False,)),
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
     ('Pony', [bm_Pony], ('check', 'build'), (False,)),
