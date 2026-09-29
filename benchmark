@@ -898,30 +898,26 @@ def bm_Go(results: Results, code_paths, args: argparse.Namespace, op, templated:
 
 def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Go'
-    version = None
-    if op == 'build':
-        cexe = which('go')
-        cexe_flags = ['build']
-        version = get_compiler_version(cexe)
-        out_flag_and_exe = ['-o', out_binary(lang)]
-    elif op == 'check':
-        cexe = which('gotype')
-        if not cexe:
-            return None
-        cexe_flags = []
-        version = get_compiler_version(cexe)
-        out_flag_and_exe = []
-    else:
-        return None
-
-    cexe = resolve_compiler_path(args, lang, cexe)
+    cexe = resolve_compiler_path(args, lang, 'go')
     if not cexe:
         return
+
+    version = get_compiler_version(cexe)
+    if op == 'build':
+        cexe_flags = ['build']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+        exec_cmd = True
+    elif op == 'check':
+        cexe_flags = ['vet']
+        out_flag_and_exe = []
+        exec_cmd = False
+    else:
+        return None
 
     benchmark_compiler_op(code_paths,
                  out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 exec_cmd=True,
+                 exec_cmd=exec_cmd,
                  cexe_flags=cexe_flags,
                  args=args,
                  op=op,
