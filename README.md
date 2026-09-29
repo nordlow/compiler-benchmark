@@ -31,7 +31,6 @@ Benchmarks compilation speeds, memory consumption (peak RSS), and binary output 
 - [Go](https://golang.org/) (using `go`, `gccgo`)
 - [Hare](https://harelang.org/) (using `hare`)
 - [Haskell](https://www.haskell.org/) (using `ghc`)
-- [Hylo](https://www.hylo-lang.org/) (using `hc`)
 - [Mojo](https://www.modular.com/mojo) (using `mojo`)
 - [Nim](https://nim-lang.org/) (using `nim`)
 - [OCaml](https://ocaml.org/) (using `ocamlopt`)
