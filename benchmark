@@ -556,11 +556,22 @@ def resolve_compiler_path(args: argparse.Namespace, lang: str, cexe_name: str):
 
 
 def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, op: str, templated: bool):
-    op_flag = {'build': ['make'], 'compile': ['compile'], 'check': ['check']}.get(op)
-    if op_flag is None:
+    if op == 'check':
+        cexe_flags = ['compile', '-u', '-gnatc']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'compile':
+        cexe_flags = ['compile', '-u', '-c']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = ['make']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+        exec_cmd = True
+    else:
         return None
     for cexe in find_compiler_versions(args, lang, 'gnat'):
-        benchmark_compiler_op(code_paths, ['-o', out_binary(lang)], cexe, True, op_flag, args, op,
+        benchmark_compiler_op(code_paths, out_flag_and_exe, cexe, exec_cmd, cexe_flags, args, op,
                      get_compiler_version(cexe), lang, templated, results)
 
 def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
@@ -2562,7 +2573,7 @@ LANGUAGE_BENCHMARKS = [
         lambda r, cp, a, op, t: bm_C_and_Cxx_using_gcc(r, 'C++', cp, a, op, t),
         lambda r, cp, a, op, t: bm_C_and_Cxx_using_clang(r, 'C++', cp, a, op, t),
     ], ('check', 'compile', 'build'), (False, True)),
-    ('Ada', [lambda r, cp, a, op, t: bm_Ada_using_gcc(r, 'Ada', cp, a, op, t)], ('build',), (False,)),
+    ('Ada', [lambda r, cp, a, op, t: bm_Ada_using_gcc(r, 'Ada', cp, a, op, t)], ('check', 'build'), (False,)),
     ('Go', [bm_Go], ('check', 'build'), (False, True)),
     ('Swift', [bm_Swift], ('check', 'build'), (False, True)),
     ('Hylo', [bm_Hylo], ('check', 'build'), (False, True)),
