@@ -991,12 +991,22 @@ def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templat
     cexe = resolve_compiler_path(args, lang, 'ocamlc' if bytecode else 'ocamlopt')
     if not cexe:
         return
+    if op == 'check':
+        cexe_flags = ['-stop-after', 'typing', '-c']
+        out_flag_and_exe = []
+        exec_cmd = False
+    elif op == 'build':
+        cexe_flags = ['-c'] if bytecode else ['-linscan']
+        out_flag_and_exe = ['-o', out_binary(lang)]
+        exec_cmd = ([which('ocamlrun')] if bytecode else True)
+    else:
+        return None
     version = get_compiler_version(cexe)
     benchmark_compiler_op(code_paths,
-                 out_flag_and_exe=['-o', out_binary(lang)],
+                 out_flag_and_exe=out_flag_and_exe,
                  cexe=cexe,
-                 exec_cmd=([which('ocamlrun')] if bytecode else True),
-                 cexe_flags=['-c'] if bytecode else ['-linscan'],
+                 exec_cmd=exec_cmd,
+                 cexe_flags=cexe_flags,
                  args=args,
                  op=op,
                  compiler_version=version,
@@ -2607,7 +2617,7 @@ LANGUAGE_BENCHMARKS = [
     ('OCaml', [
         lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=False),
         lambda r, cp, a, op, t: bm_OCaml(r, cp, a, op, t, bytecode=True),
-    ], ('build',), (False,)),
+    ], ('check', 'build'), (False,)),
     ('Julia', [bm_Julia], ('check', 'build'), (False, True)),
     ('Scheme', [bm_Scheme], ('check', 'compile', 'build'), (False,)),
     ('Vox', [bm_Vox], ('check', 'build'), (False, True)),
