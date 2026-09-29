@@ -165,7 +165,6 @@ TABLE_COLUMNS = [
     Column('Check RSS', 'kB/f'),
     Column('Build RSS', 'kB/f'),
     Column('Output Size', 'B/f'),
-    Column('Version'),
 ]
 
 
@@ -189,8 +188,8 @@ CEXE_VERSION_IX = 10
 CEXE_PATH_IX = 11
 RAW_ROW_LENGTH = CEXE_PATH_IX + 1
 
-# The merged table has 3 fewer columns than the raw row (no separate 'Temp-lated', 'CEXE_PATH', or 'AST-C' columns)
-assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 3
+# The merged table has 4 fewer columns than the raw row (no separate 'Temp-lated', 'CEXE_PATH', 'AST-C', or 'Version' columns)
+assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 4
 
 
 
@@ -423,7 +422,9 @@ def merge_plain_and_templated_results(results: Results):
         row_plain = variants.get(False)
         row_tmpl = variants.get(True)
         base_row = row_plain if row_plain is not None else row_tmpl
-        merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]})"]
+        version = base_row[CEXE_VERSION_IX]
+        version_str = f" {version}" if version and version != "unknown" else ""
+        merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]}{version_str})"]
 
         def format_col(col_ix):
             val_p = str(row_plain[col_ix]).strip() if row_plain and row_plain[col_ix] is not None else None
@@ -451,7 +452,6 @@ def merge_plain_and_templated_results(results: Results):
                     cell = f"{cell}<br>{ast_cell}"
             merged_row.append(cell)
 
-        merged_row.append(base_row[CEXE_VERSION_IX])
         merged[(lang, cexe)] = merged_row
 
     return merged
