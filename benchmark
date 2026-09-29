@@ -158,7 +158,6 @@ class Column:
 
 TABLE_COLUMNS = [
     Column('Language (Exec)'),
-    Column('AST-C', 'us/f'),
     Column('Check', 'us/f'),
     Column('Compile', 'us/f'),
     Column('Build', 'us/f'),
@@ -190,8 +189,8 @@ CEXE_VERSION_IX = 10
 CEXE_PATH_IX = 11
 RAW_ROW_LENGTH = CEXE_PATH_IX + 1
 
-# The merged table has 1 fewer column than the raw row (no separate 'Temp-lated' column)
-assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 2
+# The merged table has 3 fewer columns than the raw row (no separate 'Temp-lated', 'CEXE_PATH', or 'AST-C' columns)
+assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 3
 
 
 
@@ -407,7 +406,6 @@ def markdown_header(text: str, nr: int):
 
 def merge_plain_and_templated_results(results: Results):
     metric_cols = [
-        AST_CHECK_DUR_PER_FUNC_IX,
         CHECK_DUR_PER_FUNC_IX,
         COMPILE_DUR_PER_FUNC_IX,
         BUILD_DUR_PER_FUNC_IX,
@@ -427,23 +425,30 @@ def merge_plain_and_templated_results(results: Results):
         base_row = row_plain if row_plain is not None else row_tmpl
         merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]})"]
 
-        for col in metric_cols:
-            val_p = str(row_plain[col]).strip() if row_plain and row_plain[col] is not None else None
-            val_t = str(row_tmpl[col]).strip() if row_tmpl and row_tmpl[col] is not None else None
+        def format_col(col_ix):
+            val_p = str(row_plain[col_ix]).strip() if row_plain and row_plain[col_ix] is not None else None
+            val_t = str(row_tmpl[col_ix]).strip() if row_tmpl and row_tmpl[col_ix] is not None else None
 
             p_na = (val_p is None or val_p == 'N/A')
             t_na = (val_t is None or val_t == 'N/A')
 
             if p_na and t_na:
-                cell = 'N/A'
+                return 'N/A'
             elif row_tmpl is None:  # Language has no templated variant benchmarked
-                cell = f"{val_p},-" if not p_na else 'N/A'
+                return f"{val_p},-" if not p_na else 'N/A'
             elif p_na:
-                cell = f"-,{val_t}"
+                return f"-,{val_t}"
             elif t_na:
-                cell = f"{val_p},-"
+                return f"{val_p},-"
             else:
-                cell = f"{val_p},{val_t}"
+                return f"{val_p},{val_t}"
+
+        for col in metric_cols:
+            cell = format_col(col)
+            if col == CHECK_DUR_PER_FUNC_IX and str(lang).lower() == 'zig':
+                ast_cell = format_col(AST_CHECK_DUR_PER_FUNC_IX)
+                if ast_cell != 'N/A':
+                    cell = f"{cell}<br>{ast_cell}"
             merged_row.append(cell)
 
         merged_row.append(base_row[CEXE_VERSION_IX])
