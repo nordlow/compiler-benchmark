@@ -573,17 +573,18 @@ def get_gcc_lib_dir() -> str | None:
         return os.path.dirname(matches[-1])
     return None
 
+
 def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, op: str, templated: bool):
     if op == 'check':
-        cexe_flags = ['compile', '-u', '-gnatc']
+        cexe_flags = ['compile', '-q', '-u', '-gnatc']
         out_flag_and_exe = []
         exec_cmd = False
     elif op == 'compile':
-        cexe_flags = ['compile', '-u', '-c']
+        cexe_flags = ['compile', '-q', '-u', '-c']
         out_flag_and_exe = []
         exec_cmd = False
     elif op == 'build':
-        cexe_flags = ['make']
+        cexe_flags = ['make', '-q']
         out_flag_and_exe = ['-o', out_binary(lang)]
         exec_cmd = True
     else:
@@ -591,6 +592,7 @@ def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, 
     for cexe in find_compiler_versions(args, lang, 'gnat'):
         benchmark_compiler_op(code_paths, out_flag_and_exe, cexe, exec_cmd, cexe_flags, args, op,
                      get_compiler_version(cexe), lang, templated, results)
+
 
 def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     cexe = resolve_compiler_path(args, lang, 'cproc')
