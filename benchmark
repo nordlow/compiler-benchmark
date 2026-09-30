@@ -25,6 +25,8 @@ import importlib
 import tempfile
 import shutil
 import atexit
+import glob
+from functools import cache
 
 Lang = NewType("Lang", str)
 Exec = NewType("Exec", str)
@@ -554,6 +556,22 @@ def resolve_compiler_path(args: argparse.Namespace, lang: str, cexe_name: str):
     cexe_path = which(cexe_name, path=args.path)
     return cexe_path
 
+@cache
+def get_gcc_lib_dir() -> str | None:
+    for cc in ('gcc', 'cc', 'clang'):
+        cc_path = which(cc)
+        if cc_path:
+            try:
+                res = sp.run([cc_path, '-print-file-name=crtbegin.o'], stdout=sp.PIPE, stderr=sp.DEVNULL, text=True)
+                out = res.stdout.strip()
+                if out and out != 'crtbegin.o' and os.path.isfile(out):
+                    return os.path.dirname(out)
+            except Exception:
+                pass
+    matches = sorted(glob.glob('/usr/lib/gcc/*/*/crtbegin.o'))
+    if matches:
+        return os.path.dirname(matches[-1])
+    return None
 
 def bm_Ada_using_gcc(results: Results, lang: str, code_paths: list, args: list, op: str, templated: bool):
     if op == 'check':
@@ -587,6 +605,9 @@ def bm_C_using_cproc(results: Results, lang: str, code_paths: list, args: argpar
         out_flag_and_exe = ['-o', '/dev/null']
     elif op == 'build':
         cexe_flags = []
+        gcc_lib_dir = get_gcc_lib_dir()
+        if gcc_lib_dir:
+            cexe_flags.append(f'-L{gcc_lib_dir}')
         out_flag_and_exe = ['-o', out_binary(lang)]
     else:
         return None
