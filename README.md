@@ -280,13 +280,22 @@ results in the following table (copied from the output at the end).
 
 ## Conclusions (from sample run shown above)
 
-The Tiny C Compiler (TCC) (`tcc`) is by a large margin the fastest compiler in build speed, followed by the C compiler Cuik and D's `dmd`. TCC's vastly superior build speed stems from its single-pass code-generation architecture: because C relies on explicit forward declarations, the compiler does not need multi-pass symbol resolution, effectively limiting AST parsing, memory allocation, and code generation scope to a single function at a time.
+The Tiny C Compiler (TCC) (`tcc`) is by a large margin the fastest
+compiler in build speed, followed by the C compiler Cuik and D's
+`dmd`. TCC's vastly superior build speed stems from its single-pass
+code-generation architecture: because C relies on explicit forward
+declarations, the compiler does not need multi-pass symbol resolution,
+effectively limiting AST parsing, memory allocation, and code
+generation scope to a single function at a time.
 
-In non-generic checking, `dmd` (3.0x), `gcc` (5.7x), and `clang++` (10.4x) are among the fastest compiled languages relative to TCC. When switching to generic code (normalized to `dmd` = 1.0x), `clang++` remains competitive at 3.8× DMD check time, while `g++-15` and `g++` (16) require roughly 6.8–6.9× DMD check time. Rust (`rustc`) performs significantly better relative to the field in generic mode (8.2× `dmd` build time vs. 72.2× `tcc` in non-generic mode).
+The performance of both GCC and Clang sometimes worsen with a newer
+release.
 
-The performance of both GCC and Clang sometimes worsen with a newer release.
-
-Both OCaml and Julia scale poorly on deeply nested functions with large synthetic function counts, an explicit maximum limit is therefore enforced. Moreover, the Nim compiler has a hard limit of 50 recursive generic instantiations so therefore `--function-depth` is automatically truncated down to 50.
+Both OCaml and Julia scale poorly on deeply nested functions with
+large synthetic function counts, an explicit maximum limit is
+therefore enforced. Moreover, the Nim compiler has a hard limit of 50
+recursive generic instantiations so therefore `--function-depth` is
+automatically truncated down to 50.
 
 ---
 
