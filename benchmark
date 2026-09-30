@@ -2086,7 +2086,8 @@ def benchmark_compiler_op(code_paths: list,
 
     version_str = f' version {compiler_version}' if compiler_version is not None else ''
     cop = op.capitalize()
-    print(f'- {cop} took {dur_min:1.3f} seconds (using "{cexe}"{version_str})')
+    if getattr(args, 'verbose', False):
+        print(f'- {cop} took {dur_min:1.3f} seconds (using "{cexe}"{version_str})')
 
     row[LANG_IX] = lang
     row[TEMPLATED_IX] = 'Yes' if templated else 'No'
@@ -2222,7 +2223,8 @@ def generate_test_program_file(lang: str, args: argparse.Namespace, templated: b
         sink.write(buf.getvalue())
     end = timer()
     dur = (end - start)
-    print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
+    if getattr(args, 'verbose', False):
+        print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
 
     return path
 
@@ -2837,6 +2839,9 @@ def main():
     parser.add_argument('--highlight-min', '--hl', action='store_true',
                         help='Color- and bold-highlight the smallest (best) raw value in each column, '
                              'in whichever --values mode is selected (absolute, relative, or both).')
+
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help='Enable verbose progress logging.')
 
     args = parser.parse_args()
     if args.relative:
