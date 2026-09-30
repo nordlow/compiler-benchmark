@@ -18,6 +18,7 @@ from typing import NamedTuple, NewType, override
 from string import Template as Tm
 from timeit import default_timer as timer
 import multiprocessing as mp
+import threading
 import copy
 import builtins
 
@@ -141,6 +142,80 @@ JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/juli
 
 ROOT_PATH = os.path.abspath('generated')
 MAIN_PID = os.getpid()
+_worker_active_tasks = None
+_worker_status_len = None
+
+
+def _format_duration(secs: float) -> str:
+    if secs < 60:
+        return f"{secs:.1f}s"
+    m = int(secs // 60)
+    s = int(secs % 60)
+    return f"{m}m{s:02d}s"
+
+
+def _make_locked_print(orig_print, print_lock, status_len):
+    def _locked_print(*args, **kwargs):
+        with print_lock:
+            if status_len is not None and status_len.value > 0:
+                stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+                if stream is not None:
+                    stream.write('\r' + (' ' * status_len.value) + '\r')
+                    stream.flush()
+                status_len.value = 0
+            orig_print(*args, **kwargs)
+            dest = kwargs.get('file') or sys.stdout
+            if hasattr(dest, 'flush'):
+                dest.flush()
+    return _locked_print
+
+
+def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, print_lock, status_len):
+    stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+    if stream is None:
+        return
+
+    while not stop_event.wait(0.2):
+        try:
+            current_tasks = list(active_tasks.values())
+        except Exception:
+            continue
+
+        now = time.time()
+        current_tasks.sort(key=lambda item: item[1])
+
+        items_parts = []
+        for desc, start_t in current_tasks:
+            dur_str = _format_duration(max(0.0, now - start_t))
+            items_parts.append(f"{desc} {dur_str}")
+
+        done = completed_counter.value
+        header = f"[{done}/{total_tasks}] Active: "
+        if not items_parts:
+            status_text = f"[{done}/{total_tasks}] Waiting for tasks..."
+        else:
+            term_cols = shutil.get_terminal_size((80, 20)).columns
+            avail = max(10, term_cols - len(header) - 1)
+            line = ""
+            for idx, part in enumerate(items_parts):
+                candidate = (line + ", " + part) if line else part
+                rem_count = len(items_parts) - (idx + 1)
+                rem_suffix = f" (+{rem_count} more)" if rem_count > 0 else ""
+                if len(candidate) + len(rem_suffix) <= avail:
+                    line = candidate
+                else:
+                    if not line:
+                        line = candidate[:avail]
+                    elif rem_count > 0:
+                        line += rem_suffix
+                    break
+            status_text = header + line
+
+        with print_lock:
+            pad = max(0, status_len.value - len(status_text))
+            stream.write('\r' + status_text + (' ' * pad) + '\r' + status_text)
+            stream.flush()
+            status_len.value = len(status_text) + pad
 RANGE = range(5, 20)
 VERSIONS = [''] + [f"-{i}" for i in RANGE]
 
@@ -1947,6 +2022,11 @@ def benchmark_compiler_op(code_paths: list,
 
     durs = []
     rss_mu = None
+    worker_pid = os.getpid()
+    tmpl_suffix = " (templated)" if templated else ""
+    cname = os.path.basename(cexe)
+    if _worker_active_tasks is not None:
+        _worker_active_tasks[worker_pid] = (f"{lang}{tmpl_suffix} ({cname}) [{op}]", time.time())
 
     for run_ix in range(args.run_count):
         src_key = sourceIdOf(lang, templated, run_ix)
@@ -1989,7 +2069,11 @@ def benchmark_compiler_op(code_paths: list,
         durs.append(dur)
 
     dur_min = min(durs)
+    if _worker_active_tasks is not None:
+        _worker_active_tasks[worker_pid] = (f"{lang}{tmpl_suffix} ({cname}) [run]", time.time())
     run_dur_min = run_target_binary(cexe, lang, lang_dir, exec_cmd, op, src_name, args.run_count)
+    if _worker_active_tasks is not None:
+        _worker_active_tasks[worker_pid] = (f"{lang}{tmpl_suffix} ({cname}) [{op}]", time.time())
 
     output_size = None
     if op == 'build':
@@ -2656,7 +2740,10 @@ LANGUAGE_BENCHMARKS = [
 ]
 
 
-def _worker_init(cpu_list, idx_counter, lock, print_lock):
+def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len):
+    global _worker_active_tasks, _worker_status_len
+    _worker_active_tasks = active_tasks
+    _worker_status_len = status_len
     with lock:
         idx = idx_counter.value
         idx_counter.value += 1
@@ -2666,14 +2753,7 @@ def _worker_init(cpu_list, idx_counter, lock, print_lock):
             os.sched_setaffinity(0, {cpu_id})
         except Exception:
             pass
-    orig_print = builtins.print
-    def _locked_print(*args, **kwargs):
-        with print_lock:
-            orig_print(*args, **kwargs)
-            dest = kwargs.get('file') or sys.stdout
-            if hasattr(dest, 'flush'):
-                dest.flush()
-    builtins.print = _locked_print
+    builtins.print = _make_locked_print(builtins.print, print_lock, status_len)
 
 
 def _run_task(task):
@@ -2685,11 +2765,17 @@ def _run_task(task):
     task_args.has_stderr = False
     lang_dir = out_directory(lang)
     proc_dir = os.path.dirname(lang_dir)
+    worker_pid = os.getpid()
+    tmpl_suffix = " (templated)" if templated else ""
+    if _worker_active_tasks is not None:
+        _worker_active_tasks[worker_pid] = (f"{lang}{tmpl_suffix} [{op}]", time.time())
     try:
         runner(task_results, task_code_paths, task_args, op, templated)
         if not getattr(task_args, 'has_stderr', False):
             success = True
     finally:
+        if _worker_active_tasks is not None:
+            _worker_active_tasks.pop(worker_pid, None)
         if success:
             shutil.rmtree(lang_dir, ignore_errors=True)
             try:
@@ -2924,6 +3010,9 @@ def main():
     idx_counter = manager.Value('i', 0)
     lock = manager.Lock()
     print_lock = manager.Lock()
+    active_tasks = manager.dict()
+    status_line_len = manager.Value('i', 0)
+    completed_counter = manager.Value('i', 0)
 
     root_existed_at_start = os.path.exists(ROOT_PATH)
     call_proc_dirs = {os.path.abspath(os.path.join(ROOT_PATH, f"proc_{MAIN_PID}"))}
@@ -2946,26 +3035,40 @@ def main():
 
     atexit.register(cleanup_call_empty_dirs)
 
-    orig_print = builtins.print
-    def _locked_print(*args, **kwargs):
-        with print_lock:
-            orig_print(*args, **kwargs)
-            dest = kwargs.get('file') or sys.stdout
-            if hasattr(dest, 'flush'):
-                dest.flush()
-    builtins.print = _locked_print
+    builtins.print = _make_locked_print(builtins.print, print_lock, status_line_len)
+
+    stop_monitor = threading.Event()
+    monitor_thread = threading.Thread(
+        target=_progress_monitor,
+        args=(active_tasks, completed_counter, len(tasks), stop_monitor, print_lock, status_line_len),
+        daemon=True,
+    )
+    monitor_thread.start()
 
     try:
         with mp.Pool(processes=cpu_use_count, initializer=_worker_init,
-                     initargs=(cpus, idx_counter, lock, print_lock)) as pool:
+                     initargs=(cpus, idx_counter, lock, print_lock, active_tasks, status_line_len)) as pool:
             for p in getattr(pool, '_pool', []):
                 if getattr(p, 'pid', None):
                     call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{p.pid}")))
             for res, worker_pid in pool.imap_unordered(_run_task, tasks):
+                completed_counter.value += 1
                 call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{worker_pid}")))
                 if res:
                     _merge_results(results, res)
+    except KeyboardInterrupt:
+        print("\nBenchmark interrupted by user.", file=sys.stderr)
+        sys.exit(130)
     finally:
+        stop_monitor.set()
+        monitor_thread.join(timeout=1.0)
+        with print_lock:
+            if status_line_len.value > 0:
+                stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+                if stream is not None:
+                    stream.write('\r' + (' ' * status_line_len.value) + '\r')
+                    stream.flush()
+                status_line_len.value = 0
         cleanup_call_empty_dirs()
 
     print()
