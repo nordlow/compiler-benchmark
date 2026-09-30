@@ -1940,7 +1940,9 @@ def benchmark_compiler_op(code_paths: list,
         dur, returncode, outs, errs, rss = measure_compilation(p_args, lang_dir, args.sample_rate, stdin_text)
         rss_mu = rss
 
+        out_str = outs.decode('utf8', errors='ignore') if outs else ''
         err_str = errs.decode('utf8', errors='ignore') if errs else ''
+        has_out = bool(out_str.strip())
         has_err = bool(err_str.strip())
         if has_err:
             setattr(args, 'has_stderr', True)
@@ -1949,6 +1951,8 @@ def benchmark_compiler_op(code_paths: list,
             setattr(args, 'has_stderr', True)
             cmd_str = ' '.join(p_args)
             print(f"WARNING: Compilation `{cmd_str}` of source file `{src_name}` exited with return code {returncode}", file=sys.stderr)
+            if has_out:
+                print(f"  - stdout: {out_str.strip()}", file=sys.stderr)
             if has_err:
                 print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
             if rss_mu and isinstance(rss_mu, (int, float)):
