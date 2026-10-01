@@ -118,6 +118,7 @@ LANG_EXES: dict[Lang, list[Exec]] = {
     Lang('Dart'): [Exec('dart')],
     Lang('Common Lisp'): [Exec('sbcl')],
     Lang('Guile'): [Exec('guild')],
+    Lang('Roc'): [Exec('roc')],
 }
 
 TEMPLATED_SUPPORTED_LANGUAGES: list[Lang] = [
@@ -284,7 +285,7 @@ def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
     if base.startswith('cuik') or base.startswith('vox'):
         return '~master' if base.startswith('cuik') else 'master'
 
-    if base.startswith(('odin', 'zig', 'hare', 'go')):
+    if base.startswith(('odin', 'zig', 'hare', 'go', 'roc')):
         cmd = [cexe, 'version']
     elif base.startswith(('tcc', 'luajit')):
         cmd = [cexe, '-v']
@@ -309,6 +310,13 @@ def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
             return out.split(':')[1].split()[0]
         if base.startswith(('scheme', 'chez')):
             return out
+        if base.startswith('roc'):
+            parts = out.split()
+            if 'commit' in parts:
+                idx = parts.index('commit')
+                if idx + 1 < len(parts):
+                    return parts[idx + 1].strip(',;:()')
+            return parts[1] if len(parts) >= 2 else default
         for part in out.split():
             clean = part.strip(',;:()')
             if clean and (clean[0].isdigit() or (clean.startswith('v') and len(clean) > 1 and clean[1].isdigit())):
@@ -1913,6 +1921,38 @@ def bm_Guile(results: Results, code_paths: list, args: argparse.Namespace, op: s
         return None
 
 
+
+def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
+    lang = 'Roc'
+    cexe = resolve_compiler_path(args, lang, 'roc')
+    if not cexe:
+        return None
+
+    if op == 'check':
+        cexe_flags = ['check']
+        out_flag_and_exe = []
+    elif op == 'build':
+        cexe_flags = ['build', '--dev']
+        out_flag_and_exe = ['--output', out_binary(lang)]
+    else:
+        return None
+
+    version = get_compiler_version(cexe)
+    benchmark_compiler_op(
+        code_paths,
+        out_flag_and_exe=out_flag_and_exe,
+        cexe=cexe,
+        exec_cmd=(op == 'build'),
+        cexe_flags=cexe_flags,
+        args=args,
+        op=op,
+        compiler_version=version,
+        lang=lang,
+        templated=templated,
+        results=results,
+    )
+
+
 def build_compiler_cmd(cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct command arguments, factoring out compiler-specific ordering (e.g., Odin)."""
     if has_stdin:
@@ -2161,6 +2201,7 @@ LANG_PROPERTIES: dict[Lang, LangSpec] = {
     Lang("dart"): LangSpec(FileExt("dart"), TypeName("int")),
     Lang("common lisp"): LangSpec(FileExt("lisp"), TypeName("int")),
     Lang("guile"): LangSpec(FileExt("scm"), TypeName("int")),
+    Lang("roc"): LangSpec(FileExt("roc"), TypeName("I64")),
 }
 
 
@@ -2279,10 +2320,12 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
         sink.write(Tm('    ${T}_sum += ${F}<${T}>(${N})').substitute(T=typ, N=n, F=fn))
     elif lang == 'common lisp':
         sink.write(Tm('    (setf ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
+    elif lang == 'roc':
+        sink.write(Tm('    $${T}_sum = $${T}_sum + ${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
-    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony', 'common lisp', 'guile'):
+    if lang not in ('ocaml', 'nim', 'v', 'odin', 'scheme', 'crystal', 'haskell', 'fortran', 'lua', 'pony', 'common lisp', 'guile', 'roc'):
         sink.write(';')
 
     sink.write('\n')
@@ -2325,6 +2368,7 @@ void write(u32 fd, u8[] data) {
         'dart': "import 'dart:io';\n\n",
         'common lisp': '(in-package :cl-user)\n\n',
         'guile': '',
+        'roc': 'app [main!] {}\n\n',
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -2366,6 +2410,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'dart': f"    exit({t}_sum % 256);\n}}\n",
         'common lisp': f"    (sb-ext:exit :code (mod {t}_sum 256))))\n",
         'guile': f"    {t}_sum))\n(exit (main))\n",
+        'roc': f"    echo!(Str.inspect(${tl}_sum))\n    Ok({{}})\n}}\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
@@ -2463,6 +2508,16 @@ def get_function_emitter(lang: str, typ: str, templated: bool, depth: int):
                 expr = f"x + {prev}(x) + {nconst}"
             fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
             return f"func {fname}(x {typ}) {typ} {{ return {expr} }}\n"
+
+    elif llang == 'roc':
+        def emit(findex: int, fheight: int, nconst: str) -> str:
+            if fheight == 0:
+                expr = f"x + {nconst}"
+            else:
+                prev = function_name(typ, findex, fheight - 1)
+                expr = f"x + {prev}(x) + {nconst}"
+            fname = function_name(typ, findex, None if fheight == depth - 1 else fheight)
+            return f"{fname} = |x| {expr}\n"
 
     # Generic fallback handling all other languages with fast f-strings
     else:
@@ -2638,6 +2693,7 @@ def generate_test_main_header(lang: str, types: list, sink, templated: bool):
         'dart': 'void main() {\n',
         'common lisp': '(defun main ()\n',
         'guile': '(define (main)\n',
+        'roc': 'main! = |_args| {\n',
     }
     sink.write(headers[lang])
 
@@ -2690,6 +2746,8 @@ def generate_main_test_function_variable(lang: str, typ, sink, templated: bool):
         sink.write(f"   {typ}_sum : {typ} := 0;\n")
     elif lang == 'pony':
         sink.write(f"    var {typ.lower()}_sum: {typ} = 0\n")
+    elif lang == 'roc':
+        sink.write(f"    var ${typ.lower()}_sum = 0\n")
 
 
 
@@ -2739,6 +2797,7 @@ LANGUAGE_BENCHMARKS = [
     ('Dart', [bm_Dart], ('check', 'compile', 'build'), (False, True)),
     ('Common Lisp', [bm_CommonLisp], ('check', 'compile', 'build'), (False,)),
     ('Guile', [bm_Guile], ('check', 'compile', 'build'), (False,)),
+    ('Roc', [bm_Roc], ('check', 'build'), (False,)),
 ]
 
 
@@ -2874,6 +2933,7 @@ def main():
         Exec("sbcl"): Lang("Common Lisp"),
         Exec("guile"): Lang("Guile"),
         Exec("guild"): Lang("Guile"),
+        Exec("roc"): Lang("Roc"),
     }
 
     def normalize_lang_spec(spec: str) -> str:
