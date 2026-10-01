@@ -1933,7 +1933,7 @@ def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated
         out_flag_and_exe = []
     elif op == 'build':
         cexe_flags = ['build', '--dev']
-        out_flag_and_exe = ['--output', out_binary(lang)]
+        out_flag_and_exe = [f'--output={out_binary(lang)}']
     else:
         return None
 
@@ -2368,7 +2368,11 @@ void write(u32 fd, u8[] data) {
         'dart': "import 'dart:io';\n\n",
         'common lisp': '(in-package :cl-user)\n\n',
         'guile': '',
-        'roc': 'app [main!] {}\n\n',
+        'roc': '''app [main!] {
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.22.2/9zUBxb1LtXYVc4eR4hAtd1WQDwBYDhM6HQdZz1UFCm2m.tar.zst",
+}
+
+import pf.Stdout\n\n''',
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -2410,7 +2414,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'dart': f"    exit({t}_sum % 256);\n}}\n",
         'common lisp': f"    (sb-ext:exit :code (mod {t}_sum 256))))\n",
         'guile': f"    {t}_sum))\n(exit (main))\n",
-        'roc': f"    echo!(Str.inspect(${tl}_sum))\n    Ok({{}})\n}}\n",
+        'roc': f"    _ = Stdout.line!(Str.inspect(${tl}_sum))\n    Ok({{}})\n}}\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
