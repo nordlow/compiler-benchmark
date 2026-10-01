@@ -3178,11 +3178,13 @@ def benchmark_compiler_op(code_paths: dict,
         err_str = errs.decode('utf8', errors='ignore') if errs else ''
         has_out = bool(out_str.strip())
         has_err = bool(err_str.strip())
-        if has_err:
+        if has_err or has_out or returncode != 0:
             setattr(args, 'has_stderr', True)
+            setattr(args, 'has_output', True)
 
-        if returncode != 0 and op != 'run':
+        if returncode != 0:
             setattr(args, 'has_stderr', True)
+            setattr(args, 'has_output', True)
             cmd_str = ' '.join(p_args)
             print(f"WARNING: Compilation `{cmd_str}` of source file `{src_name}` exited with return code {returncode}", file=sys.stderr)
             if has_out:
@@ -3194,8 +3196,9 @@ def benchmark_compiler_op(code_paths: dict,
                 if slot:
                     row[slot] = rss_mu / total_funcs
             return None
-        elif has_err:
-            print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
+        else:
+            if has_err:
+                print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
 
         durs.append(dur)
 
@@ -3273,6 +3276,7 @@ def _run_task(task):
     task_results, task_code_paths = {}, {}
     success = False
     task_args.has_stderr = False
+    task_args.has_output = False
     lang_dir = out_directory(lang)
     proc_dir = os.path.dirname(lang_dir)
     worker_pid = os.getpid()
@@ -3281,7 +3285,7 @@ def _run_task(task):
         _worker_active_tasks[worker_pid] = (f"{lang}{tmpl_suffix} [{op}]", time.time())
     try:
         runner(task_results, task_code_paths, task_args, op, templated)
-        if not getattr(task_args, 'has_stderr', False):
+        if not getattr(task_args, 'has_stderr', False) and not getattr(task_args, 'has_output', False):
             success = True
     finally:
         if _worker_active_tasks is not None:
@@ -3464,7 +3468,15 @@ def main():
                     except OSError:
                         pass
         if ROOT_PATH and os.path.isdir(ROOT_PATH):
-            shutil.rmtree(ROOT_PATH, ignore_errors=True)
+            for dirpath, _, _ in os.walk(ROOT_PATH, topdown=False):
+                try:
+                    os.rmdir(dirpath)
+                except OSError:
+                    pass
+            try:
+                os.rmdir(ROOT_PATH)
+            except OSError:
+                pass
 
     atexit.register(cleanup_call_empty_dirs)
 
