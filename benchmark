@@ -97,8 +97,7 @@ SUPPORTED_OPERATIONS: list[Op] = [
     Op.RUN,
 ]
 
-ROOT_PATH = tempfile.mkdtemp(prefix='generated_', dir='/tmp')
-print(ROOT_PATH)
+ROOT_PATH = None
 MAIN_PID = os.getpid()
 _worker_active_tasks = None
 _worker_status_len = None
@@ -3251,10 +3250,11 @@ def benchmark_compiler_op(code_paths: dict,
 
 # ---- parallel driver ------------------------------------------------------------
 
-def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len):
-    global _worker_active_tasks, _worker_status_len
+def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len, root_path):
+    global _worker_active_tasks, _worker_status_len, ROOT_PATH
     _worker_active_tasks = active_tasks
     _worker_status_len = status_len
+    ROOT_PATH = root_path
     with lock:
         idx = idx_counter.value
         idx_counter.value += 1
@@ -3449,7 +3449,8 @@ def main():
     status_line_len = manager.Value('i', 0)
     completed_counter = manager.Value('i', 0)
 
-    root_existed_at_start = os.path.exists(ROOT_PATH)
+    global ROOT_PATH
+    ROOT_PATH = tempfile.mkdtemp(prefix='generated_', dir='/tmp')
     call_proc_dirs = {os.path.abspath(os.path.join(ROOT_PATH, f"proc_{MAIN_PID}"))}
 
     def cleanup_call_empty_dirs():
@@ -3462,11 +3463,8 @@ def main():
                         os.rmdir(dirpath)
                     except OSError:
                         pass
-        if os.path.isdir(ROOT_PATH):
-            try:
-                os.rmdir(ROOT_PATH)
-            except OSError:
-                pass
+        if ROOT_PATH and os.path.isdir(ROOT_PATH):
+            shutil.rmtree(ROOT_PATH, ignore_errors=True)
 
     atexit.register(cleanup_call_empty_dirs)
 
@@ -3482,7 +3480,7 @@ def main():
 
     try:
         with mp.Pool(processes=cpu_use_count, initializer=_worker_init,
-                     initargs=(cpus, idx_counter, lock, print_lock, active_tasks, status_line_len)) as pool:
+                     initargs=(cpus, idx_counter, lock, print_lock, active_tasks, status_line_len, ROOT_PATH)) as pool:
             for p in getattr(pool, '_pool', []):
                 if getattr(p, 'pid', None):
                     call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{p.pid}")))
