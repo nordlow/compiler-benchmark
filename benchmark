@@ -98,6 +98,7 @@ SUPPORTED_OPERATIONS: list[Op] = [
 ]
 
 ROOT_PATH = tempfile.mkdtemp(prefix='generated_', dir='/tmp')
+print(ROOT_PATH)
 MAIN_PID = os.getpid()
 _worker_active_tasks = None
 _worker_status_len = None
@@ -3461,7 +3462,7 @@ def main():
                         os.rmdir(dirpath)
                     except OSError:
                         pass
-        if not root_existed_at_start and os.path.isdir(ROOT_PATH):
+        if os.path.isdir(ROOT_PATH):
             try:
                 os.rmdir(ROOT_PATH)
             except OSError:
