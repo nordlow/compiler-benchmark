@@ -2566,7 +2566,9 @@ register_language(LangSupport(
         "import pf.Stdout\n\n"),
     main_header=lambda types, t: 'main! = |_args| {\n',
     var_decl=lambda typ, t: f"    var ${typ.lower()}_sum = 0\n",
-    call=lambda i, typ, t: f"        + {function_name(typ, i)}({i})",
+    call=lambda i, typ, t: (
+        f"    ${typ.lower()}_sum = ${typ.lower()}_sum + {function_name(typ, i)}({i})"
+    ),
     call_terminator='',
     postfix=lambda types: f"    _ = Stdout.line!(Str.inspect(${types[0].lower()}_sum))\n    Ok({{}})\n}}\n",
 ))
