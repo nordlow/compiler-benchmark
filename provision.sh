@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc"
     exit 0
 }
 
@@ -563,8 +563,28 @@ if should_install "guile" || should_install "guild"; then
     fi
 fi
 
-echo "--------------------------------------------------------"
-echo "✅ Requested installations complete for $OS!"
-echo "--------------------------------------------------------"
-echo "IMPORTANT: Ensure your PATH includes these directories:"
-echo 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.nimble/bin:$PATH"'
+# Roc
+if should_install "roc"; then
+    echo ">> Checking Roc..."
+    if ! command -v roc &>/dev/null && [ ! -f "$BIN_DIR/roc" ]; then
+        ROC_ARCH="$(uname -m)"
+        ROC_URL=$(curl -fsSL https://api.github.com/repos/roc-lang/roc/releases | grep -oP '"browser_download_url":\s*"\Khttps://github.com/roc-lang/roc/releases/download/[^"]+roc_nightly-linux_'"${ROC_ARCH}"'[^"]+\.tar\.gz' | head -n 1 || true)
+        if [ -z "$ROC_URL" ]; then
+            ROC_URL=$(curl -fsSL https://github.com/roc-lang/roc/releases | grep -oP 'href="\K/roc-lang/roc/releases/download/[^"]+roc_nightly-linux_'"${ROC_ARCH}"'[^"]+\.tar\.gz' | head -n 1 | sed 's|^|https://github.com|' || true)
+        fi
+        if [ -n "$ROC_URL" ]; then
+            ROC_TMP=$(mktemp -d)
+            wget -q --show-progress -c "$ROC_URL" -O "$ROC_TMP/roc.tar.gz"
+            tar -xzf "$ROC_TMP/roc.tar.gz" -C "$ROC_TMP"
+            EXTRACTED_DIR=$(find "$ROC_TMP" -maxdepth 2 -type f -name "roc" -exec dirname {} \; | head -n 1)
+            if [ -n "$EXTRACTED_DIR" ]; then
+                rm -rf "$INSTALL_DIR/roc"
+                mv "$EXTRACTED_DIR" "$INSTALL_DIR/roc"
+                ln -sf "$INSTALL_DIR/roc/roc" "$BIN_DIR/roc"
+            fi
+            rm -rf "$ROC_TMP"
+        else
+            echo "Error: Failed to fetch"
+		fi
+	fi
+fi
