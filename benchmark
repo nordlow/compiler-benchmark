@@ -2321,7 +2321,7 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
     elif lang == 'common lisp':
         sink.write(Tm('    (setf ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
     elif lang == 'roc':
-        sink.write(f"    ${typ.lower()}_sum = ${typ.lower()}_sum + {fn}({n})")
+        sink.write(f"        + {fn}({n})")
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
@@ -2368,7 +2368,7 @@ void write(u32 fd, u8[] data) {
         'dart': "import 'dart:io';\n\n",
         'common lisp': '(in-package :cl-user)\n\n',
         'guile': '',
-        'roc': '',
+        'roc': "app [main!] {\n    pf: platform \"https://github.com/roc-lang/basic-cli/releases/download/0.19.0/Hj-J_zxz7V9YurCSTFcFdu6cQJie4guzsPMUi5kBYUk.tar.br\",\n}\n\nimport pf.Stdout\n\n",
     }
     sink.write(prefixes.get(lang, ''))
 
@@ -2410,7 +2410,7 @@ def generate_test_language_specific_postfix(lang: str, types: list, sink):
         'dart': f"    exit({t}_sum % 256);\n}}\n",
         'common lisp': f"    (sb-ext:exit :code (mod {t}_sum 256))))\n",
         'guile': f"    {t}_sum))\n(exit (main))\n",
-        'roc': f"    echo!(Str.inspect(${tl}_sum))\n    Ok({{}})\n}}\n",
+        'roc': f"    _ = Stdout.line!(Str.inspect(${tl}_sum))\n    Ok({{}})\n}}\n",
     }
     if lang in postfixes:
         sink.write(postfixes[lang])
