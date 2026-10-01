@@ -97,7 +97,7 @@ SUPPORTED_OPERATIONS: list[Op] = [
     Op.RUN,
 ]
 
-ROOT_PATH = os.path.abspath('generated')
+ROOT_PATH = tempfile.mkdtemp(prefix='generated_', dir='/tmp')
 MAIN_PID = os.getpid()
 _worker_active_tasks = None
 _worker_status_len = None
