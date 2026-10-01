@@ -2321,7 +2321,7 @@ def generate_test_function_call(lang: str, findex, typ, sink, templated: bool):
     elif lang == 'common lisp':
         sink.write(Tm('    (setf ${T}_sum (+ ${T}_sum (${F} ${N})))').substitute(T=typ, N=n, F=fn))
     elif lang == 'roc':
-        sink.write(Tm('    $${T}_sum = $${T}_sum + ${F}(${N})').substitute(T=typ.lower(), N=n, F=fn))
+        sink.write(f"    ${typ.lower()}_sum = ${typ.lower()}_sum + {fn}({n})")
     else:
         sink.write(Tm('    ${T}_sum += ${F}(${N})').substitute(T=typ, N=n, F=fn))
 
