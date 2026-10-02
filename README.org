@@ -1,0 +1,274 @@
+:PROPERTIES:
+:GPTEL_MODEL: gemini-3.8-flash
+:GPTEL_BACKEND: Gemini
+:GPTEL_SYSTEM: You are a large language model living in Emacs and a helpful\nassistant. Respond concisely.
+:GPTEL_TOOLS:
+:END:
+#+TITLE: apps-2.0
+#+AUTHOR: Per Nordlöw
+#+OPTIONS: toc:2 num:nil
+#+STARTUP: showall
+
+A small collection of single-file Python command-line and desktop tools for
+running AI models *locally*: text-to-speech, speech-to-text and a
+chat-driven SVG sketching app. Each tool is a standalone executable script
+with no build step.
+
+* Contents
+
+| Tool             | Kind        | What it does                                                   | Backend                       |
+|------------------+-------------+----------------------------------------------------------------+-------------------------------|
+| =say=            | CLI         | Speak text aloud with automatic language detection             | [[https://github.com/rhasspy/piper][Piper]] TTS + =mpv=             |
+| =transcribe=     | CLI         | Transcribe audio/video to WebVTT, SubRip or plain text         | Lemonade Server (Whisper)     |
+| =sketchat=       | GTK4 app    | Describe shapes in chat, get a live-rendered SVG               | =llama-server= (Qwen, Vulkan) |
+| =setup_hf_token= | CLI helper  | Interactively set up a Hugging Face access token               | Hugging Face API              |
+
+* Requirements
+
+- Python 3.12 or newer. =say= uses the =type= statement and =TypeIs=
+  (=typing.TypeIs= requires Python 3.13).
+- Linux. The scripts auto-install missing dependencies on *Arch Linux*
+  via =pacman= (using =sudo=). =transcribe= additionally supports *Nix / NixOS*.
+- Per-tool dependencies are listed in each section below.
+
+* Installation
+
+#+begin_src sh
+git clone https://codeberg.org/nordlow/apps-2.0.git
+cd apps-2.0
+chmod +x say transcribe sketchat setup_hf_token
+#+end_src
+
+Optionally put the directory on your =PATH= (or symlink the scripts into
+=~/.local/bin=) so they can be run from anywhere:
+
+#+begin_src sh
+ln -s "$PWD"/{say,transcribe,sketchat,setup_hf_token} ~/.local/bin/
+#+end_src
+
+* say — text-to-speech
+
+Speaks text with [[https://github.com/rhasspy/piper][Piper]], playing the result through =mpv=. The language is
+detected automatically (or overridden), a matching voice is chosen, and
+voice models are downloaded from Hugging Face on first use and cached.
+
+** Features
+
+- Language detection: a fast keyword heuristic for short texts (7 words or
+  fewer), falling back to =langdetect= for longer ones.
+- Curated default voices for 16 languages: =en sv de fr es it nl pl pt ru uk zh ca da fi no=.
+- Voices from Hugging Face (=rhasspy/piper-voices=), local =.onnx= files,
+  direct URLs, or sideloaded models in =~/.local/share/piper/custom_voices=.
+- Text from arguments or from standard input.
+- Speed, expressiveness, rhythm, sentence pause and volume controls.
+- Render to a =.wav= file instead of playing.
+
+** Dependencies
+
+- =piper-tts= (or =piper=) binary on =PATH=
+- =mpv=
+- Python: =huggingface_hub= (optional, plain HTTP fallback otherwise),
+  =langdetect= (for longer texts)
+
+Missing ones other than Piper are installed via =pacman= when available.
+
+** Usage
+
+#+begin_src sh
+./say "Hello, world!"                               # auto-detect language
+echo "Guten Morgen" | ./say                         # read from stdin
+./say -L sv "Jag är lite trög i huvet!" --speed 6   # force Swedish
+./say -v sv_SE-nst-medium "Hej!"                    # explicit voice
+./say -o hello.wav "Save me to a file"              # write a WAV
+./say -l swedish                                    # list matching voices
+./say --update-voices                               # refresh the voice catalog
+#+end_src
+
+** Options
+
+| Option                         | Description                                                    |
+|--------------------------------+----------------------------------------------------------------|
+| =-L=, =--lang=                 | Override language (=sv=, =de=, or a name such as =swedish=)    |
+| =-v=, =--voice=                | Voice key, URL to an =.onnx=, or local =.onnx= path            |
+| =-s=, =--speaker=              | Speaker ID or name (multi-speaker models)                      |
+| =-l=, =--list-voices [FILTER]= | List available voices, optionally filtered                     |
+| =--update-voices=              | Force-refresh the cached voice catalog                         |
+| =--speed=, =--length-scale=    | Speaking speed; below 1.0 is faster, above 1.0 is slower       |
+| =--noise-scale=                | Expressiveness (default about 0.667)                           |
+| =--noise-w=                    | Rhythm variability (default about 0.8)                         |
+| =--sentence-silence=           | Seconds of silence after each sentence                         |
+| =--volume=                     | Playback volume in percent, passed to =mpv=                    |
+| =-o=, =--output-file=          | Save to a =.wav= file instead of playing                       |
+
+** Adding voices
+
+Drop a =name.onnx= and =name.onnx.json= pair into
+=~/.local/share/piper/custom_voices/=, or register a remote voice in the
+=EXTERNAL_VOICES= dictionary at the top of the script, using =onnx_url= and
+=json_url= keys. Voice names should follow Piper's
+=<lang>_<REGION>-<name>-<quality>= convention (e.g. =sv_SE-nst-medium=) so
+the language is inferred correctly.
+
+* transcribe — speech-to-text
+
+Decodes any audio or video file with PyAV, resamples it to 16 kHz mono,
+splits it into chunks and streams them to a local
+[[https://github.com/lemonade-sdk/lemonade][Lemonade Server]] using its OpenAI-compatible transcription endpoint. Cues
+are written incrementally, so output starts appearing before the whole file
+has been processed.
+
+** Features
+
+- Output as WebVTT (default), SubRip (=srt=) or plain text.
+- 10-minute chunks by default (about 19 MB each, under the 25 MB payload
+  limit), with the previous chunk's text passed as context for continuity.
+- Output format is inferred from the =-o= file extension.
+- Offers to install and start Lemonade Server if it is missing.
+- Offers to pull the Whisper model if it is not yet downloaded.
+- Dependency bootstrap per backend:
+  - *Nix*: re-executes inside =nix-shell= / =nix shell= with the needed
+    Python packages, or emits a =flake.nix= / =shell.nix= for you.
+  - *Arch*: installs =python-av= and =python-openai= via =pacman=.
+  - *Other*: prints manual installation instructions.
+
+** Usage
+
+#+begin_src sh
+./transcribe recording.mp4                            # WebVTT to stdout
+./transcribe -l sv -o talk.vtt talk.m4a               # Swedish, to a file
+./transcribe -l sv -f srt -o sub.srt recording.mp4    # SubRip
+./transcribe -f txt recording.mp4                     # plain text
+#+end_src
+
+** Options
+
+| Option                | Description                                               |
+|-----------------------+-----------------------------------------------------------|
+| =-o=, =--output=      | Output file (default: stdout)                             |
+| =-f=, =--format=      | =vtt= (default), =srt= or =txt=                           |
+| =-l=, =--language=    | Language code, e.g. =sv=, =en=, =de=                      |
+| =-m=, =--model=       | Whisper model name (default =Whisper-Large-v3-Turbo=)     |
+| =--chunk-size=        | Chunk length in minutes (default 10)                      |
+| =--pull=              | Download the model without prompting                      |
+| =--pkg-manager=       | =auto=, =nix=, =pacman= or =none=                         |
+| =--emit-nix=          | Write =flake= or =shell= expression and exit              |
+| =--force=             | Overwrite files written by =--emit-nix=                   |
+| =-v=, =--verbose=     | Debug logging                                             |
+
+** Environment variables
+
+| Variable                  | Default                          | Purpose                          |
+|---------------------------+----------------------------------+----------------------------------|
+| =LEMONADE_URL=            | =http://localhost:13305/api/v1=  | Lemonade Server endpoint         |
+| =WHISPER_MODEL=           | =Whisper-Large-v3-Turbo=         | Default model                    |
+| =LEMONADE_SERVICE=        | =lemond=                         | systemd user service name        |
+| =TRANSCRIBE_PKG_MANAGER=  | =auto=                           | Force dependency backend         |
+
+** Nix
+
+#+begin_src sh
+# One-off shell with all Python dependencies
+nix-shell -p 'python3.withPackages (ps: with ps; [ av openai ])' \
+  --run './transcribe recording.mp4'
+
+# Or generate a flake next to the script
+./transcribe --emit-nix flake
+nix develop -c ./transcribe recording.mp4
+
+# Install Lemonade Server through the community flake
+nix profile install github:noamsto/nix-amd-ai#lemonade
+
+# Use a Lemonade Server running on another machine
+LEMONADE_URL=http://box.lan:13305/api/v1 ./transcribe recording.mp4
+#+end_src
+
+Note that the =lemonade-unstable= package in nixpkgs is an unrelated
+clipboard utility, not the AI inference server.
+
+* sketchat — chat-driven SVG sketching
+
+A GTK4 / Libadwaita desktop app. Type a description such as "draw 3 blue
+circles and 2 boxes" and a local LLM answers with SVG elements, which are
+rendered live in the right-hand pane. Follow-up prompts modify the drawing,
+since the conversation history is kept.
+
+** Features
+
+- Runs entirely locally: starts a =llama-server= on =127.0.0.1:8080= with
+  Vulkan GPU offload (or reuses one that is already running).
+- Default model: =unsloth/Qwen3.5-9B-GGUF= (Q5_K_M, about 6.5 GB), looked up in
+  the current directory, =~/.cache/llama.cpp= and =~/.local/share/models=
+  before downloading from Hugging Face. Alternative models are listed as
+  comments at the top of the script.
+- Optional GBNF grammar (=--use-grammar=) that constrains output to valid
+  SVG primitives; recommended for models under 2B parameters.
+- WebKit renderer that automatically widens the viewBox if shapes overflow
+  the 500×500 canvas, with a =Gtk.Picture= fallback (=--use-picture=).
+- Header-bar actions to reset the prompt memory or clear the whole session.
+- The latest rendering is also written to =/tmp/vector_preview.svg=.
+
+** Dependencies (Arch packages)
+
+=pyalpm=, =llama-cpp=, =ggml-vulkan=, =python-huggingface-hub=,
+=python-gobject=, =gtk4=, =libadwaita=, =librsvg= and =webkitgtk-6.0=.
+Missing packages are installed with =sudo pacman= at startup.
+
+** Usage
+
+#+begin_src sh
+./sketchat                 # default model, WebKit canvas
+./sketchat --use-grammar   # grammar-constrained output
+./sketchat --use-picture   # GdkPixbuf renderer instead of WebKit
+#+end_src
+
+Press =Ctrl+Q= to quit and =Ctrl+W= to close the window.
+
+** Notes
+
+- The context window is 2048 tokens and each reply is capped at 700 tokens,
+  so very long sessions need the prompt memory reset occasionally.
+- The Vulkan device is hard-coded to =Vulkan0=; edit =ensure_llama_server=
+  if you have multiple GPUs or want to use another backend.
+
+* setup_hf_token — Hugging Face authentication
+
+An interactive helper that walks you through creating and storing a Hugging
+Face access token, which is useful for higher rate limits and gated models.
+
+#+begin_src sh
+./setup_hf_token
+#+end_src
+
+It will:
+
+1. Check any existing token (cache file, =$HF_TOKEN=, or the Fish shell
+   variable) and show who you are authenticated as.
+2. Open the token page in your browser and tell you which options to pick.
+3. Read the new token with hidden input and verify it against the Hugging
+   Face API.
+4. Save it to =~/.cache/huggingface/token= with mode =0600=, outside your
+   dotfiles, and erase any stale =HF_TOKEN= Fish universal variable so the
+   secret cannot leak through version-controlled dotfiles.
+
+The token is picked up automatically by =huggingface_hub= and the =hf= CLI.
+
+* Troubleshooting
+
+- *=say= cannot find Piper*: install a package providing =piper-tts= or
+  =piper= and make sure it is on =PATH=.
+- *=say= cannot find a voice*: run =./say -l <language>= to list voice keys,
+  or =./say --update-voices= to refresh the catalog.
+- *=transcribe= cannot reach the server*: start it with
+  =systemctl --user start lemond=, or point =LEMONADE_URL= at a running
+  instance.
+- *=sketchat= fails to start the server*: check that
+  =llama-server --list-devices= shows =Vulkan0=, and that port 8080 is free.
+- *Hugging Face downloads are rate limited*: run =./setup_hf_token=.
+
+* Contributing
+
+Issues and merge requests are welcome on [[https://codeberg.org/nordlow/apps-2.0][Codeberg]].
+
+* License
+
+# TODO: state the license here (and add a LICENSE file to the repository).
