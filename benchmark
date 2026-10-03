@@ -2679,8 +2679,26 @@ TABLE_COLUMNS = [
 ]
 
 
-def table_titles(values_mode: str = 'absolute') -> list[str]:
-    return [col.header(values_mode) for col in TABLE_COLUMNS]
+def table_titles(values_mode: str = "absolute", results: Results | None = None) -> list[str]:
+    if not results:
+        return [col.header(values_mode) for col in TABLE_COLUMNS]
+    time_units = get_column_time_units(results)
+    check_u = time_units.get(CHECK_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
+    compile_u = time_units.get(COMPILE_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
+    build_u = time_units.get(BUILD_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
+    run_u = time_units.get(RUN_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
+
+    cols = [
+        Column("Language (Exec)"),
+        Column("Check", check_u),
+        Column("Compile", compile_u),
+        Column("Build", build_u),
+        Column("Run", run_u),
+        Column("Check RSS", "kB/f"),
+        Column("Build RSS", "kB/f"),
+        Column("Output Size", "B/f"),
+    ]
+    return [col.header(values_mode) for col in cols]
 
 
 MARKDOWN_TABLE_TITLES = table_titles('absolute')
@@ -2731,7 +2749,7 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
     return f"{lang}-{'Templated' if templated else 'Untemplated'}-{run_ix}"
 
 
-def format_metric_columns(results: Results, column_ix: int, values_mode: str = 'absolute', highlight: bool = False):
+def format_metric_columns(results: Results, column_ix: int, values_mode: str = "absolute", highlight: bool = False, time_unit: tuple[str, float] | None = None):
     # Track the smallest value per column separately for the plain (P) and
     # templated (T) variant of each language, so each half of a merged
     # "P / T" cell gets its own winner highlighted independently.
@@ -2748,19 +2766,31 @@ def format_metric_columns(results: Results, column_ix: int, values_mode: str = '
                                               min_val=min_vals[templated],
                                               column_ix=column_ix,
                                               values_mode=values_mode,
-                                              highlight=highlight)
+                                              highlight=highlight,
+                                              time_unit=time_unit)
 
 
-def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = 'absolute', highlight: bool = False):
+def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = "absolute", highlight: bool = False, time_unit: tuple[str, float] | None = None):
     if isinstance(abs_n, str):
-        return '{:>13}'.format(abs_n)
+        return "{:>13}".format(abs_n)
     if abs_n is None:
-        return '{:>6}'.format('N/A')
+        return "{:>6}".format("N/A")
 
-    if column_ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX):
-        abs_str = to_str_in_microseconds(abs_n)
-    elif column_ix == RUN_DUR_PER_FUNC_IX:
-        abs_str = to_str_in_nanoseconds(abs_n)
+    if column_ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX, RUN_DUR_PER_FUNC_IX):
+        if time_unit is not None:
+            u_str, _ = time_unit
+            if u_str.startswith("ns"):
+                abs_str = to_str_in_nanoseconds(abs_n)
+            elif u_str.startswith("ms"):
+                abs_str = to_str_in_milliseconds(abs_n)
+            elif u_str.startswith("s"):
+                abs_str = to_str_in_seconds(abs_n)
+            else:
+                abs_str = to_str_in_microseconds(abs_n)
+        elif column_ix == RUN_DUR_PER_FUNC_IX:
+            abs_str = to_str_in_nanoseconds(abs_n)
+        else:
+            abs_str = to_str_in_microseconds(abs_n)
     elif column_ix in (CHECK_RSS_MU_IX, BUILD_RSS_MU_IX):
         abs_str = to_str_memory_usage(abs_n)
     elif column_ix == OUTPUT_SIZE_IX:
@@ -2798,12 +2828,52 @@ def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = 'absolute', 
         return _hl(abs_str)
 
 
+def to_str_in_seconds(dur):
+    return "{:6.1f}".format(dur) if dur is not None else ""
+
+
+def to_str_in_milliseconds(dur):
+    return "{:6.1f}".format(1e3 * dur) if dur is not None else ""
+
+
 def to_str_in_microseconds(dur):
-    return '{:6.1f}'.format(1e6 * dur)
+    return "{:6.1f}".format(1e6 * dur) if dur is not None else ""
 
 
 def to_str_in_nanoseconds(dur):
-    return '{:6.0f}'.format(1e9 * dur) if dur is not None else ''
+    return "{:6.0f}".format(1e9 * dur) if dur is not None else ""
+
+
+def pick_time_unit_and_scale(values: list[float]) -> tuple[str, float]:
+    """Pick standard SI unit and scale (s/f, ms/f, us/f, ns/f) keeping values in [1, 1000)."""
+    valid = [v for v in values if isinstance(v, (int, float)) and v > 0]
+    if not valid:
+        return ("us/f", 1e6)
+    valid.sort()
+    rep = valid[len(valid) // 2]
+    if rep >= 1.0:
+        return ("s/f", 1.0)
+    elif rep >= 1e-3:
+        return ("ms/f", 1e3)
+    elif rep >= 1e-6:
+        return ("us/f", 1e6)
+    else:
+        return ("ns/f", 1e9)
+
+
+def get_column_time_units(results: Results) -> dict[int, tuple[str, float]]:
+    check_vals = [r[CHECK_DUR_PER_FUNC_IX] for r in results.values() if r[CHECK_DUR_PER_FUNC_IX] is not None]
+    check_vals += [r[AST_CHECK_DUR_PER_FUNC_IX] for r in results.values() if r[AST_CHECK_DUR_PER_FUNC_IX] is not None]
+    check_unit, check_scale = pick_time_unit_and_scale(check_vals)
+
+    units = {
+        AST_CHECK_DUR_PER_FUNC_IX: (check_unit, check_scale),
+        CHECK_DUR_PER_FUNC_IX: (check_unit, check_scale),
+    }
+    for col_ix in (COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX, RUN_DUR_PER_FUNC_IX):
+        vals = [r[col_ix] for r in results.values() if r[col_ix] is not None]
+        units[col_ix] = pick_time_unit_and_scale(vals)
+    return units
 
 
 def factor_str(factor):
@@ -2905,13 +2975,15 @@ def get_semantic_tier(lang: str, cexe: str) -> int:
     return spec.tier
 
 
-def render_single_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False) -> str:
+def render_single_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False, time_units: dict | None = None) -> str:
+    if time_units is None:
+        time_units = get_column_time_units(results)
     res_copy = {k: list(v) for k, v in results.items()}
-    format_metric_columns(results=res_copy, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=res_copy, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=res_copy, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=res_copy, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=res_copy, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(AST_CHECK_DUR_PER_FUNC_IX))
+    format_metric_columns(results=res_copy, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(CHECK_DUR_PER_FUNC_IX))
+    format_metric_columns(results=res_copy, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(COMPILE_DUR_PER_FUNC_IX))
+    format_metric_columns(results=res_copy, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(BUILD_DUR_PER_FUNC_IX))
+    format_metric_columns(results=res_copy, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(RUN_DUR_PER_FUNC_IX))
     format_metric_columns(results=res_copy, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
     format_metric_columns(results=res_copy, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
     format_metric_columns(results=res_copy, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
@@ -2941,6 +3013,9 @@ def render_single_table(titles: list[str], results: Results, values_mode: str = 
 
 
 def markdown_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False) -> str:
+    time_units = get_column_time_units(results) if results else {}
+    if titles is None or (results and titles == table_titles(values_mode)):
+        titles = table_titles(values_mode, results)
     tiered_results: dict[int, Results] = {1: {}, 2: {}, 3: {}}
     for key, row in results.items():
         lang, _, cexe = key
@@ -2953,7 +3028,7 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
         t_res = tiered_results.get(tier_id)
         if not t_res:
             continue
-        tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight)
+        tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight, time_units=time_units)
         sections.append("### " + title + nl + "*" + desc + "*" + nl + nl + tbl)
 
     return (nl + nl).join(sections)
@@ -3517,7 +3592,7 @@ def main():
         cleanup_call_empty_dirs()
 
     print()
-    print(markdown_table(table_titles(args.values), results, values_mode=args.values, highlight=args.highlight_min))
+    print(markdown_table(table_titles(args.values, results), results, values_mode=args.values, highlight=args.highlight_min))
 
 
 def install_missing_modules():
