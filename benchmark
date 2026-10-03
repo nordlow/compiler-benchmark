@@ -2838,29 +2838,23 @@ FMT_0F = f"%{FIELD_WIDTH}.0f"
 def to_str_in_seconds(dur):
     return FMT_1F % dur if dur is not None else ""
 
-
 def to_str_in_milliseconds(dur):
     return FMT_1F % (1e3 * dur) if dur is not None else ""
-
 
 def to_str_in_microseconds(dur):
     return FMT_1F % (1e6 * dur) if dur is not None else ""
 
-
 def to_str_in_nanoseconds(dur):
     return FMT_0F % (1e9 * dur) if dur is not None else ""
 
-
 def factor_str(factor):
-    return '{:.1f}'.format(factor)
-
+    return "{:.1f}".format(factor)
 
 def to_str_memory_usage(mu):
-    return '{:6.1f}'.format(mu / 1e3)
-
+    return "{:{width}.1f}".format(mu / 1e3, width=FIELD_WIDTH)
 
 def to_str_output_size(size):
-    return '{:6.1f}'.format(size)
+    return "{:{width}.1f}".format(size, width=FIELD_WIDTH)
 
 
 def markdown_header(text: str, nr: int):
