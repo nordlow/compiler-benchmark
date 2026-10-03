@@ -3337,7 +3337,7 @@ def main():
                         help='Rate of memory usage sampling. Unit is samples per second.')
 
     parser.add_argument('--run-count', '--rc', type=int,
-                        default=5,
+                        default=10,
                         help='Number of runs for each compilation')
 
     parser.add_argument('--values', '--val', type=str,
