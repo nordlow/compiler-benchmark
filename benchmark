@@ -2828,20 +2828,43 @@ def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = "absolute", 
         return _hl(abs_str)
 
 
+FIELD_WIDTH = 6
+
+# Precomputed once when the module loads
+FMT_1F = f"%{FIELD_WIDTH}.1f"
+FMT_0F = f"%{FIELD_WIDTH}.0f"
+
+
 def to_str_in_seconds(dur):
-    return "{:6.1f}".format(dur) if dur is not None else ""
+    return FMT_1F % dur if dur is not None else ""
 
 
 def to_str_in_milliseconds(dur):
-    return "{:6.1f}".format(1e3 * dur) if dur is not None else ""
+    return FMT_1F % (1e3 * dur) if dur is not None else ""
 
 
 def to_str_in_microseconds(dur):
-    return "{:6.1f}".format(1e6 * dur) if dur is not None else ""
+    return FMT_1F % (1e6 * dur) if dur is not None else ""
 
 
 def to_str_in_nanoseconds(dur):
-    return "{:6.0f}".format(1e9 * dur) if dur is not None else ""
+    return FMT_0F % (1e9 * dur) if dur is not None else ""
+
+
+def factor_str(factor):
+    return '{:.1f}'.format(factor)
+
+
+def to_str_memory_usage(mu):
+    return '{:6.1f}'.format(mu / 1e3)
+
+
+def to_str_output_size(size):
+    return '{:6.1f}'.format(size)
+
+
+def markdown_header(text: str, nr: int):
+    return '#' * nr + ' ' + text
 
 
 def pick_time_unit_and_scale(values: list[float]) -> tuple[str, float]:
@@ -2874,22 +2897,6 @@ def get_column_time_units(results: Results) -> dict[int, tuple[str, float]]:
         vals = [r[col_ix] for r in results.values() if r[col_ix] is not None]
         units[col_ix] = pick_time_unit_and_scale(vals)
     return units
-
-
-def factor_str(factor):
-    return '{:.1f}'.format(factor)
-
-
-def to_str_memory_usage(mu):
-    return '{:6.1f}'.format(mu / 1e3)
-
-
-def to_str_output_size(size):
-    return '{:6.1f}'.format(size)
-
-
-def markdown_header(text: str, nr: int):
-    return '#' * nr + ' ' + text
 
 
 def merge_plain_and_templated_results(results: Results):
