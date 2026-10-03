@@ -2848,14 +2848,13 @@ def to_str_in_nanoseconds(dur):
     return FMT_0F % (1e9 * dur) if dur is not None else ""
 
 def factor_str(factor):
-    return "{:.1f}".format(factor)
+    return f"{factor:.1f}"
 
 def to_str_memory_usage(mu):
-    return "{:{width}.1f}".format(mu / 1e3, width=FIELD_WIDTH)
+    return f"{mu / 1e3:{FIELD_WIDTH}.1f}"
 
 def to_str_output_size(size):
-    return "{:{width}.1f}".format(size, width=FIELD_WIDTH)
-
+    return f"{size:{FIELD_WIDTH}.1f}"
 
 def markdown_header(text: str, nr: int):
     return '#' * nr + ' ' + text
