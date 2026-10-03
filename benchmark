@@ -111,10 +111,6 @@ if RANDOMIZE_FLAG:
     random.seed(str(datetime.now()))
 
 
-# =============================================================================
-# LANGUAGE REGISTRY: the single interface between languages and the engine
-# =============================================================================
-
 def function_name(typ: str, findex: int, fheight: int | None = None) -> str:
     """Fast f-string based function name formatter."""
     if fheight is not None:
@@ -134,8 +130,6 @@ class VersionSpec(NamedTuple):
     parse: Callable[[str, str], str | None] | None = None
     fixed: str | None = None
 
-
-# ---- default hooks ----------------------------------------------------------
 
 def _no_text(*_args) -> str:
     return ''
@@ -170,8 +164,6 @@ def _never_native(cexe: str) -> bool:
 def _no_limits(args: argparse.Namespace) -> list[str]:
     return []
 
-
-# ---- function emitter factory -------------------------------------------------
 
 def _default_leaf(typ: str, templated: bool, c: str) -> str:
     return f"x + {c}"
@@ -279,10 +271,6 @@ def build_lang_aliases() -> dict[str, Lang]:
     return aliases
 
 
-# =============================================================================
-# SHARED TOOLCHAIN HELPERS (not tied to a single language)
-# =============================================================================
-
 def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
     """Extract a version identifier; per-compiler probing is declared via VersionSpec."""
     base = os.path.basename(cexe)
@@ -361,8 +349,6 @@ def get_gcc_lib_dir() -> str | None:
     return None
 
 
-# GCC / Clang driver family, shared by C and C++ ---------------------------------
-
 C_WARN_FLAGS = ['-Wall', '-Wextra']
 CXX_WARN_FLAGS = ['-Wno-c++11-extensions']
 
@@ -404,13 +390,6 @@ def bm_C_and_Cxx_using_clang(results: Results, lang, code_paths, args: argparse.
                               get_compiler_version(cexe), lang, templated, results)
 
 
-# =============================================================================
-# LANGUAGE BLOCKS (registration order == benchmark order)
-# =============================================================================
-
-# -----------------------------------------------------------------------------
-# Zig
-# -----------------------------------------------------------------------------
 zig_no_llvm_build_flags = ['-fno-llvm', '-fno-lld', '-fno-clang']
 
 
@@ -466,9 +445,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# D
-# -----------------------------------------------------------------------------
 def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips: bool = False):
     lang = 'D'
     d_flags = []
@@ -561,9 +537,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Odin
-# -----------------------------------------------------------------------------
 def bm_Odin(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Odin'
     cexe = resolve_compiler_path(args, lang, 'odin')
@@ -626,9 +599,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# C   (gcc/clang drivers are shared with C++, see "SHARED TOOLCHAIN HELPERS")
-# -----------------------------------------------------------------------------
 CUIK_MAX_DIM = 100  # compiler stability limit
 
 
@@ -766,9 +736,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# C++
-# -----------------------------------------------------------------------------
 register_language(LangSupport(
     name=Lang('C++'), exes=[Exec('g++'), Exec('clang++')], extension=FileExt('cpp'), int_type=TypeName('long'),
     runners=[
@@ -786,9 +753,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Ada
-# -----------------------------------------------------------------------------
 def bm_Ada_using_gcc(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Ada'
     if op == 'check':
@@ -829,9 +793,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Go
-# -----------------------------------------------------------------------------
 def bm_Go_using_go(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Go'
     cexe = resolve_compiler_path(args, lang, 'go')
@@ -897,9 +858,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Swift
-# -----------------------------------------------------------------------------
 def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Swift'
     cexe = resolve_compiler_path(args, lang, 'swiftc')
@@ -944,9 +902,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Hylo
-# -----------------------------------------------------------------------------
 def bm_Hylo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Hylo'
     cexe = resolve_compiler_path(args, lang, 'hc')
@@ -994,9 +949,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# V
-# -----------------------------------------------------------------------------
 def bm_V(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'V'
     cexe = resolve_compiler_path(args, lang, 'v')
@@ -1045,9 +997,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# C3
-# -----------------------------------------------------------------------------
 def bm_C3(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C3'
     cexe = resolve_compiler_path(args, lang, 'c3c')
@@ -1111,9 +1060,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Rust
-# -----------------------------------------------------------------------------
 RUSTC_NO_WARNINGS_FLAGS = ['-A', 'warnings']  # disable warnings for `rustc`
 RUSTC_FLAGS = []  # set to `RUSTC_NO_WARNINGS_FLAGS` to disable warnings
 
@@ -1196,9 +1142,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Nim
-# -----------------------------------------------------------------------------
 NIM_MAX_DEPTH = 50  # compiler hard limit on recursive generic instantiations
 
 
@@ -1260,9 +1203,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# C#
-# -----------------------------------------------------------------------------
 def bm_CSharp_using_mcs(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'C#'
     cexe = resolve_compiler_path(args, lang, 'mcs')
@@ -1360,9 +1300,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Java
-# -----------------------------------------------------------------------------
 JAVA_MAX_TOTAL_FUNCS = 10_000
 JAVA_CAPPED_DIM = 100
 
@@ -1418,9 +1355,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Pareas
-# -----------------------------------------------------------------------------
 def bm_Pareas(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Pareas'
     cexe = resolve_compiler_path(args, lang, 'pareas')
@@ -1455,9 +1389,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Python
-# -----------------------------------------------------------------------------
 def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Python'
     target_pyc = out_binary(lang)
@@ -1520,9 +1451,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Lua (LuaJIT)
-# -----------------------------------------------------------------------------
 LUA_MAX_TOTAL_FUNCS = 20_000
 LUA_CAPPED_DIM = 150
 
@@ -1605,9 +1533,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Mojo
-# -----------------------------------------------------------------------------
 def bm_Mojo(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Mojo'
     cexe = resolve_compiler_path(args, lang, 'mojo')
@@ -1641,9 +1566,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Crystal
-# -----------------------------------------------------------------------------
 def bm_Crystal(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Crystal'
     cexe = resolve_compiler_path(args, lang, 'crystal')
@@ -1691,9 +1613,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Pascal
-# -----------------------------------------------------------------------------
 def bm_Pascal(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Pascal'
     cexe = resolve_compiler_path(args, lang, 'fpc')
@@ -1744,9 +1663,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Haskell
-# -----------------------------------------------------------------------------
 def bm_Haskell(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Haskell'
     cexe = resolve_compiler_path(args, lang, 'ghc')
@@ -1807,9 +1723,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Fortran
-# -----------------------------------------------------------------------------
 def bm_Fortran_using_gcc(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Fortran'
     op_flags = {'check': ['-fsyntax-only'], 'compile': ['-c'], 'build': ['-O0']}.get(op)
@@ -1847,9 +1760,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Hare
-# -----------------------------------------------------------------------------
 def bm_Hare(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Hare'
     cexe = resolve_compiler_path(args, lang, 'hare')
@@ -1908,9 +1818,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# OCaml
-# -----------------------------------------------------------------------------
 OCAML_JULIA_MAX_TOTAL_FUNCS = 10_000
 OCAML_JULIA_CAPPED_DIM = 200
 
@@ -1975,9 +1882,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Julia
-# -----------------------------------------------------------------------------
 JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
 
@@ -2024,9 +1928,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Scheme (Chez)
-# -----------------------------------------------------------------------------
 def bm_Scheme(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Scheme'
     cexe = resolve_compiler_path(args, lang, 'chez') or resolve_compiler_path(args, lang, 'scheme')
@@ -2096,9 +1997,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Vox
-# -----------------------------------------------------------------------------
 def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Vox'
     cexe = resolve_compiler_path(args, lang, 'vox')
@@ -2161,9 +2059,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Pony
-# -----------------------------------------------------------------------------
 def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Pony'
     cexe = resolve_compiler_path(args, lang, 'ponyc')
@@ -2219,9 +2114,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# TypeScript
-# -----------------------------------------------------------------------------
 def bm_TypeScript(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'TypeScript'
     cexe = resolve_compiler_path(args, lang, 'tsc')
@@ -2281,9 +2173,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Dart
-# -----------------------------------------------------------------------------
 def bm_Dart(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Dart'
     cexe = resolve_compiler_path(args, lang, 'dart')
@@ -2337,9 +2226,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Common Lisp (SBCL)
-# -----------------------------------------------------------------------------
 def bm_CommonLisp(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Common Lisp'
     cexe = resolve_compiler_path(args, lang, 'sbcl')
@@ -2434,9 +2320,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Guile
-# -----------------------------------------------------------------------------
 def bm_Guile(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Guile'
     cexe = resolve_compiler_path(args, lang, 'guild') or resolve_compiler_path(args, lang, 'guile')
@@ -2508,9 +2391,6 @@ register_language(LangSupport(
 ))
 
 
-# -----------------------------------------------------------------------------
-# Roc
-# -----------------------------------------------------------------------------
 def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Roc'
     cexe = resolve_compiler_path(args, lang, 'roc')
@@ -2573,12 +2453,6 @@ register_language(LangSupport(
     postfix=lambda types: f"    _ = Stdout.line!(Str.inspect(${types[0].lower()}_sum))\n    Ok({{}})\n}}\n",
 ))
 
-
-# =============================================================================
-# GENERIC ENGINE (language-agnostic from here on)
-# =============================================================================
-
-# ---- progress display -------------------------------------------------------
 
 def _format_duration(secs: float) -> str:
     if secs < 60:
@@ -2651,8 +2525,6 @@ def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, 
             stream.flush()
             status_len.value = len(status_text) + pad
 
-
-# ---- table layout -----------------------------------------------------------
 
 class Column:
     def __init__(self, name: str, unit: str | None = None):
@@ -3034,8 +2906,6 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
     return (nl + nl).join(sections)
 
 
-# ---- test program generation --------------------------------------------------
-
 RAND_POOL_SIZE = 4096
 RAND_POOL_MASK = RAND_POOL_SIZE - 1
 RAND_STR_POOL = [str(random.randint(0, 100000)) for _ in range(RAND_POOL_SIZE)]
@@ -3112,8 +2982,6 @@ def generate_test_program_file(lang: str,
 
     return path
 
-
-# ---- compiler invocation / measurement ----------------------------------------
 
 def build_compiler_cmd(lang: str, cexe: str, cexe_flags: list, out_flags: list, src_name: str, has_stdin: bool) -> list:
     """Construct the argv; a language may override the ordering via LangSupport.build_cmd."""
@@ -3325,8 +3193,6 @@ def benchmark_compiler_op(code_paths: dict,
 
     return row
 
-
-# ---- parallel driver ------------------------------------------------------------
 
 def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len, root_path):
     global _worker_active_tasks, _worker_status_len, ROOT_PATH
