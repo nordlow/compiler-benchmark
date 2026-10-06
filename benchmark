@@ -2715,10 +2715,9 @@ class Column:
 
 TABLE_COLUMNS = [
     Column('Language (Exec)'),
+    Column('Total (Build + Run)', 'us/f'),
     Column('Check', 'us/f'),
     Column('Compile', 'us/f'),
-    Column('Build', 'us/f'),
-    Column('Run', 'us/f'),
     Column('Check RSS', 'kB/f'),
     Column('Build RSS', 'kB/f'),
     Column('Output Size', 'B/f'),
@@ -2731,15 +2730,12 @@ def table_titles(values_mode: str = "absolute", results: Results | None = None) 
     time_units = get_column_time_units(results)
     check_u = time_units.get(CHECK_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
     compile_u = time_units.get(COMPILE_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
-    build_u = time_units.get(BUILD_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
-    run_u = time_units.get(RUN_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
 
     cols = [
         Column("Language (Exec)"),
+        Column("Total (Build + Run)", "us/f"),
         Column("Check", check_u),
         Column("Compile", compile_u),
-        Column("Build", build_u),
-        Column("Run", run_u),
         Column("Check RSS", "kB/f"),
         Column("Build RSS", "kB/f"),
         Column("Output Size", "B/f"),
@@ -2763,8 +2759,8 @@ CEXE_VERSION_IX = 10
 CEXE_PATH_IX = 11
 RAW_ROW_LENGTH = CEXE_PATH_IX + 1
 
-# The merged table has 4 fewer columns than the raw row (no separate 'Temp-lated', 'CEXE_PATH', 'AST-C', or 'Version' columns)
-assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 4
+# The merged table has 5 fewer columns than the raw row (no separate 'Temp-lated', 'CEXE_PATH', 'AST-C', 'Version', and Build+Run merged)
+assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 5
 
 
 def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
@@ -2942,8 +2938,6 @@ def merge_plain_and_templated_results(results: Results):
     metric_cols = [
         CHECK_DUR_PER_FUNC_IX,
         COMPILE_DUR_PER_FUNC_IX,
-        BUILD_DUR_PER_FUNC_IX,
-        RUN_DUR_PER_FUNC_IX,
         CHECK_RSS_MU_IX,
         BUILD_RSS_MU_IX,
         OUTPUT_SIZE_IX,
@@ -2961,6 +2955,39 @@ def merge_plain_and_templated_results(results: Results):
         version_str = f" {version}" if version and version != "unknown" else ""
         merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]}{version_str})"]
         has_ast_check = Op.AST_CHECK.value in lang_support(str(lang)).ops
+
+        def format_tot(row):
+            if row is None:
+                return None
+            b = row[BUILD_DUR_PER_FUNC_IX]
+            r = row[RUN_DUR_PER_FUNC_IX]
+            if b is None and r is None:
+                return None
+            b_val = b if isinstance(b, (int, float)) else 0.0
+            r_val = r if isinstance(r, (int, float)) else 0.0
+            b_us = b_val * 1e6
+            r_us = r_val * 1e6
+            tot_us = b_us + r_us
+            r_str = "0.0" if r_us == 0.0 else (f"{r_us:.2f}" if r_us < 1.0 else f"{r_us:.1f}")
+            return f"{tot_us:.1f} ({b_us:.1f} + {r_str})"
+
+        tot_p = format_tot(row_plain)
+        tot_t = format_tot(row_tmpl)
+        p_tot_na = (tot_p is None)
+        t_tot_na = (tot_t is None)
+
+        if p_tot_na and t_tot_na:
+            tot_cell = "N/A"
+        elif row_tmpl is None:
+            tot_cell = f"{tot_p},-" if not p_tot_na else "N/A"
+        elif p_tot_na:
+            tot_cell = f"-,{tot_t}"
+        elif t_tot_na:
+            tot_cell = f"{tot_p},-"
+        else:
+            tot_cell = f"{tot_p},{tot_t}"
+
+        merged_row.append(tot_cell)
 
         def format_col(col_ix):
             val_p = str(row_plain[col_ix]).strip() if row_plain and row_plain[col_ix] is not None else None
@@ -3028,8 +3055,6 @@ def render_single_table(titles: list[str], results: Results, values_mode: str = 
     format_metric_columns(results=res_copy, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(AST_CHECK_DUR_PER_FUNC_IX))
     format_metric_columns(results=res_copy, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(CHECK_DUR_PER_FUNC_IX))
     format_metric_columns(results=res_copy, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(COMPILE_DUR_PER_FUNC_IX))
-    format_metric_columns(results=res_copy, column_ix=BUILD_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(BUILD_DUR_PER_FUNC_IX))
-    format_metric_columns(results=res_copy, column_ix=RUN_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(RUN_DUR_PER_FUNC_IX))
     format_metric_columns(results=res_copy, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
     format_metric_columns(results=res_copy, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
     format_metric_columns(results=res_copy, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
