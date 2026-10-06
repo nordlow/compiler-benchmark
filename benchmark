@@ -311,16 +311,83 @@ def find_compiler_versions(args: argparse.Namespace, lang: str, base_name: str):
             yield cexe
 
 
-def get_available_cpus() -> list[int]:
-    if hasattr(os, 'sched_getaffinity'):
+def get_available_cpus() -> tuple[list[int], bool]:
+    """Return available CPU IDs and whether heterogeneous performance cores were selected."""
+    if hasattr(os, "sched_getaffinity"):
         try:
             cpus = sorted(list(os.sched_getaffinity(0)))
-            if cpus:
-                return cpus
+            if not cpus:
+                cpus = list(range(os.cpu_count() or 1))
+        except Exception:
+            cpus = list(range(os.cpu_count() or 1))
+    else:
+        cpus = list(range(os.cpu_count() or 1))
+
+    p_cpus = None
+
+    # 1. Linux Intel hybrid sysfs PMU (cpu_core)
+    for pmu_path in ("/sys/devices/cpu_core/cpus", "/sys/bus/event_source/devices/cpu_core/cpus"):
+        if os.path.isfile(pmu_path):
+            try:
+                with open(pmu_path) as f:
+                    core_ids = set()
+                    for part in f.read().strip().split(","):
+                        if "-" in part:
+                            lo, hi = part.split("-", 1)
+                            core_ids.update(range(int(lo), int(hi) + 1))
+                        elif part:
+                            core_ids.add(int(part))
+                    matching = [c for c in cpus if c in core_ids]
+                    if matching and len(matching) < len(cpus):
+                        p_cpus = matching
+                        break
+            except Exception:
+                pass
+
+    # 2. Linux ARM big.LITTLE / CPU capacity
+    if p_cpus is None:
+        caps = {}
+        for c in cpus:
+            cap_file = f"/sys/devices/system/cpu/cpu{c}/cpu_capacity"
+            if os.path.isfile(cap_file):
+                try:
+                    with open(cap_file) as f:
+                        caps[c] = int(f.read().strip())
+                except Exception:
+                    pass
+        if len(caps) == len(cpus) and len(set(caps.values())) > 1:
+            max_cap = max(caps.values())
+            p_cpus = [c for c in cpus if caps[c] == max_cap]
+
+    # 3. Linux cpufreq max frequency
+    if p_cpus is None:
+        freqs = {}
+        for c in cpus:
+            freq_file = f"/sys/devices/system/cpu/cpu{c}/cpufreq/cpuinfo_max_freq"
+            if os.path.isfile(freq_file):
+                try:
+                    with open(freq_file) as f:
+                        freqs[c] = int(f.read().strip())
+                except Exception:
+                    pass
+        if len(freqs) == len(cpus) and len(set(freqs.values())) > 1:
+            max_freq = max(freqs.values())
+            p_cpus = [c for c in cpus if freqs[c] == max_freq]
+
+    # 4. macOS hybrid core fallback (hw.nperflevels)
+    if p_cpus is None and sys.platform == "darwin":
+        try:
+            nlevels = int(sp.check_output(["sysctl", "-n", "hw.nperflevels"], text=True).strip())
+            if nlevels > 1:
+                p_count = int(sp.check_output(["sysctl", "-n", "hw.perflevel0.logicalcpu"], text=True).strip())
+                if 0 < p_count < len(cpus):
+                    p_cpus = cpus[:p_count]
         except Exception:
             pass
-    count = os.cpu_count() or 1
-    return list(range(count))
+
+    if p_cpus:
+        return p_cpus, True
+    return cpus, False
 
 
 def out_directory(lang):
@@ -3383,8 +3450,8 @@ def main():
                 for r_idx in range(len(spec.runners)):
                     tasks.append((spec.name, r_idx, op, templated, copy.deepcopy(task_args)))
 
-    cpus = get_available_cpus()
-    cpu_use_count = len(cpus) - 2
+    cpus, is_hetero = get_available_cpus()
+    cpu_use_count = len(cpus) if is_hetero else max(1, len(cpus) - 2)
     print(f"Running benchmarks in parallel across {cpu_use_count} CPU core(s) (1 worker per core)...")
     manager = mp.Manager()
     idx_counter = manager.Value('i', 0)
