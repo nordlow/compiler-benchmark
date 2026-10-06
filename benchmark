@@ -2549,11 +2549,28 @@ def _format_duration(secs: float) -> str:
     return f"{m}m{s:02d}s"
 
 
-def _clear_status(stream, lines_count):
-    if lines_count > 0:
-        stream.write("\r\x1b[2K")
-        for _ in range(lines_count - 1):
-            stream.write("\x1b[1A\r\x1b[2K")
+def _supports_tree_progress(stream) -> bool:
+    if stream is None or not getattr(stream, "isatty", lambda: False)():
+        return False
+    term = os.environ.get("TERM", "").lower()
+    if term in ("dumb", "emacs"):
+        return False
+    inside_emacs = os.environ.get("INSIDE_EMACS", "").lower()
+    if inside_emacs and "vterm" not in inside_emacs:
+        return False
+    if os.name != "nt" and not term:
+        return False
+    return True
+
+
+def _clear_status(stream, count, is_tree=False):
+    if count > 0:
+        if is_tree:
+            stream.write("\r\x1b[2K")
+            for _ in range(count - 1):
+                stream.write("\x1b[1A\r\x1b[2K")
+        else:
+            stream.write("\r" + (" " * count) + "\r")
         stream.flush()
 
 
@@ -2573,13 +2590,13 @@ def _parse_task_desc(desc):
     return desc, ""
 
 
-def _make_locked_print(orig_print, print_lock, status_len):
+def _make_locked_print(orig_print, print_lock, status_len, is_tree=False):
     def _locked_print(*args, **kwargs):
         with print_lock:
             if status_len is not None and status_len.value > 0:
                 stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
                 if stream is not None:
-                    _clear_status(stream, status_len.value)
+                    _clear_status(stream, status_len.value, is_tree)
                 status_len.value = 0
             orig_print(*args, **kwargs)
             dest = kwargs.get("file") or sys.stdout
@@ -2588,9 +2605,9 @@ def _make_locked_print(orig_print, print_lock, status_len):
     return _locked_print
 
 
-def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, print_lock, status_len):
+def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, print_lock, status_len, progress_mode="tree"):
     stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
-    if stream is None:
+    if stream is None or progress_mode == "none":
         return
 
     while not stop_event.wait(0.2):
@@ -2607,48 +2624,80 @@ def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, 
         term_cols = term_size.columns
         term_lines = term_size.lines
 
-        if not current_tasks:
-            tree_lines = [f"[{done}/{total_tasks}] Waiting for tasks..."]
-        else:
-            max_tasks = max(4, min(10, term_lines - 6))
-            visible_tasks = current_tasks[:max_tasks]
-            rem_count = len(current_tasks) - len(visible_tasks)
-
-            grouped = {}
-            for desc, start_t in visible_tasks:
-                lang, sub_desc = _parse_task_desc(desc)
+        if progress_mode == "line":
+            items_parts = []
+            for desc, start_t in current_tasks:
                 dur_str = _format_duration(max(0.0, now - start_t))
-                grouped.setdefault(lang, []).append((sub_desc, dur_str))
+                items_parts.append(f"{desc} {dur_str}")
 
-            max_sub_len = max((len(sub) for items in grouped.values() for sub, _ in items), default=0)
-
-            tree_lines = [f"[{done}/{total_tasks}] Active:"]
-            has_more = rem_count > 0
-            lang_list = list(grouped.items())
-            for l_idx, (lang, items) in enumerate(lang_list):
-                is_last_lang = (l_idx == len(lang_list) - 1) and not has_more
-                lang_branch = "└── " if is_last_lang else "├── "
-                tree_lines.append(f"{lang_branch}{lang}")
-                child_indent = "    " if is_last_lang else "│   "
-                for i_idx, (sub_desc, dur_str) in enumerate(items):
-                    is_last_item = (i_idx == len(items) - 1)
-                    item_branch = "└── " if is_last_item else "├── "
-                    if sub_desc:
-                        tree_lines.append(f"{child_indent}{item_branch}{sub_desc:<{max_sub_len}}  {dur_str}")
+            header = f"[{done}/{total_tasks}] Active: "
+            if not items_parts:
+                status_text = f"[{done}/{total_tasks}] Waiting for tasks..."
+            else:
+                avail = max(10, term_cols - len(header) - 1)
+                line = ""
+                for idx, part in enumerate(items_parts):
+                    candidate = (line + ", " + part) if line else part
+                    rem_count = len(items_parts) - (idx + 1)
+                    rem_suffix = f" (+{rem_count} more)" if rem_count > 0 else ""
+                    if len(candidate) + len(rem_suffix) <= avail:
+                        line = candidate
                     else:
-                        tree_lines.append(f"{child_indent}{item_branch}{dur_str}")
+                        if not line:
+                            line = candidate[:avail]
+                        elif rem_count > 0:
+                            line += rem_suffix
+                        break
+                status_text = header + line
 
-            if has_more:
-                tree_lines.append(f"└── (+{rem_count} more)")
+            with print_lock:
+                pad = max(0, status_len.value - len(status_text))
+                stream.write("\r" + status_text + (" " * pad) + "\r" + status_text)
+                stream.flush()
+                status_len.value = len(status_text) + pad
+        else:
+            if not current_tasks:
+                tree_lines = [f"[{done}/{total_tasks}] Waiting for tasks..."]
+            else:
+                max_tasks = max(4, min(10, term_lines - 6))
+                visible_tasks = current_tasks[:max_tasks]
+                rem_count = len(current_tasks) - len(visible_tasks)
 
-        tree_lines = [line[:term_cols] for line in tree_lines]
+                grouped = {}
+                for desc, start_t in visible_tasks:
+                    lang, sub_desc = _parse_task_desc(desc)
+                    dur_str = _format_duration(max(0.0, now - start_t))
+                    grouped.setdefault(lang, []).append((sub_desc, dur_str))
 
-        with print_lock:
-            _clear_status(stream, status_len.value)
-            status_text = "\n".join(tree_lines)
-            stream.write(status_text)
-            stream.flush()
-            status_len.value = len(tree_lines)
+                max_sub_len = max((len(sub) for items in grouped.values() for sub, _ in items), default=0)
+
+                tree_lines = [f"[{done}/{total_tasks}] Active:"]
+                has_more = rem_count > 0
+                lang_list = list(grouped.items())
+                for l_idx, (lang, items) in enumerate(lang_list):
+                    is_last_lang = (l_idx == len(lang_list) - 1) and not has_more
+                    lang_branch = "└── " if is_last_lang else "├── "
+                    tree_lines.append(f"{lang_branch}{lang}")
+                    child_indent = "    " if is_last_lang else "│   "
+                    for i_idx, (sub_desc, dur_str) in enumerate(items):
+                        is_last_item = (i_idx == len(items) - 1)
+                        item_branch = "└── " if is_last_item else "├── "
+                        if sub_desc:
+                            tree_lines.append(f"{child_indent}{item_branch}{sub_desc:<{max_sub_len}}  {dur_str}")
+                        else:
+                            tree_lines.append(f"{child_indent}{item_branch}{dur_str}")
+
+                if has_more:
+                    tree_lines.append(f"└── (+{rem_count} more)")
+
+            tree_lines = [line[:term_cols] for line in tree_lines]
+
+            with print_lock:
+                _clear_status(stream, status_len.value, is_tree=True)
+                status_text = "\n".join(tree_lines)
+                stream.write(status_text)
+                stream.flush()
+                status_len.value = len(tree_lines)
 
 
 class Column:
@@ -3319,7 +3368,7 @@ def benchmark_compiler_op(code_paths: dict,
     return row
 
 
-def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len, root_path):
+def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len, root_path, is_tree=False):
     global _worker_active_tasks, _worker_status_len, ROOT_PATH
     _worker_active_tasks = active_tasks
     _worker_status_len = status_len
@@ -3333,7 +3382,7 @@ def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_l
             os.sched_setaffinity(0, {cpu_id})
         except Exception:
             pass
-    builtins.print = _make_locked_print(builtins.print, print_lock, status_len)
+    builtins.print = _make_locked_print(builtins.print, print_lock, status_len, is_tree)
 
 
 def _run_task(task):
@@ -3420,6 +3469,11 @@ def main():
 
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose progress logging.')
+
+    parser.add_argument("--progress", "--progress-format", type=str,
+                        choices=["auto", "tree", "line", "none"],
+                        default="auto",
+                        help="Progress monitor format: auto (tree on capable terminals, line otherwise), tree, line, or none.")
 
     args = parser.parse_args()
     if args.relative:
@@ -3546,19 +3600,30 @@ def main():
 
     atexit.register(cleanup_call_empty_dirs)
 
-    builtins.print = _make_locked_print(builtins.print, print_lock, status_line_len)
+    stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+    progress_mode = args.progress
+    if progress_mode == "auto":
+        if _supports_tree_progress(stream):
+            progress_mode = "tree"
+        elif stream is not None and stream.isatty():
+            progress_mode = "line"
+        else:
+            progress_mode = "none"
+    is_tree = (progress_mode == "tree")
+
+    builtins.print = _make_locked_print(builtins.print, print_lock, status_line_len, is_tree)
 
     stop_monitor = threading.Event()
     monitor_thread = threading.Thread(
         target=_progress_monitor,
-        args=(active_tasks, completed_counter, len(tasks), stop_monitor, print_lock, status_line_len),
+        args=(active_tasks, completed_counter, len(tasks), stop_monitor, print_lock, status_line_len, progress_mode),
         daemon=True,
     )
     monitor_thread.start()
 
     try:
         with mp.Pool(processes=cpu_use_count, initializer=_worker_init,
-                     initargs=(cpus, idx_counter, lock, print_lock, active_tasks, status_line_len, ROOT_PATH)) as pool:
+                     initargs=(cpus, idx_counter, lock, print_lock, active_tasks, status_line_len, ROOT_PATH, is_tree)) as pool:
             for p in getattr(pool, '_pool', []):
                 if getattr(p, 'pid', None):
                     call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{p.pid}")))
@@ -3577,7 +3642,7 @@ def main():
             if status_line_len.value > 0:
                 stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
                 if stream is not None:
-                    _clear_status(stream, status_line_len.value)
+                    _clear_status(stream, status_line_len.value, is_tree)
                 status_line_len.value = 0
         cleanup_call_empty_dirs()
 
