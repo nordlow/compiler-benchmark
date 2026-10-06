@@ -33,14 +33,14 @@ from enum import Enum
 from typing import NamedTuple, NewType, override
 from collections.abc import Callable
 from dataclasses import dataclass, field
-
+from pathlib import Path
+import psutil
 from timeit import default_timer as timer
 import multiprocessing as mp
 import threading
 import copy
 import builtins
 import io
-
 import importlib
 import tempfile
 import shutil
@@ -311,82 +311,102 @@ def find_compiler_versions(args: argparse.Namespace, lang: str, base_name: str):
             yield cexe
 
 
+def _parse_cpulist(text: str) -> set[int]:
+    """Parse standard kernel CPU list notation (e.g. '0-3,6,8-11')."""
+    cores = set()
+    for part in text.strip().split(","):
+        if not part:
+            continue
+        if "-" in part:
+            lo, hi = map(int, part.split("-", 1))
+            cores.update(range(lo, hi + 1))
+        else:
+            cores.add(int(part))
+    return cores
+
+
+def _detect_intel_hybrid(available: list[int]) -> list[int] | None:
+    """Linux Intel Hybrid (Alder Lake / Raptor Lake) PMU topology."""
+    for path in ("/sys/devices/cpu_core/cpus", "/sys/bus/event_source/devices/cpu_core/cpus"):
+        if os.path.isfile(path):
+            try:
+                p_cores = _parse_cpulist(open(path).read())
+                matching = [c for c in available if c in p_cores]
+                if 0 < len(matching) < len(available):
+                    return matching
+            except OSError:
+                pass
+    return None
+
+
+def _detect_cpu_capacity(available: list[int]) -> list[int] | None:
+    """Linux ARM big.LITTLE / DynamIQ scheduler capacity."""
+    caps = {}
+    for c in available:
+        cap_file = f"/sys/devices/system/cpu/cpu{c}/cpu_capacity"
+        if os.path.isfile(cap_file):
+            try:
+                caps[c] = int(open(cap_file).read().strip())
+            except (OSError, ValueError):
+                pass
+    if len(caps) == len(available) and len(set(caps.values())) > 1:
+        max_cap = max(caps.values())
+        return [c for c in available if caps[c] == max_cap]
+    return None
+
+
+def _detect_frequency_heterogeneity(available: list[int]) -> list[int] | None:
+    """High-level frequency inspection via psutil (Linux, FreeBSD)."""
+    try:
+        freqs = psutil.cpu_freq(percpu=True)
+        if freqs and len(freqs) >= max(available) + 1:
+            core_maxes = {c: freqs[c].max for c in available if freqs[c].max > 0}
+            if len(core_maxes) == len(available) and len(set(core_maxes.values())) > 1:
+                top_freq = max(core_maxes.values())
+                return [c for c in available if core_maxes[c] == top_freq]
+    except Exception:
+        pass
+    return None
+
+
+def _detect_macos_perflevel(available: list[int]) -> list[int] | None:
+    """macOS Apple Silicon (M-series) performance level sysctl."""
+    if sys.platform != "darwin" or not shutil.which("sysctl"):
+        return None
+    try:
+        nlevels = int(sp.check_output(["sysctl", "-n", "hw.nperflevels"], text=True).strip())
+        if nlevels > 1:
+            p_count = int(sp.check_output(["sysctl", "-n", "hw.perflevel0.logicalcpu"], text=True).strip())
+            if 0 < p_count < len(available):
+                return available[:p_count]
+    except Exception:
+        pass
+    return None
+
+
+# Ordered priority pipeline:
+# PMU topology (most accurate) -> scheduler capacity -> per-core max freq -> macOS sysctl
+CORE_DETECTION_STRATEGIES: list[Callable[[list[int]], list[int] | None]] = [
+    _detect_intel_hybrid,
+    _detect_cpu_capacity,
+    _detect_frequency_heterogeneity,
+    _detect_macos_perflevel,
+]
+
+
 def get_available_cpus() -> tuple[list[int], bool]:
     """Return available CPU IDs and whether heterogeneous performance cores were selected."""
-    if hasattr(os, "sched_getaffinity"):
-        try:
-            cpus = sorted(list(os.sched_getaffinity(0)))
-            if not cpus:
-                cpus = list(range(os.cpu_count() or 1))
-        except Exception:
-            cpus = list(range(os.cpu_count() or 1))
-    else:
-        cpus = list(range(os.cpu_count() or 1))
+    # High-level cross-platform affinity via psutil (respects taskset, sched_affinity, cgroups)
+    try:
+        cpus = sorted(psutil.Process().cpu_affinity())
+    except (AttributeError, psutil.Error):
+        cpus = list(range(psutil.cpu_count(logical=True) or 1))
 
-    p_cpus = None
+    for strategy in CORE_DETECTION_STRATEGIES:
+        p_cpus = strategy(cpus)
+        if p_cpus:
+            return p_cpus, True
 
-    # 1. Linux Intel hybrid sysfs PMU (cpu_core)
-    for pmu_path in ("/sys/devices/cpu_core/cpus", "/sys/bus/event_source/devices/cpu_core/cpus"):
-        if os.path.isfile(pmu_path):
-            try:
-                with open(pmu_path) as f:
-                    core_ids = set()
-                    for part in f.read().strip().split(","):
-                        if "-" in part:
-                            lo, hi = part.split("-", 1)
-                            core_ids.update(range(int(lo), int(hi) + 1))
-                        elif part:
-                            core_ids.add(int(part))
-                    matching = [c for c in cpus if c in core_ids]
-                    if matching and len(matching) < len(cpus):
-                        p_cpus = matching
-                        break
-            except Exception:
-                pass
-
-    # 2. Linux ARM big.LITTLE / CPU capacity
-    if p_cpus is None:
-        caps = {}
-        for c in cpus:
-            cap_file = f"/sys/devices/system/cpu/cpu{c}/cpu_capacity"
-            if os.path.isfile(cap_file):
-                try:
-                    with open(cap_file) as f:
-                        caps[c] = int(f.read().strip())
-                except Exception:
-                    pass
-        if len(caps) == len(cpus) and len(set(caps.values())) > 1:
-            max_cap = max(caps.values())
-            p_cpus = [c for c in cpus if caps[c] == max_cap]
-
-    # 3. Linux cpufreq max frequency
-    if p_cpus is None:
-        freqs = {}
-        for c in cpus:
-            freq_file = f"/sys/devices/system/cpu/cpu{c}/cpufreq/cpuinfo_max_freq"
-            if os.path.isfile(freq_file):
-                try:
-                    with open(freq_file) as f:
-                        freqs[c] = int(f.read().strip())
-                except Exception:
-                    pass
-        if len(freqs) == len(cpus) and len(set(freqs.values())) > 1:
-            max_freq = max(freqs.values())
-            p_cpus = [c for c in cpus if freqs[c] == max_freq]
-
-    # 4. macOS hybrid core fallback (hw.nperflevels)
-    if p_cpus is None and sys.platform == "darwin":
-        try:
-            nlevels = int(sp.check_output(["sysctl", "-n", "hw.nperflevels"], text=True).strip())
-            if nlevels > 1:
-                p_count = int(sp.check_output(["sysctl", "-n", "hw.perflevel0.logicalcpu"], text=True).strip())
-                if 0 < p_count < len(cpus):
-                    p_cpus = cpus[:p_count]
-        except Exception:
-            pass
-
-    if p_cpus:
-        return p_cpus, True
     return cpus, False
 
 
