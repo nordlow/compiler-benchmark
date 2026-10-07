@@ -2984,7 +2984,7 @@ def merge_plain_and_templated_results(results: Results):
             r_us = r_val * 1e6
             tot_us = b_us + r_us
             r_str = "0.0" if r_us == 0.0 else (f"{r_us:.2f}" if r_us < 1.0 else f"{r_us:.1f}")
-            return f"{tot_us:.1f} ({b_us:.1f} + {r_str})"
+            return f"{tot_us:.1f} ({b_us:.1f}+{r_str})"
 
         tot_p = format_tot(row_plain)
         tot_t = format_tot(row_tmpl)
@@ -2994,13 +2994,13 @@ def merge_plain_and_templated_results(results: Results):
         if p_tot_na and t_tot_na:
             tot_cell = "N/A"
         elif row_tmpl is None:
-            tot_cell = f"{tot_p},-" if not p_tot_na else "N/A"
+            tot_cell = f"{tot_p}, -" if not p_tot_na else "N/A"
         elif p_tot_na:
-            tot_cell = f"-,{tot_t}"
+            tot_cell = f"-, {tot_t}"
         elif t_tot_na:
-            tot_cell = f"{tot_p},-"
+            tot_cell = f"{tot_p}, -"
         else:
-            tot_cell = f"{tot_p},{tot_t}"
+            tot_cell = f"{tot_p}, {tot_t}"
 
         merged_row.append(tot_cell)
 
@@ -3014,13 +3014,13 @@ def merge_plain_and_templated_results(results: Results):
             if p_na and t_na:
                 return 'N/A'
             elif row_tmpl is None:  # Language has no templated variant benchmarked
-                return f"{val_p},-" if not p_na else 'N/A'
+                return f"{val_p}, -" if not p_na else 'N/A'
             elif p_na:
-                return f"-,{val_t}"
+                return f"-, {val_t}"
             elif t_na:
-                return f"{val_p},-"
+                return f"{val_p}, -"
             else:
-                return f"{val_p},{val_t}"
+                return f"{val_p}, {val_t}"
 
         for col in metric_cols:
             cell = format_col(col)
