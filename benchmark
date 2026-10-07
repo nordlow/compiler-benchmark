@@ -2949,7 +2949,7 @@ def get_column_time_units(results: Results) -> dict[int, tuple[str, float]]:
     return units
 
 
-def merge_plain_and_templated_results(results: Results):
+def merge_plain_and_templated_results(results: Results, values_mode: str = "absolute", highlight: bool = False):
     metric_cols = [
         CHECK_DUR_PER_FUNC_IX,
         COMPILE_DUR_PER_FUNC_IX,
@@ -2957,6 +2957,14 @@ def merge_plain_and_templated_results(results: Results):
         BUILD_RSS_MU_IX,
         OUTPUT_SIZE_IX,
     ]
+    min_tots = {False: None, True: None}
+    for (_, templated, _), row in results.items():
+        b, r = row[BUILD_DUR_PER_FUNC_IX], row[RUN_DUR_PER_FUNC_IX]
+        if b is not None or r is not None:
+            tot = (b if isinstance(b, (int, float)) else 0.0) + (r if isinstance(r, (int, float)) else 0.0)
+            if min_tots[templated] is None or tot < min_tots[templated]:
+                min_tots[templated] = tot
+
     merged = {}
     grouped = {}
     for (lang, templated, cexe), row in results.items():
@@ -2971,7 +2979,7 @@ def merge_plain_and_templated_results(results: Results):
         merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]}{version_str})"]
         has_ast_check = Op.AST_CHECK.value in lang_support(str(lang)).ops
 
-        def format_tot(row):
+        def format_tot(row, tmpl):
             if row is None:
                 return None
             b = row[BUILD_DUR_PER_FUNC_IX]
@@ -2980,14 +2988,27 @@ def merge_plain_and_templated_results(results: Results):
                 return None
             b_val = b if isinstance(b, (int, float)) else 0.0
             r_val = r if isinstance(r, (int, float)) else 0.0
-            b_us = b_val * 1e6
-            r_us = r_val * 1e6
-            tot_us = b_us + r_us
+            tot_val = b_val + r_val
+            b_us, r_us, tot_us = b_val * 1e6, r_val * 1e6, tot_val * 1e6
             r_str = "0.0" if r_us == 0.0 else (f"{r_us:.2f}" if r_us < 1.0 else f"{r_us:.1f}")
-            return f"{tot_us:.1f} ({b_us:.1f}+{r_str})"
+            abs_str = f"{tot_us:.1f} ({b_us:.1f}+{r_str})"
+            m = min_tots[tmpl]
+            is_min = m is not None and tot_val == m
+            def _hl(txt):
+                return f'<span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">{txt}</span>' if highlight and is_min else txt
+            if is_min:
+                rel_only, rel_str = " 1.0", " 1.0"
+            else:
+                rn = tot_val / m if m else 1.0
+                rel_only, rel_str = factor_str(rn), f" ({factor_str(rn)})"
+            if values_mode == "relative":
+                return _hl(rel_only)
+            elif values_mode == "both":
+                return _hl(abs_str) + rel_str
+            return _hl(abs_str)
 
-        tot_p = format_tot(row_plain)
-        tot_t = format_tot(row_tmpl)
+        tot_p = format_tot(row_plain, False)
+        tot_t = format_tot(row_tmpl, True)
         p_tot_na = (tot_p is None)
         t_tot_na = (tot_t is None)
 
@@ -3074,7 +3095,7 @@ def render_single_table(titles: list[str], results: Results, values_mode: str = 
     format_metric_columns(results=res_copy, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
     format_metric_columns(results=res_copy, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
 
-    merged_results = merge_plain_and_templated_results(res_copy)
+    merged_results = merge_plain_and_templated_results(res_copy, values_mode=values_mode, highlight=highlight)
     sorted_rows = sorted(merged_results.values(), key=lambda r: r[0].lower())
 
     def _visible_len(cell) -> int:
