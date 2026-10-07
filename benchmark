@@ -2870,8 +2870,11 @@ def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = "absolute", 
         )
 
     if is_min:
-        rel_str = " 1.0"
-        rel_only = " 1.0"
+        rel_str = " (1.0)"
+        rel_only = "1.0"
+    elif not min_val:
+        rel_str = " (N/A)"
+        rel_only = "N/A"
     else:
         rel_n = abs_n / min_val
         rel_str = " (" + factor_str(rel_n) + ")"
@@ -2997,7 +3000,7 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
             def _hl(txt):
                 return f'<span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">{txt}</span>' if highlight and is_min else txt
             if is_min:
-                rel_only, rel_str = "1.0", " 1.0"
+                rel_only, rel_str = "1.0", " (1.0)"
             else:
                 rn = tot_val / m if m else 1.0
                 rel_only, rel_str = factor_str(rn), f" ({factor_str(rn)})"
@@ -3015,7 +3018,7 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
         if p_tot_na and t_tot_na:
             tot_cell = "N/A"
         elif row_tmpl is None:
-            tot_cell = f"{tot_p}, -" if not p_tot_na else "N/A"
+            tot_cell = tot_p if not p_tot_na else "N/A"
         elif p_tot_na:
             tot_cell = f"-, {tot_t}"
         elif t_tot_na:
@@ -3035,7 +3038,7 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
             if p_na and t_na:
                 return 'N/A'
             elif row_tmpl is None:  # Language has no templated variant benchmarked
-                return f"{val_p}, -" if not p_na else 'N/A'
+                return val_p if not p_na else 'N/A'
             elif p_na:
                 return f"-, {val_t}"
             elif t_na:
@@ -3136,7 +3139,10 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
         if not t_res:
             continue
         tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight, time_units=time_units)
-        sections.append("### " + title + nl + "*" + desc + "*" + nl + nl + tbl)
+        legend = ""
+        if any(k[1] for k in t_res):
+            legend = "*Cells with two values: untemplated, templated (`-` = not available).*" + nl + nl
+        sections.append("### " + title + nl + "*" + desc + "*" + nl + nl + legend + tbl)
 
     return (nl + nl).join(sections)
 
