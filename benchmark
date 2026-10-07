@@ -275,6 +275,17 @@ def build_lang_aliases() -> dict[str, Lang]:
     return aliases
 
 
+def _compact_version(ver: str) -> str:
+    """Compact git describe outputs and strip packaging noise."""
+    clean = ver.split('~')[0].split('ubuntu')[0]
+    m = re.match(r"^v?(\d+\.\d+(?:\.\d+)?).*?-\d+-g([0-9a-f]{7})[0-9a-f]*$", clean, re.IGNORECASE)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}"
+    if clean.startswith('v') and len(clean) > 1 and clean[1].isdigit():
+        clean = clean[1:]
+    return clean
+
+
 def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
     """Extract a version identifier; per-compiler probing is declared via VersionSpec."""
     base = os.path.basename(cexe)
@@ -288,11 +299,11 @@ def get_compiler_version(cexe: str, default: str = 'unknown') -> str:
         if spec is not None and spec.parse is not None:
             parsed = spec.parse(out, default)
             if parsed is not None:
-                return parsed
+                return _compact_version(parsed)
         for part in out.split():
             clean = part.strip(',;:()')
             if clean and (clean[0].isdigit() or (clean.startswith('v') and len(clean) > 1 and clean[1].isdigit())):
-                return clean.split('~')[0].split('ubuntu')[0]
+                return _compact_version(clean)
     except Exception:
         pass
     return default
