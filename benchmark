@@ -2997,7 +2997,7 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
             def _hl(txt):
                 return f'<span style="color:#0a7f2e;background-color:#e6f7ec;font-weight:bold">{txt}</span>' if highlight and is_min else txt
             if is_min:
-                rel_only, rel_str = " 1.0", " 1.0"
+                rel_only, rel_str = "1.0", " 1.0"
             else:
                 rn = tot_val / m if m else 1.0
                 rel_only, rel_str = factor_str(rn), f" ({factor_str(rn)})"
