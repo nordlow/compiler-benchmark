@@ -2527,7 +2527,7 @@ ROC_CAPPED_DIM = 50
 def _roc_limits(args: argparse.Namespace) -> list[str]:
     if args.function_count * args.function_depth > ROC_MAX_TOTAL_FUNCS:
         msg = (f"Warning: Capping Roc function count/depth from {args.function_count}x{args.function_depth} "
-               f"to {ROC_CAPPED_DIM}x{ROC_CAPPED_DIM} due to compiler AST limits")
+               f"to {ROC_CAPPED_DIM}x{ROC_CAPPED_DIM} due to compiler limits")
         args.function_count = ROC_CAPPED_DIM
         args.function_depth = ROC_CAPPED_DIM
         return [msg]
