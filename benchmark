@@ -2771,7 +2771,7 @@ class Column:
 
 TABLE_COLUMNS = [
     Column('Language (Exec)'),
-    Column('Total (Build + Run)', 'us/f'),
+    Column('Total=Build+Run', 'us/f'),
     Column('Check', 'us/f'),
     Column('Compile', 'us/f'),
     Column('Check RSS', 'kB/f'),
@@ -2789,7 +2789,7 @@ def table_titles(values_mode: str = "absolute", results: Results | None = None) 
 
     cols = [
         Column("Language (Exec)"),
-        Column("Total (Build + Run)", "us/f"),
+        Column("Total=Build+Run", "us/f"),
         Column("Check", check_u),
         Column("Compile", compile_u),
         Column("Check RSS", "kB/f"),
@@ -3027,7 +3027,7 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
             tot_val = b_val + r_val
             b_us, r_us, tot_us = b_val * 1e6, r_val * 1e6, tot_val * 1e6
             r_str = "0.0" if r_us == 0.0 else (f"{r_us:.2f}" if r_us < 1.0 else f"{r_us:.1f}")
-            abs_str = f"{tot_us:.0f} ({b_us:.0f}+{r_str})"
+            abs_str = f"{tot_us:.0f}={b_us:.0f}+{r_str}"
             m = min_tots[tmpl]
             is_min = m is not None and tot_val == m
             def _hl(txt):
