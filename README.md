@@ -317,75 +317,85 @@ The generic engine only talks to languages through `LangSupport`.
 The output on Arch Linux (as of 2026-09) for the sample call
 
     ./benchmark
+	Warning: Capping Ada function count/depth from 200x200 to 100x100 due to gnatbind & elaborator scaling limits
+	Warning: Capping Swift function count/depth from 200x200 to 100x100 due to swiftc constraint solver limits
+	Warning: Capping Nim function depth (--function-depth) from 200 to 50 due to compiler generic recursion limit
+	Warning: Capping Java function count/depth from 200x200 to 100x100 due to JVM constant pool limits
+	Warning: Capping Lua function count/depth from 200x200 to 150x150 due to LuaJIT chunk constant limits
+	Warning: Capping Haskell function count/depth from 200x200 to 100x100 due to GHC scaling limits
+	Warning: Capping Fortran function count/depth from 200x200 to 100x100 due to gfortran module symbol table limits
+	Warning: Capping Pony function count/depth from 200x200 to 30x30 due to ponyc capability checking limits
+	Warning: Capping Guile function count/depth from 200x200 to 70x70 due to Tree-IL CPS compiler scaling limits
+	Warning: Capping Roc function count/depth from 200x200 to 50x50 due to compiler limits
+	Running benchmarks in parallel across 8 performance CPU core(s) (1 worker per core)...
+	Warning: Capping Cuik function count (--function-count) from 200 to 100 due to compiler stability limit
 
 results in the following table (copied from the output at the end).
 
 ### Tier 1: Single-Pass / Minimalist Compilers
 *No SSA optimization, no borrow checking, trivial type systems, instant code emission.*
 
-| Language (Exec)  | Total (Build + Run) [us/f] | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
-| :--------------: | :------------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
-| C (cproc)        | 86 (86+0.21)               | 9.5          | 70.8           | 2.4              | 2.8              | 90.1              |
-| C (cuik ~master) | 70 (70+0.21)               | 4.3          | 39.7           | 3.2              | 52.6             | 114.4             |
-| C (tcc 0.9.28rc) | 3 (2+0.21)                 | 2.1          | 2.3            | 1.1              | 1.1              | 90.1              |
-
+| Language (Exec)  | Total=Build+Run [us/f] | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
+| :--------------: | :--------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
+| C (cproc)        | 78=77+0.20             | 9.7          | 73.1           | 2.5              | 3.8              | 90.1              |
+| C (cuik ~master) | 47=47+0.20             | 3.7          | 39.7           | 3.2              | 77.8             | 114.4             |
+| C (tcc 0.9.28rc) | 2=2+0.21               | 2.3          | 2.3            | 1.1              | 1.1              | 90.1              |
 
 ### Tier 2: Modern Systems Languages (Ahead-of-Time)
 *Full type inference, monomorphization/generics, semantic safety, module systems.*
 
 *Stacked cells: top = untemplated, bottom = templated (`-` = not available).*
 
-| Language (Exec)                   | Total (Build + Run) [us/f]       | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f]   | Output Size [B/f] |
-| :-------------------------------: | :------------------------------: | :----------: | :------------: | :--------------: | :----------------: | :---------------: |
-| Ada (gnat 16.2.1)                 | 1186 (1185+0.42)                 | 37.4         | N/A            | 19.8             | 51.7               | 263.0             |
-| C (clang 23.1.1)                  | 106 (106+0.19)                   | 13.6         | 79.2           | 3.3              | 6.9                | 146.1             |
-| C (gcc 16.2.1)                    | 455 (455+0.20)                   | 12.1         | 439.7          | 3.9              | 17.8               | 121.1             |
-| C (gcc-15 15.3.0)                 | 504 (504+0.19)                   | 12.0         | 199.8          | 3.7              | 17.2               | 121.1             |
-| C++ (clang++ 23.1.1)              | 106 (105+0.21)<br>112 (112+0.10)     | 17.9<br>29.5     | 82.9<br>122.1      | 3.6<br>6.1           | 9.8<br>13.0            | 151.1<br>142.2        |
-| C++ (g++ 16.2.1)                  | 486 (486+0.21)<br>448 (448+0.10)     | 34.0<br>77.4     | 421.7<br>537.7     | 7.6<br>11.5          | 18.1<br>23.7           | 126.1<br>127.2        |
-| C++ (g++-15 15.3.0)               | 445 (445+0.20)<br>520 (520+0.10)     | 28.3<br>69.8     | 216.8<br>589.5     | 7.0<br>10.7          | 17.4<br>23.0           | 126.1<br>127.2        |
-| C3 (c3c 0.8.5)                    | 133 (133+0.21)<br>229 (229+0.21)     | 16.6<br>96.4     | 115.9<br>221.2     | 6.2<br>7.7           | 17.1<br>22.7           | 338.8<br>418.5        |
-| D (dmd 2.113.0-ecca64b)           | 14 (14+0.21)<br>19 (19+0.05)         | 4.3<br>10.9      | 10.9<br>31.2       | 4.9<br>11.7          | 15.3<br>23.9           | 178.5<br>194.5        |
-| D (gdc 16.2.1)                    | 483 (483+0.21)<br>402 (401+0.10)     | 16.4<br>29.5     | 501.2<br>494.5     | 6.5<br>15.9          | 24.0<br>sampling error | 178.3<br>182.4        |
-| D (ldmd2 1.43.0)                  | 96 (96+0.21)<br>82 (82+0.10)         | 5.4<br>13.5      | 73.3<br>92.4       | 7.7<br>18.0          | 16.3<br>32.6           | 168.9<br>163.0        |
-| Fortran (gfortran 16.2.1)         | 1240 (1240+0.20)                 | 355.4        | 1254.7         | 22.0             | 35.6               | 140.8             |
-| Go (go 1.27.1-X:nodwarf5)         | 447 (447+0.10)<br>437 (437+0.09)     | 55.1<br>52.5     | N/A            | 10.7<br>10.5         | 32.7<br>31.6           | 188.9<br>188.9        |
-| Hare (hare 0.26.0.1)              | 152 (152+0.05)                   | 91.3         | N/A            | 110.8            | 110.8              | 222.0             |
-| Nim (nim 2.2.12)                  | 691 (691+0.20)<br>759 (758+0.20)     | 83.6<br>145.7    | N/A            | 7.6<br>15.2          | 43.8<br>50.4           | 178.0<br>181.4        |
-| Odin (odin dev-2026-09:a2fb372b7) | 125 (125+0.10)<br>99 (99+0.09)       | 20.7<br>34.1     | N/A            | 20.4<br>32.1         | 35.8<br>51.5           | 112.6<br>132.6        |
-| Pascal (fpc 3.2.2)                | 138 (138+0.21)                   | 97.5         | 104.5          | 17.9             | 24.4               | 68.8              |
-| Pony (ponyc 0.72.1-de5eddd)       | 1057 (1057+0.0)                  | 631.3        | N/A            | 198.0            | 282.3              | 804.8             |
-| Roc (roc compiler)                | 328 (165+163.1)                  | 91.7         | N/A            | 47.0             | 44.2               | 431.4             |
-| Rust (rustc 1.100.0-nightly)      | 185 (185+0.19)<br>214 (214+0.15)     | 87.0<br>130.9    | N/A            | 16.2<br>15.3         | 32.0<br>27.1           | 360.4<br>300.3        |
-| Swift (swiftc 6.4)                | 1086 (1085+0.83)<br>2455 (2454+0.80) | 637.4<br>1330.2  | N/A            | 33.1<br>31.4         | 59.9<br>72.1           | 208.5<br>531.3        |
-| V (v 0.5.0)                       | 545 (544+0.20)<br>1385 (1385+0.14)   | 10.2<br>843.8    | N/A            | 10.2<br>181.5        | 36.1<br>200.8          | 132.3<br>138.3        |
-| Zig (zig 0.18.0-dev.35+5e754304d) | 102 (102+0.20)<br>95 (95+0.21)       | 22.2<br>33.2     | 61.0<br>106.5      | 4.6<br>5.3           | 9.5<br>12.7            | 1503.4<br>1422.5      |
-
+| Language (Exec)                   | Total=Build+Run [us/f]       | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f]    | Output Size [B/f] |
+| :-------------------------------: | :--------------------------: | :----------: | :------------: | :--------------: | :-----------------: | :---------------: |
+| Ada (gnat 16.2.1)                 | 1020=1019+0.41               | 36.2         | N/A            | 19.8             | sampling error      | 263.0             |
+| C (clang 23.1.1)                  | 87=87+0.21                   | 14.1         | 79.5           | 3.3              | 9.5                 | 146.1             |
+| C (gcc 16.2.1)                    | 455=455+0.19                 | 11.1         | 382.6          | 3.9              | 17.3                | 121.1             |
+| C (gcc-15 15.3.0)                 | 418=418+0.10                 | 11.6         | 226.7          | 3.7              | 17.2                | 121.1             |
+| C++ (clang++ 23.1.1)              | 105=105+0.20<br>113=113+0.10     | 16.6<br>27.4     | 82.8<br>118.0      | 3.6<br>6.1           | 7.2<br>13.0             | 151.1<br>142.2        |
+| C++ (g++ 16.2.1)                  | 410=410+0.19<br>521=521+0.10     | 32.7<br>75.5     | 422.2<br>515.6     | 7.6<br>11.5          | 17.7<br>23.7            | 126.1<br>127.2        |
+| C++ (g++-15 15.3.0)               | 417=417+0.20<br>547=546+0.10     | 28.1<br>68.5     | 209.4<br>586.4     | 7.0<br>10.7          | 17.4<br>23.0            | 126.1<br>127.2        |
+| C3 (c3c 0.8.5)                    | 128=128+0.20<br>227=227+0.20     | 16.5<br>101.9    | 113.6<br>234.5     | 6.2<br>7.7           | 17.9<br>22.9            | 338.8<br>418.5        |
+| D (dmd 2.113.0-ecca64b)           | 13=13+0.20<br>19=19+0.05         | 4.3<br>19.4      | 11.5<br>17.5       | 4.8<br>11.8          | 16.9<br>23.9            | 178.5<br>194.5        |
+| D (gdc 16.2.1)                    | 441=441+0.21<br>417=417+0.10     | 14.9<br>33.5     | 433.2<br>444.4     | 6.5<br>15.9          | 23.7<br>33.8            | 178.3<br>182.4        |
+| D (ldmd2 1.43.0)                  | 70=70+0.20<br>84=84+0.10         | 5.6<br>23.2      | 70.3<br>91.9       | 7.7<br>15.1          | 20.3<br>31.8            | 168.9<br>163.0        |
+| Fortran (gfortran 16.2.1)         | 1123=1123+0.20               | 567.6        | 942.9          | 22.0             | 35.3                | 140.8             |
+| Go (go 1.27.1-X:nodwarf5)         | 455=455+0.10<br>436=436+0.04     | 56.4<br>55.9     | N/A            | 10.7<br>10.6         | 30.1<br>32.7            | 188.9<br>188.9        |
+| Hare (hare 0.26.0.1)              | 153=153+0.05                 | 90.8         | N/A            | 110.8            | 110.8               | 222.0             |
+| Nim (nim 2.2.12)                  | 678=678+0.20<br>725=725+0.19     | 84.1<br>143.4    | N/A            | 7.5<br>15.4          | 43.6<br>51.2            | 178.0<br>181.4        |
+| Odin (odin dev-2026-09:a2fb372b7) | 92=92+0.10<br>104=104+0.10       | 19.6<br>47.3     | N/A            | 20.4<br>29.7         | 39.4<br>51.7            | 112.6<br>132.6        |
+| Pascal (fpc 3.2.2)                | 143=143+0.21                 | 96.6         | 107.0          | 17.9             | 24.6                | 68.8              |
+| Pony (ponyc 0.72.1-de5eddd)       | 1044=1008+35.9               | 620.4        | N/A            | 198.0            | 283.3               | 804.8             |
+| Roc (roc compiler)                | 355=245+110.2                | 94.9         | N/A            | 33.0             | 45.4                | 431.4             |
+| Rust (rustc 1.100.0-nightly)      | 183=183+0.21<br>239=239+0.19     | 87.5<br>113.2    | N/A            | 16.2<br>18.1         | sampling error<br>26.6  | 360.4<br>300.3        |
+| Swift (swiftc 6.4)                | 1175=1174+0.79<br>2288=2287+0.82 | 728.6<br>1319.7  | N/A            | 33.6<br>40.4         | 59.4<br>69.6            | 208.5<br>531.3        |
+| V (v 0.5.0)                       | 317=317+0.20<br>>60.0s           | 10.1<br>841.1    | N/A            | 10.2<br>181.5        | sampling error<br>201.4 | 132.3<br>-            |
+| Zig (zig 0.18.0-dev.35+5e754304d) | 97=97+0.21<br>92=92+0.21         | 23.2<br>28.4     | 90.9<br>105.3      | 4.7<br>5.2           | 9.9<br>12.7             | 1503.4<br>1422.5      |
 
 ### Tier 3: Managed & VM / JIT / Scripting
 *Bytecode emission, runtime metadata, GC runtimes.*
 
 *Stacked cells: top = untemplated, bottom = templated (`-` = not available).*
 
-| Language (Exec)             | Total (Build + Run) [us/f]     | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
-| :-------------------------: | :----------------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
-| C# (csc 3.9.0-6.21124.20)   | 211 (202+9.1)                  | 47.4         | N/A            | 7.6              | 10.1             | N/A               |
-| C# (mcs 6.12.0.0)           | 55 (38+16.6)                   | 36.9         | N/A            | 5.2              | 5.1              | N/A               |
-| Common Lisp (sbcl 2.6.9)    | 546 (545+0.41)                 | 495.2        | 483.8          | 4.2              | 5.6              | 1481.3            |
-| Crystal (crystal 1.21.1)    | 406 (406+0.40)<br>379 (378+0.41)   | 129.1<br>139.7   | N/A            | 33.0<br>31.0         | 83.9<br>83.3         | 384.9<br>384.9        |
-| Dart (dart 3.13.5)          | 309 (309+0.40)<br>434 (434+0.41)   | 189.5<br>265.1   | 296.6<br>456.9     | 13.4<br>15.7         | 10.4<br>11.2         | 430.6<br>500.3        |
-| Guile (guild 3.0.11)        | 7964 (7957+6.6)                | 8503.1       | 8624.4         | 48.1             | 50.9             | N/A               |
-| Haskell (ghc 9.6.7)         | 3752 (3750+1.6)<br>4387 (4386+1.6) | 2434.0<br>2610.7 | N/A            | 64.3<br>59.2         | 81.6<br>88.5         | 657.3<br>616.3        |
-| Java (javac 27)             | 441 (430+11.5)                 | 169.4        | N/A            | 19.0             | 25.0             | N/A               |
-| Julia (julia 1.14.0-DEV)    | 496 (496+0.0)<br>456 (456+0.0)     | 17.6<br>13.2     | N/A            | 8.7<br>8.6           | 13.0<br>12.4         | N/A               |
-| Lua (luajit 2.1.1788856981) | 4 (4+0.72)                     | 3.3          | 3.4            | 0.8              | 0.8              | N/A               |
-| OCaml (ocamlc 5.5.0)        | 149 (149+0.05)                 | 128.3        | N/A            | 16.7             | 20.4             | N/A               |
-| OCaml (ocamlopt 5.5.0)      | 480 (480+0.21)                 | 120.9        | N/A            | 16.8             | 52.3             | 579.1             |
-| Python (pypy3 3.12.14)      | 64 (55+9.1)<br>69 (59+10.4)        | 47.0<br>57.5     | 53.3<br>57.0       | 11.2<br>12.3         | 13.0<br>14.2         | N/A               |
-| Python (python 3.14.7)      | 34 (31+2.9)<br>47 (42+5.4)         | 28.6<br>42.4     | 30.2<br>40.5       | 11.2<br>14.3         | 11.3<br>14.3         | N/A               |
-| Python (python3 3.14.7)     | 32 (29+2.9)<br>48 (43+5.4)         | 27.2<br>41.2     | 31.3<br>39.4       | 11.2<br>14.3         | 11.3<br>14.3         | N/A               |
-| Scheme (chez 10.3.0)        | 262 (245+16.6)                 | 8.4          | 243.3          | 1.3              | 11.9             | N/A               |
-| TypeScript (tsc 6.0.3)      | 455 (443+11.5)<br>502 (490+11.5)   | 386.2<br>452.7   | 478.3<br>495.3     | 39.1<br>40.6         | 40.6<br>43.6         | N/A               |
+| Language (Exec)             | Total=Build+Run [us/f]     | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
+| :-------------------------: | :------------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
+| C# (csc 3.9.0-6.21124.20)   | 223=214+9.1                | 51.3         | N/A            | 7.6              | 10.1             | N/A               |
+| C# (mcs 6.12.0.0)           | 53=36+16.6                 | 37.7         | N/A            | 5.2              | 5.2              | N/A               |
+| Common Lisp (sbcl 2.6.9)    | 550=550+0.39               | 461.6        | 482.0          | 4.3              | 5.6              | 1481.3            |
+| Crystal (crystal 1.21.1)    | 411=411+0.42<br>373=373+0.41   | 120.9<br>140.6   | N/A            | 32.9<br>31.1         | 83.7<br>81.7         | 384.9<br>384.9        |
+| Dart (dart 3.13.5)          | 297=297+0.39<br>424=424+0.41   | 193.3<br>265.0   | 299.1<br>443.3     | 13.2<br>15.6         | 10.4<br>11.2         | 430.6<br>500.3        |
+| Guile (guild 3.0.11)        | 8550=8543+6.6              | 9307.3       | 7661.6         | 52.3             | 54.0             | N/A               |
+| Haskell (ghc 9.6.7)         | 3896=3894+1.6<br>4705=4704+1.6 | 2798.4<br>2205.6 | N/A            | 62.4<br>59.2         | 81.8<br>88.5         | 657.3<br>616.3        |
+| Java (javac 27)             | 449=438+11.5               | 171.2        | N/A            | 19.2             | 30.0             | N/A               |
+| Julia (julia 1.14.0-DEV)    | 540=540+0.0<br>446=446+0.0     | 18.0<br>13.5     | N/A            | 8.7<br>8.4           | 13.0<br>12.3         | N/A               |
+| Lua (luajit 2.1.1788856981) | 5=4+1.4                    | 3.4          | 4.1            | 0.7              | 0.8              | N/A               |
+| OCaml (ocamlc 5.5.0)        | 146=146+0.05               | 110.1        | N/A            | 16.9             | 20.4             | N/A               |
+| OCaml (ocamlopt 5.5.0)      | 496=495+0.19               | 126.5        | N/A            | 17.0             | sampling error   | 579.1             |
+| Python (pypy3 3.12.14)      | 65=56+9.1<br>66=57+9.1         | 49.0<br>56.8     | 52.6<br>59.6       | 11.2<br>12.3         | 13.0<br>14.5         | N/A               |
+| Python (python 3.14.7)      | 33=31+2.9<br>47=42+5.4         | 28.7<br>40.8     | 31.5<br>40.7       | 11.2<br>14.3         | 11.3<br>14.3         | N/A               |
+| Python (python3 3.14.7)     | 32=30+2.9<br>48=43+5.4         | 28.9<br>41.8     | 30.9<br>39.7       | 11.2<br>14.3         | 11.3<br>14.3         | N/A               |
+| Scheme (chez 10.3.0)        | 269=252+16.6               | 8.7          | 267.5          | 1.3              | 11.9             | N/A               |
+| TypeScript (tsc 6.0.3)      | 477=465+11.5<br>488=476+11.5   | 395.2<br>434.3   | 445.2<br>492.5     | 39.9<br>41.5         | 42.0<br>43.7         | N/A               |
 
 ## Conclusions (from sample run shown above)
 
