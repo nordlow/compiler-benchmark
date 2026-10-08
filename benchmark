@@ -2577,19 +2577,20 @@ def _roc_parse_version(out: str, default: str) -> str | None:
 register_language(LangSupport(
     name=Lang('Roc'), exes=[Exec('roc')], extension=FileExt('roc'), int_type=TypeName('I64'),
     runners=[bm_Roc],
-    ops=('check', 'run'),
+    ops=('check', 'build', 'run'),   # see note below
     limit_args=_roc_limits,
     versions=[VersionSpec(('roc',), ['version'], _roc_parse_version)],
     func_emitter=make_func_emitter(
-        define=lambda fname, typ, expr, t: f"{fname} = |x| {expr}\n",
-        chain=lambda typ, t, prev, c: f"x + ({prev} x) + {c}",
+        define=lambda fname, typ, expr, t: f"{fname} : {typ} -> {typ}\n{fname} = |x| {expr}\n\n",
+        chain=lambda typ, t, prev, c: f"x + {prev}(x) + {c}",
     ),
-    prefix=_no_text,
-    main_header=lambda types, t: 'main! = |_args| {\n    0\n',
+    prefix=lambda program_name, t: 'app [main!] {}\n\n',
+    main_header=lambda types, t: 'main! = |_args| {\n',
     var_decl=lambda typ, t: '',
-    call=lambda i, typ, t: f"    + ({function_name(typ, i)} {i})",
+    main_middle=lambda types: f"    _total =\n        0.{types[0]}\n",
+    call=lambda i, typ, t: f"        + {function_name(typ, i)}({i})",
     call_terminator='',
-    postfix=lambda types: '}\n',
+    postfix=lambda types: '    Ok({})\n}\n',
 ))
 
 
