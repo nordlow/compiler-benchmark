@@ -399,10 +399,12 @@ results in the following table (copied from the output at the end).
 
 ## Conclusions (from sample run shown above)
 
+## Conclusions (from sample run shown above)
+
 ### 1. Front-End Architecture & Ingestion Speed
-* **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is the fastest compiler overall by a wide margin (2 µs/f total build time, 1.1 kB/f peak RSS). Its single-pass architecture avoids constructing a full multi-pass AST or SSA intermediate representation, streaming machine code directly as symbols are ingested.
+* **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is the fastest native machine-code compiler overall by a wide margin (2 µs/f total build time, 1.1 kB/f peak RSS). Its single-pass architecture avoids constructing a full multi-pass AST or SSA intermediate representation, streaming machine code directly as symbols are ingested.
 * **Custom backends vs. heavy optimizing backends (`dmd` vs. `ldmd2` / `gcc`)**:
-  * Among modern systems languages (Tier 2), Digital Mars D (`dmd`) is exceptionally fast (13 µs/f plain, 19 µs/f templated)—outperforming not only all Tier 2 languages, but also minimalist C compilers like `cuik` (47 µs/f) and `cproc` (78 µs/f).
+  * Among modern systems languages (Tier 2), Digital Mars D (`dmd`) is exceptionally fast (9–13 µs/f plain, 12–19 µs/f templated)—outperforming not only all Tier 2 languages, but also minimalist C compilers like `cuik` (47 µs/f) and `cproc` (78 µs/f).
   * Comparing D compilers clearly isolates backend overhead: the custom DMD backend compiles in 11.5 µs/f, whereas LLVM-based LDC (`ldmd2`) requires 70.3 µs/f (~6× slower) and GCC-based GDC (`gdc`) takes 433.2 µs/f (~38× slower).
 * **Modern systems language throughput**: `odin` (92 µs/f) and `zig` (97 µs/f) achieve compilation speeds on par with or faster than `clang` (87 µs/f), while `rustc` (183 µs/f) handily outperforms both GCC-based C/C++ front-ends (~418–455 µs/f).
 
@@ -419,7 +421,7 @@ results in the following table (copied from the output at the end).
   * C++ compilation (`g++`) regressed from 209.4 µs/f to 422.2 µs/f (+101.6%—more than double the time).
 
 ### 4. Memory Footprint (Peak RSS)
-* **Leanest**: LuaJIT (`luajit`, 0.8 kB/f), `tcc` (1.1 kB/f), `cproc` (3.8 kB/f), and `dmd` (16.9 kB/f build / 4.8 kB/f check) maintain minimal memory overhead throughout compilation.
+* **Leanest**: LuaJIT (`luajit`, 0.7–0.8 kB/f), `tcc` (1.1 kB/f), `cproc` (3.8 kB/f), and `dmd` (16.7 kB/f build / 4.9 kB/f check) maintain minimal memory overhead throughout compilation.
 * **Heaviest**: Pony (`ponyc`, 283.3 kB/f), Hare (`hare`, 110.8 kB/f), Haskell (`ghc`, 81.8–88.5 kB/f), and Crystal (`crystal`, 81.7–83.7 kB/f) exhibit the highest peak memory per function, reflecting the memory cost of capability tracking, global analysis, and whole-program AST retention.
 
 ### 5. Binary Footprint & Output Density
@@ -427,7 +429,11 @@ results in the following table (copied from the output at the end).
 * **Code bloat & runtime overhead**: `zig` (1422–1503 B/f) and Common Lisp (`sbcl`, 1481 B/f) produce significantly larger binary sizes per function, primarily due to runtime scaffolding, unwinding metadata, and alignment padding.
 
 ### 6. Managed, VM, and Scripting Toolchains (Tier 3)
-* **Lightweight bytecode generation**: LuaJIT (`luajit`, 4 µs/f build, 3.4 µs/f check) and CPython (`python3`, 30 µs/f build, 28.9 µs/f check) emit bytecode at speeds faster than almost all native AOT compilers.
+* **Untyped bytecode emission vs. static type safety (The Lua vs. D fallacy)**:
+  * While LuaJIT (`luajit`, 4 µs/f build, 4.4 µs/f check) clocks a raw ingestion speed faster than D (`dmd`, 9–13 µs/f), **stating that "Lua compiles faster than D" is fundamentally an apples-to-oranges comparison**:
+    * **Zero compile-time type verification**: Lua is completely dynamically typed. Its parser performs no type checking, no signature validation, and no static symbol binding for globals. Global function calls are emitted directly as dynamic string table lookups against `_ENV`, deferring all resolution and type safety checks entirely to runtime.
+    * **No native codegen or linking**: LuaJIT emits lightweight virtual machine bytecode chunks in a single pass without building full symbol tables, allocating machine registers, or invoking a system linker.
+    * **D's engineering achievement**: In contrast, DMD performs exhaustive static type checking, semantic analysis, attribute verification (`@safe`, `pure`, `nothrow`, `@nogc`), monomorphization, and machine code generation with full native linking. Completing all of this in just ~9–13 µs/f highlights the extraordinary efficiency of DMD's front-end and custom backend relative to what Lua is actually asked to do.
 * **Legacy vs. Modern managed toolchains**: In C#, Mono's older C# compiler (`mcs`, 36 µs/f build) compiles ~6× faster than the modern Roslyn compiler (`csc`, 214 µs/f build), illustrating how much semantic analysis modern Roslyn pipelines perform.
 * **Functional & CPS transformation costs**: Functional languages performing deep intermediate representations—such as Scheme/Guile's Tree-IL Continuation-Passing Style compiler (`guild`, 8543 µs/f build) and Haskell (`ghc`, 3894–4704 µs/f build)—face steep scaling penalties on deep, non-inlined synthetic call trees.
 
