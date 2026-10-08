@@ -2544,7 +2544,7 @@ def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated
         cexe_flags = [op]
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = [op]
+        cexe_flags = [op, '--opt=dev', '--no-cache', '--jobs=1']
         out_flag_and_exe = ['--output=' + out_binary(lang)]
     elif op == 'run':
         cexe_flags = [op]
