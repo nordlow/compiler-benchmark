@@ -2520,8 +2520,8 @@ register_language(LangSupport(
 ))
 
 
-ROC_MAX_TOTAL_FUNCS = 10_000
-ROC_CAPPED_DIM = 100
+ROC_MAX_TOTAL_FUNCS = 2_500
+ROC_CAPPED_DIM = 50
 
 
 def _roc_limits(args: argparse.Namespace) -> list[str]:
