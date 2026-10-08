@@ -2252,6 +2252,20 @@ def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, template
                           results=results)
 
 
+PONY_MAX_TOTAL_FUNCS = 10_000
+PONY_CAPPED_DIM = 100
+
+
+def _pony_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > PONY_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Pony function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {PONY_CAPPED_DIM}x{PONY_CAPPED_DIM} due to ponyc capability checking limits")
+        args.function_count = PONY_CAPPED_DIM
+        args.function_depth = PONY_CAPPED_DIM
+        return [msg]
+    return []
+
+
 def _pony_program_dir(dir_path: str, templated: bool, run_ix: int) -> str:
     # ponyc compiles an entire package directory rather than a single file, so isolate each
     # generated program in its own subdirectory to avoid multiple `actor Main` definitions colliding.
@@ -2267,6 +2281,7 @@ register_language(LangSupport(
     name=Lang('Pony'), exes=[Exec('ponyc')], extension=FileExt('pony'), int_type=TypeName('I64'),
     runners=[bm_Pony],
     ops=('check', 'build'),
+    limit_args=_pony_limits,
     program_dir=_pony_program_dir,
     build_cmd=_pony_build_cmd,
     func_emitter=make_func_emitter(
