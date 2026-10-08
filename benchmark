@@ -1378,7 +1378,7 @@ def bm_Java(results: Results, code_paths, args: argparse.Namespace, op, template
         return None
     cexe_flags = ['-Xdiags:verbose']
     if op == 'check':
-        cexe_flags += ['-proc:only', '-Xlint:-options']
+        cexe_flags += ['-proc:only', '-nowarn']
     version = get_compiler_version(cexe)
     benchmark_compiler_op(code_paths,
                           out_flag_and_exe=[],
