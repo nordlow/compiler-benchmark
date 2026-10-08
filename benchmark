@@ -961,18 +961,21 @@ register_language(LangSupport(
 ))
 
 
-SWIFT_CRYSTAL_TS_MAX_FUNCS = 10_000
-SWIFT_CRYSTAL_TS_CAPPED_DIM = 100
+def _make_dim_limiter(lang_name: str, max_total: int = 10_000, capped_dim: int = 100, reason: str = "compiler scaling limits"):
+    def _limiter(args: argparse.Namespace) -> list[str]:
+        if args.function_count * args.function_depth > max_total:
+            msg = (f"Warning: Capping {lang_name} function count/depth from {args.function_count}x{args.function_depth} "
+                   f"to {capped_dim}x{capped_dim} due to {reason}")
+            args.function_count = capped_dim
+            args.function_depth = capped_dim
+            return [msg]
+        return []
+    return _limiter
 
 
-def _swift_crystal_ts_limits(args: argparse.Namespace) -> list[str]:
-    if args.function_count * args.function_depth > SWIFT_CRYSTAL_TS_MAX_FUNCS:
-        msg = (f"Warning: Capping function count/depth from {args.function_count}x{args.function_depth} "
-               f"to {SWIFT_CRYSTAL_TS_CAPPED_DIM}x{SWIFT_CRYSTAL_TS_CAPPED_DIM} due to compiler scaling limits")
-        args.function_count = SWIFT_CRYSTAL_TS_CAPPED_DIM
-        args.function_depth = SWIFT_CRYSTAL_TS_CAPPED_DIM
-        return [msg]
-    return []
+_swift_limits = _make_dim_limiter("Swift", 10_000, 100, "swiftc constraint solver limits")
+_crystal_limits = _make_dim_limiter("Crystal", 10_000, 100, "global type inference limits")
+_typescript_limits = _make_dim_limiter("TypeScript", 10_000, 100, "V8 heap and AST scaling limits")
 
 def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Swift'
@@ -1003,7 +1006,7 @@ register_language(LangSupport(
     name=Lang('Swift'), exes=[Exec('swiftc')], extension=FileExt('swift'), int_type=TypeName('Int64'),
     runners=[bm_Swift],
     ops=('check', 'build'),
-    limit_args=_swift_crystal_ts_limits,
+    limit_args=_swift_limits,
     templated_variants=(False, True),
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
@@ -1718,7 +1721,7 @@ register_language(LangSupport(
     ops=('check', 'build'),
     templated_variants=(False, True),
     tier=3,
-    limit_args=_swift_crystal_ts_limits,
+    limit_args=_swift_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
             f"def {fname}(x); return {expr}; end\n" if t
@@ -2292,7 +2295,7 @@ register_language(LangSupport(
     templated_variants=(False, True),
     aliases=('ts', 'tsc'),
     tier=3,
-    limit_args=_swift_crystal_ts_limits,
+    limit_args=_swift_limits,
     out_binary=DEFAULT_PROGRAM_NAME + '.js',
     native_output=_never_native,
     func_emitter=make_func_emitter(
@@ -3685,6 +3688,7 @@ def main():
     print(markdown_header('Benchmark:', 1))
 
     tasks = []
+    reported_warnings = set()
     for op in args.operations:
         for spec in LANGUAGES.values():
             if spec.name not in args.language_exes or op not in spec.ops:
@@ -3693,7 +3697,9 @@ def main():
             # Per-language scaling/stability limits live in the language's own block.
             task_args = copy.deepcopy(args)
             for warning in spec.limit_args(task_args):
-                print(warning)
+                if warning not in reported_warnings:
+                    reported_warnings.add(warning)
+                    print(warning)
 
             for templated in spec.templated_variants:
                 for r_idx in range(len(spec.runners)):
