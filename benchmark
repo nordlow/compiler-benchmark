@@ -360,15 +360,53 @@ def _parse_cpulist(text: str) -> set[int]:
     return cores
 
 
+def _filter_primary_smt_threads(cpu_ids: list[int]) -> list[int]:
+    """Pick only one logical thread per physical core to avoid SMT contention."""
+    seen_physical_cores = set()
+    primary_threads = []
+    for c in cpu_ids:
+        core_id_path = f"/sys/devices/system/cpu/cpu{c}/topology/core_id"
+        if os.path.isfile(core_id_path):
+            try:
+                core_id = int(open(core_id_path).read().strip())
+                if core_id not in seen_physical_cores:
+                    seen_physical_cores.add(core_id)
+                    primary_threads.append(c)
+                continue
+            except (OSError, ValueError):
+                pass
+        # Fallback if topology/core_id is missing: take even-numbered threads
+        primary_threads.append(c)
+    return primary_threads if primary_threads else cpu_ids
+
+
 def _detect_intel_hybrid(available: list[int]) -> list[int] | None:
-    """Linux Intel Hybrid (Alder Lake / Raptor Lake) PMU topology."""
+    """Linux Intel Hybrid (Alder Lake / Raptor Lake) PMU & core_type topology."""
+    # Strategy 1: Linux 5.18+ sysfs core_type (0x20 = P-core, 0x40 = E-core)
+    p_threads = []
+    has_core_type = False
+    for c in available:
+        type_file = f"/sys/devices/system/cpu/cpu{c}/topology/core_type"
+        if os.path.isfile(type_file):
+            try:
+                has_core_type = True
+                ctype = int(open(type_file).read().strip(), 0)
+                # Intel: 0x40 is Atom (E-core), 0x20 is Core (P-core)
+                if ctype != 0x40:
+                    p_threads.append(c)
+            except (OSError, ValueError):
+                pass
+    if has_core_type and 0 < len(p_threads) < len(available):
+        return _filter_primary_smt_threads(p_threads)
+
+    # Strategy 2: PMU cpumask
     for path in ("/sys/devices/cpu_core/cpus", "/sys/bus/event_source/devices/cpu_core/cpus"):
         if os.path.isfile(path):
             try:
                 p_cores = _parse_cpulist(open(path).read())
                 matching = [c for c in available if c in p_cores]
                 if 0 < len(matching) < len(available):
-                    return matching
+                    return _filter_primary_smt_threads(matching)
             except OSError:
                 pass
     return None
@@ -386,7 +424,8 @@ def _detect_cpu_capacity(available: list[int]) -> list[int] | None:
                 pass
     if len(caps) == len(available) and len(set(caps.values())) > 1:
         max_cap = max(caps.values())
-        return [c for c in available if caps[c] == max_cap]
+        matching = [c for c in available if caps[c] == max_cap]
+        return _filter_primary_smt_threads(matching)
     return None
 
 
@@ -3766,7 +3805,8 @@ def main():
 
     cpus, is_hetero = get_available_cpus()
     cpu_use_count = len(cpus) if is_hetero else max(1, len(cpus) - HOMOGENEOUS_CPU_RESERVE)
-    print(f"Running benchmarks in parallel across {cpu_use_count} CPU core(s) (1 worker per core)...")
+    core_desc = "performance CPU core(s)" if is_hetero else "CPU core(s)"
+    print(f"Running benchmarks in parallel across {cpu_use_count} {core_desc} (1 worker per core)...")
     manager = mp.Manager()
     idx_counter = manager.Value('i', 0)
     lock = manager.Lock()
