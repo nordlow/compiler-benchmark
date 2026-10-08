@@ -848,7 +848,8 @@ register_language(LangSupport(
     templated_variants=(False, True),
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
-            f"{'template<typename T=int> ' if t else ''}{typ} {fname}({typ} x) {{ return {expr}; }}\n")),
+            f"template<typename T> T {fname}(T x) {{ return {expr}; }}\n" if t
+            else f"{typ} {fname}({typ} x) {{ return {expr}; }}\n")),
     main_header=lambda types, t: 'int main(void) {\n',
     var_decl=lambda typ, t: f"    {typ} {typ}_sum = 0;\n",
     postfix=lambda types: f"    return {types[0]}_sum;\n}}\n",
