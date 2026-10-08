@@ -399,8 +399,6 @@ results in the following table (copied from the output at the end).
 
 ## Conclusions (from sample run shown above)
 
-## Conclusions (from sample run shown above)
-
 ### 1. Front-End Architecture & Ingestion Speed
 * **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is the fastest native machine-code compiler overall by a wide margin (2 µs/f total build time, 1.1 kB/f peak RSS). Its single-pass architecture avoids constructing a full multi-pass AST or SSA intermediate representation, streaming machine code directly as symbols are ingested.
 * **Custom backends vs. heavy optimizing backends (`dmd` vs. `ldmd2` / `gcc`)**:
