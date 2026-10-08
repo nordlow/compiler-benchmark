@@ -778,6 +778,20 @@ register_language(LangSupport(
 ))
 
 
+ADA_MAX_TOTAL_FUNCS = 10_000
+ADA_CAPPED_DIM = 100
+
+
+def _ada_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > ADA_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Ada function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {ADA_CAPPED_DIM}x{ADA_CAPPED_DIM} due to gnatbind & elaborator scaling limits")
+        args.function_count = ADA_CAPPED_DIM
+        args.function_depth = ADA_CAPPED_DIM
+        return [msg]
+    return []
+
+
 def bm_Ada_using_gcc(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Ada'
     if op == 'check':
@@ -803,6 +817,7 @@ register_language(LangSupport(
     name=Lang('Ada'), exes=[Exec('gnat')], extension=FileExt('adb'), int_type=TypeName('Long_Integer'),
     runners=[bm_Ada_using_gcc],
     ops=('check', 'build'),
+    limit_args=_ada_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: f"   function {fname} (x: {typ}) return {typ} is ({expr});\n"),
     prefix=lambda program_name, t: 'with System;\n\nwith GNAT.OS_Lib;\n\n',
@@ -2404,6 +2419,20 @@ register_language(LangSupport(
 ))
 
 
+GUILE_MAX_TOTAL_FUNCS = 5_000
+GUILE_CAPPED_DIM = 70
+
+
+def _guile_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > GUILE_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Guile function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {GUILE_CAPPED_DIM}x{GUILE_CAPPED_DIM} due to Tree-IL CPS compiler scaling limits")
+        args.function_count = GUILE_CAPPED_DIM
+        args.function_depth = GUILE_CAPPED_DIM
+        return [msg]
+    return []
+
+
 def bm_Guile(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Guile'
     cexe = resolve_compiler_path(args, lang, 'guild') or resolve_compiler_path(args, lang, 'guile')
@@ -2460,6 +2489,7 @@ register_language(LangSupport(
     ops=('check', 'compile', 'build'),
     aliases=('guild',),
     tier=3,
+    limit_args=_guile_limits,
     out_binary=DEFAULT_PROGRAM_NAME + '.go',
     native_output=_never_native,
     func_emitter=make_func_emitter(
