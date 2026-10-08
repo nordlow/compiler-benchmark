@@ -960,6 +960,19 @@ register_language(LangSupport(
 ))
 
 
+SWIFT_CRYSTAL_TS_MAX_FUNCS = 10_000
+SWIFT_CRYSTAL_TS_CAPPED_DIM = 100
+
+
+def _swift_crystal_ts_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > SWIFT_CRYSTAL_TS_MAX_FUNCS:
+        msg = (f"Warning: Capping function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {SWIFT_CRYSTAL_TS_CAPPED_DIM}x{SWIFT_CRYSTAL_TS_CAPPED_DIM} due to compiler scaling limits")
+        args.function_count = SWIFT_CRYSTAL_TS_CAPPED_DIM
+        args.function_depth = SWIFT_CRYSTAL_TS_CAPPED_DIM
+        return [msg]
+    return []
+
 def bm_Swift(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Swift'
     cexe = resolve_compiler_path(args, lang, 'swiftc')
@@ -989,6 +1002,7 @@ register_language(LangSupport(
     name=Lang('Swift'), exes=[Exec('swiftc')], extension=FileExt('swift'), int_type=TypeName('Int64'),
     runners=[bm_Swift],
     ops=('check', 'build'),
+    limit_args=_swift_crystal_ts_limits,
     templated_variants=(False, True),
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
@@ -1703,6 +1717,7 @@ register_language(LangSupport(
     ops=('check', 'build'),
     templated_variants=(False, True),
     tier=3,
+    limit_args=_swift_crystal_ts_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
             f"def {fname}(x); return {expr}; end\n" if t
@@ -1765,6 +1780,20 @@ register_language(LangSupport(
 ))
 
 
+HASKELL_MAX_TOTAL_FUNCS = 10_000
+HASKELL_CAPPED_DIM = 100
+
+
+def _haskell_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > HASKELL_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Haskell function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {HASKELL_CAPPED_DIM}x{HASKELL_CAPPED_DIM} due to GHC scaling limits")
+        args.function_count = HASKELL_CAPPED_DIM
+        args.function_depth = HASKELL_CAPPED_DIM
+        return [msg]
+    return []
+
+
 def bm_Haskell(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Haskell'
     cexe = resolve_compiler_path(args, lang, 'ghc')
@@ -1805,6 +1834,7 @@ register_language(LangSupport(
     templated_variants=(False, True),
     aliases=('ghc',),
     tier=3,
+    limit_args=_haskell_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
             f"{fname} :: Num a => a -> a\n{fname} x = {expr}\n" if t
@@ -2261,6 +2291,7 @@ register_language(LangSupport(
     templated_variants=(False, True),
     aliases=('ts', 'tsc'),
     tier=3,
+    limit_args=_swift_crystal_ts_limits,
     out_binary=DEFAULT_PROGRAM_NAME + '.js',
     native_output=_never_native,
     func_emitter=make_func_emitter(
@@ -2982,6 +3013,8 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
                 return None
             b = row[BUILD_DUR_PER_FUNC_IX]
             r = row[RUN_DUR_PER_FUNC_IX]
+            if isinstance(b, str):
+                return b
             if b is None and r is None:
                 return None
             b_val = b if isinstance(b, (int, float)) else 0.0
@@ -3229,7 +3262,7 @@ def build_compiler_cmd(lang: str, cexe: str, cexe_flags: list, out_flags: list, 
     return [cexe] + cexe_flags + out_flags + [src_name]
 
 
-def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_text: str | None = None):
+def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_text: str | None = None, timeout: float | None = 60.0):
     """Execute compiler in work_dir and measure duration, RSS, and exit code."""
     from process_timer import ProcessTimer
     cwd = os.getcwd()
@@ -3249,6 +3282,11 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
                 p = psutil.Process(comp_proc.pid)
                 max_rss = 0
                 while comp_proc.poll() is None:
+                    if timeout and (timer() - cstart) > timeout:
+                        comp_proc.kill()
+                        returncode = 124
+                        errs = b'Process timed out'
+                        break
                     try:
                         rss = p.memory_info().rss
                         if rss > max_rss:
@@ -3265,6 +3303,14 @@ def measure_compilation(p_args: list, work_dir: str, sample_rate: int, stdin_tex
             pt = ProcessTimer(args=p_args)
             try:
                 while pt.poll():
+                    if timeout and (timer() - cstart) > timeout:
+                        try:
+                            pt.comp_proc.kill()
+                        except Exception:
+                            pass
+                        returncode = 124
+                        errs = b'Process timed out'
+                        break
                     time.sleep(1.0 / sample_rate)
             except Exception:
                 rss_mu = "sampling error"
@@ -3350,7 +3396,8 @@ def benchmark_compiler_op(code_paths: dict,
         p_args = build_compiler_cmd(lang, cexe, cexe_flags, out_flag_and_exe, src_name, has_stdin=bool(stdin_input))
         stdin_text = stdin_input.format(run_ix) if stdin_input else None
 
-        dur, returncode, outs, errs, rss = measure_compilation(p_args, lang_dir, args.sample_rate, stdin_text)
+        timeout_sec = getattr(args, 'timeout', 60.0)
+        dur, returncode, outs, errs, rss = measure_compilation(p_args, lang_dir, args.sample_rate, stdin_text, timeout=timeout_sec)
         rss_mu = rss
 
         out_str = outs.decode('utf8', errors='ignore') if outs else ''
@@ -3365,7 +3412,21 @@ def benchmark_compiler_op(code_paths: dict,
             setattr(args, 'has_stderr', True)
             setattr(args, 'has_output', True)
             cmd_str = ' '.join(p_args)
-            print(f"WARNING: Compilation `{cmd_str}` of source file `{src_name}` exited with return code {returncode}", file=sys.stderr)
+            if returncode in (-9, 124):
+                t_limit = getattr(args, 'timeout', 60.0)
+                timeout_tag = f">{int(t_limit) if t_limit.is_integer() else t_limit:.1f}s"
+                print(f"WARNING: Compilation `{cmd_str}` timed out after {t_limit:.1f}s", file=sys.stderr)
+                op_col = {
+                    'ast-check': AST_CHECK_DUR_PER_FUNC_IX,
+                    'check': CHECK_DUR_PER_FUNC_IX,
+                    'compile': COMPILE_DUR_PER_FUNC_IX,
+                    'build': BUILD_DUR_PER_FUNC_IX,
+                    'run': RUN_DUR_PER_FUNC_IX,
+                }.get(op)
+                if op_col is not None:
+                    row[op_col] = timeout_tag
+            else:
+                print(f"WARNING: Compilation `{cmd_str}` of source file `{src_name}` exited with return code {returncode}", file=sys.stderr)
             if has_out:
                 print(f"  - stdout: {out_str.strip()}", file=sys.stderr)
             if has_err:
@@ -3380,6 +3441,10 @@ def benchmark_compiler_op(code_paths: dict,
                 print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
 
         durs.append(dur)
+        if dur >= 3.0 and len(durs) >= 2:
+            break
+        elif dur >= 1.0 and len(durs) >= 3:
+            break
 
     dur_min = min(durs)
     if _worker_active_tasks is not None:
@@ -3516,6 +3581,9 @@ def main():
                         default=100,
                         help='Rate of memory usage sampling. Unit is samples per second.')
 
+    parser.add_argument('--timeout', type=float, default=60.0,
+                        help='Per-compilation timeout in seconds (default: 60.0)')
+
     parser.add_argument('--run-count', '--rc', type=int,
                         default=10,
                         help='Number of runs for each compilation')
@@ -3629,6 +3697,14 @@ def main():
             for templated in spec.templated_variants:
                 for r_idx in range(len(spec.runners)):
                     tasks.append((spec.name, r_idx, op, templated, copy.deepcopy(task_args)))
+
+    def _task_weight(t):
+        t_lang, _, t_op, t_tmpl, _ = t
+        tier = LANGUAGES[t_lang].tier
+        op_w = 3 if t_op == Op.BUILD else (2 if t_op == Op.COMPILE else 1)
+        return (tier, 2 if t_tmpl else 1, op_w)
+
+    tasks.sort(key=_task_weight, reverse=True)
 
     cpus, is_hetero = get_available_cpus()
     cpu_use_count = len(cpus) if is_hetero else max(1, len(cpus) - 2)
