@@ -1806,6 +1806,20 @@ register_language(LangSupport(
 ))
 
 
+FORTRAN_MAX_TOTAL_FUNCS = 10_000
+FORTRAN_CAPPED_DIM = 100
+
+
+def _fortran_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > FORTRAN_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Fortran function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {FORTRAN_CAPPED_DIM}x{FORTRAN_CAPPED_DIM} due to gfortran module symbol table limits")
+        args.function_count = FORTRAN_CAPPED_DIM
+        args.function_depth = FORTRAN_CAPPED_DIM
+        return [msg]
+    return []
+
+
 def bm_Fortran_using_gcc(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Fortran'
     op_flags = {'check': ['-fsyntax-only'], 'compile': ['-c'], 'build': ['-O0']}.get(op)
@@ -1822,6 +1836,7 @@ register_language(LangSupport(
     runners=[bm_Fortran_using_gcc],
     ops=('check', 'compile', 'build'),
     aliases=('gfortran',),
+    limit_args=_fortran_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
             f"function {fname}(x) result(r); integer({typ}), value :: x; "
