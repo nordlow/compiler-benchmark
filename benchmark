@@ -2541,10 +2541,10 @@ def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated
         return None
 
     if op == 'check':
-        cexe_flags = ['check']
+        cexe_flags = [op]
         out_flag_and_exe = []
-    elif op == 'build':
-        cexe_flags = ['build', '--opt=dev']
+    elif op == 'run':
+        cexe_flags = [op]
         out_flag_and_exe = []
     else:
         return None
@@ -2577,7 +2577,7 @@ def _roc_parse_version(out: str, default: str) -> str | None:
 register_language(LangSupport(
     name=Lang('Roc'), exes=[Exec('roc')], extension=FileExt('roc'), int_type=TypeName('I64'),
     runners=[bm_Roc],
-    ops=('check',),
+    ops=('check', 'run'),
     limit_args=_roc_limits,
     versions=[VersionSpec(('roc',), ['version'], _roc_parse_version)],
     func_emitter=make_func_emitter(
