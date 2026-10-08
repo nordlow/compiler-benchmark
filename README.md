@@ -399,22 +399,43 @@ results in the following table (copied from the output at the end).
 
 ## Conclusions (from sample run shown above)
 
-The Tiny C Compiler (TCC) (`tcc`) is by a large margin the fastest
-compiler in build speed, followed by the C compiler Cuik and D's
-`dmd`. TCC's vastly superior build speed stems from its single-pass
-code-generation architecture: because C relies on explicit forward
-declarations, the compiler does not need multi-pass symbol resolution,
-effectively limiting AST parsing, memory allocation, and code
-generation scope to a single function at a time.
+### 1. Front-End Architecture & Ingestion Speed
+* **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is the fastest compiler overall by a wide margin (2 µs/f total build time, 1.1 kB/f peak RSS). Its single-pass architecture avoids constructing a full multi-pass AST or SSA intermediate representation, streaming machine code directly as symbols are ingested.
+* **Custom backends vs. heavy optimizing backends (`dmd` vs. `ldmd2` / `gcc`)**:
+  * Among modern systems languages (Tier 2), Digital Mars D (`dmd`) is exceptionally fast (13 µs/f plain, 19 µs/f templated)—outperforming not only all Tier 2 languages, but also minimalist C compilers like `cuik` (47 µs/f) and `cproc` (78 µs/f).
+  * Comparing D compilers clearly isolates backend overhead: the custom DMD backend compiles in 11.5 µs/f, whereas LLVM-based LDC (`ldmd2`) requires 70.3 µs/f (~6× slower) and GCC-based GDC (`gdc`) takes 433.2 µs/f (~38× slower).
+* **Modern systems language throughput**: `odin` (92 µs/f) and `zig` (97 µs/f) achieve compilation speeds on par with or faster than `clang` (87 µs/f), while `rustc` (183 µs/f) handily outperforms both GCC-based C/C++ front-ends (~418–455 µs/f).
 
-The performance of both GCC and Clang sometimes worsen with a newer
-release.
+### 2. Generics & Monomorphization Overhead
+* **Zero-cost monomorphization**: `zig` demonstrated effectively identical compile speeds between untemplated and templated code (97 µs/f vs. 92 µs/f), reflecting the efficiency of its `comptime` evaluation for uniform scalar types.
+* **Moderate generic penalties**: `dmd` (+46%), `rustc` (+30%), and `c3c` (+77%) exhibit predictable, linear increases in build time when resolving and instantiating generic arithmetic functions.
+* **Solver and inference blowups**:
+  * **Swift (`swiftc`)**: Suffers a ~2× slowdown on templated code (1174 µs/f → 2287 µs/f), driven primarily by type checker and constraint-solver overhead during deep function call validation (check time ballooned from 728.6 to 1319.7 µs/f).
+  * **V (`v`)**: While plain compilation completed in 317 µs/f, templated compilation timed out (>60.0s) and check memory exploded from 10.2 kB/f to 181.5 kB/f.
 
-Both OCaml and Julia scale poorly on deeply nested functions with
-large synthetic function counts, an explicit maximum limit is
-therefore enforced. Moreover, the Nim compiler has a hard limit of 50
-recursive generic instantiations so therefore `--function-depth` is
-automatically truncated down to 50.
+### 3. Compiler Version Regressions
+* Newer compiler releases can introduce regressions in raw front-end ingestion. Between **GCC 15.3.0** and **GCC 16.2.1**:
+  * Unlinked C compilation (`compile`) regressed from 226.7 µs/f to 382.6 µs/f (+68.8%).
+  * C++ compilation (`g++`) regressed from 209.4 µs/f to 422.2 µs/f (+101.6%—more than double the time).
+
+### 4. Memory Footprint (Peak RSS)
+* **Leanest**: LuaJIT (`luajit`, 0.8 kB/f), `tcc` (1.1 kB/f), `cproc` (3.8 kB/f), and `dmd` (16.9 kB/f build / 4.8 kB/f check) maintain minimal memory overhead throughout compilation.
+* **Heaviest**: Pony (`ponyc`, 283.3 kB/f), Hare (`hare`, 110.8 kB/f), Haskell (`ghc`, 81.8–88.5 kB/f), and Crystal (`crystal`, 81.7–83.7 kB/f) exhibit the highest peak memory per function, reflecting the memory cost of capability tracking, global analysis, and whole-program AST retention.
+
+### 5. Binary Footprint & Output Density
+* **Most compact machine code**: Free Pascal (`fpc`, 68.8 B/f), `tcc` / `cproc` (90.1 B/f), `odin` (112.6 B/f), and `gcc` (121.1 B/f) generate the most compact stripped executables per function.
+* **Code bloat & runtime overhead**: `zig` (1422–1503 B/f) and Common Lisp (`sbcl`, 1481 B/f) produce significantly larger binary sizes per function, primarily due to runtime scaffolding, unwinding metadata, and alignment padding.
+
+### 6. Managed, VM, and Scripting Toolchains (Tier 3)
+* **Lightweight bytecode generation**: LuaJIT (`luajit`, 4 µs/f build, 3.4 µs/f check) and CPython (`python3`, 30 µs/f build, 28.9 µs/f check) emit bytecode at speeds faster than almost all native AOT compilers.
+* **Legacy vs. Modern managed toolchains**: In C#, Mono's older C# compiler (`mcs`, 36 µs/f build) compiles ~6× faster than the modern Roslyn compiler (`csc`, 214 µs/f build), illustrating how much semantic analysis modern Roslyn pipelines perform.
+* **Functional & CPS transformation costs**: Functional languages performing deep intermediate representations—such as Scheme/Guile's Tree-IL Continuation-Passing Style compiler (`guild`, 8543 µs/f build) and Haskell (`ghc`, 3894–4704 µs/f build)—face steep scaling penalties on deep, non-inlined synthetic call trees.
+
+### 7. Scalability Bottlenecks & Caps
+Synthetic call chains stress corner cases that standard module-based codebases rarely trigger, explaining why automatic caps are required:
+* **Table and pool overflows**: Java caps at $100 \times 100$ due to the JVM 16-bit constant pool ceiling ($65{,}535$ entries); LuaJIT caps at $150 \times 150$ due to the bytecode chunk constant limit ($65{,}536$).
+* **Recursion & elaboration limits**: Nim enforces an internal compiler limit of 50 recursive generic instantiations (forcing `--function-depth` to 50); Ada requires capping at $100 \times 100$ due to quadratic scaling in `gnatbind` elaboration analysis.
+* **CPS & capability checking**: Pony ($30 \times 30$), Roc ($50 \times 50$), and Guile ($70 \times 70$) hit pathologically slow type/capability checking or CPS lowering times on tens of thousands of deeply nested expressions.
 
 ---
 
