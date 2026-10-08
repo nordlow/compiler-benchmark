@@ -3020,11 +3020,11 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
         elif row_tmpl is None:
             tot_cell = tot_p if not p_tot_na else "N/A"
         elif p_tot_na:
-            tot_cell = f"-, {tot_t}"
+            tot_cell = f"-<br>{tot_t}"
         elif t_tot_na:
-            tot_cell = f"{tot_p}, -"
+            tot_cell = f"{tot_p}<br>-"
         else:
-            tot_cell = f"{tot_p}, {tot_t}"
+            tot_cell = f"{tot_p}<br>{tot_t}"
 
         merged_row.append(tot_cell)
 
@@ -3040,11 +3040,11 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
             elif row_tmpl is None:  # Language has no templated variant benchmarked
                 return val_p if not p_na else 'N/A'
             elif p_na:
-                return f"-, {val_t}"
+                return f"-<br>{val_t}"
             elif t_na:
-                return f"{val_p}, -"
+                return f"{val_p}<br>-"
             else:
-                return f"{val_p}, {val_t}"
+                return f"{val_p}<br>{val_t}"
 
         for col in metric_cols:
             cell = format_col(col)
@@ -3141,7 +3141,7 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
         tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight, time_units=time_units)
         legend = ""
         if any(k[1] for k in t_res):
-            legend = "*Cells with two values: untemplated, templated (`-` = not available).*" + nl + nl
+            legend = "*Stacked cells: top = untemplated, bottom = templated (`-` = not available).*" + nl + nl
         sections.append("### " + title + nl + "*" + desc + "*" + nl + nl + legend + tbl)
 
     return (nl + nl).join(sections)
