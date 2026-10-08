@@ -2520,6 +2520,20 @@ register_language(LangSupport(
 ))
 
 
+ROC_MAX_TOTAL_FUNCS = 10_000
+ROC_CAPPED_DIM = 100
+
+
+def _roc_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > ROC_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Roc function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {ROC_CAPPED_DIM}x{ROC_CAPPED_DIM} due to compiler AST limits")
+        args.function_count = ROC_CAPPED_DIM
+        args.function_depth = ROC_CAPPED_DIM
+        return [msg]
+    return []
+
+
 def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
     lang = 'Roc'
     cexe = resolve_compiler_path(args, lang, 'roc')
@@ -2530,8 +2544,8 @@ def bm_Roc(results: Results, code_paths, args: argparse.Namespace, op, templated
         cexe_flags = ['check']
         out_flag_and_exe = []
     elif op == 'build':
-        cexe_flags = ['build', '--dev']
-        out_flag_and_exe = [f'--output={out_binary(lang)}']
+        cexe_flags = ['build', '--opt=dev']
+        out_flag_and_exe = []
     else:
         return None
 
@@ -2563,23 +2577,19 @@ def _roc_parse_version(out: str, default: str) -> str | None:
 register_language(LangSupport(
     name=Lang('Roc'), exes=[Exec('roc')], extension=FileExt('roc'), int_type=TypeName('I64'),
     runners=[bm_Roc],
-    ops=('check', 'build'),
+    ops=('check',),
+    limit_args=_roc_limits,
     versions=[VersionSpec(('roc',), ['version'], _roc_parse_version)],
     func_emitter=make_func_emitter(
-        define=lambda fname, typ, expr, t: f"{fname} = |x| {expr}\n"),
-    prefix=lambda program_name, t: (
-        "app [main!] {\n"
-        "    pf: platform \"https://github.com/roc-lang/basic-cli/releases/download/0.19.0/"
-        "Hj-J_zxz7V9YurCSTFcFdu6cQJie4guzsPMUi5kBYUk.tar.br\",\n"
-        "}\n\n"
-        "import pf.Stdout\n\n"),
-    main_header=lambda types, t: 'main! = |_args| {\n',
-    var_decl=lambda typ, t: f"    var ${typ.lower()}_sum = 0\n",
-    call=lambda i, typ, t: (
-        f"    ${typ.lower()}_sum = ${typ.lower()}_sum + {function_name(typ, i)}({i})"
+        define=lambda fname, typ, expr, t: f"{fname} = |x| {expr}\n",
+        chain=lambda typ, t, prev, c: f"x + ({prev} x) + {c}",
     ),
+    prefix=_no_text,
+    main_header=lambda types, t: 'main! = |_args| {\n    0\n',
+    var_decl=lambda typ, t: '',
+    call=lambda i, typ, t: f"    + ({function_name(typ, i)} {i})",
     call_terminator='',
-    postfix=lambda types: f"    _ = Stdout.line!(Str.inspect(${types[0].lower()}_sum))\n    Ok({{}})\n}}\n",
+    postfix=lambda types: '}\n',
 ))
 
 
