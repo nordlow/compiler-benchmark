@@ -88,11 +88,26 @@ class ResultKey(NamedTuple):
 Results = dict[ResultKey, list]
 
 DEFAULT_PROGRAM_NAME = "main"
+DEFAULT_FUNCTION_COUNT = 200
+DEFAULT_FUNCTION_DEPTH = 200
+DEFAULT_RUN_COUNT = 10
+DEFAULT_SAMPLE_RATE = 100
 DEFAULT_TIMEOUT = 60.0
+
 ADAPTIVE_FAST_DUR_THRESHOLD = 1.0
 ADAPTIVE_FAST_RUN_COUNT = 3
 ADAPTIVE_SLOW_DUR_THRESHOLD = 3.0
 ADAPTIVE_SLOW_RUN_COUNT = 2
+
+HOMOGENEOUS_CPU_RESERVE = 2
+PROGRESS_POLL_INTERVAL_SEC = 0.2
+MONITOR_JOIN_TIMEOUT_SEC = 1.0
+TEMP_DIR_BASE = "/tmp"
+TEMP_DIR_PREFIX = "generated_"
+
+RAND_POOL_SIZE = 4096
+RAND_POOL_MASK = RAND_POOL_SIZE - 1
+RAND_INT_MAX = 100_000
 
 DEFAULT_OPERATIONS: list[Op] = [
     Op.CHECK,
@@ -2675,7 +2690,7 @@ def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, 
     if stream is None or progress_mode == "none":
         return
 
-    while not stop_event.wait(0.2):
+    while not stop_event.wait(PROGRESS_POLL_INTERVAL_SEC):
         try:
             current_tasks = list(active_tasks.values())
         except Exception:
@@ -3194,9 +3209,7 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
     return (nl + nl).join(sections)
 
 
-RAND_POOL_SIZE = 4096
-RAND_POOL_MASK = RAND_POOL_SIZE - 1
-RAND_STR_POOL = [str(random.randint(0, 100000)) for _ in range(RAND_POOL_SIZE)]
+RAND_STR_POOL = [str(random.randint(0, RAND_INT_MAX)) for _ in range(RAND_POOL_SIZE)]
 
 
 def generate_function_definitions(spec: LangSupport, types: list[str], args: argparse.Namespace, sink, templated: bool):
@@ -3589,22 +3602,22 @@ def main():
                         help='Include AST syntax check (e.g. zig ast-check) in check operations')
 
     parser.add_argument('--function-count', '--fc', type=int,
-                        default=200,
+                        default=DEFAULT_FUNCTION_COUNT,
                         help='Number of functions generated and called')
 
     parser.add_argument('--function-depth', '--fd', type=int,
-                        default=200,
+                        default=DEFAULT_FUNCTION_DEPTH,
                         help='Function call depth')
 
     parser.add_argument('--sample-rate', '--sr', type=int,
-                        default=100,
+                        default=DEFAULT_SAMPLE_RATE,
                         help='Rate of memory usage sampling. Unit is samples per second.')
 
     parser.add_argument('--timeout', type=float, default=DEFAULT_TIMEOUT,
                         help=f'Per-compilation timeout in seconds (default: {DEFAULT_TIMEOUT})')
 
     parser.add_argument('--run-count', '--rc', type=int,
-                        default=10,
+                        default=DEFAULT_RUN_COUNT,
                         help='Number of runs for each compilation')
 
     parser.add_argument('--values', '--val', type=str,
@@ -3720,16 +3733,18 @@ def main():
                 for r_idx in range(len(spec.runners)):
                     tasks.append((spec.name, r_idx, op, templated, copy.deepcopy(task_args)))
 
+    op_weights = {Op.BUILD: 3, Op.COMPILE: 2, Op.CHECK: 1, Op.AST_CHECK: 0}
+
     def _task_weight(t):
         t_lang, _, t_op, t_tmpl, _ = t
         tier = LANGUAGES[t_lang].tier
-        op_w = 3 if t_op == Op.BUILD else (2 if t_op == Op.COMPILE else 1)
+        op_w = op_weights.get(t_op, 1)
         return (tier, 2 if t_tmpl else 1, op_w)
 
     tasks.sort(key=_task_weight, reverse=True)
 
     cpus, is_hetero = get_available_cpus()
-    cpu_use_count = len(cpus) if is_hetero else max(1, len(cpus) - 2)
+    cpu_use_count = len(cpus) if is_hetero else max(1, len(cpus) - HOMOGENEOUS_CPU_RESERVE)
     print(f"Running benchmarks in parallel across {cpu_use_count} CPU core(s) (1 worker per core)...")
     manager = mp.Manager()
     idx_counter = manager.Value('i', 0)
@@ -3740,7 +3755,7 @@ def main():
     completed_counter = manager.Value('i', 0)
 
     global ROOT_PATH
-    ROOT_PATH = tempfile.mkdtemp(prefix='generated_', dir='/tmp')
+    ROOT_PATH = tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX, dir=TEMP_DIR_BASE)
     call_proc_dirs = {os.path.abspath(os.path.join(ROOT_PATH, f"proc_{MAIN_PID}"))}
 
     def cleanup_call_empty_dirs():
@@ -3803,7 +3818,7 @@ def main():
         sys.exit(130)
     finally:
         stop_monitor.set()
-        monitor_thread.join(timeout=1.0)
+        monitor_thread.join(timeout=MONITOR_JOIN_TIMEOUT_SEC)
         with print_lock:
             if status_line_len.value > 0:
                 stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
