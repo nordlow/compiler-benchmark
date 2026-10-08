@@ -2938,18 +2938,13 @@ def pick_time_unit_and_scale(values: list[float]) -> tuple[str, float]:
 
 
 def get_column_time_units(results: Results) -> dict[int, tuple[str, float]]:
-    check_vals = [r[CHECK_DUR_PER_FUNC_IX] for r in results.values() if r[CHECK_DUR_PER_FUNC_IX] is not None]
-    check_vals += [r[AST_CHECK_DUR_PER_FUNC_IX] for r in results.values() if r[AST_CHECK_DUR_PER_FUNC_IX] is not None]
-    check_unit, check_scale = pick_time_unit_and_scale(check_vals)
-
-    units = {
-        AST_CHECK_DUR_PER_FUNC_IX: (check_unit, check_scale),
-        CHECK_DUR_PER_FUNC_IX: (check_unit, check_scale),
-    }
-    for col_ix in (COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX, RUN_DUR_PER_FUNC_IX):
-        vals = [r[col_ix] for r in results.values() if r[col_ix] is not None]
-        units[col_ix] = pick_time_unit_and_scale(vals)
-    return units
+    all_time_vals = []
+    for r in results.values():
+        for ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX):
+            if r[ix] is not None:
+                all_time_vals.append(r[ix])
+    unit, scale = pick_time_unit_and_scale(all_time_vals)
+    return {ix: (unit, scale) for ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX, RUN_DUR_PER_FUNC_IX)}
 
 
 def merge_plain_and_templated_results(results: Results, values_mode: str = "absolute", highlight: bool = False):
