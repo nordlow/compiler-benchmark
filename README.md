@@ -221,7 +221,7 @@ $$\text{Total Functions} = \text{function\_count} \times \text{function\_depth}$
 
 For languages with a safety cap (see below) the capped sizes are used for normalization.
 
-- **`Total (Build + Run) [us/f]`**: Minimum build time plus minimum run time per function, shown as `total (build+run)` (e.g. `2.6 (...)`-style cells such as `115.6 (2.6+113.0)`). `N/A` for toolchains that have no build step or whose artifact isn't executed.
+- **`Total=Build+Run [us/f]`**: Minimum build time plus minimum run time per function, shown as `total=build+run` (e.g. `2.6 (...)`-style cells such as `115=2+113.0`). `N/A` for toolchains that have no build step or whose artifact isn't executed.
 - **`Check [us/f]`**, **`Compile [us/f]`**: Minimum execution duration divided by total functions (`args.function_count * args.function_depth`). If AST checking is enabled and supported (e.g. Zig), its result is shown on a second line (`<br>`) inside the **Check** cell.
 - **`Check RSS [kB/f]`**, **`Build RSS [kB/f]`**: Maximum resident set size (sampled at `--sample-rate` via `psutil` / process timer) in kilobytes divided by total functions. Cells show `sampling error` or `missing` when memory could not be sampled.
 - **`Output Size [B/f]`**: Stripped binary disk footprint in bytes divided by total functions (native machine-code binaries only: ELF, Mach-O or PE; `N/A` for bytecode/script artifacts).
