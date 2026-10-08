@@ -567,24 +567,6 @@ fi
 if should_install "roc"; then
     echo ">> Checking Roc..."
     if ! command -v roc &>/dev/null && [ ! -f "$BIN_DIR/roc" ]; then
-        ROC_ARCH="$(uname -m)"
-        ROC_URL=$(curl -fsSL https://api.github.com/repos/roc-lang/roc/releases | grep -oP '"browser_download_url":\s*"\Khttps://github.com/roc-lang/roc/releases/download/[^"]+roc_nightly-linux_'"${ROC_ARCH}"'[^"]+\.tar\.gz' | head -n 1 || true)
-        if [ -z "$ROC_URL" ]; then
-            ROC_URL=$(curl -fsSL https://github.com/roc-lang/roc/releases | grep -oP 'href="\K/roc-lang/roc/releases/download/[^"]+roc_nightly-linux_'"${ROC_ARCH}"'[^"]+\.tar\.gz' | head -n 1 | sed 's|^|https://github.com|' || true)
-        fi
-        if [ -n "$ROC_URL" ]; then
-            ROC_TMP=$(mktemp -d)
-            wget -q --show-progress -c "$ROC_URL" -O "$ROC_TMP/roc.tar.gz"
-            tar -xzf "$ROC_TMP/roc.tar.gz" -C "$ROC_TMP"
-            EXTRACTED_DIR=$(find "$ROC_TMP" -maxdepth 2 -type f -name "roc" -exec dirname {} \; | head -n 1)
-            if [ -n "$EXTRACTED_DIR" ]; then
-                rm -rf "$INSTALL_DIR/roc"
-                mv "$EXTRACTED_DIR" "$INSTALL_DIR/roc"
-                ln -sf "$INSTALL_DIR/roc/roc" "$BIN_DIR/roc"
-            fi
-            rm -rf "$ROC_TMP"
-        else
-            echo "Error: Failed to fetch"
-		fi
-	fi
+        curl -fsSL https://roc-lang.org/install_roc.sh | ROC_INSTALL_DIR="$HOME/.local/bin" sh
+    fi
 fi
