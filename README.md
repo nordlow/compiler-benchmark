@@ -23,7 +23,7 @@ Benchmarks compilation speeds, memory consumption (peak RSS), and binary output 
 - Linux (tested on Arch Linux). CPU pinning uses `os.sched_setaffinity`; other POSIX systems may work with reduced functionality.
 - Python 3.12 or later (the script uses `typing.override`).
 - [`psutil`](https://pypi.org/project/psutil/) (installed automatically with `pip` on first run if missing).
-- The `process_timer` helper module (providing `ProcessTimer`, used for RSS sampling) next to the `benchmark` script.
+- Helper modules `process_timer` (providing `ProcessTimer` for RSS sampling) and `cpu_topology` (providing `get_available_cpus` for topology detection) located next to the `benchmark` script.
 - At least one of the supported compilers in `PATH` (or in the directory given via `--path`). A subset of them can be installed via `./provision.sh`.
 
 ## Supported Languages and Compilers
@@ -113,7 +113,7 @@ Which operations and variants each language participates in. The *Tier* column c
 
 - Executables are looked up with `which` in `PATH`, or in the directory given by `--path`.
 - For compilers that ship with versioned names (`gcc`, `g++`, `clang`, `clang++`, `gfortran`, `gnat`, `gccgo`), the unversioned binary as well as `-5` to `-19` suffixed binaries (e.g. `gcc-15`) are discovered and benchmarked as separate rows.
-- Language names given to `--languages` are case-insensitive and a few aliases are accepted (e.g. `ts`/`tsc` for TypeScript, `fpc` for Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for Guile, `luajit` for Lua, `chez` for Scheme, and `lisp`/`sbcl`/`commonlisp` for Common Lisp).
+- Language names given to `--languages` are case-insensitive and aliases are accepted (e.g. `ts`/`tsc` for TypeScript, `fpc` for Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for Guile, `luajit` for Lua, `chez` for Scheme, and `lisp`/`sbcl`/`commonlisp` for Common Lisp).
 - When `rustup` is available, Rust is benchmarked on both the `stable` and `nightly` channels. Note that this switches your `rustup` default toolchain while the benchmark runs.
 - Compiler versions are probed automatically (e.g. `--version`, `-v`, `version`) and shown in the table's first column.
 
@@ -125,13 +125,13 @@ The benchmark supports up to five distinct operations per compiler target:
 
 | Operation | CLI Flag | Description |
 | :--- | :--- | :--- |
-| **AST Check** | `ast-check` | Syntax / AST validation only (currently only `zig ast-check`). Not part of the default operations; enable with `--ast-check` or `--ops=ast-check,...`. |
+| **AST Check** | `ast-check` | Syntax / AST validation only (currently `zig ast-check`). Not part of default operations; enable with `--ast-check` or `--ops=ast-check,...`. |
 | **Check** | `check` | Semantic validation and type checking without machine code emission (e.g. `-fsyntax-only`, `--emit=metadata`, `-typecheck`, `--no-codegen`). |
 | **Compile** | `compile` | Compiles to object code or bytecode without linking (e.g. `-c`, `py_compile`, or `compile-only`). |
 | **Build** | `build` | Full end-to-end compilation and linking producing an executable binary (or bytecode/script artifact for VM languages). |
 | **Run** | `run` | Measures execution time of the built artifact over `--run-count` runs. Not a standalone task: the run is performed automatically right after each successful `build`. |
 
-The default operations are `check`, `compile`, `build` and `run`. An operation is only executed for languages that support it (see the [Support Matrix](#support-matrix)); unsupported combinations are simply skipped.
+The default operations are `check`, `compile`, `build` and `run`. An operation is only executed for languages that support it (see the [Support Matrix](#support-matrix)); unsupported combinations are skipped.
 
 ---
 
@@ -176,12 +176,13 @@ Include Zig's AST check and show relative numbers with the best value highlighte
 
 | Option | Short | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `--languages` | `--langs` | All supported (that are found in `PATH`) | Comma-separated list of languages and optional compilers (`<Lang>:<exe>`). Unknown languages and missing compiler binaries are reported with a warning. |
+| `--languages` | `--langs` | All supported (found in `PATH`) | Comma-separated list of languages and optional compilers (`<Lang>:<exe>`). Unknown languages and missing compiler binaries are reported with a warning. |
 | `--operations` | `--ops` | `check,compile,build,run` | Comma-separated operations (`ast-check`, `check`, `compile`, `build`, `run`). |
-| `--ast-check` | | `false` | Also run the AST syntax check (e.g. `zig ast-check`) in addition to the selected operations. |
+| `--ast-check` | | `false` | Also run AST syntax check (e.g. `zig ast-check`) in addition to selected operations. |
 | `--function-count` | `--fc` | `200` | Number of top-level function call chains generated. |
 | `--function-depth` | `--fd` | `200` | Nesting call depth per chain (total functions = `fc * fd`). |
 | `--run-count` | `--rc` | `10` | Repetitions per compilation step (minimum time recorded). |
+| `--timeout` | | `60.0` | Per-compilation timeout in seconds. |
 | `--sample-rate` | `--sr` | `100` | Memory sampling frequency (samples/sec) for peak RSS tracking. |
 | `--values` | `--val` | `absolute` | Display mode: `absolute`, `relative` (normalized to best), or `both`. |
 | `--relative` | `--rel` | `false` | Shortcut for `--values=relative`. |
@@ -194,18 +195,19 @@ Include Zig's AST check and show relative numbers with the best value highlighte
 
 `benchmark` automatically scales across the available CPU cores:
 - Distributes individual benchmark tasks (one per language, operation, templated variant and compiler runner) into a `multiprocessing.Pool`.
-- Detects hybrid CPUs (Intel P/E cores via the PMU topology, ARM big.LITTLE via `cpu_capacity`, per-core maximum frequency, and Apple Silicon performance levels) and, if found, uses **only the performance cores**, one worker per core. On homogeneous CPUs it uses all available cores minus two (at least one) to leave headroom for the system.
+- Detects hybrid CPUs (Intel P/E cores via PMU topology, ARM big.LITTLE via `cpu_capacity`, per-core maximum frequency, and Apple Silicon performance levels) and, if found, uses **only the performance cores**, one worker per core. On homogeneous CPUs it uses all available cores minus two (at least one) to leave headroom for the system.
 - Pins each worker process to a dedicated CPU core via `os.sched_setaffinity` to avoid core-hopping noise.
+- **Adaptive run count scaling**: When individual compilation durations exceed 1.0s, repetitions are capped to 3; when exceeding 3.0s, repetitions are capped to 2, preventing excessive total runtimes while recording accurate minimum timings.
 - Generates sources in a temporary root directory (`/tmp/generated_*`) and isolates compiler scratchpads in per-process directories (`proc_<PID>/<lang>/`).
 - Removes a task's scratch directory when it succeeded; if a compiler printed output or returned a non-zero exit code, the directory is kept for inspection and a warning with the command line, stdout and stderr is printed.
 - Cleans up temporary files and empty directories upon benchmark completion or exit (including `Ctrl-C`).
-- Shows live progress (tree or single line) with the currently active tasks and their elapsed times, unless disabled with `--progress=none` or when output is not a terminal.
+- Shows live progress (tree or single line) with currently active tasks and elapsed times, unless disabled with `--progress=none` or when output is not a terminal.
 
 ---
 
 ## Understanding Metrics and Table Output
 
-Results are printed as Markdown tables, split into three tiers according to the architecture of the compiler:
+Results are printed as Markdown tables, split into three tiers according to compiler architecture:
 
 | Tier | Contents |
 | :--- | :--- |
@@ -221,24 +223,23 @@ $$\text{Total Functions} = \text{function\_count} \times \text{function\_depth}$
 
 For languages with a safety cap (see below) the capped sizes are used for normalization.
 
-- **`Total=Build+Run [us/f]`**: Minimum build time plus minimum run time per function, shown as `total=build+run` (e.g. `2.6 (...)`-style cells such as `115=2+113.0`). `N/A` for toolchains that have no build step or whose artifact isn't executed.
-- **`Check [us/f]`**, **`Compile [us/f]`**: Minimum execution duration divided by total functions (`args.function_count * args.function_depth`). If AST checking is enabled and supported (e.g. Zig), its result is shown on a second line (`<br>`) inside the **Check** cell.
+- **`Total=Build+Run [us/f]`**: Minimum build time plus minimum run time per function, shown as `total=build+run` (e.g. `105=105+0.20`). Shows `N/A` for toolchains that have no build step or whose artifact is not executed.
+- **`Check [us/f]`**, **`Compile [us/f]`**: Minimum execution duration divided by total functions (`args.function_count * args.function_depth`). If AST checking is enabled and supported (e.g. Zig), its result is appended on a new line (`<br>`) inside the **Check** cell.
 - **`Check RSS [kB/f]`**, **`Build RSS [kB/f]`**: Maximum resident set size (sampled at `--sample-rate` via `psutil` / process timer) in kilobytes divided by total functions. Cells show `sampling error` or `missing` when memory could not be sampled.
-- **`Output Size [B/f]`**: Stripped binary disk footprint in bytes divided by total functions (native machine-code binaries only: ELF, Mach-O or PE; `N/A` for bytecode/script artifacts).
+- **`Output Size [B/f]`**: Native binary disk footprint in bytes divided by total functions (machine-code binaries only: ELF, Mach-O or PE; `N/A` for bytecode/script artifacts).
 
 The time unit of the Check, Compile and Total columns is chosen automatically per column (`s/f`, `ms/f`, `us/f` or `ns/f`, based on the median value) and shown in the column header. In `--values=relative` mode the header unit is replaced by `[x]`; in `--values=both` mode each cell shows `absolute (relative)`.
 
-> **Note:** The sample run in the section below was produced with an earlier table layout that lists *Build* and *Run* as separate columns. The current version reports them together in the `Total (Build + Run)` column.
+### Stacked Plain and Templated Results
 
-### Merged Plain and Templated Results
+Rather than displaying separate rows, plain and templated/generic results are stacked vertically inside each metric cell using `<br>`:
 
-Rather than displaying separate rows, plain and templated/generic results are merged into each metric cell as:
+$$\frac{\langle\text{plain}\rangle}{\langle\text{templated}\rangle}$$
 
-$$\langle\text{plain}\rangle,\ \langle\text{templated}\rangle$$
-
-- A dash `-` indicates that the corresponding variant does not apply or was not evaluated (e.g. `1897.3, -` for non-generic languages or `-, 120.4` for template-only tests).
-- `N/A` is shown when neither variant produced a value (e.g. the operation is unsupported or the compiler failed).
-- When `--highlight-min` is active, the best plain value and best templated value are highlighted independently within their respective cell halves. Highlighting applies to the Check, Compile, RSS and Output Size columns.
+- Non-generic languages display a single value per metric.
+- For generic languages, the top row is untemplated and the bottom row is templated. A dash `-` indicates that a specific variant was unavailable or not evaluated.
+- `N/A` is shown when neither variant produced a value (e.g. unsupported operation or compilation failure).
+- When `--highlight-min` is active, the best plain value and best templated value are highlighted independently within their respective cell halves.
 
 ---
 
@@ -281,23 +282,31 @@ int main(void) {
 
 ### Compiler Object Caches
 
-The numerical constants are randomized using a new seed upon every call. This makes it impossible for any compiler to utilize any caching mechanism upon successive calls with same flags that affect the source generation. The purpose of this is to make the comparison between compilers with and without (different levels of) caching more fair.
+The numerical constants are randomized using a new seed upon every run. This makes it impossible for compilers to utilize build-caching mechanisms across successive calls. The purpose of this is to make the comparison between compilers with and without (different levels of) caching more fair.
 
-The caching of the Go reference compiler `go`, for instance, is effectively disabled by this randomization. The Hare cache directory (`HARECACHE`) is additionally wiped before each Hare benchmark.
+The caching of the Go reference compiler `go`, for instance, is effectively bypassed by this randomization. The Hare cache directory (`HARECACHE`) is additionally wiped before each Hare benchmark step.
 
 ---
 
 ## Compiler Constraints and Safety Caps
 
-Because synthetic code generators create tens of thousands of deeply nested symbols, certain compilers encounter internal limits. The benchmark automatically enforces the following stability caps (they only affect the language in question; other languages keep the requested size):
+Because synthetic code generators create tens of thousands of deeply nested symbols, compilers encounter internal capacity or scaling limits. The benchmark automatically enforces stability caps on affected languages (unaffected languages run at full requested size):
 
-- **Both OCaml and Julia** scale poorly on deeply nested functions with large synthetic function counts, so an explicit limit of $200 \times 200$ is enforced once `function_count * function_depth` reaches $10{,}000$.
-- **Nim**: The Nim compiler has a hard limit of 50 recursive generic instantiations, so `--function-depth` is automatically truncated down to `50`.
-- **Java**: Capped to $100 \times 100$ ($10{,}000$ functions) when more functions are requested, to avoid exceeding the JVM $65{,}535$ constant pool entry limit per class file.
-- **Lua / LuaJIT**: Capped to $150 \times 150$ when more than $20{,}000$ functions are requested, to avoid exceeding the LuaJIT bytecode chunk constant table limit ($65{,}536$).
+- **Pony**: Capped to $30 \times 30$ ($900$ functions) due to `ponyc` capability checker limits.
+- **Roc**: Capped to $50 \times 50$ ($2{,}500$ functions) due to compiler limits.
+- **Guile**: Capped to $70 \times 70$ ($4{,}900$ functions) due to Tree-IL CPS compiler scaling limits.
+- **Ada**: Capped to $100 \times 100$ ($10{,}000$ functions) due to quadratic scaling in `gnatbind` elaboration analysis.
+- **Swift**: Capped to $100 \times 100$ ($10{,}000$ functions) due to `swiftc` constraint solver limits.
+- **Crystal & TypeScript**: Capped to $100 \times 100$ ($10{,}000$ functions) due to global type inference and AST heap limits.
+- **Haskell**: Capped to $100 \times 100$ ($10{,}000$ functions) due to GHC scaling limits.
+- **Fortran**: Capped to $100 \times 100$ ($10{,}000$ functions) due to `gfortran` module symbol table limits.
+- **Java**: Capped to $100 \times 100$ ($10{,}000$ functions) to prevent exceeding the JVM $65{,}535$ constant pool limit per class file.
 - **Cuik**: Function count and depth are each capped to $100$ due to compiler stability limits.
+- **Lua / LuaJIT**: Capped to $150 \times 150$ ($22{,}500$ functions) to avoid exceeding the LuaJIT bytecode chunk constant limit ($65{,}536$).
+- **OCaml & Julia**: Capped to $200 \times 200$ once requested total functions exceed $10{,}000$ due to nested call-tree scaling limits.
+- **Nim**: `--function-depth` is automatically truncated to $50$ due to Nim's internal recursion limit on generic instantiations.
 
-A warning is printed whenever a cap (other than OCaml/Julia) is applied.
+A warning is logged to `stderr` whenever a cap is applied.
 
 ---
 
@@ -330,7 +339,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 	Running benchmarks in parallel across 8 performance CPU core(s) (1 worker per core)...
 	Warning: Capping Cuik function count (--function-count) from 200 to 100 due to compiler stability limit
 
-results in the following table (copied from the output at the end).
+results in the following table:
 
 ### Tier 1: Single-Pass / Minimalist Compilers
 *No SSA optimization, no borrow checking, trivial type systems, instant code emission.*
@@ -403,7 +412,7 @@ results in the following table (copied from the output at the end).
 * **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is the fastest native machine-code compiler overall by a wide margin (2 µs/f total build time, 1.1 kB/f peak RSS). Its single-pass architecture avoids constructing a full multi-pass AST or SSA intermediate representation, streaming machine code directly as symbols are ingested.
 * **Custom backends vs. heavy optimizing backends (`dmd` vs. `ldmd2` / `gcc`)**:
   * Among modern systems languages (Tier 2), Digital Mars D (`dmd`) is exceptionally fast (9–13 µs/f plain, 12–19 µs/f templated)—outperforming not only all Tier 2 languages, but also minimalist C compilers like `cuik` (47 µs/f) and `cproc` (78 µs/f).
-  * Comparing D compilers clearly isolates backend overhead: the custom DMD backend compiles in 11.5 µs/f, whereas LLVM-based LDC (`ldmd2`) requires 70.3 µs/f (~6× slower) and GCC-based GDC (`gdc`) takes 433.2 µs/f (~38× slower).
+  * Comparing D compilers isolates backend overhead: the custom DMD backend compiles in 11.5 µs/f, whereas LLVM-based LDC (`ldmd2`) requires 70.3 µs/f (~6× slower) and GCC-based GDC (`gdc`) takes 433.2 µs/f (~38× slower).
 * **Modern systems language throughput**: `odin` (92 µs/f) and `zig` (97 µs/f) achieve compilation speeds on par with or faster than `clang` (87 µs/f), while `rustc` (183 µs/f) handily outperforms both GCC-based C/C++ front-ends (~418–455 µs/f).
 
 ### 2. Generics & Monomorphization Overhead
@@ -423,7 +432,7 @@ results in the following table (copied from the output at the end).
 * **Heaviest**: Pony (`ponyc`, 283.3 kB/f), Hare (`hare`, 110.8 kB/f), Haskell (`ghc`, 81.8–88.5 kB/f), and Crystal (`crystal`, 81.7–83.7 kB/f) exhibit the highest peak memory per function, reflecting the memory cost of capability tracking, global analysis, and whole-program AST retention.
 
 ### 5. Binary Footprint & Output Density
-* **Most compact machine code**: Free Pascal (`fpc`, 68.8 B/f), `tcc` / `cproc` (90.1 B/f), `odin` (112.6 B/f), and `gcc` (121.1 B/f) generate the most compact stripped executables per function.
+* **Most compact machine code**: Free Pascal (`fpc`, 68.8 B/f), `tcc` / `cproc` (90.1 B/f), `odin` (112.6 B/f), and `gcc` (121.1 B/f) generate the most compact executables per function.
 * **Code bloat & runtime overhead**: `zig` (1422–1503 B/f) and Common Lisp (`sbcl`, 1481 B/f) produce significantly larger binary sizes per function, primarily due to runtime scaffolding, unwinding metadata, and alignment padding.
 
 ### 6. Managed, VM, and Scripting Toolchains (Tier 3)
