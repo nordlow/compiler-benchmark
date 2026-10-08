@@ -100,7 +100,7 @@ Which operations and variants each language participates in. The *Tier* column c
 | Pascal | `fpc` | check, compile, build | – | 2 |
 | Pony | `ponyc` | check, build | – | 2 |
 | Python | `python3`, `python`, `pypy3`, `pypy` | check, compile, build | ✓ | 3 |
-| Roc | `roc` | check, build | – | 2 |
+| Roc | `roc` | check, build, run | – | 2 |
 | Rust | `rustc` | check, build | ✓ | 2 |
 | Scheme | `chez`, `scheme` | check, compile, build | – | 3 |
 | Swift | `swiftc` | check, build | ✓ | 2 |
