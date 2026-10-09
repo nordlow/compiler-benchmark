@@ -47,6 +47,7 @@ import shutil
 import atexit
 import glob
 from functools import cache
+from prettytable import PrettyTable, TableStyle
 from cpu_topology import get_available_cpus
 
 Lang = NewType("Lang", str)
@@ -3174,25 +3175,12 @@ def render_single_table(titles: list[str], results: Results, values_mode: str = 
     else:
         sorted_rows = [it[1] for it in sorted(merged_results.items(), key=_skey)]
 
-    def _visible_len(cell) -> int:
-        return len(re.sub("<[^>]+>", "", str(cell)))
-
-    def _pad(cell, width: int) -> str:
-        cell = str(cell)
-        return cell + " " * max(width - _visible_len(cell), 0)
-
-    col_widths = [len(t) for t in titles]
+    table = PrettyTable()
+    table.set_style(TableStyle.MARKDOWN)
+    table.field_names = titles
     for row in sorted_rows:
-        for idx, cell in enumerate(row):
-            col_widths[idx] = max(col_widths[idx], _visible_len(cell))
-
-    nl = chr(10)
-    lines = []
-    lines.append("| " + " | ".join(_pad(titles[i], col_widths[i]) for i in range(len(titles))) + " |")
-    lines.append("| " + " | ".join(":" + "-" * (col_widths[i] - 2) + ":" for i in range(len(titles))) + " |")
-    for row in sorted_rows:
-        lines.append("| " + " | ".join(_pad(row[i], col_widths[i]) for i in range(len(row))) + " |")
-    return nl.join(lines) + nl
+        table.add_row(row)
+    return table.get_string() + chr(10)
 
 
 def markdown_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False, sort_by: str = "total", sort_reverse: bool = False) -> str:
@@ -3858,13 +3846,14 @@ def main():
 
 
 def install_missing_modules():
-    try:
-        importlib.import_module('psutil')
-    except ModuleNotFoundError:
-        print("Installing missing modules...")
-        import subprocess as sp
-        sp.check_call([sys.executable, "-m", "pip", "install", "psutil"])
-        print("Missing modules installed successfully.")
+    for mod in ('psutil', 'prettytable'):
+        try:
+            importlib.import_module(mod)
+        except ModuleNotFoundError:
+            print(f"Installing missing module: {mod}...")
+            import subprocess as sp
+            sp.check_call([sys.executable, "-m", "pip", "install", mod])
+            print(f"Module {mod} installed successfully.")
 
 
 if __name__ == '__main__':
