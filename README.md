@@ -63,7 +63,7 @@ Benchmarks compilation speeds, memory consumption (peak RSS), and binary output 
 - [Julia](https://julialang.org/) (using `julia`)
 - [Lua](https://luajit.org/) (using `luajit`)
 - [OCaml Bytecode](https://ocaml.org/) (using `ocamlc`, executed via `ocamlrun`)
-- [Python](https://www.python.org/) (using `python3`, `python`, `pypy3`, `pypy`)
+- [Python](https://www.python.org/) (using `python3`, `pypy3`)
 - [Scheme](https://cisco.github.io/ChezScheme/) (using `chez`, `scheme`)
 - [TypeScript](https://www.typescriptlang.org/) (using `tsc`, executed via `node`)
 
@@ -99,7 +99,7 @@ Which operations and variants each language participates in. The *Tier* column c
 | Pareas | `pareas` | check, build | – | 2 |
 | Pascal | `fpc` | check, compile, build | – | 2 |
 | Pony | `ponyc` | check, build | – | 2 |
-| Python | `python3`, `python`, `pypy3`, `pypy` | check, compile, build | ✓ | 3 |
+| Python | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
 | Roc | `roc` | check, build, run | – | 2 |
 | Rust | `rustc` | check, build | ✓ | 2 |
 | Scheme | `chez`, `scheme` | check, compile, build | – | 3 |
