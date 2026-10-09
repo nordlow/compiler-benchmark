@@ -1498,7 +1498,7 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
 
 
 register_language(LangSupport(
-    name=Lang('Python'), exes=[Exec('python3'), Exec('pypy3')],
+    name=Lang('Python'), exes=[Exec('python3'), Exec('python3.15'), Exec('pypy3')],
     extension=FileExt('py'), int_type=TypeName('Int'),
     runners=[bm_Python],
     ops=('check', 'compile', 'build'),
@@ -3120,7 +3120,29 @@ def get_semantic_tier(lang: str, cexe: str) -> int:
     return spec.tier
 
 
-def render_single_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False, time_units: dict | None = None) -> str:
+def _extract_metric(variants, col_ix):
+    for row in (variants.get(False), variants.get(True)):
+        if row is None:
+            continue
+        v = row[col_ix]
+        if isinstance(v, (int, float)):
+            return float(v)
+        if isinstance(v, str) and v.startswith(">"):
+            return float("inf")
+    return None
+
+def _extract_total(variants):
+    for row in (variants.get(False), variants.get(True)):
+        if row is None:
+            continue
+        b, r = row[BUILD_DUR_PER_FUNC_IX], row[RUN_DUR_PER_FUNC_IX]
+        if (isinstance(b, str) and b.startswith(">")) or (isinstance(r, str) and r.startswith(">")):
+            return float("inf")
+        if isinstance(b, (int, float)) or isinstance(r, (int, float)):
+            return float((b if isinstance(b, (int, float)) else 0.0) + (r if isinstance(r, (int, float)) else 0.0))
+    return None
+
+def render_single_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False, time_units: dict | None = None, sort_by: str = "total", sort_reverse: bool = False) -> str:
     if time_units is None:
         time_units = get_column_time_units(results)
     res_copy = {k: list(v) for k, v in results.items()}
@@ -3132,7 +3154,25 @@ def render_single_table(titles: list[str], results: Results, values_mode: str = 
     format_metric_columns(results=res_copy, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
 
     merged_results = merge_plain_and_templated_results(res_copy, values_mode=values_mode, highlight=highlight)
-    sorted_rows = sorted(merged_results.values(), key=lambda r: r[0].lower())
+    grouped_raw = {}
+    for (l, t, c), r in results.items():
+        grouped_raw.setdefault((l, c), {})[t] = r
+    col_map = {"check": CHECK_DUR_PER_FUNC_IX, "compile": COMPILE_DUR_PER_FUNC_IX, "build": BUILD_DUR_PER_FUNC_IX, "run": RUN_DUR_PER_FUNC_IX, "check-rss": CHECK_RSS_MU_IX, "build-rss": BUILD_RSS_MU_IX, "output-size": OUTPUT_SIZE_IX, "size": OUTPUT_SIZE_IX}
+    norm_sort = str(sort_by).lower().replace("_", "-")
+
+    def _skey(item):
+        (l, c), m_row = item
+        variants = grouped_raw.get((l, c), {})
+        name = m_row[0].lower()
+        if norm_sort in ("name", "lang", "language"):
+            return (0, name)
+        val = _extract_total(variants) if norm_sort in ("total", "build+run", "build-run", "time") else (_extract_metric(variants, col_map[norm_sort]) if norm_sort in col_map else None)
+        return (0, -val if sort_reverse else val, name) if val is not None else (1, 0, name)
+
+    if norm_sort in ("name", "lang", "language"):
+        sorted_rows = [it[1] for it in sorted(merged_results.items(), key=lambda it: it[1][0].lower(), reverse=sort_reverse)]
+    else:
+        sorted_rows = [it[1] for it in sorted(merged_results.items(), key=_skey)]
 
     def _visible_len(cell) -> int:
         return len(re.sub("<[^>]+>", "", str(cell)))
@@ -3155,7 +3195,7 @@ def render_single_table(titles: list[str], results: Results, values_mode: str = 
     return nl.join(lines) + nl
 
 
-def markdown_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False) -> str:
+def markdown_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False, sort_by: str = "total", sort_reverse: bool = False) -> str:
     time_units = get_column_time_units(results) if results else {}
     if titles is None or (results and titles == table_titles(values_mode)):
         titles = table_titles(values_mode, results)
@@ -3171,7 +3211,7 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
         t_res = tiered_results.get(tier_id)
         if not t_res:
             continue
-        tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight, time_units=time_units)
+        tbl = render_single_table(titles, t_res, values_mode=values_mode, highlight=highlight, time_units=time_units, sort_by=sort_by, sort_reverse=sort_reverse)
         legend = ""
         if any(k[1] for k in t_res):
             legend = "*Stacked cells: top = untemplated, bottom = templated (`-` = not available).*" + nl + nl
@@ -3612,6 +3652,14 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose progress logging.')
 
+    parser.add_argument("--sort", "--sort-by", type=str,
+                        choices=["total", "name", "lang", "check", "compile", "build", "run", "check-rss", "build-rss", "output-size", "size"],
+                        default="total",
+                        help="Column to sort table results by (default: total [Total=Build+Run]).")
+
+    parser.add_argument("--sort-reverse", "--sort-desc", action="store_true",
+                        help="Sort table results in descending order instead of ascending.")
+
     parser.add_argument("--progress", "--progress-format", type=str,
                         choices=["auto", "tree", "line", "none"],
                         default="auto",
@@ -3806,7 +3854,7 @@ def main():
         cleanup_call_empty_dirs()
 
     print()
-    print(markdown_table(table_titles(args.values, results), results, values_mode=args.values, highlight=args.highlight_min))
+    print(markdown_table(table_titles(args.values, results), results, values_mode=args.values, highlight=args.highlight_min, sort_by=args.sort, sort_reverse=args.sort_reverse))
 
 
 def install_missing_modules():
