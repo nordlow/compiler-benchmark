@@ -86,8 +86,29 @@ class ResultKey(NamedTuple):
     templated: bool
     cexe: Exec
 
+class RawCol(str, Enum):
+    LANG = "Language"
+    TEMPLATED = "Templated"
+    AST_CHECK_DUR = "AST-Check Duration"
+    CHECK_DUR = "Check Duration"
+    COMPILE_DUR = "Compile Duration"
+    BUILD_DUR = "Build Duration"
+    RUN_DUR = "Run Duration"
+    CHECK_RSS = "Check RSS"
+    BUILD_RSS = "Build RSS"
+    OUTPUT_SIZE = "Output Size"
+    CEXE_VERSION = "Compiler Version"
+    CEXE_PATH = "Compiler Path"
 
-Results = dict[ResultKey, list]
+DUR_COLS = {
+    RawCol.AST_CHECK_DUR,
+    RawCol.CHECK_DUR,
+    RawCol.COMPILE_DUR,
+    RawCol.BUILD_DUR,
+    RawCol.RUN_DUR,
+}
+
+Results = dict[ResultKey, dict[RawCol, any]]
 
 DEFAULT_PROGRAM_NAME = "main"
 DEFAULT_FUNCTION_COUNT = 200
@@ -2785,8 +2806,8 @@ def table_titles(values_mode: str = "absolute", results: Results | None = None) 
     if not results:
         return [col.header(values_mode) for col in TABLE_COLUMNS]
     time_units = get_column_time_units(results)
-    check_u = time_units.get(CHECK_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
-    compile_u = time_units.get(COMPILE_DUR_PER_FUNC_IX, ("us/f", 1e6))[0]
+    check_u = time_units.get(RawCol.CHECK_DUR, ("us/f", 1e6))[0]
+    compile_u = time_units.get(RawCol.COMPILE_DUR, ("us/f", 1e6))[0]
 
     cols = [
         Column("Language (Exec)"),
@@ -2801,23 +2822,6 @@ def table_titles(values_mode: str = "absolute", results: Results | None = None) 
 
 
 MARKDOWN_TABLE_TITLES = table_titles('absolute')
-
-LANG_IX = 0
-TEMPLATED_IX = 1
-AST_CHECK_DUR_PER_FUNC_IX = 2       # AST-check duration
-CHECK_DUR_PER_FUNC_IX = 3       # check duration
-COMPILE_DUR_PER_FUNC_IX = 4       # compilation duration
-BUILD_DUR_PER_FUNC_IX = 5       # build duration
-RUN_DUR_PER_FUNC_IX = 6       # run duration
-CHECK_RSS_MU_IX = 7        # check RSS memory usage
-BUILD_RSS_MU_IX = 8        # build RSS memory usage
-OUTPUT_SIZE_IX = 9         # output binary size per function
-CEXE_VERSION_IX = 10
-CEXE_PATH_IX = 11
-RAW_ROW_LENGTH = CEXE_PATH_IX + 1
-
-# The merged table has 5 fewer columns than the raw row (no separate 'Temp-lated', 'CEXE_PATH', 'AST-C', 'Version', and Build+Run merged)
-assert len(MARKDOWN_TABLE_TITLES) == RAW_ROW_LENGTH - 5
 
 
 def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
@@ -2848,34 +2852,32 @@ def sourceIdOf(lang: str, templated: bool, run_ix):
     return f"{lang}-{'Templated' if templated else 'Untemplated'}-{run_ix}"
 
 
-def format_metric_columns(results: Results, column_ix: int, values_mode: str = "absolute", highlight: bool = False, time_unit: tuple[str, float] | None = None):
-    # Track the smallest value per column separately for the plain (P) and
-    # templated (T) variant of each language, so each half of a merged
-    # "P / T" cell gets its own winner highlighted independently.
+def format_metric_columns(results: Results, col: RawCol, values_mode: str = "absolute", highlight: bool = False, time_unit: tuple[str, float] | None = None):
     min_vals = {False: None, True: None}
     for key, result in results.items():
         templated = key[1]
-        if isinstance(result[column_ix], (int, float)):
-            if min_vals[templated] is None or (min_vals[templated] > result[column_ix]):
-                min_vals[templated] = result[column_ix]
+        val = result.get(col)
+        if isinstance(val, (int, float)):
+            if min_vals[templated] is None or (min_vals[templated] > val):
+                min_vals[templated] = val
 
     for key, result in results.items():
         templated = key[1]
-        result[column_ix] = stringify_metrics(abs_n=result[column_ix],
-                                              min_val=min_vals[templated],
-                                              column_ix=column_ix,
-                                              values_mode=values_mode,
-                                              highlight=highlight,
-                                              time_unit=time_unit)
+        result[col] = stringify_metrics(abs_n=result.get(col),
+                                        min_val=min_vals[templated],
+                                        col=col,
+                                        values_mode=values_mode,
+                                        highlight=highlight,
+                                        time_unit=time_unit)
 
 
-def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = "absolute", highlight: bool = False, time_unit: tuple[str, float] | None = None):
+def stringify_metrics(abs_n, min_val, col: RawCol, values_mode: str = "absolute", highlight: bool = False, time_unit: tuple[str, float] | None = None):
     if isinstance(abs_n, str):
         return "{:>13}".format(abs_n)
     if abs_n is None:
         return "{:>6}".format("N/A")
 
-    if column_ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX, RUN_DUR_PER_FUNC_IX):
+    if col in DUR_COLS:
         if time_unit is not None:
             u_str, _ = time_unit
             if u_str.startswith("ns"):
@@ -2886,13 +2888,13 @@ def stringify_metrics(abs_n, min_val, column_ix, values_mode: str = "absolute", 
                 abs_str = to_str_in_seconds(abs_n)
             else:
                 abs_str = to_str_in_microseconds(abs_n)
-        elif column_ix == RUN_DUR_PER_FUNC_IX:
+        elif col == RawCol.RUN_DUR:
             abs_str = to_str_in_nanoseconds(abs_n)
         else:
             abs_str = to_str_in_microseconds(abs_n)
-    elif column_ix in (CHECK_RSS_MU_IX, BUILD_RSS_MU_IX):
+    elif col in (RawCol.CHECK_RSS, RawCol.BUILD_RSS):
         abs_str = to_str_memory_usage(abs_n)
-    elif column_ix == OUTPUT_SIZE_IX:
+    elif col == RawCol.OUTPUT_SIZE:
         abs_str = to_str_output_size(abs_n)
     else:
         abs_str = str(abs_n)
@@ -2979,22 +2981,23 @@ def pick_time_unit_and_scale(values: list[float]) -> tuple[str, float]:
         return ("ns/f", 1e9)
 
 
-def get_column_time_units(results: Results) -> dict[int, tuple[str, float]]:
+def get_column_time_units(results: Results) -> dict[RawCol, tuple[str, float]]:
     # us/f provides standard microsecond precision without rounding sub-ms compilers to 0.0
-    return {ix: ("us/f", 1e6) for ix in (AST_CHECK_DUR_PER_FUNC_IX, CHECK_DUR_PER_FUNC_IX, COMPILE_DUR_PER_FUNC_IX, BUILD_DUR_PER_FUNC_IX, RUN_DUR_PER_FUNC_IX)}
+    return {col: ("us/f", 1e6) for col in DUR_COLS}
 
 
 def merge_plain_and_templated_results(results: Results, values_mode: str = "absolute", highlight: bool = False):
     metric_cols = [
-        CHECK_DUR_PER_FUNC_IX,
-        COMPILE_DUR_PER_FUNC_IX,
-        CHECK_RSS_MU_IX,
-        BUILD_RSS_MU_IX,
-        OUTPUT_SIZE_IX,
+        RawCol.CHECK_DUR,
+        RawCol.COMPILE_DUR,
+        RawCol.CHECK_RSS,
+        RawCol.BUILD_RSS,
+        RawCol.OUTPUT_SIZE,
     ]
     min_tots = {False: None, True: None}
     for (_, templated, _), row in results.items():
-        b, r = row[BUILD_DUR_PER_FUNC_IX], row[RUN_DUR_PER_FUNC_IX]
+        b = row.get(RawCol.BUILD_DUR)
+        r = row.get(RawCol.RUN_DUR)
         if b is not None or r is not None:
             tot = (b if isinstance(b, (int, float)) else 0.0) + (r if isinstance(r, (int, float)) else 0.0)
             if min_tots[templated] is None or tot < min_tots[templated]:
@@ -3009,16 +3012,16 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
         row_plain = variants.get(False)
         row_tmpl = variants.get(True)
         base_row = row_plain if row_plain is not None else row_tmpl
-        version = base_row[CEXE_VERSION_IX]
+        version = base_row.get(RawCol.CEXE_VERSION)
         version_str = f" {version}" if version and version != "unknown" else ""
-        merged_row = [f"{base_row[LANG_IX]} ({base_row[CEXE_PATH_IX]}{version_str})"]
+        merged_row = [f"{base_row.get(RawCol.LANG)} ({base_row.get(RawCol.CEXE_PATH)}{version_str})"]
         has_ast_check = Op.AST_CHECK.value in lang_support(str(lang)).ops
 
         def format_tot(row, tmpl):
             if row is None:
                 return None
-            b = row[BUILD_DUR_PER_FUNC_IX]
-            r = row[RUN_DUR_PER_FUNC_IX]
+            b = row.get(RawCol.BUILD_DUR)
+            r = row.get(RawCol.RUN_DUR)
             if isinstance(b, str):
                 return b
             if b is None and r is None:
@@ -3062,16 +3065,16 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
 
         merged_row.append(tot_cell)
 
-        def format_col(col_ix):
-            val_p = str(row_plain[col_ix]).strip() if row_plain and row_plain[col_ix] is not None else None
-            val_t = str(row_tmpl[col_ix]).strip() if row_tmpl and row_tmpl[col_ix] is not None else None
+        def format_col(col_key):
+            val_p = str(row_plain[col_key]).strip() if row_plain and row_plain.get(col_key) is not None else None
+            val_t = str(row_tmpl[col_key]).strip() if row_tmpl and row_tmpl.get(col_key) is not None else None
 
             p_na = (val_p is None or val_p == 'N/A')
             t_na = (val_t is None or val_t == 'N/A')
 
             if p_na and t_na:
                 return 'N/A'
-            elif row_tmpl is None:  # Language has no templated variant benchmarked
+            elif row_tmpl is None:
                 return val_p if not p_na else 'N/A'
             elif p_na:
                 return f"-<br>{val_t}"
@@ -3082,8 +3085,8 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
 
         for col in metric_cols:
             cell = format_col(col)
-            if col == CHECK_DUR_PER_FUNC_IX and has_ast_check:
-                ast_cell = format_col(AST_CHECK_DUR_PER_FUNC_IX)
+            if col == RawCol.CHECK_DUR and has_ast_check:
+                ast_cell = format_col(RawCol.AST_CHECK_DUR)
                 if ast_cell != 'N/A':
                     cell = f"{cell}<br>{ast_cell}"
             merged_row.append(cell)
@@ -3121,11 +3124,11 @@ def get_semantic_tier(lang: str, cexe: str) -> int:
     return spec.tier
 
 
-def _extract_metric(variants, col_ix):
+def _extract_metric(variants, col: RawCol):
     for row in (variants.get(False), variants.get(True)):
         if row is None:
             continue
-        v = row[col_ix]
+        v = row.get(col)
         if isinstance(v, (int, float)):
             return float(v)
         if isinstance(v, str) and v.startswith(">"):
@@ -3136,7 +3139,7 @@ def _extract_total(variants):
     for row in (variants.get(False), variants.get(True)):
         if row is None:
             continue
-        b, r = row[BUILD_DUR_PER_FUNC_IX], row[RUN_DUR_PER_FUNC_IX]
+        b, r = row.get(RawCol.BUILD_DUR), row.get(RawCol.RUN_DUR)
         if (isinstance(b, str) and b.startswith(">")) or (isinstance(r, str) and r.startswith(">")):
             return float("inf")
         if isinstance(b, (int, float)) or isinstance(r, (int, float)):
@@ -3146,19 +3149,28 @@ def _extract_total(variants):
 def render_single_table(titles: list[str], results: Results, values_mode: str = "absolute", highlight: bool = False, time_units: dict | None = None, sort_by: str = "total", sort_reverse: bool = False) -> str:
     if time_units is None:
         time_units = get_column_time_units(results)
-    res_copy = {k: list(v) for k, v in results.items()}
-    format_metric_columns(results=res_copy, column_ix=AST_CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(AST_CHECK_DUR_PER_FUNC_IX))
-    format_metric_columns(results=res_copy, column_ix=CHECK_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(CHECK_DUR_PER_FUNC_IX))
-    format_metric_columns(results=res_copy, column_ix=COMPILE_DUR_PER_FUNC_IX, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(COMPILE_DUR_PER_FUNC_IX))
-    format_metric_columns(results=res_copy, column_ix=CHECK_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=res_copy, column_ix=BUILD_RSS_MU_IX, values_mode=values_mode, highlight=highlight)
-    format_metric_columns(results=res_copy, column_ix=OUTPUT_SIZE_IX, values_mode=values_mode, highlight=highlight)
+    res_copy = {k: dict(v) for k, v in results.items()}
+    format_metric_columns(results=res_copy, col=RawCol.AST_CHECK_DUR, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(RawCol.AST_CHECK_DUR))
+    format_metric_columns(results=res_copy, col=RawCol.CHECK_DUR, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(RawCol.CHECK_DUR))
+    format_metric_columns(results=res_copy, col=RawCol.COMPILE_DUR, values_mode=values_mode, highlight=highlight, time_unit=time_units.get(RawCol.COMPILE_DUR))
+    format_metric_columns(results=res_copy, col=RawCol.CHECK_RSS, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, col=RawCol.BUILD_RSS, values_mode=values_mode, highlight=highlight)
+    format_metric_columns(results=res_copy, col=RawCol.OUTPUT_SIZE, values_mode=values_mode, highlight=highlight)
 
     merged_results = merge_plain_and_templated_results(res_copy, values_mode=values_mode, highlight=highlight)
     grouped_raw = {}
     for (l, t, c), r in results.items():
         grouped_raw.setdefault((l, c), {})[t] = r
-    col_map = {"check": CHECK_DUR_PER_FUNC_IX, "compile": COMPILE_DUR_PER_FUNC_IX, "build": BUILD_DUR_PER_FUNC_IX, "run": RUN_DUR_PER_FUNC_IX, "check-rss": CHECK_RSS_MU_IX, "build-rss": BUILD_RSS_MU_IX, "output-size": OUTPUT_SIZE_IX, "size": OUTPUT_SIZE_IX}
+    col_map = {
+        "check": RawCol.CHECK_DUR,
+        "compile": RawCol.COMPILE_DUR,
+        "build": RawCol.BUILD_DUR,
+        "run": RawCol.RUN_DUR,
+        "check-rss": RawCol.CHECK_RSS,
+        "build-rss": RawCol.BUILD_RSS,
+        "output-size": RawCol.OUTPUT_SIZE,
+        "size": RawCol.OUTPUT_SIZE,
+    }
     norm_sort = str(sort_by).lower().replace("_", "-")
 
     def _skey(item):
@@ -3191,7 +3203,7 @@ def markdown_table(titles: list[str], results: Results, values_mode: str = "abso
     for key, row in results.items():
         lang, _, cexe = key
         tier = get_semantic_tier(str(lang), str(cexe))
-        tiered_results[tier][key] = list(row)
+        tiered_results[tier][key] = dict(row)
 
     nl = chr(10)
     sections = []
@@ -3402,11 +3414,11 @@ def benchmark_compiler_op(code_paths: dict,
                           stdin_input: str | None = None):
     spec = lang_support(lang)
     key = ResultKey(Lang(lang), templated, Exec(cexe))
-    row = results.setdefault(key, [None] * RAW_ROW_LENGTH)
-    row[LANG_IX] = lang
-    row[TEMPLATED_IX] = 'Yes' if templated else 'No'
-    row[CEXE_VERSION_IX] = compiler_version
-    row[CEXE_PATH_IX] = os.path.basename(cexe)
+    row = results.setdefault(key, {})
+    row[RawCol.LANG] = lang
+    row[RawCol.TEMPLATED] = 'Yes' if templated else 'No'
+    row[RawCol.CEXE_VERSION] = compiler_version
+    row[RawCol.CEXE_PATH] = os.path.basename(cexe)
     lang_dir = os.path.abspath(out_directory(lang))
     total_funcs = args.function_count * args.function_depth
 
@@ -3454,11 +3466,11 @@ def benchmark_compiler_op(code_paths: dict,
                 timeout_tag = f">{int(t_limit) if t_limit.is_integer() else t_limit:.1f}s"
                 print(f"WARNING: Compilation `{cmd_str}` timed out after {t_limit:.1f}s", file=sys.stderr)
                 op_col = {
-                    'ast-check': AST_CHECK_DUR_PER_FUNC_IX,
-                    'check': CHECK_DUR_PER_FUNC_IX,
-                    'compile': COMPILE_DUR_PER_FUNC_IX,
-                    'build': BUILD_DUR_PER_FUNC_IX,
-                    'run': RUN_DUR_PER_FUNC_IX,
+                    'ast-check': RawCol.AST_CHECK_DUR,
+                    'check': RawCol.CHECK_DUR,
+                    'compile': RawCol.COMPILE_DUR,
+                    'build': RawCol.BUILD_DUR,
+                    'run': RawCol.RUN_DUR,
                 }.get(op)
                 if op_col is not None:
                     row[op_col] = timeout_tag
@@ -3469,7 +3481,7 @@ def benchmark_compiler_op(code_paths: dict,
             if has_err:
                 print(f"  - stderr: {err_str.strip()}", file=sys.stderr)
             if rss_mu and isinstance(rss_mu, (int, float)):
-                slot = CHECK_RSS_MU_IX if op == 'check' else (BUILD_RSS_MU_IX if op == 'build' else None)
+                slot = RawCol.CHECK_RSS if op == 'check' else (RawCol.BUILD_RSS if op == 'build' else None)
                 if slot:
                     row[slot] = rss_mu / total_funcs
             return None
@@ -3504,30 +3516,30 @@ def benchmark_compiler_op(code_paths: dict,
     if getattr(args, 'verbose', False):
         print(f'- {cop} took {dur_min:1.3f} seconds (using "{cexe}"{version_str})')
 
-    row[LANG_IX] = lang
-    row[TEMPLATED_IX] = 'Yes' if templated else 'No'
-    row[CEXE_VERSION_IX] = compiler_version
-    row[CEXE_PATH_IX] = os.path.basename(cexe)
+    row[RawCol.LANG] = lang
+    row[RawCol.TEMPLATED] = 'Yes' if templated else 'No'
+    row[RawCol.CEXE_VERSION] = compiler_version
+    row[RawCol.CEXE_PATH] = os.path.basename(cexe)
 
     op_dur_col = {
-        'ast-check': AST_CHECK_DUR_PER_FUNC_IX,
-        'check': CHECK_DUR_PER_FUNC_IX,
-        'compile': COMPILE_DUR_PER_FUNC_IX,
-        'build': BUILD_DUR_PER_FUNC_IX,
-        'run': RUN_DUR_PER_FUNC_IX,
+        'ast-check': RawCol.AST_CHECK_DUR,
+        'check': RawCol.CHECK_DUR,
+        'compile': RawCol.COMPILE_DUR,
+        'build': RawCol.BUILD_DUR,
+        'run': RawCol.RUN_DUR,
     }.get(op)
     if op_dur_col is not None:
         row[op_dur_col] = dur_min / total_funcs
 
     if run_dur_min is not None:
-        row[RUN_DUR_PER_FUNC_IX] = run_dur_min / total_funcs
+        row[RawCol.RUN_DUR] = run_dur_min / total_funcs
 
-    op_rss_col = {'check': CHECK_RSS_MU_IX, 'build': BUILD_RSS_MU_IX}.get(op)
+    op_rss_col = {'check': RawCol.CHECK_RSS, 'build': RawCol.BUILD_RSS}.get(op)
     if op_rss_col is not None and rss_mu is not None:
         row[op_rss_col] = (rss_mu / total_funcs) if isinstance(rss_mu, (int, float)) else rss_mu
 
     if output_size is not None:
-        row[OUTPUT_SIZE_IX] = output_size / total_funcs
+        row[RawCol.OUTPUT_SIZE] = output_size / total_funcs
 
     return row
 
@@ -3581,11 +3593,11 @@ def _run_task(task):
 def _merge_results(target, incoming):
     for key, row in incoming.items():
         if key not in target:
-            target[key] = list(row)
+            target[key] = dict(row)
         else:
-            for i, val in enumerate(row):
+            for k, val in row.items():
                 if val is not None:
-                    target[key][i] = val
+                    target[key][k] = val
 
 
 def main():
