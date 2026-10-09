@@ -1498,7 +1498,7 @@ def bm_Python(results: Results, code_paths: list, args: argparse.Namespace, op: 
 
 
 register_language(LangSupport(
-    name=Lang('Python'), exes=[Exec('python3'), Exec('python'), Exec('pypy3'), Exec('pypy')],
+    name=Lang('Python'), exes=[Exec('python3'), Exec('pypy3')],
     extension=FileExt('py'), int_type=TypeName('Int'),
     runners=[bm_Python],
     ops=('check', 'compile', 'build'),
