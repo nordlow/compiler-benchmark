@@ -1,13 +1,17 @@
 # compiler-benchmark
 
-Benchmarks compilation speeds, memory consumption (peak RSS), and binary output sizes across different programming languages and compilers.
+Benchmarks compilation speeds, memory consumption (peak RSS), and
+binary output sizes across different programming languages and
+compilers.
 
 ### ⚠️ Scope & Methodology Notes
 
 * **What this measures:** Raw front-end symbol ingestion, AST
   traversal, and unoptimized code-generation scaling under a massive,
   single translation unit consisting of synthetic arithmetic call
-  chains.
+  chains. The most critical metric for developer productivity is the
+  **total time**—the combined duration required for a fast incremental
+  (semantic) check, rebuild, and rerun of unit tests.
 * **Architectural tradeoffs:** Compilers with single-pass
   architectures (e.g., `tcc`) or minimal semantic models will
   naturally outperform multi-pass optimizing compilers (e.g., `rustc`,
