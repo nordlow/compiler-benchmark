@@ -2363,7 +2363,7 @@ register_language(LangSupport(
 
 
 def bm_CommonLisp(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
-    lang = 'Common Lisp'
+    lang = 'Common-Lisp'
     cexe = resolve_compiler_path(args, lang, 'sbcl')
     if not cexe:
         return None
@@ -2436,7 +2436,7 @@ def _sbcl_build_cmd(cexe, cexe_flags, out_flags, src_name):
 
 
 register_language(LangSupport(
-    name=Lang('Common Lisp'), exes=[Exec('sbcl')], extension=FileExt('lisp'), int_type=TypeName('int'),
+    name=Lang('Common-Lisp'), exes=[Exec('sbcl')], extension=FileExt('lisp'), int_type=TypeName('int'),
     runners=[bm_CommonLisp],
     ops=('check', 'compile', 'build'),
     aliases=('commonlisp', 'common-lisp', 'lisp', 'sbcl'),
