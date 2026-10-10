@@ -34,16 +34,7 @@ density across 30+ compilers on massive arithmetic translation units.
 The output on Arch Linux (as of 2026-09) for the sample call
 `./benchmark` results in the following tables:
 
-### Tier 1: Single-Pass / Minimalist Compilers
-*No SSA optimization, no borrow checking, trivial type systems, instant code emission.*
-
-| Language (Exec)  | Total=Build+Run [us/f] | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
-| :--------------: | :--------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
-| C (tcc 0.9.28rc) |        4=4+0.21        |     2.4      |      2.0       |       1.1        |       0.8        |        90.1       |
-| C (cuik ~master) |       76=75+0.42       |     3.9      |      38.7      |       3.2        |       51.6       |       114.4       |
-|    C (cproc)     |       86=86+0.21       |     9.4      |      73.9      |       2.4        |       2.7        |        90.1       |
-
-### Tier 2: Modern Systems Languages (Ahead-of-Time)
+### Modern Systems Languages (Ahead-of-Time)
 *Full type inference, monomorphization/generics, semantic safety, module systems.*
 
 *Stacked cells: top = untemplated, bottom = templated (`-` = not available).*
@@ -75,7 +66,16 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |         Swift (swiftc 6.4)        | 1239=1237+1.6<br>2258=2258+0.83 | 661.3<br>1265.9 |      N/A       |   33.5<br>28.9   |   45.6<br>68.7   |   208.5<br>531.3  |
 |          Vox (vox master)         |               N/A               |       N/A       |      N/A       |    0.7<br>0.6    |    0.5<br>0.5    |        N/A        |
 
-### Tier 3: Managed & VM / JIT / Scripting
+### Single-Pass / Minimalist Compilers
+*No SSA optimization, no borrow checking, trivial type systems, instant code emission.*
+
+| Language (Exec)  | Total=Build+Run [us/f] | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
+| :--------------: | :--------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
+| C (tcc 0.9.28rc) |        4=4+0.21        |     2.4      |      2.0       |       1.1        |       0.8        |        90.1       |
+| C (cuik ~master) |       76=75+0.42       |     3.9      |      38.7      |       3.2        |       51.6       |       114.4       |
+|    C (cproc)     |       86=86+0.21       |     9.4      |      73.9      |       2.4        |       2.7        |        90.1       |
+
+### Managed & VM / JIT / Scripting
 *Bytecode emission, runtime metadata, GC runtimes.*
 
 *Stacked cells: top = untemplated, bottom = templated (`-` = not available).*
