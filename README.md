@@ -96,53 +96,129 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |     TypeScript (tsc 6.0.3)    |  464=453+11.5<br>492=481+11.5  |  375.0<br>439.0  | 464.3<br>458.4 |   40.2<br>40.7   |   40.0<br>42.5   |        N/A        |
 |    Julia (julia 1.14.0-DEV)   |   510=510+0.0<br>439=439+0.0   |   17.5<br>14.2   |      N/A       |    8.8<br>8.4    |   12.8<br>12.3   |        N/A        |
 |     OCaml (ocamlopt 5.5.0)    |          522=521+0.21          |      118.4       |      N/A       |       16.8       |       52.2       |       579.1       |
-|    Common Lisp (sbcl 2.6.9)   |          570=569+0.41          |      482.9       |     497.0      |       4.2        |       5.7        |       1481.3      |
+|    Common-Lisp (sbcl 2.6.9)   |          570=569+0.41          |      482.9       |     497.0      |       4.2        |       5.7        |       1481.3      |
 |      Haskell (ghc 9.6.7)      | 3966=3965+1.6<br>4115=4114+1.6 | 2344.2<br>2435.8 |      N/A       |   62.6<br>63.3   |   82.2<br>84.8   |   657.3<br>616.3  |
 |      Guile (guild 3.0.11)     |         8354=8347+6.6          |      8662.4      |     8130.0     |       48.3       |       49.6       |        N/A        |
 
 ## Conclusions (from sample run shown above)
 
 ### 1. Front-End Architecture & Ingestion Speed
-* **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is the fastest native machine-code compiler overall by a wide margin (2 µs/f total build time, 1.1 kB/f peak RSS). Its single-pass architecture avoids constructing a full multi-pass AST or SSA intermediate representation, streaming machine code directly as symbols are ingested.
+* **Single-pass dominance (`tcc`)**: The Tiny C Compiler (`tcc`) is
+  the fastest native machine-code compiler overall by a wide margin (2
+  µs/f total build time, 1.1 kB/f peak RSS). Its single-pass
+  architecture avoids constructing a full multi-pass AST or SSA
+  intermediate representation, streaming machine code directly as
+  symbols are ingested.
 * **Custom backends vs. heavy optimizing backends (`dmd` vs. `ldmd2` / `gcc`)**:
-  * Among modern systems languages (Tier 2), Digital Mars D (`dmd`) is exceptionally fast (9–13 µs/f plain, 12–19 µs/f templated)—outperforming not only all Tier 2 languages, but also minimalist C compilers like `cuik` (47 µs/f) and `cproc` (78 µs/f).
-  * Comparing D compilers isolates backend overhead: the custom DMD backend compiles in 11.5 µs/f, whereas LLVM-based LDC (`ldmd2`) requires 70.3 µs/f (~6× slower) and GCC-based GDC (`gdc`) takes 433.2 µs/f (~38× slower).
-* **Modern systems language throughput**: `odin` (92 µs/f) and `zig` (97 µs/f) achieve compilation speeds on par with or faster than `clang` (87 µs/f), while `rustc` (183 µs/f) handily outperforms both GCC-based C/C++ front-ends (~418–455 µs/f).
+  * Among modern systems languages (Tier 2), Digital Mars D (`dmd`) is
+    exceptionally fast (9–13 µs/f plain, 12–19 µs/f
+    templated)—outperforming not only all Tier 2 languages, but also
+    minimalist C compilers like `cuik` (47 µs/f) and `cproc` (78
+    µs/f).
+  * Comparing D compilers isolates backend overhead: the custom DMD
+    backend compiles in 11.5 µs/f, whereas LLVM-based LDC (`ldmd2`)
+    requires 70.3 µs/f (~6× slower) and GCC-based GDC (`gdc`) takes
+    433.2 µs/f (~38× slower).
+* **Modern systems language throughput**: `odin` (92 µs/f) and `zig`
+  (97 µs/f) achieve compilation speeds on par with or faster than
+  `clang` (87 µs/f), while `rustc` (183 µs/f) handily outperforms both
+  GCC-based C/C++ front-ends (~418–455 µs/f).
 
 ### 2. Generics & Monomorphization Overhead
-* **Zero-cost monomorphization**: `zig` demonstrated effectively identical compile speeds between untemplated and templated code (97 µs/f vs. 92 µs/f), reflecting the efficiency of its `comptime` evaluation for uniform scalar types.
-* **Moderate generic penalties**: `dmd` (+46%), `rustc` (+30%), and `c3c` (+77%) exhibit predictable, linear increases in build time when resolving and instantiating generic arithmetic functions.
+* **Zero-cost monomorphization**: `zig` demonstrated effectively
+  identical compile speeds between untemplated and templated code (97
+  µs/f vs. 92 µs/f), reflecting the efficiency of its `comptime`
+  evaluation for uniform scalar types.
+* **Moderate generic penalties**: `dmd` (+46%), `rustc` (+30%), and
+  `c3c` (+77%) exhibit predictable, linear increases in build time
+  when resolving and instantiating generic arithmetic functions.
 * **Solver and inference blowups**:
-  * **Swift (`swiftc`)**: Suffers a ~2× slowdown on templated code (1174 µs/f → 2287 µs/f), driven primarily by type checker and constraint-solver overhead during deep function call validation (check time ballooned from 728.6 to 1319.7 µs/f).
-  * **V (`v`)**: While plain compilation completed in 317 µs/f, templated compilation timed out (>60.0s) and check memory exploded from 10.2 kB/f to 181.5 kB/f.
+  * **Swift (`swiftc`)**: Suffers a ~2× slowdown on templated code (1174
+    µs/f → 2287 µs/f), driven primarily by type checker and
+    constraint-solver overhead during deep function call validation
+    (check time ballooned from 728.6 to 1319.7 µs/f).
+  * **V (`v`)**: While plain compilation completed in 317 µs/f,
+    templated compilation timed out (>60.0s) and check memory exploded
+    from 10.2 kB/f to 181.5 kB/f.
 
 ### 3. Compiler Version Regressions
-* Newer compiler releases can introduce regressions in raw front-end ingestion. Between **GCC 15.3.0** and **GCC 16.2.1**:
-  * Unlinked C compilation (`compile`) regressed from 226.7 µs/f to 382.6 µs/f (+68.8%).
-  * C++ compilation (`g++`) regressed from 209.4 µs/f to 422.2 µs/f (+101.6%—more than double the time).
+* Newer compiler releases can introduce regressions in raw front-end
+  ingestion. Between **GCC 15.3.0** and **GCC 16.2.1**:
+  * Unlinked C compilation (`compile`) regressed from 226.7 µs/f to
+    382.6 µs/f (+68.8%).
+  * C++ compilation (`g++`) regressed from 209.4 µs/f to 422.2 µs/f
+    (+101.6%—more than double the time).
 
 ### 4. Memory Footprint (Peak RSS)
-* **Leanest**: LuaJIT (`luajit`, 0.7–0.8 kB/f), `tcc` (1.1 kB/f), `cproc` (3.8 kB/f), and `dmd` (16.7 kB/f build / 4.9 kB/f check) maintain minimal memory overhead throughout compilation.
-* **Heaviest**: Pony (`ponyc`, 283.3 kB/f), Hare (`hare`, 110.8 kB/f), Haskell (`ghc`, 81.8–88.5 kB/f), and Crystal (`crystal`, 81.7–83.7 kB/f) exhibit the highest peak memory per function, reflecting the memory cost of capability tracking, global analysis, and whole-program AST retention.
+* **Leanest**: LuaJIT (`luajit`, 0.7–0.8 kB/f), `tcc` (1.1 kB/f),
+  `cproc` (3.8 kB/f), and `dmd` (16.7 kB/f build / 4.9 kB/f check)
+  maintain minimal memory overhead throughout compilation.
+* **Heaviest**: Pony (`ponyc`, 283.3 kB/f), Hare (`hare`, 110.8 kB/f),
+  Haskell (`ghc`, 81.8–88.5 kB/f), and Crystal (`crystal`, 81.7–83.7
+  kB/f) exhibit the highest peak memory per function, reflecting the
+  memory cost of capability tracking, global analysis, and
+  whole-program AST retention.
 
 ### 5. Binary Footprint & Output Density
-* **Most compact machine code**: Free Pascal (`fpc`, 68.8 B/f), `tcc` / `cproc` (90.1 B/f), `odin` (112.6 B/f), and `gcc` (121.1 B/f) generate the most compact executables per function.
-* **Code bloat & runtime overhead**: `zig` (1422–1503 B/f) and Common Lisp (`sbcl`, 1481 B/f) produce significantly larger binary sizes per function, primarily due to runtime scaffolding, unwinding metadata, and alignment padding.
+* **Most compact machine code**: Free Pascal (`fpc`, 68.8 B/f), `tcc`
+  / `cproc` (90.1 B/f), `odin` (112.6 B/f), and `gcc` (121.1 B/f)
+  generate the most compact executables per function.
+* **Code bloat & runtime overhead**: `zig` (1422–1503 B/f) and
+  Common-Lisp (`sbcl`, 1481 B/f) produce significantly larger binary
+  sizes per function, primarily due to runtime scaffolding, unwinding
+  metadata, and alignment padding.
 
 ### 6. Managed, VM, and Scripting Toolchains (Tier 3)
-* **Untyped bytecode emission vs. static type safety (The Lua vs. D fallacy)**:
-  * While LuaJIT (`luajit`, 4 µs/f build, 4.4 µs/f check) clocks a raw ingestion speed faster than D (`dmd`, 9–13 µs/f), **stating that "Lua compiles faster than D" is fundamentally an apples-to-oranges comparison**:
-    * **Zero compile-time type verification**: Lua is completely dynamically typed. Its parser performs no type checking, no signature validation, and no static symbol binding for globals. Global function calls are emitted directly as dynamic string table lookups against `_ENV`, deferring all resolution and type safety checks entirely to runtime.
-    * **No native codegen or linking**: LuaJIT emits lightweight virtual machine bytecode chunks in a single pass without building full symbol tables, allocating machine registers, or invoking a system linker.
-    * **D's engineering achievement**: In contrast, DMD performs exhaustive static type checking, semantic analysis, attribute verification (`@safe`, `pure`, `nothrow`, `@nogc`), monomorphization, and machine code generation with full native linking. Completing all of this in just ~9–13 µs/f highlights the extraordinary efficiency of DMD's front-end and custom backend relative to what Lua is actually asked to do.
-* **Legacy vs. Modern managed toolchains**: In C#, Mono's older C# compiler (`mcs`, 36 µs/f build) compiles ~6× faster than the modern Roslyn compiler (`csc`, 214 µs/f build), illustrating how much semantic analysis modern Roslyn pipelines perform.
-* **Functional & CPS transformation costs**: Functional languages performing deep intermediate representations—such as Scheme/Guile's Tree-IL Continuation-Passing Style compiler (`guild`, 8543 µs/f build) and Haskell (`ghc`, 3894–4704 µs/f build)—face steep scaling penalties on deep, non-inlined synthetic call trees.
+* **Untyped bytecode emission vs. static type safety (The Lua vs. D
+  fallacy)**:
+  * While LuaJIT (`luajit`, 4 µs/f build, 4.4 µs/f check) clocks a raw
+    ingestion speed faster than D (`dmd`, 9–13 µs/f), **stating that
+    "Lua compiles faster than D" is fundamentally an apples-to-oranges
+    comparison**:
+    * **Zero compile-time type verification**: Lua is completely
+      dynamically typed. Its parser performs no type checking, no
+      signature validation, and no static symbol binding for
+      globals. Global function calls are emitted directly as dynamic
+      string table lookups against `_ENV`, deferring all resolution
+      and type safety checks entirely to runtime.
+    * **No native codegen or linking**: LuaJIT emits lightweight virtual
+      machine bytecode chunks in a single pass without building full
+      symbol tables, allocating machine registers, or invoking a
+      system linker.
+    * **D's engineering achievement**: In contrast, DMD performs
+      exhaustive static type checking, semantic analysis, attribute
+      verification (`@safe`, `pure`, `nothrow`, `@nogc`),
+      monomorphization, and machine code generation with full native
+      linking. Completing all of this in just ~9–13 µs/f highlights
+      the extraordinary efficiency of DMD's front-end and custom
+      backend relative to what Lua is actually asked to do.
+* **Legacy vs. Modern managed toolchains**: In C#, Mono's older C#
+  compiler (`mcs`, 36 µs/f build) compiles ~6× faster than the modern
+  Roslyn compiler (`csc`, 214 µs/f build), illustrating how much
+  semantic analysis modern Roslyn pipelines perform.
+* **Functional & CPS transformation costs**: Functional languages
+  performing deep intermediate representations—such as Scheme/Guile's
+  Tree-IL Continuation-Passing Style compiler (`guild`, 8543 µs/f
+  build) and Haskell (`ghc`, 3894–4704 µs/f build)—face steep scaling
+  penalties on deep, non-inlined synthetic call trees.
 
 ### 7. Scalability Bottlenecks & Caps
-Synthetic call chains stress corner cases that standard module-based codebases rarely trigger, explaining why automatic caps are required:
-* **Table and pool overflows**: Java caps at $100 \times 100$ due to the JVM 16-bit constant pool ceiling ($65{,}535$ entries); LuaJIT caps at $150 \times 150$ due to the bytecode chunk constant limit ($65{,}536$).
-* **Recursion & elaboration limits**: Nim enforces an internal compiler limit of 50 recursive generic instantiations (forcing `--function-depth` to 50); Ada requires capping at $100 \times 100$ due to quadratic scaling in `gnatbind` elaboration analysis.
-* **CPS & capability checking**: Pony ($30 \times 30$), Roc ($50 \times 50$), and Guile ($70 \times 70$) hit pathologically slow type/capability checking or CPS lowering times on tens of thousands of deeply nested expressions.
+
+Synthetic call chains stress corner cases that standard module-based
+codebases rarely trigger, explaining why automatic caps are required:
+
+* **Table and pool overflows**: Java caps at $100 \times 100$ due to
+  the JVM 16-bit constant pool ceiling ($65{,}535$ entries); LuaJIT
+  caps at $150 \times 150$ due to the bytecode chunk constant limit
+  ($65{,}536$).
+* **Recursion & elaboration limits**: Nim enforces an internal
+  compiler limit of 50 recursive generic instantiations (forcing
+  `--function-depth` to 50); Ada requires capping at $100 \times 100$
+  due to quadratic scaling in `gnatbind` elaboration analysis.
+* **CPS & capability checking**: Pony ($30 \times 30$), Roc ($50
+  \times 50$), and Guile ($70 \times 70$) hit pathologically slow
+  type/capability checking or CPS lowering times on tens of thousands
+  of deeply nested expressions.
 
 ---
 
@@ -217,7 +293,10 @@ Synthetic call chains stress corner cases that standard module-based codebases r
 
 ### Support Matrix
 
-Which operations and variants each language participates in. The *Tier* column controls which result table a compiler ends up in (see [Understanding Metrics and Table Output](#understanding-metrics-and-table-output)).
+Which operations and variants each language participates in. The
+*Tier* column controls which result table a compiler ends up in (see
+[Understanding Metrics and Table
+Output](#understanding-metrics-and-table-output)).
 
 | Language | Compilers | Operations | Templated | Tier |
 | :--- | :--- | :--- | :---: | :---: |
@@ -227,7 +306,8 @@ Which operations and variants each language participates in. The *Tier* column c
 | C++ | `g++`, `clang++` | check, compile, build | ✓ | 2 |
 | C3 | `c3c` | check, compile, build | ✓ | 2 |
 | C# | `mcs`, `csc` | check, build | – | 3 |
-| Common Lisp | `sbcl` | check, compile, build | – | 3 |
+| Common-Lisp | `sbcl` | check, compile, build | – | 3 |
+| Emacs-Lisp | `emacs` | check, compile, build | – | 3 |
 | Crystal | `crystal` | check, build | ✓ | 3 |
 | D | `dmd`, `ldmd2`, `gdc` | check, compile, build | ✓ | 2 |
 | Dart | `dart` | check, compile, build | ✓ | 3 |
@@ -259,11 +339,22 @@ Which operations and variants each language participates in. The *Tier* column c
 
 ### Compiler Discovery
 
-- Executables are looked up with `which` in `PATH`, or in the directory given by `--path`.
-- For compilers that ship with versioned names (`gcc`, `g++`, `clang`, `clang++`, `gfortran`, `gnat`, `gccgo`), the unversioned binary as well as `-5` to `-19` suffixed binaries (e.g. `gcc-15`) are discovered and benchmarked as separate rows.
-- Language names given to `--languages` are case-insensitive and aliases are accepted (e.g. `ts`/`tsc` for TypeScript, `fpc` for Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for Guile, `luajit` for Lua, `chez` for Scheme, and `lisp`/`sbcl`/`commonlisp` for Common Lisp).
-- When `rustup` is available, Rust is benchmarked on both the `stable` and `nightly` channels. Note that this switches your `rustup` default toolchain while the benchmark runs.
-- Compiler versions are probed automatically (e.g. `--version`, `-v`, `version`) and shown in the table's first column.
+- Executables are looked up with `which` in `PATH`, or in the
+  directory given by `--path`.
+- For compilers that ship with versioned names (`gcc`, `g++`, `clang`,
+  `clang++`, `gfortran`, `gnat`, `gccgo`), the unversioned binary as
+  well as `-5` to `-19` suffixed binaries (e.g. `gcc-15`) are
+  discovered and benchmarked as separate rows.
+- Language names given to `--languages` are case-insensitive and
+  aliases are accepted (e.g. `ts`/`tsc` for TypeScript, `fpc` for
+  Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for
+  Guile, `luajit` for Lua, `chez` for Scheme, and
+  `lisp`/`sbcl`/`commonlisp` for Common-Lisp).
+- When `rustup` is available, Rust is benchmarked on both the `stable`
+  and `nightly` channels. Note that this switches your `rustup`
+  default toolchain while the benchmark runs.
+- Compiler versions are probed automatically (e.g. `--version`, `-v`,
+  `version`) and shown in the table's first column.
 
 ---
 
@@ -342,14 +433,33 @@ Include Zig's AST check and show relative numbers with the best value highlighte
 ### Parallel Execution Architecture
 
 `benchmark` automatically scales across the available CPU cores:
-- Distributes individual benchmark tasks (one per language, operation, templated variant and compiler runner) into a `multiprocessing.Pool`.
-- Detects hybrid CPUs (Intel P/E cores via PMU topology, ARM big.LITTLE via `cpu_capacity`, per-core maximum frequency, and Apple Silicon performance levels) and, if found, uses **only the performance cores**, one worker per core. On homogeneous CPUs it uses all available cores minus two (at least one) to leave headroom for the system.
-- Pins each worker process to a dedicated CPU core via `os.sched_setaffinity` to avoid core-hopping noise.
-- **Adaptive run count scaling**: When individual compilation durations exceed 1.0s, repetitions are capped to 3; when exceeding 3.0s, repetitions are capped to 2, preventing excessive total runtimes while recording accurate minimum timings.
-- Generates sources in a temporary root directory (`/tmp/generated_*`) and isolates compiler scratchpads in per-process directories (`proc_<PID>/<lang>/`).
-- Removes a task's scratch directory when it succeeded; if a compiler printed output or returned a non-zero exit code, the directory is kept for inspection and a warning with the command line, stdout and stderr is printed.
-- Cleans up temporary files and empty directories upon benchmark completion or exit (including `Ctrl-C`).
-- Shows live progress (tree or single line) with currently active tasks and elapsed times, unless disabled with `--progress=none` or when output is not a terminal.
+- Distributes individual benchmark tasks (one per language, operation,
+  templated variant and compiler runner) into a
+  `multiprocessing.Pool`.
+- Detects hybrid CPUs (Intel P/E cores via PMU topology, ARM
+  big.LITTLE via `cpu_capacity`, per-core maximum frequency, and Apple
+  Silicon performance levels) and, if found, uses **only the
+  performance cores**, one worker per core. On homogeneous CPUs it
+  uses all available cores minus two (at least one) to leave headroom
+  for the system.
+- Pins each worker process to a dedicated CPU core via
+  `os.sched_setaffinity` to avoid core-hopping noise.
+- **Adaptive run count scaling**: When individual compilation
+  durations exceed 1.0s, repetitions are capped to 3; when exceeding
+  3.0s, repetitions are capped to 2, preventing excessive total
+  runtimes while recording accurate minimum timings.
+- Generates sources in a temporary root directory (`/tmp/generated_*`)
+  and isolates compiler scratchpads in per-process directories
+  (`proc_<PID>/<lang>/`).
+- Removes a task's scratch directory when it succeeded; if a compiler
+  printed output or returned a non-zero exit code, the directory is
+  kept for inspection and a warning with the command line, stdout and
+  stderr is printed.
+- Cleans up temporary files and empty directories upon benchmark
+  completion or exit (including `Ctrl-C`).
+- Shows live progress (tree or single line) with currently active
+  tasks and elapsed times, unless disabled with `--progress=none` or
+  when output is not a terminal.
 
 ---
 
@@ -371,12 +481,28 @@ $$\text{Total Functions} = \text{function\_count} \times \text{function\_depth}$
 
 For languages with a safety cap (see below) the capped sizes are used for normalization.
 
-- **`Total=Build+Run [us/f]`**: Minimum build time plus minimum run time per function, shown as `total=build+run` (e.g. `105=105+0.20`). Shows `N/A` for toolchains that have no build step or whose artifact is not executed.
-- **`Check [us/f]`**, **`Compile [us/f]`**: Minimum execution duration divided by total functions (`args.function_count * args.function_depth`). If AST checking is enabled and supported (e.g. Zig), its result is appended on a new line (`<br>`) inside the **Check** cell.
-- **`Check RSS [kB/f]`**, **`Build RSS [kB/f]`**: Maximum resident set size (sampled at `--sample-rate` via `psutil` / process timer) in kilobytes divided by total functions. Cells show `sampling error` or `missing` when memory could not be sampled.
-- **`Output Size [B/f]`**: Native binary disk footprint in bytes divided by total functions (machine-code binaries only: ELF, Mach-O or PE; `N/A` for bytecode/script artifacts).
+- **`Total=Build+Run [us/f]`**: Minimum build time plus minimum run
+  time per function, shown as `total=build+run`
+  (e.g. `105=105+0.20`). Shows `N/A` for toolchains that have no build
+  step or whose artifact is not executed.
+- **`Check [us/f]`**, **`Compile [us/f]`**: Minimum execution duration
+  divided by total functions (`args.function_count *
+  args.function_depth`). If AST checking is enabled and supported
+  (e.g. Zig), its result is appended on a new line (`<br>`) inside the
+  **Check** cell.
+- **`Check RSS [kB/f]`**, **`Build RSS [kB/f]`**: Maximum resident set
+  size (sampled at `--sample-rate` via `psutil` / process timer) in
+  kilobytes divided by total functions. Cells show `sampling error` or
+  `missing` when memory could not be sampled.
+- **`Output Size [B/f]`**: Native binary disk footprint in bytes
+  divided by total functions (machine-code binaries only: ELF, Mach-O
+  or PE; `N/A` for bytecode/script artifacts).
 
-The time unit of the Check, Compile and Total columns is chosen automatically per column (`s/f`, `ms/f`, `us/f` or `ns/f`, based on the median value) and shown in the column header. In `--values=relative` mode the header unit is replaced by `[x]`; in `--values=both` mode each cell shows `absolute (relative)`.
+The time unit of the Check, Compile and Total columns is chosen
+automatically per column (`s/f`, `ms/f`, `us/f` or `ns/f`, based on
+the median value) and shown in the column header. In
+`--values=relative` mode the header unit is replaced by `[x]`; in
+`--values=both` mode each cell shows `absolute (relative)`.
 
 ### Stacked Plain and Templated Results
 
@@ -385,19 +511,33 @@ Rather than displaying separate rows, plain and templated/generic results are st
 $$\frac{\langle\text{plain}\rangle}{\langle\text{templated}\rangle}$$
 
 - Non-generic languages display a single value per metric.
-- For generic languages, the top row is untemplated and the bottom row is templated. A dash `-` indicates that a specific variant was unavailable or not evaluated.
-- `N/A` is shown when neither variant produced a value (e.g. unsupported operation or compilation failure).
-- When `--highlight-min` is active, the best plain value and best templated value are highlighted independently within their respective cell halves.
+- For generic languages, the top row is untemplated and the bottom row
+  is templated. A dash `-` indicates that a specific variant was
+  unavailable or not evaluated.
+- `N/A` is shown when neither variant produced a value
+  (e.g. unsupported operation or compilation failure).
+- When `--highlight-min` is active, the best plain value and best
+  templated value are highlighted independently within their
+  respective cell halves.
 
 ---
 
 ## Generics & Synthetic Code Structure
 
-For languages supporting generics, the benchmark emits an un-templated test file `main_<run>.<ext>` and a templated test file `main_t_<run>.<ext>` (one file per repetition). In the templated file, all functions (except `main`) are generic and instantiated for the language's 64-bit scalar type. A few languages need different layouts: Ada uses `main.adb`/`main_t.adb` (the file name must match the unit) and Pony places every generated program in its own package subdirectory.
+For languages supporting generics, the benchmark emits an un-templated
+test file `main_<run>.<ext>` and a templated test file
+`main_t_<run>.<ext>` (one file per repetition). In the templated file,
+all functions (except `main`) are generic and instantiated for the
+language's 64-bit scalar type. A few languages need different layouts:
+Ada uses `main.adb`/`main_t.adb` (the file name must match the unit)
+and Pony places every generated program in its own package
+subdirectory.
 
 ### Semantic Checking Differences
 
-GCC and Clang don't perform all semantic checks for C++ (because it's too costly). This is in contrast to D's and Rust's compilers that perform all of them.
+GCC and Clang don't perform all semantic checks for C++ (because it's
+too costly). This is in contrast to D's and Rust's compilers that
+perform all of them.
 
 ### Sample Generated Code (`C`, 3 functions, depth 2)
 
@@ -407,7 +547,8 @@ Running:
 ./benchmark --function-count=3 --function-depth=2 --run-count=5
 ```
 
-produces `/tmp/generated_<random>/proc_<PID>/c/main_0.c` (removed again after a successful run unless the compiler reported problems):
+produces `/tmp/generated_<random>/proc_<PID>/c/main_0.c` (removed
+again after a successful run unless the compiler reported problems):
 
 ```c
 long add_long_n0_h0(long x) { return x + 15440; }
@@ -430,15 +571,24 @@ int main(void) {
 
 ### Compiler Object Caches
 
-The numerical constants are randomized using a new seed upon every run. This makes it impossible for compilers to utilize build-caching mechanisms across successive calls. The purpose of this is to make the comparison between compilers with and without (different levels of) caching more fair.
+The numerical constants are randomized using a new seed upon every
+run. This makes it impossible for compilers to utilize build-caching
+mechanisms across successive calls. The purpose of this is to make the
+comparison between compilers with and without (different levels of)
+caching more fair.
 
-The caching of the Go reference compiler `go`, for instance, is effectively bypassed by this randomization. The Hare cache directory (`HARECACHE`) is additionally wiped before each Hare benchmark step.
+The caching of the Go reference compiler `go`, for instance, is
+effectively bypassed by this randomization. The Hare cache directory
+(`HARECACHE`) is additionally wiped before each Hare benchmark step.
 
 ---
 
 ## Compiler Constraints and Safety Caps
 
-Because synthetic code generators create tens of thousands of deeply nested symbols, compilers encounter internal capacity or scaling limits. The benchmark automatically enforces stability caps on affected languages (unaffected languages run at full requested size):
+Because synthetic code generators create tens of thousands of deeply
+nested symbols, compilers encounter internal capacity or scaling
+limits. The benchmark automatically enforces stability caps on
+affected languages (unaffected languages run at full requested size):
 
 - **Pony**: Capped to $30 \times 30$ ($900$ functions) due to `ponyc` capability checker limits.
 - **Roc**: Capped to $50 \times 50$ ($2{,}500$ functions) due to compiler limits.
@@ -462,8 +612,16 @@ A warning is logged to `stderr` whenever a cap is applied.
 
 Adding a language only requires inserting one contiguous block into the *LANGUAGE BLOCKS* section of `benchmark`; nothing else needs to change. A block consists of:
 
-1. one or more `bm_<Lang>` runner functions that invoke the compiler(s) via `benchmark_compiler_op`, and
-2. a single `register_language(LangSupport(...))` call describing everything else: compiler executables, file extension, 64-bit integer type, supported operations and templated variants, version probing (`VersionSpec`), reporting tier, `--languages` aliases, argument limits, and all source-code generation hooks (prefix, function emitter, `main` header, variable declarations, calls, postfix) plus optional quirks (custom program directory, source file name, section ordering, or compiler command line).
+1. one or more `bm_<Lang>` runner functions that invoke the
+   compiler(s) via `benchmark_compiler_op`, and
+2. a single `register_language(LangSupport(...))` call describing
+   everything else: compiler executables, file extension, 64-bit
+   integer type, supported operations and templated variants, version
+   probing (`VersionSpec`), reporting tier, `--languages` aliases,
+   argument limits, and all source-code generation hooks (prefix,
+   function emitter, `main` header, variable declarations, calls,
+   postfix) plus optional quirks (custom program directory, source
+   file name, section ordering, or compiler command line).
 
 The generic engine only talks to languages through `LangSupport`.
 
