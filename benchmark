@@ -3401,30 +3401,23 @@ def generate_function_definitions(spec: LangSupport, types: list[str], args: arg
         write('\n')
 
 
-def generate_test_program_file(lang: str,
-                               args: argparse.Namespace,
-                               templated: bool,
-                               run_ix,
-                               *,
-                               program_dir: Callable[[str, bool, int], str] = _default_program_dir,
-                               source_filename: Callable[[str, bool, int, str], str] = _default_source_filename,
-                               order_sections: Callable[[Callable[[], None], Callable[[], None]], None] = _defs_then_header):
-    """Generate one synthetic program for `lang` and return its path.
+def _was_arg_specified(*flag_names: str) -> bool:
+    """Check if any of the given flag names were explicitly provided in sys.argv."""
+    for arg in sys.argv[1:]:
+        name = arg.split('=', 1)[0]
+        if name in flag_names:
+            return True
+    return False
 
-    Per-language layout quirks are supplied as callables (taken from LangSupport by the caller):
-      program_dir(base_dir, templated, run_ix)                -> directory the source is written to
-      source_filename(program_name, templated, run_ix, ext)   -> source file name
-      order_sections(write_header, write_defs)                -> calls the two thunks in the order
-                                                                 the language requires
-    """
-    spec = lang_support(lang)
+
+def generate_test_program_source(spec: LangSupport,
+                                 args: argparse.Namespace,
+                                 templated: bool,
+                                 *,
+                                 order_sections: Callable[[Callable[[], None], Callable[[], None]], None] = _defs_then_header) -> str:
+    """Generate the synthetic source code text for `spec`."""
     program_name = DEFAULT_PROGRAM_NAME
     types = [spec.int_type]
-    dir_path = program_dir(out_directory(lang), templated, run_ix)
-    os.makedirs(dir_path, exist_ok=True)
-    path = os.path.join(dir_path, source_filename(program_name, templated, run_ix, spec.extension))
-
-    start = timer()
     buf = io.StringIO()
     buf.write(spec.prefix(program_name, templated))
 
@@ -3443,9 +3436,27 @@ def generate_test_program_file(lang: str,
             buf.write(spec.call(findex, typ, templated) + spec.call_terminator + '\n')
 
     buf.write(spec.postfix(types))
+    return buf.getvalue()
+
+def generate_test_program_file(lang: str,
+                               args: argparse.Namespace,
+                               templated: bool,
+                               run_ix,
+                               *,
+                               program_dir: Callable[[str, bool, int], str] = _default_program_dir,
+                               source_filename: Callable[[str, bool, int, str], str] = _default_source_filename,
+                               order_sections: Callable[[Callable[[], None], Callable[[], None]], None] = _defs_then_header):
+    spec = lang_support(lang)
+    program_name = DEFAULT_PROGRAM_NAME
+    dir_path = program_dir(out_directory(lang), templated, run_ix)
+    os.makedirs(dir_path, exist_ok=True)
+    path = os.path.join(dir_path, source_filename(program_name, templated, run_ix, spec.extension))
+
+    start = timer()
+    content = generate_test_program_source(spec, args, templated, order_sections=order_sections)
 
     with open(path, 'w') as sink:
-        sink.write(buf.getvalue())
+        sink.write(content)
     dur = timer() - start
     if getattr(args, 'verbose', False):
         print('- Generating {} took {:1.3f} seconds ({})'.format(path, dur, lang))
@@ -3823,6 +3834,10 @@ def main():
                         default="auto",
                         help="Progress monitor format: auto (tree on capable terminals, line otherwise), tree, line, or none.")
 
+    parser.add_argument('--print-code', '--print-generated-code', '--show-code', '--pc',
+                        action='store_true',
+                        help='Print the resulting generated code (defaults --fc=2, --fd=2, --rc=1).')
+
     args = parser.parse_args()
     if args.relative:
         args.values = ValuesMode.RELATIVE
@@ -3895,6 +3910,21 @@ def main():
     args.operations = filtered_operations
 
     results = {}
+
+    if args.print_code:
+        print(markdown_header('Generated Code:', 1))
+        for lang_name, spec in LANGUAGES.items():
+            if lang_name not in args.language_exes:
+                continue
+            task_args = copy.deepcopy(args)
+            spec.limit_args(task_args)
+            for templated in spec.templated_variants:
+                tmpl_desc = " (templated)" if templated else ""
+                print(markdown_header(f"{spec.name}{tmpl_desc}", 2))
+                print(f"```{spec.extension}")
+                code = generate_test_program_source(spec, task_args, templated, order_sections=spec.order_sections)
+                print(code.strip('\n'))
+                print("```\n")
 
     print(markdown_header('Benchmark:', 1))
 
