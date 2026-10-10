@@ -32,22 +32,7 @@ density across 30+ compilers on massive arithmetic translation units.
 ## AMD Ryzen AI 7 350 (8+8) @ 5.09 GHz
 
 The output on Arch Linux (as of 2026-09) for the sample call
-
-    ./benchmark
-	Warning: Capping Ada function count/depth from 200x200 to 100x100 due to gnatbind & elaborator scaling limits
-	Warning: Capping Swift function count/depth from 200x200 to 100x100 due to swiftc constraint solver limits
-	Warning: Capping Nim function depth (--function-depth) from 200 to 50 due to compiler generic recursion limit
-	Warning: Capping Java function count/depth from 200x200 to 100x100 due to JVM constant pool limits
-	Warning: Capping Lua function count/depth from 200x200 to 150x150 due to LuaJIT chunk constant limits
-	Warning: Capping Haskell function count/depth from 200x200 to 100x100 due to GHC scaling limits
-	Warning: Capping Fortran function count/depth from 200x200 to 100x100 due to gfortran module symbol table limits
-	Warning: Capping Pony function count/depth from 200x200 to 30x30 due to ponyc capability checking limits
-	Warning: Capping Guile function count/depth from 200x200 to 70x70 due to Tree-IL CPS compiler scaling limits
-	Warning: Capping Roc function count/depth from 200x200 to 50x50 due to compiler limits
-	Running benchmarks in parallel across 8 performance CPU core(s) (1 worker per core)...
-	Warning: Capping Cuik function count (--function-count) from 200 to 100 due to compiler stability limit
-
-results in the following tables:
+`./benchmark` results in the following tables:
 
 ### Tier 1: Single-Pass / Minimalist Compilers
 *No SSA optimization, no borrow checking, trivial type systems, instant code emission.*
