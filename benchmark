@@ -3098,18 +3098,18 @@ def merge_plain_and_templated_results(results: Results, values_mode: str = "abso
 
 TIERS = [
     (
-        1,
-        "Tier 1: Single-Pass / Minimalist Compilers",
-        "No SSA optimization, no borrow checking, trivial type systems, instant code emission.",
-    ),
-    (
         2,
-        "Tier 2: Modern Systems Languages (Ahead-of-Time)",
+        "Modern Systems Languages (Ahead-of-Time)",
         "Full type inference, monomorphization/generics, semantic safety, module systems.",
     ),
     (
+        1,
+        "Single-Pass / Minimalist Compilers",
+        "No SSA optimization, no borrow checking, trivial type systems, instant code emission.",
+    ),
+    (
         3,
-        "Tier 3: Managed & VM / JIT / Scripting",
+        "Managed & VM / JIT / Scripting",
         "Bytecode emission, runtime metadata, GC runtimes.",
     ),
 ]
