@@ -7,11 +7,18 @@ density across 30+ compilers on massive arithmetic translation units.
 
 ### ⚡ Highlights & Key Findings (AMD Ryzen AI 7 350)
 
-* **DMD's Custom Backend Outperforms by 6×–38×:** Digital Mars D
-  (`dmd`) achieves **13 µs/function** (full semantic check + native
-  codegen + linking), outperforming minimalist C compilers like `cuik`
-  and `cproc`. LLVM-based D (`ldmd2`) is ~6× slower, and GCC-based D
-  (`gdc`) is ~38× slower, isolating backend cost.
+* **DMD’s Custom Backend Outperforms by 6×–38× (and Demolishes the
+  "Fast Compile" Alternatives):** Digital Mars D (`dmd`) achieves **13
+  µs/function** (full semantic check + native codegen + linking),
+  easily outpacing minimalist C compilers like `cuik` and
+  `cproc`. Crucially, DMD dramatically outperforms modern languages
+  marketed for fast iteration—**even when testing Zig using its
+  custom, non-LLVM backend**. At the same time, cross-toolchain D
+  benchmarks cleanly isolate the backend tax: LLVM (`ldmd2`) is **~6×
+  slower** and GCC (`gdc`) is **~38× slower**. While Rust developers
+  suffer glacial builds and Zig/Odin treat instant debug turnaround as
+  an active engineering milestone, DMD proves Walter Bright solved the
+  inner dev loop decades ago.
 * **TCC Leads Single-Pass C:** The Tiny C Compiler (`tcc`) streams
   machine code at **4 µs/f**, remaining the undisputed speed champion
   for raw C ingestion.
