@@ -36,9 +36,8 @@ approaches are most welcome.
   behind, while `Rust` (184 µs/f) significantly outpaces GCC-based
   C/C++ (~441–483 µs/f).
 * **The Monomorphization Penalty:** Zig demonstrates near-zero generic
-  overhead (`comptime` uniform scalars), while Swift’s constraint
-  solver balloons build times by 86% (1,167 → 2,175 µs/f) under deep
-  call nesting.
+  overhead (`comptime` uniform scalars) whereas others have a noticeably
+  overhead of 1.5x to 2x.
 * **Untyped vs. Typed Speed:** LuaJIT emits bytecode in 5 µs/f, but
   performs zero compile-time type verification or linking—making DMD's
   fully-typed, native-linked 13 µs/f an extraordinary engineering
