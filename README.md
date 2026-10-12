@@ -1,4 +1,4 @@
-# Benchmarking 30+ Compilers: Why DMD’s Backend Still Excels at Cold Compilation
+# Benchmarking Compilers: Why DMD’s Backend Still Excels at Cold Compilation
 
 Benchmarking compilation throughput, peak memory (RSS), and binary
 density across 30+ compilers on massive arithmetic translation
