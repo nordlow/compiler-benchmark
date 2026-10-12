@@ -278,7 +278,6 @@ codebases rarely trigger, explaining why automatic caps are required:
 - [Hare](https://harelang.org/) (using `hare`)
 - [Haskell](https://www.haskell.org/) (using `ghc`)
 - [Hylo](https://www.hylo-lang.org/) (using `hc`)
-- [Mojo](https://www.modular.com/mojo) (using `mojo`)
 - [Nim](https://nim-lang.org/) (using `nim`)
 - [OCaml](https://ocaml.org/) (using `ocamlopt`)
 - [Odin](https://odin-lang.org/) (using `odin`)
@@ -338,7 +337,6 @@ Output](#understanding-metrics-and-table-output)).
 | Kotlin | `kotlinc` ,`kotlin` | check, run | – | 3 |
 | Julia | `julia` | check, build | ✓ | 3 |
 | Lua | `luajit` | check, compile, build | – | 3 |
-| Mojo | `mojo` | build | – | 2 |
 | Nim | `nim` | check, build | ✓ | 2 |
 | OCaml | `ocamlopt`, `ocamlc` | check, build | – | 3 |
 | Odin | `odin` | check, build | ✓ | 2 |
