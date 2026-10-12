@@ -335,6 +335,7 @@ Output](#understanding-metrics-and-table-output)).
 | Haskell | `ghc` | check, build | ✓ | 3 |
 | Hylo | `hc` | check, build | ✓ | 2 |
 | Java | `javac` | check, build | – | 3 |
+| Kotlin | `kotlinc` ,`kotlin` | check, run | – | 3 |
 | Julia | `julia` | check, build | ✓ | 3 |
 | Lua | `luajit` | check, compile, build | – | 3 |
 | Mojo | `mojo` | build | – | 2 |
