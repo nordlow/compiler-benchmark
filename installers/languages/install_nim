@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-set -uo pipefail
-curl https://nim-lang.org/choosenim/init.sh -sSf | sh
