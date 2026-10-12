@@ -299,6 +299,7 @@ codebases rarely trigger, explaining why automatic caps are required:
 - [C#](https://learn.microsoft.com/dotnet/csharp/) (using `csc` or `mcs`, executed via `mono`)
 - [F#](https://fsharp.org/) (using `dotnet fsi`)
 - [Java](https://www.oracle.com/java/) (using `javac`, executed via `java`)
+- [Kotlin](https://kotlinlang.org/) (using `kotlin`, executed via `kotlinc`)
 - [Julia](https://julialang.org/) (using `julia`)
 - [Lua](https://luajit.org/) (using `luajit`)
 - [OCaml Bytecode](https://ocaml.org/) (using `ocamlc`, executed via `ocamlrun`)
