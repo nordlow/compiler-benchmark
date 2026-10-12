@@ -297,6 +297,7 @@ codebases rarely trigger, explaining why automatic caps are required:
 
 ### Bytecode, VM, and JIT/Scripting Toolchains
 - [C#](https://learn.microsoft.com/dotnet/csharp/) (using `csc` or `mcs`, executed via `mono`)
+- [F#](https://fsharp.org/) (using `dotnet fsi`)
 - [Java](https://www.oracle.com/java/) (using `javac`, executed via `java`)
 - [Julia](https://julialang.org/) (using `julia`)
 - [Lua](https://luajit.org/) (using `luajit`)
@@ -320,6 +321,7 @@ Output](#understanding-metrics-and-table-output)).
 | C++ | `g++`, `clang++` | check, compile, build | ✓ | 2 |
 | C3 | `c3c` | check, compile, build | ✓ | 2 |
 | C# | `mcs`, `csc` | check, build | – | 3 |
+| F# | `dotnet` | check, run | – | 3 |
 | Common-Lisp | `sbcl` | check, compile, build | – | 3 |
 | Emacs-Lisp | `emacs` | check, compile, build | – | 3 |
 | Crystal | `crystal` | check, build | ✓ | 3 |
