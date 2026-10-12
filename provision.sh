@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin"
+    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -129,16 +129,6 @@ if should_install "llvm"; then
         pkg_install clang lld llvm
     else
         pkg_install clang lld
-    fi
-fi
-
-# Repository Languages (Java, Julia, OCaml, Python, PyPy3, TCC)
-if should_install "repo"; then
-    echo ">> Checking Repository Languages..."
-    if [ "$OS" == "arch" ]; then
-        pkg_install jdk-openjdk julia ocaml python-psutil tcc go pypy3
-    else
-        pkg_install openjdk-21-jdk julia ocaml python3-psutil tcc golang-go pypy3
     fi
 fi
 

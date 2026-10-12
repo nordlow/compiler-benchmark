@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-set -uo pipefail
-
-sudo apt install gcc
-sudo apt install g++
-sudo apt install gccgo
-sudo apt install gnat
-sudo apt install gdc
