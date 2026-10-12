@@ -25,19 +25,19 @@ approaches are most welcome.
   clean rebuilds, batch scripts, and integration with external build
   systems), DMD's sheer cold-compilation throughput remains
   unmatched. At the same time, cross-toolchain D benchmarks cleanly
-  isolate the backend tax: LLVM (`ldmd2`) is **~6× slower** and GCC
-  (`gdc`) is **~38× slower**, proving that without architectural
-  gimmicks or LLVM bloat, Walter Bright solved batch build latency
-  decades ago.
+  isolate the backend tax: all LLVM-based compilers are at least **~6×
+  slower** slower proving that without architectural gimmicks or LLVM
+  bloat, Walter Bright solved batch build latency decades ago.
 * **TCC Leads Single-Pass C:** The Tiny C Compiler (`tcc`) streams
-  machine code at **4 µs/f**, remaining the undisputed speed champion
+  machine code at **3 µs/f**, remaining the undisputed speed champion
   for raw C ingestion.
-* **Modern Systems Throughput:** `odin` (147 µs/f) and `zig` (110
-  µs/f) stay neck-and-neck with `clang` (118 µs/f), while `rustc` (187
-  µs/f) significantly outpaces GCC-based C/C++ (~450–486 µs/f).
+* **Modern Systems Throughput:** After D, `C` (Clang) and `Zig` lead the
+  ahead-of-time pack at **80–89 µs/f**, with `Odin` (105 µs/f) close
+  behind, while `Rust` (184 µs/f) significantly outpaces GCC-based
+  C/C++ (~441–483 µs/f).
 * **The Monomorphization Penalty:** Zig demonstrates near-zero generic
   overhead (`comptime` uniform scalars), while Swift’s constraint
-  solver balloons build times by 82% (1,239 → 2,258 µs/f) under deep
+  solver balloons build times by 86% (1,167 → 2,175 µs/f) under deep
   call nesting.
 * **Untyped vs. Typed Speed:** LuaJIT emits bytecode in 5 µs/f, but
   performs zero compile-time type verification or linking—making DMD's
