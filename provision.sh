@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp,kotlin"
     exit 0
 }
 
@@ -586,4 +586,10 @@ EOF
             chmod +x "$BIN_DIR/fsi"
         fi
     fi
+fi
+
+# Kotlin
+if should_install "kotlin" || should_install "kotlinc" || should_install "kt"; then
+    echo ">> Checking Kotlin..."
+    pkg_install kotlin
 fi
