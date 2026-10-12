@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc"
+    echo "  gcc, llvm, repo, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp"
     exit 0
 }
 
@@ -568,5 +568,22 @@ if should_install "roc"; then
     echo ">> Checking Roc..."
     if ! command -v roc &>/dev/null && [ ! -f "$BIN_DIR/roc" ]; then
         curl -fsSL https://roc-lang.org/install_roc.sh | ROC_INSTALL_DIR="$HOME/.local/bin" sh
+    fi
+fi
+
+# F# (.NET SDK)
+if should_install "fsharp" || should_install "f#" || should_install "fs"; then
+    echo ">> Checking F# environment..."
+    if [ "$OS" != "arch" ]; then
+        echo ">> Skipping F#: only Arch Linux is currently supported."
+    else
+        pkg_install dotnet-sdk
+        if [ ! -f "$BIN_DIR/fsi" ]; then
+            cat << 'EOF' > "$BIN_DIR/fsi"
+#!/usr/bin/env bash
+exec dotnet fsi "$@"
+EOF
+            chmod +x "$BIN_DIR/fsi"
+        fi
     fi
 fi
