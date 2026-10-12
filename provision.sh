@@ -574,18 +574,7 @@ fi
 # F# (.NET SDK)
 if should_install "fsharp" || should_install "f#" || should_install "fs"; then
     echo ">> Checking F# environment..."
-    if [ "$OS" != "arch" ]; then
-        echo ">> Skipping F#: only Arch Linux is currently supported."
-    else
-        pkg_install dotnet-sdk
-        if [ ! -f "$BIN_DIR/fsi" ]; then
-            cat << 'EOF' > "$BIN_DIR/fsi"
-#!/usr/bin/env bash
-exec dotnet fsi "$@"
-EOF
-            chmod +x "$BIN_DIR/fsi"
-        fi
-    fi
+    pkg_install dotnet-sdk
 fi
 
 # Kotlin
