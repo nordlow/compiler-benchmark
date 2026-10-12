@@ -556,11 +556,7 @@ fi
 # Guile (GNU Guile)
 if should_install "guile" || should_install "guild"; then
     echo ">> Checking Guile..."
-    if [ "$OS" == "arch" ]; then
-        pkg_install guile
-    else
-        pkg_install guile-3.0
-    fi
+    pkg_install guile
 fi
 
 # Roc
