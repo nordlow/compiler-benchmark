@@ -2,7 +2,7 @@
 
 Benchmarking compilation throughput, peak memory (RSS), and binary
 density across 30+ compilers on massive arithmetic translation
-units. The methodology represents just one out of many ways to
+units. The current methodology represents one out of many ways to
 exercise the compiler; suggestions for extended or alternative
 approaches are most welcome.
 
