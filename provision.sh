@@ -569,7 +569,7 @@ if should_install "kotlin" || should_install "kotlinc" || should_install "kt"; t
     pkg_install kotlin
 fi
 
-# Kotlin
+# Clojure
 if should_install "clojure"; then
     echo ">> Checking Clojure..."
     pkg_install clojure
