@@ -1,4 +1,4 @@
-# Benchmarking Compilers: Why DMD’s Backend Still Excels at Cold Compilation
+# Benchmarking Compilers: DMD D is Fastest at Cold Compilation - By Far!
 
 Benchmarking compilation throughput, peak memory (RSS), and binary
 density across 30+ compilers on massive arithmetic translation
@@ -12,7 +12,7 @@ approaches are most welcome.
 
 * **DMD’s Custom Backend Outperforms by 6×–38× (and Demolishes the
   "Fast Compile" Alternatives):** Digital Mars D (`dmd`) achieves **13
-  µs/function** (full semantic check + native codegen + linking),
+  µs/function** (`µs/f` in table) (full semantic check + native codegen + linking),
   easily outpacing minimalist C compilers like `cuik` and
   `cproc`. Crucially, DMD dramatically outperforms modern languages
   marketed for fast iteration—**even when testing Zig using its
@@ -57,7 +57,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 
 *Stacked cells: top = untemplated, bottom = templated (`-` = not available).*
 
-|          Language (Exec)           |      Total=Build+Run [us/f]      |   Check [us/f]  | Compile [us/f] | Check RSS [kB/f] |    Build RSS [kB/f]    | Output Size [B/f] |
+|          Language (Exec)           |      Total=Build+Run [µs/f]      |   Check [µs/f]  | Compile [µs/f] | Check RSS [kB/f] |    Build RSS [kB/f]    | Output Size [B/f] |
 | :--------------------------------: | :------------------------------: | :-------------: | :------------: | :--------------: | :--------------------: | :---------------: |
 |      D (dmd 2.113.0-bf2012d)       |     13=13+0.20<br>18=17+0.05     |    4.3<br>9.3   |  7.1<br>17.8   |   4.7<br>12.0    |      15.7<br>24.0      |   178.5<br>194.5  |
 |          C (clang 23.1.1)          |            80=80+0.20            |       13.7      |      74.3      |       3.3        |          10.0          |       146.1       |
@@ -88,7 +88,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 ### Single-Pass / Minimalist Compilers
 *No SSA optimization, no borrow checking, trivial type systems, instant code emission.*
 
-| Language (Exec)  | Total=Build+Run [us/f] | Check [us/f] | Compile [us/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
+| Language (Exec)  | Total=Build+Run [µs/f] | Check [µs/f] | Compile [µs/f] | Check RSS [kB/f] | Build RSS [kB/f] | Output Size [B/f] |
 | :--------------: | :--------------------: | :----------: | :------------: | :--------------: | :--------------: | :---------------: |
 | C (tcc 0.9.28rc) |        3=3+0.21        |     2.0      |      2.0       |       1.0        |       0.7        |        90.1       |
 | C (cuik ~master) |       51=51+0.20       |     3.7      |      38.4      |       3.2        |       71.5       |       114.4       |
@@ -100,7 +100,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 
 *Stacked cells: top = untemplated, bottom = templated (`-` = not available).*
 
-|        Language (Exec)        |     Total=Build+Run [us/f]     |   Check [us/f]   | Compile [us/f] | Check RSS [kB/f] |    Build RSS [kB/f]    | Output Size [B/f] |
+|        Language (Exec)        |     Total=Build+Run [µs/f]     |   Check [µs/f]   | Compile [µs/f] | Check RSS [kB/f] |    Build RSS [kB/f]    | Output Size [B/f] |
 | :---------------------------: | :----------------------------: | :--------------: | :------------: | :--------------: | :--------------------: | :---------------: |
 |  Lua (luajit 2.1.1788856981)  |            5=3+1.4             |       3.6        |      3.3       |       0.7        |          0.7           |        N/A        |
 |    Python (python3 3.14.8)    |     32=29+2.9<br>48=43+5.4     |   28.0<br>39.9   |  26.5<br>39.3  |   11.2<br>14.3   |      11.3<br>14.3      |        N/A        |
@@ -508,11 +508,11 @@ $$\text{Total Functions} = \text{function\_count} \times \text{function\_depth}$
 
 For languages with a safety cap (see below) the capped sizes are used for normalization.
 
-- **`Total=Build+Run [us/f]`**: Minimum build time plus minimum run
+- **`Total=Build+Run [µs/f]`**: Minimum build time plus minimum run
   time per function, shown as `total=build+run`
   (e.g. `105=105+0.20`). Shows `N/A` for toolchains that have no build
   step or whose artifact is not executed.
-- **`Check [us/f]`**, **`Compile [us/f]`**: Minimum execution duration
+- **`Check [µs/f]`**, **`Compile [µs/f]`**: Minimum execution duration
   divided by total functions (`args.function_count *
   args.function_depth`). If AST checking is enabled and supported
   (e.g. Zig), its result is appended on a new line (`<br>`) inside the
@@ -526,7 +526,7 @@ For languages with a safety cap (see below) the capped sizes are used for normal
   or PE; `N/A` for bytecode/script artifacts).
 
 The time unit of the Check, Compile and Total columns is chosen
-automatically per column (`s/f`, `ms/f`, `us/f` or `ns/f`, based on
+automatically per column (`s/f`, `ms/f`, `µs/f` or `ns/f`, based on
 the median value) and shown in the column header. In
 `--values=relative` mode the header unit is replaced by `[x]`; in
 `--values=both` mode each cell shows `absolute (relative)`.

@@ -3181,9 +3181,9 @@ class Column:
 
 TABLE_COLUMNS = [
     Column('Language (Exec)'),
-    Column('Total=Build+Run', 'us/f'),
-    Column('Check', 'us/f'),
-    Column('Compile', 'us/f'),
+    Column('Total=Build+Run', 'µs/f'),
+    Column('Check', 'µs/f'),
+    Column('Compile', 'µs/f'),
     Column('Check RSS', 'kB/f'),
     Column('Build RSS', 'kB/f'),
     Column('Output Size', 'B/f'),
@@ -3194,12 +3194,12 @@ def table_titles(values_mode: str = "absolute", results: Results | None = None) 
     if not results:
         return [col.header(values_mode) for col in TABLE_COLUMNS]
     time_units = get_column_time_units(results)
-    check_u = time_units.get(RawCol.CHECK_DUR, ("us/f", 1e6))[0]
-    compile_u = time_units.get(RawCol.COMPILE_DUR, ("us/f", 1e6))[0]
+    check_u = time_units.get(RawCol.CHECK_DUR, ("µs/f", 1e6))[0]
+    compile_u = time_units.get(RawCol.COMPILE_DUR, ("µs/f", 1e6))[0]
 
     cols = [
         Column("Language (Exec)"),
-        Column("Total=Build+Run", "us/f"),
+        Column("Total=Build+Run", "µs/f"),
         Column("Check", check_u),
         Column("Compile", compile_u),
         Column("Check RSS", "kB/f"),
@@ -3353,10 +3353,10 @@ def markdown_header(text: str, nr: int):
 
 
 def pick_time_unit_and_scale(values: list[float]) -> tuple[str, float]:
-    """Pick standard SI unit and scale (s/f, ms/f, us/f, ns/f) keeping values in [1, 1000)."""
+    """Pick standard SI unit and scale (s/f, ms/f, µs/f, ns/f) keeping values in [1, 1000)."""
     valid = [v for v in values if isinstance(v, (int, float)) and v > 0]
     if not valid:
-        return ("us/f", 1e6)
+        return ("µs/f", 1e6)
     valid.sort()
     rep = valid[len(valid) // 2]
     if rep >= 1.0:
@@ -3364,14 +3364,14 @@ def pick_time_unit_and_scale(values: list[float]) -> tuple[str, float]:
     elif rep >= 1e-3:
         return ("ms/f", 1e3)
     elif rep >= 1e-6:
-        return ("us/f", 1e6)
+        return ("µs/f", 1e6)
     else:
         return ("ns/f", 1e9)
 
 
 def get_column_time_units(results: Results) -> dict[RawCol, tuple[str, float]]:
-    # us/f provides standard microsecond precision without rounding sub-ms compilers to 0.0
-    return {col: ("us/f", 1e6) for col in DUR_COLS}
+    # µs/f provides standard microsecond precision without rounding sub-ms compilers to 0.0
+    return {col: ("µs/f", 1e6) for col in DUR_COLS}
 
 
 def merge_plain_and_templated_results(results: Results, values_mode: str = "absolute", highlight: bool = False):
