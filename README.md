@@ -28,7 +28,7 @@ approaches are most welcome.
   isolate the backend tax: all LLVM-based compilers are at least **~6×
   slower** slower proving that without architectural gimmicks or LLVM
   bloat, Walter Bright solved batch build latency decades ago. As a
-  side-note, DMD compiles itself in debug mode on 2.5s on this same
+  side-note, DMD compiles itself in debug mode in 2.5s on this same
   machine.
 * **TCC Leads Single-Pass C:** The Tiny C Compiler (`tcc`) streams
   machine code at **3 µs/f**, remaining the undisputed speed champion
