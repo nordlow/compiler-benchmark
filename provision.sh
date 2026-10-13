@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin"
+    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp,kotlin"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp,kotlin,clojure"
     exit 0
 }
 
@@ -567,4 +567,10 @@ fi
 if should_install "kotlin" || should_install "kotlinc" || should_install "kt"; then
     echo ">> Checking Kotlin..."
     pkg_install kotlin
+fi
+
+# Kotlin
+if should_install "clojure"; then
+    echo ">> Checking Clojure..."
+    pkg_install clojure
 fi
