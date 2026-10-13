@@ -306,6 +306,7 @@ codebases rarely trigger, explaining why automatic caps are required:
 - [F#](https://fsharp.org/) (using `dotnet fsi`)
 - [Java](https://www.oracle.com/java/) (using `javac`, executed via `java`)
 - [Kotlin](https://kotlinlang.org/) (using `kotlin`, executed via `kotlinc`)
+- [Clojure](https://clojure.org/) (using `clojure`)
 - [Julia](https://julialang.org/) (using `julia`)
 - [Lua](https://luajit.org/) (using `luajit`)
 - [OCaml Bytecode](https://ocaml.org/) (using `ocamlc`, executed via `ocamlrun`)
@@ -342,6 +343,7 @@ Output](#understanding-metrics-and-table-output)).
 | Hylo | `hc` | check, build | ✓ | 2 |
 | Java | `javac` | check, build | – | 3 |
 | Kotlin | `kotlinc` ,`kotlin` | check, run | – | 3 |
+| Clojure | `clojure` | check, run | – | 3 |
 | Julia | `julia` | check, build | ✓ | 3 |
 | Lua | `luajit` | check, compile, build | – | 3 |
 | Nim | `nim` | check, build | ✓ | 2 |
