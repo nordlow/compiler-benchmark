@@ -275,96 +275,59 @@ codebases rarely trigger, explaining why automatic caps are required:
 
 ## Supported Languages and Compilers
 
-### Native Ahead-of-Time (AOT) Compilers
-- [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) (using `gnat`)
-- [C](https://en.wikipedia.org/wiki/C_(programming_language)) (using [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/), [`cproc`](https://github.com/michaelforney/cproc), [`cuik`](https://github.com/RealNeGate/Cuik/), [`tcc`](https://bellard.org/tcc/))
-- [C++](https://isocpp.org/) (using [`g++`](https://gcc.gnu.org/), [`clang++`](https://clang.llvm.org/))
-- [C3](https://c3-lang.org/) (using [`c3c`](https://github.com/c3lang/c3c))
-- [Crystal](https://crystal-lang.org/) (using [`crystal`](https://crystal-lang.org/))
-- [D](https://dlang.org/) (using [`dmd`](https://dlang.org/download.html), [`ldmd2`](https://github.com/ldc-developers/ldc), [`gdc`](https://gcc.gnu.org/wiki/GDC))
-- [Fortran](https://gcc.gnu.org/wiki/GFortran) (using `gfortran`)
-- [Go](https://golang.org/) (using `go`, `gccgo`)
-- [Hare](https://harelang.org/) (using `hare`)
-- [Haskell](https://www.haskell.org/) (using `ghc`)
-- [Hylo](https://www.hylo-lang.org/) (using `hc`)
-- [Nim](https://nim-lang.org/) (using `nim`)
-- [OCaml](https://ocaml.org/) (using `ocamlopt`)
-- [Odin](https://odin-lang.org/) (using `odin`)
-- [Pareas](https://github.com/Snektron/pareas) (using `pareas`)
-- [Pascal](https://www.freepascal.org/) (using `fpc`)
-- [Pony](https://www.ponylang.io/) (using `ponyc`)
-- [Roc](https://www.roc-lang.org/) (using `roc`)
-- [Rust](https://www.rust-lang.org/) (using `rustc`)
-- [Swift](https://swift.org/) (using `swiftc`)
-- [V](https://vlang.io/) (using `v`)
-- [Vox](https://github.com/MrSmith33/vox) (using `vox`)
-- [Zig](https://ziglang.org/) (using `zig`)
-- [Dart](https://dart.dev/) (using `dart`)
-- [SBCL](https://www.sbcl.org/) (using `sbcl`)
-- [Guile](https://www.gnu.org/software/guile/) (using `guild`)
-- [Common-Lisp](https://lisp-lang.org/) (using `emacs`)
-
-### Bytecode, VM, and JIT/Scripting Toolchains
-- [C#](https://learn.microsoft.com/dotnet/csharp/) (using `csc` or `mcs`, executed via `mono`)
-- [F#](https://fsharp.org/) (using `dotnet fsi`)
-- [Java](https://www.oracle.com/java/) (using `javac`, executed via `java`)
-- [Kotlin](https://kotlinlang.org/) (using `kotlin`, executed via `kotlinc`)
-- [Clojure](https://clojure.org/) (using `clojure`)
-- [Julia](https://julialang.org/) (using `julia`)
-- [Lua](https://luajit.org/) (using `luajit`)
-- [OCaml Bytecode](https://ocaml.org/) (using `ocamlc`, executed via `ocamlrun`)
-- [Python](https://www.python.org/) (using `python3`, `pypy3`)
-- [Scheme](https://cisco.github.io/ChezScheme/) (using `chez`, `scheme`)
-- [TypeScript](https://www.typescriptlang.org/) (using `tsc`, executed via `node`)
-- [Emacs-Lisp](https://gnu.support/gnu-emacs/emacs-lisp/index.html) (using `emacs`)
-
-### Support Matrix
-
-Which operations and variants each language participates in. The
-*Tier* column controls which result table a compiler ends up in (see
-[Understanding Metrics and Table
+The *Tier* column controls which result table a compiler ends up in
+(see [Understanding Metrics and Table
 Output](#understanding-metrics-and-table-output)).
 
-| Language | Compilers | Operations | Templated | Tier |
+### Native Ahead-of-Time (AOT) Compilers
+
+| Language | Compilers & Toolchains | Operations | Templated | Tier |
 | :--- | :--- | :--- | :---: | :---: |
-| Ada | `gnat` | check, build | – | 2 |
-| C | `tcc`, `cuik`, `cproc` | check, compile, build | – | 1 |
-| C | `gcc`, `clang` | check, compile, build | – | 2 |
-| C++ | `g++`, `clang++` | check, compile, build | ✓ | 2 |
-| C3 | `c3c` | check, compile, build | ✓ | 2 |
-| C# | `mcs`, `csc` | check, build | – | 3 |
-| F# | `dotnet` | check, run | – | 3 |
-| Common-Lisp | `sbcl` | check, compile, build | – | 3 |
-| Emacs-Lisp | `emacs` | check, compile, build | – | 3 |
-| Crystal | `crystal` | check, build | ✓ | 3 |
-| D | `dmd`, `ldmd2`, `gdc` | check, compile, build | ✓ | 2 |
-| Dart | `dart` | check, compile, build | ✓ | 3 |
-| Fortran | `gfortran` | check, compile, build | – | 2 |
-| Go | `go`, `gccgo` | check, build | ✓ | 2 |
-| Guile | `guild` | check, compile, build | – | 3 |
-| Hare | `hare` | check, build | – | 2 |
-| Haskell | `ghc` | check, build | ✓ | 3 |
-| Hylo | `hc` | check, build | ✓ | 2 |
-| Java | `javac` | check, build | – | 3 |
-| Kotlin | `kotlinc` ,`kotlin` | check, run | – | 3 |
-| Clojure | `clojure` | check, run | – | 3 |
-| Julia | `julia` | check, build | ✓ | 3 |
-| Lua | `luajit` | check, compile, build | – | 3 |
-| Nim | `nim` | check, build | ✓ | 2 |
-| OCaml | `ocamlopt`, `ocamlc` | check, build | – | 3 |
-| Odin | `odin` | check, build | ✓ | 2 |
-| Pareas | `pareas` | check, build | – | 2 |
-| Pascal | `fpc` | check, compile, build | – | 2 |
-| Pony | `ponyc` | check, build | – | 2 |
-| Python | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
-| Roc | `roc` | check, build, run | – | 2 |
-| Rust | `rustc` | check, build | ✓ | 2 |
-| Scheme | `chez`, `scheme` | check, compile, build | – | 3 |
-| Swift | `swiftc` | check, build | ✓ | 2 |
-| TypeScript | `tsc` | check, compile, build | ✓ | 3 |
-| V | `v` | check, build | ✓ | 2 |
-| Vox | `vox` | check, build | ✓ | 2 |
-| Zig | `zig` | ast-check, check, compile, build | ✓ | 2 |
+| [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) | `gnat` | check, build | – | 2 |
+| [C](https://en.wikipedia.org/wiki/C_(programming_language)) | `tcc`, `cuik`, `cproc` | check, compile, build | – | 1 |
+| [C](https://en.wikipedia.org/wiki/C_(programming_language)) | [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/) | check, compile, build | – | 2 |
+| [C++](https://isocpp.org/) | [`g++`](https://gcc.gnu.org/), [`clang++`](https://clang.llvm.org/) | check, compile, build | ✓ | 2 |
+| [C3](https://c3-lang.org/) | [`c3c`](https://github.com/c3lang/c3c) | check, compile, build | ✓ | 2 |
+| [Crystal](https://crystal-lang.org/) | [`crystal`](https://crystal-lang.org/) | check, build | ✓ | 3 |
+| [D](https://dlang.org/) | [`dmd`](https://dlang.org/download.html), [`ldmd2`](https://github.com/ldc-developers/ldc), [`gdc`](https://gcc.gnu.org/wiki/GDC) | check, compile, build | ✓ | 2 |
+| [Fortran](https://gcc.gnu.org/wiki/GFortran) | `gfortran` | check, compile, build | – | 2 |
+| [Go](https://golang.org/) | `go`, `gccgo` | check, build | ✓ | 2 |
+| [Guile](https://www.gnu.org/software/guile/) | `guild` | check, compile, build | – | 3 |
+| [Hare](https://harelang.org/) | `hare` | check, build | – | 2 |
+| [Haskell](https://www.haskell.org/) | `ghc` | check, build | ✓ | 3 |
+| [Hylo](https://www.hylo-lang.org/) | `hc` | check, build | ✓ | 2 |
+| [Nim](https://nim-lang.org/) | `nim` | check, build | ✓ | 2 |
+| [OCaml](https://ocaml.org/) | `ocamlopt` | check, build | – | 3 |
+| [Odin](https://odin-lang.org/) | `odin` | check, build | ✓ | 2 |
+| [Pareas](https://github.com/Snektron/pareas) | `pareas` | check, build | – | 2 |
+| [Pascal](https://www.freepascal.org/) | `fpc` | check, compile, build | – | 2 |
+| [Pony](https://www.ponylang.io/) | `ponyc` | check, build | – | 2 |
+| [Roc](https://www.roc-lang.org/) | `roc` | check, build, run | – | 2 |
+| [Rust](https://www.rust-lang.org/) | `rustc` | check, build | ✓ | 2 |
+| [Swift](https://swift.org/) | `swiftc` | check, build | ✓ | 2 |
+| [V](https://vlang.io/) | `v` | check, build | ✓ | 2 |
+| [Vox](https://github.com/MrSmith33/vox) | `vox` | check, build | ✓ | 2 |
+| [Zig](https://ziglang.org/) | `zig` | ast-check, check, compile, build | ✓ | 2 |
+| [Dart](https://dart.dev/) | `dart` | check, compile, build | ✓ | 3 |
+| [SBCL](https://www.sbcl.org/) | `sbcl` | check, compile, build | – | 3 |
+| [Common-Lisp](https://lisp-lang.org/) | `emacs` | check, compile, build | – | 3 |
+
+### Bytecode, VM, and JIT/Scripting Toolchains
+
+| Language | Compilers & Toolchains | Operations | Templated | Tier |
+| :--- | :--- | :--- | :---: | :---: |
+| [C#](https://learn.microsoft.com/dotnet/csharp/) | `mcs`, `csc` | check, build | – | 3 |
+| [F#](https://fsharp.org/) | `dotnet` | check, run | – | 3 |
+| [Java](https://www.oracle.com/java/) | `javac` | check, build | – | 3 |
+| [Kotlin](https://kotlinlang.org/) | `kotlinc` ,`kotlin` | check, run | – | 3 |
+| [Clojure](https://clojure.org/) | `clojure` | check, run | – | 3 |
+| [Julia](https://julialang.org/) | `julia` | check, build | ✓ | 3 |
+| [Lua](https://luajit.org/) | `luajit` | check, compile, build | – | 3 |
+| [OCaml Bytecode](https://ocaml.org/) | `ocamlc` | check, build | – | 3 |
+| [Python](https://www.python.org/) | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
+| [Scheme](https://cisco.github.io/ChezScheme/) | `chez`, `scheme` | check, compile, build | – | 3 |
+| [TypeScript](https://www.typescriptlang.org/) | `tsc` | check, compile, build | ✓ | 3 |
+| [Emacs-Lisp](https://gnu.support/gnu-emacs/emacs-lisp/index.html) | `emacs` | check, compile, build | – | 3 |
 
 ### Compiler Discovery
 
