@@ -416,21 +416,21 @@ perform all of them.
 Running:
 
 ```bash
-./benchmark --function-count=3 --function-depth=2 --run-count=5
+./benchmark --languages=C:tcc --fc=3 --fd=2 --run-count=1 --pc
 ```
 
-produces `/tmp/generated_<random>/proc_<PID>/c/main_0.c` (removed
-again after a successful run unless the compiler reported problems):
+outputs
 
 ```c
-long add_long_n0_h0(long x) { return x + 15440; }
-long add_long_n0(long x) { return x + add_long_n0_h0(x) + 95485; }
+long add_long_n0_h0(long x) { return x + 79992; }
+long add_long_n0(long x) { return x + add_long_n0_h0(x) + 67146; }
 
-long add_long_n1_h0(long x) { return x + 37523; }
-long add_long_n1(long x) { return x + add_long_n1_h0(x) + 92492; }
+long add_long_n1_h0(long x) { return x + 79783; }
+long add_long_n1(long x) { return x + add_long_n1_h0(x) + 14363; }
 
-long add_long_n2_h0(long x) { return x + 39239; }
-long add_long_n2(long x) { return x + add_long_n2_h0(x) + 12248; }
+long add_long_n2_h0(long x) { return x + 27403; }
+long add_long_n2(long x) { return x + add_long_n2_h0(x) + 13520; }
+
 
 int main(void) {
     long long_sum = 0;
