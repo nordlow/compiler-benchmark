@@ -302,6 +302,7 @@ codebases rarely trigger, explaining why automatic caps are required:
 - [Dart](https://dart.dev/) (using `dart`)
 - [SBCL](https://www.sbcl.org/) (using `sbcl`)
 - [Guile](https://www.gnu.org/software/guile/) (using `guild`)
+- [Common-Lisp](https://lisp-lang.org/) (using `emacs`)
 
 ### Bytecode, VM, and JIT/Scripting Toolchains
 - [C#](https://learn.microsoft.com/dotnet/csharp/) (using `csc` or `mcs`, executed via `mono`)
@@ -315,6 +316,7 @@ codebases rarely trigger, explaining why automatic caps are required:
 - [Python](https://www.python.org/) (using `python3`, `pypy3`)
 - [Scheme](https://cisco.github.io/ChezScheme/) (using `chez`, `scheme`)
 - [TypeScript](https://www.typescriptlang.org/) (using `tsc`, executed via `node`)
+- [Emacs-Lisp](https://gnu.support/gnu-emacs/emacs-lisp/index.html) (using `emacs`)
 
 ### Support Matrix
 
