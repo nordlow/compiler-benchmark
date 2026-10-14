@@ -299,8 +299,11 @@ Include Zig's AST check and show relative numbers with the best value highlighte
 | `--relative` | `--rel` | `false` | Shortcut for `--values=relative`. |
 | `--highlight-min` | `--hl` | `false` | Highlights the lowest (best) metric in each column with HTML badges (applies in every `--values` mode). |
 | `--path` | | `None` | Custom search path for locating compiler binaries. |
+| `--sort` | `--sort-by` | `total` | Column to sort table results by (`total`, `name`, `lang`, `check`, `compile`, `build`, `run`, `check-rss`, `build-rss`, `output-size`, `size`). Total = Build + Run. |
+| `--sort-reverse` | `--sort-desc` | `false` | Sort table results in descending order instead of ascending. |
 | `--verbose` | `-v` | `false` | Verbose logging (source generation and per-operation timings). |
 | `--progress` | `--progress-format` | `auto` | Progress display: `auto` (tree on capable terminals, line otherwise, none when not a TTY), `tree`, `line`, or `none`. |
+| `--print-code` | `--print-generated-code`, `--show-code`, `--pc` | `false` | Print the resulting generated code (sets defaults `--fc=2`, `--fd=2`, `--rc=1`). |
 
 ### Parallel Execution Architecture
 
