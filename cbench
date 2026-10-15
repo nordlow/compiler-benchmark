@@ -2380,36 +2380,37 @@ def bm_Vox(results: Results, code_paths, args: argparse.Namespace, op, templated
                           results=results)
 
 
-register_language(LangSupport(
-    name=Lang('Vox'), exes=[Exec('vox')], extension=FileExt('vx'), int_type=TypeName('i64'),
-    runners=[bm_Vox],
-    ops=('check', 'build'),
-    templated_variants=(False, True),
-    versions=[VersionSpec(('vox',), fixed='master')],
-    func_emitter=make_func_emitter(
-        define=lambda fname, typ, expr, t: (
-            f"{'T' if t else typ} {fname}{'[T]' if t else ''}({'T' if t else typ} x) {{ return {expr}; }}\n"),
-        chain=lambda typ, t, prev, c: (f"x + {prev}[{typ}](x) + {c}" if t else f"x + {prev}(x) + {c}"),
-    ),
-    prefix=lambda program_name, t: (
-        "enum u32 stdin = 0;\n"
-        "enum u32 stdout = 1;\n"
-        "enum u32 stderr = 2;\n"
-        "\n"
-        "@extern(syscall, 60)\n"
-        "void exit(i32 error_code);\n"
-        "\n"
-        "@extern(syscall, 1)\n"
-        "void sys_write(u32 fd, u8* buf, u64 count);\n"
-        "\n"
-        "void write(u32 fd, u8[] data) {\n"
-        "\tsys_write(fd, data.ptr, data.length);\n"
-        "}\n"),
-    main_header=lambda types, t: 'i32 main() {\n',
-    var_decl=lambda typ, t: f"    {typ} {typ}_sum = 0;\n",
-    call=lambda i, typ, t: f"    {typ}_sum += {function_name(typ, i)}{'[' + typ + ']' if t else ''}({i})",
-    postfix=lambda types: "    exit(0);\n    return 0;\n}\n",
-))
+if False:						# disabled for now until I get this to work
+	register_language(LangSupport(
+		name=Lang('Vox'), exes=[Exec('vox')], extension=FileExt('vx'), int_type=TypeName('i64'),
+		runners=[bm_Vox],
+		ops=('check', 'build'),
+		templated_variants=(False, True),
+		versions=[VersionSpec(('vox',), fixed='master')],
+		func_emitter=make_func_emitter(
+			define=lambda fname, typ, expr, t: (
+				f"{'T' if t else typ} {fname}{'[T]' if t else ''}({'T' if t else typ} x) {{ return {expr}; }}\n"),
+			chain=lambda typ, t, prev, c: (f"x + {prev}[{typ}](x) + {c}" if t else f"x + {prev}(x) + {c}"),
+		),
+		prefix=lambda program_name, t: (
+			"enum u32 stdin = 0;\n"
+			"enum u32 stdout = 1;\n"
+			"enum u32 stderr = 2;\n"
+			"\n"
+			"@extern(syscall, 60)\n"
+			"void exit(i32 error_code);\n"
+			"\n"
+			"@extern(syscall, 1)\n"
+			"void sys_write(u32 fd, u8* buf, u64 count);\n"
+			"\n"
+			"void write(u32 fd, u8[] data) {\n"
+			"\tsys_write(fd, data.ptr, data.length);\n"
+			"}\n"),
+		main_header=lambda types, t: 'i32 main() {\n',
+		var_decl=lambda typ, t: f"    {typ} {typ}_sum = 0;\n",
+		call=lambda i, typ, t: f"    {typ}_sum += {function_name(typ, i)}{'[' + typ + ']' if t else ''}({i})",
+		postfix=lambda types: "    exit(0);\n    return 0;\n}\n",
+	))
 
 
 def bm_Pony(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
