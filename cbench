@@ -527,8 +527,9 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
             continue
         if cexe.startswith('dmd'):
             version = get_compiler_version(cexe)
-            old_preload = os.environ.get('LD_PRELOAD')
-            os.environ['LD_PRELOAD'] = '/usr/lib/libmimalloc.so'
+            if os.path.exists('/usr/lib/libmimalloc.so'):
+                old_preload = os.environ.get('LD_PRELOAD')
+                os.environ['LD_PRELOAD'] = '/usr/lib/libmimalloc.so'
             try:
                 benchmark_compiler_op(code_paths=code_paths,
                                       out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
