@@ -1920,7 +1920,7 @@ register_language(LangSupport(
     ops=('check', 'build'),
     templated_variants=(False, True),
     tier=3,
-    limit_args=_swift_limits,
+    limit_args=_crystal_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
             f"def {fname}(x); return {expr}; end\n" if t
@@ -2204,8 +2204,11 @@ def bm_OCaml(results: Results, code_paths, args: argparse.Namespace, op, templat
 def _ocaml_julia_limits(args: argparse.Namespace) -> list[str]:
     # These scale poorly on deeply nested functions with large synthetic function counts.
     if args.function_count * args.function_depth >= OCAML_JULIA_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {OCAML_JULIA_CAPPED_DIM}x{OCAML_JULIA_CAPPED_DIM} due to nested call-tree scaling limits")
         args.function_count = OCAML_JULIA_CAPPED_DIM
         args.function_depth = OCAML_JULIA_CAPPED_DIM
+        return [msg]
     return []
 
 
@@ -2524,7 +2527,7 @@ register_language(LangSupport(
     templated_variants=(False, True),
     aliases=('ts', 'tsc'),
     tier=3,
-    limit_args=_swift_limits,
+    limit_args=_typescript_limits,
     out_binary=DEFAULT_PROGRAM_NAME + '.js',
     native_output=_never_native,
     func_emitter=make_func_emitter(
