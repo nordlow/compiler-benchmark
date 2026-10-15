@@ -212,6 +212,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Python](https://www.python.org/) | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
 | [Scheme](https://cisco.github.io/ChezScheme/) | `chez`, `scheme` | check, compile, build | – | 3 |
 | [TypeScript](https://www.typescriptlang.org/) | `tsc` | check, compile, build | ✓ | 3 |
+| [R](https://www.r-project.org/) | `R` | check, compile, build | ✓ | 3 |
 
 ### Compiler Discovery
 
