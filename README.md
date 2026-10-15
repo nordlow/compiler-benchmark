@@ -193,8 +193,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Vox](https://github.com/MrSmith33/vox) | `vox` | check, build | ✓ | 2 |
 | [Zig](https://ziglang.org/) | `zig` | ast-check, check, compile, build | ✓ | 2 |
 | [Dart](https://dart.dev/) | `dart` | check, compile, build | ✓ | 3 |
-| [SBCL](https://www.sbcl.org/) | `sbcl` | check, compile, build | – | 3 |
-| [Common-Lisp](https://lisp-lang.org/) | `emacs` | check, compile, build | – | 3 |
+| [Common-Lisp](https://lisp-lang.org/) | `sbcl` | check, compile, build | – | 3 |
 
 ### Bytecode, VM, and JIT/Scripting Toolchains
 
@@ -352,7 +351,7 @@ Results are printed as Markdown tables, split into three tiers according to comp
 | **Tier 2: Modern Systems Languages (Ahead-of-Time)** | Full type inference, monomorphization/generics, semantic safety, module systems. |
 | **Tier 3: Managed & VM / JIT / Scripting** | Bytecode emission, runtime metadata, GC runtimes. |
 
-Rows within a tier are sorted alphabetically. Relative values and highlighting are computed per tier table.
+Rows within a tier are sorted by **Total=Build+Run** duration in ascending order. Relative values and highlighting are computed per tier table.
 
 All metric columns in the output Markdown table are normalized per generated function:
 
@@ -467,23 +466,8 @@ effectively bypassed by this randomization. The Hare cache directory
 Because synthetic code generators create tens of thousands of deeply
 nested symbols, compilers encounter internal capacity or scaling
 limits. The benchmark automatically enforces stability caps on
-affected languages (unaffected languages run at full requested size):
-
-- **Pony**: Capped to $30 \times 30$ ($900$ functions) due to `ponyc` capability checker limits.
-- **Roc**: Capped to $50 \times 50$ ($2{,}500$ functions) due to compiler limits.
-- **Guile**: Capped to $70 \times 70$ ($4{,}900$ functions) due to Tree-IL CPS compiler scaling limits.
-- **Ada**: Capped to $100 \times 100$ ($10{,}000$ functions) due to quadratic scaling in `gnatbind` elaboration analysis.
-- **Swift**: Capped to $100 \times 100$ ($10{,}000$ functions) due to `swiftc` constraint solver limits.
-- **Crystal & TypeScript**: Capped to $100 \times 100$ ($10{,}000$ functions) due to global type inference and AST heap limits.
-- **Haskell**: Capped to $100 \times 100$ ($10{,}000$ functions) due to GHC scaling limits.
-- **Fortran**: Capped to $100 \times 100$ ($10{,}000$ functions) due to `gfortran` module symbol table limits.
-- **Java**: Capped to $100 \times 100$ ($10{,}000$ functions) to prevent exceeding the JVM $65{,}535$ constant pool limit per class file.
-- **Cuik**: Function count and depth are each capped to $100$ due to compiler stability limits.
-- **Lua / LuaJIT**: Capped to $150 \times 150$ ($22{,}500$ functions) to avoid exceeding the LuaJIT bytecode chunk constant limit ($65{,}536$).
-- **OCaml & Julia**: Capped to $200 \times 200$ once requested total functions exceed $10{,}000$ due to nested call-tree scaling limits.
-- **Nim**: `--function-depth` is automatically truncated to $50$ due to Nim's internal recursion limit on generic instantiations.
-
-A warning is logged to `stderr` whenever a cap is applied.
+affected languages (unaffected languages run at full requested
+size). A warning is logged to `stderr` whenever a cap is applied.
 
 ---
 
