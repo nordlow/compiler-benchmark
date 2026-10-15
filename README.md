@@ -10,8 +10,9 @@ approaches are most welcome.
 
 ### ⚡ Highlights & Key Findings (AMD Ryzen AI 7 350)
 
-* **DMD’s Custom Backend Outperforms by 6×–38× vs. C/C++ (and Up to 120× Across Systems Languages):** Digital Mars D (`dmd`) achieves **13
-  µs/function** (`µs/f` in table) (full semantic check + native
+* **DMD’s Custom Backend Outperforms by 6×–38× vs. C/C++ (and Up to
+  120× Across Systems Languages):** Digital Mars D (`dmd`) achieves
+  **13 µs/function** (`µs/f` in table) (full semantic check + native
   codegen + linking), easily outpacing minimalist C compilers like
   `cuik` and `cproc`. Crucially, DMD dramatically outperforms modern
   languages marketed for fast iteration—**even when testing Zig using
