@@ -10,8 +10,7 @@ approaches are most welcome.
 
 ### ⚡ Highlights & Key Findings (AMD Ryzen AI 7 350)
 
-* **DMD’s Custom Backend Outperforms by 6×–38× (and Demolishes the
-  "Fast Compile" Alternatives):** Digital Mars D (`dmd`) achieves **13
+* **DMD’s Custom Backend Outperforms by 6×–38× vs. C/C++ (and Up to 120× Across Systems Languages):** Digital Mars D (`dmd`) achieves **13
   µs/function** (`µs/f` in table) (full semantic check + native
   codegen + linking), easily outpacing minimalist C compilers like
   `cuik` and `cproc`. Crucially, DMD dramatically outperforms modern
@@ -41,13 +40,15 @@ approaches are most welcome.
   ahead-of-time pack at **80–89 µs/f**, with `Odin` (105 µs/f) close
   behind, while `Rust` (184 µs/f) significantly outpaces GCC-based
   C/C++ (~441–483 µs/f).
-* **The Monomorphization Penalty:** Zig demonstrates near-zero generic
-  overhead (`comptime` uniform scalars) whereas others have a noticeably
-  overhead of 1.5x to 2x.
-* **Untyped vs. Typed Speed:** LuaJIT emits bytecode in 5 µs/f, but
-  performs zero compile-time type verification or linking—making DMD's
-  fully-typed, native-linked 13 µs/f an extraordinary engineering
-  contrast.
+* **The Monomorphization Penalty:** Both `Zig` (+7%) and `Rust` (+3%)
+  demonstrate near-zero generic build overhead. Compilers like `C3` (1.7×),
+  `Swift` (1.9×), and `V` (3.0×) suffer noticeable monomorphization penalties,
+  whereas several compilers (`ldmd2`, `Odin`, `Nim`, `Crystal`, `Julia`)
+  actually build templated scalar code faster than non-generic equivalents.
+* **Untyped vs. Typed Speed:** LuaJIT emits bytecode in 3.3 µs/f (5 µs/f
+  Total including execution), but performs zero compile-time type
+  verification or linking—making DMD's fully-typed, native-linked 13 µs/f
+  an extraordinary engineering contrast.
 
 ---
 
@@ -136,9 +137,9 @@ The output on Arch Linux (as of 2026-09) for the sample call
   single translation unit consisting of synthetic arithmetic call
   chains. The most critical metric for developer productivity is the
   **feedback loop duration**—the combined duration required for a fast
-  incremental (semantic) check, rebuild, and rerun of unit tests. In
-  the tables below, this is stored in the column titled
-  "Total=Build+Run".
+  incremental (semantic) check ("Check"), rebuild, and rerun of unit
+  tests ("Total=Build+Run"). In the tables above, the rebuild and rerun
+  time is stored in the column titled "Total=Build+Run".
 - **Architectural tradeoffs:** Compilers with single-pass
   architectures (e.g., `tcc`) or minimal semantic models will
   naturally outperform multi-pass optimizing compilers (e.g., `rustc`,
@@ -163,7 +164,7 @@ The *Tier* column controls which result table a compiler ends up in
 (see [Understanding Metrics and Table
 Output](#understanding-metrics-and-table-output)).
 
-### Native Ahead-of-Time (AOT) Compilers
+### Native Ahead-of-Time (AOT) Compilers (Tiers 1 & 2)
 
 | Language | Compilers & Toolchains | Operations | Templated | Tier |
 | :--- | :--- | :--- | :---: | :---: |
@@ -172,16 +173,12 @@ Output](#understanding-metrics-and-table-output)).
 | [C](https://en.wikipedia.org/wiki/C_(programming_language)) | [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/) | check, compile, build | – | 2 |
 | [C++](https://isocpp.org/) | [`g++`](https://gcc.gnu.org/), [`clang++`](https://clang.llvm.org/) | check, compile, build | ✓ | 2 |
 | [C3](https://c3-lang.org/) | [`c3c`](https://github.com/c3lang/c3c) | check, compile, build | ✓ | 2 |
-| [Crystal](https://crystal-lang.org/) | [`crystal`](https://crystal-lang.org/) | check, build | ✓ | 3 |
 | [D](https://dlang.org/) | [`dmd`](https://dlang.org/download.html), [`ldmd2`](https://github.com/ldc-developers/ldc), [`gdc`](https://gcc.gnu.org/wiki/GDC) | check, compile, build | ✓ | 2 |
 | [Fortran](https://gcc.gnu.org/wiki/GFortran) | `gfortran` | check, compile, build | – | 2 |
 | [Go](https://golang.org/) | `go`, `gccgo` | check, build | ✓ | 2 |
-| [Guile](https://www.gnu.org/software/guile/) | `guild` | check, compile, build | – | 3 |
 | [Hare](https://harelang.org/) | `hare` | check, build | – | 2 |
-| [Haskell](https://www.haskell.org/) | `ghc` | check, build | ✓ | 3 |
 | [Hylo](https://www.hylo-lang.org/) | `hc` | check, build | ✓ | 2 |
 | [Nim](https://nim-lang.org/) | `nim` | check, build | ✓ | 2 |
-| [OCaml](https://ocaml.org/) | `ocamlopt` | check, build | – | 3 |
 | [Odin](https://odin-lang.org/) | `odin` | check, build | ✓ | 2 |
 | [Pareas](https://github.com/Snektron/pareas) | `pareas` | check, build | – | 2 |
 | [Pascal](https://www.freepascal.org/) | `fpc` | check, compile, build | – | 2 |
@@ -192,25 +189,28 @@ Output](#understanding-metrics-and-table-output)).
 | [V](https://vlang.io/) | `v` | check, build | ✓ | 2 |
 | [Vox](https://github.com/MrSmith33/vox) | `vox` | check, build | ✓ | 2 |
 | [Zig](https://ziglang.org/) | `zig` | ast-check, check, compile, build | ✓ | 2 |
-| [Dart](https://dart.dev/) | `dart` | check, compile, build | ✓ | 3 |
-| [Common-Lisp](https://lisp-lang.org/) | `sbcl` | check, compile, build | – | 3 |
 
-### Bytecode, VM, and JIT/Scripting Toolchains
+### Managed, VM, JIT & Other Language Toolchains (Tier 3)
 
 | Language | Compilers & Toolchains | Operations | Templated | Tier |
 | :--- | :--- | :--- | :---: | :---: |
 | [C#](https://learn.microsoft.com/dotnet/csharp/) | `mcs`, `csc` | check, build | – | 3 |
-| [F#](https://fsharp.org/) | `dotnet` | check, run | – | 3 |
-| [Java](https://www.oracle.com/java/) | `javac` | check, build | – | 3 |
-| [Kotlin](https://kotlinlang.org/) | `kotlinc` ,`kotlin` | check, run | – | 3 |
 | [Clojure](https://clojure.org/) | `clojure` | check, run | – | 3 |
+| [Common-Lisp](https://lisp-lang.org/) | `sbcl` | check, compile, build | – | 3 |
+| [Crystal](https://crystal-lang.org/) | `crystal` | check, build | ✓ | 3 |
+| [Dart](https://dart.dev/) | `dart` | check, compile, build | ✓ | 3 |
+| [Emacs-Lisp](https://gnu.support/gnu-emacs/emacs-lisp/index.html) | `emacs` | check, compile, build | – | 3 |
+| [F#](https://fsharp.org/) | `dotnet` | check, run | – | 3 |
+| [Guile](https://www.gnu.org/software/guile/) | `guild` | check, compile, build | – | 3 |
+| [Haskell](https://www.haskell.org/) | `ghc` | check, build | ✓ | 3 |
+| [Java](https://www.oracle.com/java/) | `javac` | check, build | – | 3 |
 | [Julia](https://julialang.org/) | `julia` | check, build | ✓ | 3 |
+| [Kotlin](https://kotlinlang.org/) | `kotlinc`, `kotlin` | check, run | – | 3 |
 | [Lua](https://luajit.org/) | `luajit` | check, compile, build | – | 3 |
-| [OCaml Bytecode](https://ocaml.org/) | `ocamlc` | check, build | – | 3 |
+| [OCaml](https://ocaml.org/) | `ocamlc`, `ocamlopt` | check, build | – | 3 |
 | [Python](https://www.python.org/) | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
 | [Scheme](https://cisco.github.io/ChezScheme/) | `chez`, `scheme` | check, compile, build | – | 3 |
 | [TypeScript](https://www.typescriptlang.org/) | `tsc` | check, compile, build | ✓ | 3 |
-| [Emacs-Lisp](https://gnu.support/gnu-emacs/emacs-lisp/index.html) | `emacs` | check, compile, build | – | 3 |
 
 ### Compiler Discovery
 
@@ -245,7 +245,7 @@ The benchmark supports up to five distinct operations per compiler target:
 | **Build** | `build` | Full end-to-end compilation and linking producing an executable binary (or bytecode/script artifact for VM languages). |
 | **Run** | `run` | Measures execution time of the built artifact over `--run-count` runs. Not a standalone task: the run is performed automatically right after each successful `build`. |
 
-The default operations are `check`, `compile`, `build` and `run`. An operation is only executed for languages that support it (see the [Support Matrix](#support-matrix)); unsupported combinations are skipped.
+The default operations are `check`, `compile`, `build` and `run`. An operation is only executed for languages that support it (see [Supported Languages and Compilers](#supported-languages-and-compilers)); unsupported combinations are skipped.
 
 ---
 
