@@ -12,24 +12,28 @@ approaches are most welcome.
 
 * **DMD’s Custom Backend Outperforms by 6×–38× (and Demolishes the
   "Fast Compile" Alternatives):** Digital Mars D (`dmd`) achieves **13
-  µs/function** (`µs/f` in table) (full semantic check + native codegen + linking),
-  easily outpacing minimalist C compilers like `cuik` and
-  `cproc`. Crucially, DMD dramatically outperforms modern languages
-  marketed for fast iteration—**even when testing Zig using its
-  custom, non-LLVM backend**. The major caveat is that Zig features an
-  experimental, built-in (incremental) build server mode that keeps
-  the compiler resident in memory to patch binaries in-place—a
-  paradigm shift that DMD completely lacks, and one that fundamentally
-  changes inner-loop performance when active. However, because not all
-  workflows can leverage a persistent daemon (e.g., CI/CD pipelines,
-  clean rebuilds, batch scripts, and integration with external build
-  systems), DMD's sheer cold-compilation throughput remains
-  unmatched. At the same time, cross-toolchain D benchmarks cleanly
-  isolate the backend tax: all LLVM-based compilers are at least **~6×
-  slower** slower proving that without architectural gimmicks or LLVM
-  bloat, Walter Bright solved batch build latency decades ago. As a
-  side-note, DMD compiles itself in debug mode in 2.5s on this same
-  machine.
+  µs/function** (`µs/f` in table) (full semantic check + native
+  codegen + linking), easily outpacing minimalist C compilers like
+  `cuik` and `cproc`. Crucially, DMD dramatically outperforms modern
+  languages marketed for fast iteration—**even when testing Zig using
+  its custom, non-LLVM backend**. The major caveat is that Zig
+  features an experimental, built-in (incremental) build server mode
+  that keeps the compiler resident in memory to patch binaries
+  in-place—a paradigm shift that DMD completely lacks, and one that
+  fundamentally changes inner-loop performance when active. However,
+  because not all workflows can leverage a persistent daemon (e.g.,
+  CI/CD pipelines, clean rebuilds, batch scripts, and integration with
+  external build systems), DMD's sheer cold-compilation throughput
+  remains unmatched. In particular, the rise of agentic coding
+  workflows—where AI agents continuously spin up ephemeral
+  environments, perform clean checkouts, and execute rapid test-refine
+  loops without warm caches—makes this cold-start advantage
+  increasingly vital. At the same time, cross-toolchain D benchmarks
+  cleanly isolate the backend tax: all LLVM-based compilers are at
+  least **~6× slower** slower proving that without architectural
+  gimmicks or LLVM bloat, Walter Bright solved batch build latency
+  decades ago. As a side-note, DMD compiles itself in debug mode in
+  2.5s on this same machine.
 * **TCC Leads Single-Pass C:** The Tiny C Compiler (`tcc`) streams
   machine code at **3 µs/f**, remaining the undisputed speed champion
   for raw C ingestion.
