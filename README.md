@@ -88,7 +88,6 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |         Ada (gnat 16.2.1)          |           957=957+0.41           |       32.3      |      N/A       |       19.8       |          51.7          |       263.0       |
 |     Fortran (gfortran 16.2.1)      |          1076=1076+0.20          |      566.3      |     1081.2     |       22.0       |          37.7          |       140.8       |
 |         Swift (swiftc 6.4)         | 1167=1167+0.82<br>2175=2175+0.82 | 621.9<br>1272.8 |      N/A       |   33.4<br>36.6   |      60.2<br>75.1      |   208.5<br>531.3  |
-|          Vox (vox master)          |               N/A                |       N/A       |      N/A       |    0.7<br>0.5    |       0.6<br>0.8       |        N/A        |
 
 
 ### Single-Pass / Minimalist Compilers
@@ -189,7 +188,6 @@ Output](#understanding-metrics-and-table-output)).
 | [Rust](https://www.rust-lang.org/) | `rustc` | check, build | ✓ | 2 |
 | [Swift](https://swift.org/) | `swiftc` | check, build | ✓ | 2 |
 | [V](https://vlang.io/) | `v` | check, build | ✓ | 2 |
-| [Vox](https://github.com/MrSmith33/vox) | `vox` | check, build | ✓ | 2 |
 | [Zig](https://ziglang.org/) | `zig` | ast-check, check, compile, build | ✓ | 2 |
 
 ### Managed, VM, JIT & Other Language Toolchains (Tier 3)
