@@ -98,6 +98,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 | C (tcc 0.9.28rc) |        3=3+0.21        |     2.0      |      2.0       |       1.0        |       0.7        |        90.1       |
 | C (cuik ~master) |       51=51+0.20       |     3.7      |      38.4      |       3.2        |       71.5       |       114.4       |
 |    C (cproc)     |       80=79+0.20       |     8.9      |      69.1      |       2.4        |       3.6        |        90.1       |
+| Forth (gforth 0.7.3) |       15=15+0.39       |     6.7      |      15.3      |       0.5        |       2.0        |        N/A        |
 
 
 ### Managed & VM / JIT / Scripting
