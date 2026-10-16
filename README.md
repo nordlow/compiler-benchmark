@@ -114,6 +114,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |       C# (mcs 6.12.0.0)       |           50=35+15.4           |       33.8       |      N/A       |       5.0        |          5.2           |        N/A        |
 |     Python (pypy3 3.12.14)    |     63=54+9.1<br>64=55+9.1     |   45.6<br>57.2   |  48.4<br>54.6  |   11.2<br>12.3   |      13.0<br>14.5      |        N/A        |
 |      OCaml (ocamlc 5.5.0)     |          137=137+0.05          |      120.3       |      N/A       |       16.8       |          20.4          |        N/A        |
+|   Perl (perl 42.3)             |            5=5+0.07            |       4.7        |      N/A       |       2.6        |          3.0           |        N/A        |
 |   Emacs-Lisp (emacs 32.0.50)  |          166=149+17.2          |      141.4       |     151.3      |       8.5        |          8.5           |        N/A        |
 |   Erlang (erlc 17.1)          |            91=86+5.4           |      N/A         |      85.4      |       N/A        |         19.6           |        N/A        |
 |   Elixir (elixir 1.20.4)      |         1724=1719+5.2          |      N/A         |      N/A       |       N/A        |         68.8           |        N/A        |
@@ -215,6 +216,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Julia](https://julialang.org/) | `julia` | check, build | ✓ | 3 |
 | [Kotlin](https://kotlinlang.org/) | `kotlinc`, `kotlin` | check, run | – | 3 |
 | [Lua](https://luajit.org/) | `luajit` | check, compile, build | – | 3 |
+| [Perl](https://www.perl.org/) | `perl` | check, build | – | 3 |
 | [OCaml](https://ocaml.org/) | `ocamlc`, `ocamlopt` | check, build | – | 3 |
 | [Python](https://www.python.org/) | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
 | [Scheme](https://cisco.github.io/ChezScheme/) | `chez`, `scheme` | check, compile, build | – | 3 |
@@ -234,7 +236,7 @@ Output](#understanding-metrics-and-table-output)).
   Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for
   Guile, `luajit` for Lua, `chez` for Scheme,
   `lisp`/`sbcl`/`commonlisp` for Common-Lisp, `erl` for Erlang,
-  `ex`/`exs` for Elixir, and `node`/`js` for
+  `ex`/`exs` for Elixir, `pl` for Perl, and `node`/`js` for
   JavaScript).
 - When `rustup` is available, Rust is benchmarked on both the `stable`
   and `nightly` channels. Note that this switches your `rustup`
