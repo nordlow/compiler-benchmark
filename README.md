@@ -116,6 +116,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |      OCaml (ocamlc 5.5.0)     |          137=137+0.05          |      120.3       |      N/A       |       16.8       |          20.4          |        N/A        |
 |   Emacs-Lisp (emacs 32.0.50)  |          166=149+17.2          |      141.4       |     151.3      |       8.5        |          8.5           |        N/A        |
 |   Erlang (erlc 17.1)          |            91=86+5.4           |      N/A         |      85.4      |       N/A        |         19.6           |        N/A        |
+|   Elixir (elixir 1.20.4)      |         1724=1719+5.2          |      N/A         |      N/A       |       N/A        |         68.8           |        N/A        |
 |   C# (csc 3.9.0-6.21124.20)   |          194=186+7.9           |       47.4       |      N/A       |       7.7        |          10.0          |        N/A        |
 |      Scheme (chez 10.3.0)     |          262=247+15.4          |       8.2        |     287.5      |       1.4        |          11.9          |        N/A        |
 |       Dart (dart 3.13.5)      |  298=297+0.39<br>427=427+0.41  |  182.5<br>248.8  | 295.0<br>437.7 |   13.1<br>15.7   |      10.4<br>11.0      |   430.6<br>500.3  |
@@ -203,6 +204,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Common-Lisp](https://lisp-lang.org/) | `sbcl` | check, compile, build | – | 3 |
 | [Crystal](https://crystal-lang.org/) | `crystal` | check, build | ✓ | 3 |
 | [Dart](https://dart.dev/) | `dart` | check, compile, build | ✓ | 3 |
+| [Elixir](https://elixir-lang.org/) | `elixir` | check, build | – | 3 |
 | [Emacs-Lisp](https://gnu.support/gnu-emacs/emacs-lisp/index.html) | `emacs` | check, compile, build | – | 3 |
 | [Erlang](https://www.erlang.org/) | `erlc` | check, compile, build | – | 3 |
 | [F#](https://fsharp.org/) | `dotnet` | check, run | – | 3 |
@@ -231,7 +233,8 @@ Output](#understanding-metrics-and-table-output)).
   aliases are accepted (e.g. `ts`/`tsc` for TypeScript, `fpc` for
   Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for
   Guile, `luajit` for Lua, `chez` for Scheme,
-  `lisp`/`sbcl`/`commonlisp` for Common-Lisp, `erl` for Erlang, and `node`/`js` for
+  `lisp`/`sbcl`/`commonlisp` for Common-Lisp, `erl` for Erlang,
+  `ex`/`exs` for Elixir, and `node`/`js` for
   JavaScript).
 - When `rustup` is available, Rust is benchmarked on both the `stable`
   and `nightly` channels. Note that this switches your `rustup`
