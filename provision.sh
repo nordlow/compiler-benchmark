@@ -14,11 +14,11 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure"
+    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
-    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp,kotlin,clojure"
+    echo "  $0 --languages=zig,rust,pareas,cproc,crystal,odin,scheme,pony,roc,fsharp,kotlin,clojure,forth"
     exit 0
 }
 
@@ -573,4 +573,22 @@ fi
 if should_install "clojure"; then
     echo ">> Checking Clojure..."
     pkg_install clojure
+fi
+
+# Forth (gforth, 4th, retroforth, kforth-64)
+if should_install "forth" || should_install "gforth"; then
+    echo ">> Checking Forth compilers..."
+    if [ "$OS" == "arch" ]; then
+        if command -v paru &> /dev/null; then
+            paru -S --needed gforth 4th retroforth kforth-64
+        elif command -v yay &> /dev/null; then
+            yay -S --needed gforth 4th retroforth kforth-64
+        else
+            echo "Error: paru (or yay) is required to install Forth packages from the AUR on Arch." >&2
+            exit 1
+        fi
+    else
+        echo ">> Note: AUR Forth packages are Arch-only. Installing gforth via apt..."
+        pkg_install gforth
+    fi
 fi
