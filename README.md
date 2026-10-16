@@ -126,6 +126,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |    Common-Lisp (sbcl 2.6.9)   |          536=536+0.41          |      462.2       |     481.0      |       4.3        |          5.6           |       1481.3      |
 |     F# (dotnet 14.0.112.0)    |         1994=1994+0.0          |      1164.1      |      N/A       |       43.9       |          61.3          |        N/A        |
 |      Haskell (ghc 9.6.7)      | 3823=3821+1.6<br>4138=4136+1.6 | 2272.5<br>2277.9 |      N/A       |   62.6<br>63.9   | 81.5<br>sampling error |   657.3<br>616.3  |
+|  JavaScript (node 26.11.1)    |            6=5+0.41            |       2.1        |      N/A       |       2.2        |          2.8           |        N/A        |
 |    Kotlin (kotlinc 2.4.21)    |         4446=4435+11.5         |      4492.7      |      N/A       |       81.2       |          79.4          |        N/A        |
 |      Guile (guild 3.0.11)     |         8430=8423+6.6          |      8338.1      |     8317.5     |       56.3       |          58.0          |        N/A        |
 |           R (R 4.6.1)         |         2503=2477+26.5         |       15.2       |     2514.6     |        7.0       |          54.7          |        N/A        |
@@ -205,6 +206,7 @@ Output](#understanding-metrics-and-table-output)).
 | [F#](https://fsharp.org/) | `dotnet` | check, run | – | 3 |
 | [Guile](https://www.gnu.org/software/guile/) | `guild` | check, compile, build | – | 3 |
 | [Haskell](https://www.haskell.org/) | `ghc` | check, build | ✓ | 3 |
+| [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) | `node` | check, build | – | 3 |
 | [Java](https://www.oracle.com/java/) | `javac` | check, build | – | 3 |
 | [Julia](https://julialang.org/) | `julia` | check, build | ✓ | 3 |
 | [Kotlin](https://kotlinlang.org/) | `kotlinc`, `kotlin` | check, run | – | 3 |
@@ -226,8 +228,9 @@ Output](#understanding-metrics-and-table-output)).
 - Language names given to `--languages` are case-insensitive and
   aliases are accepted (e.g. `ts`/`tsc` for TypeScript, `fpc` for
   Pascal, `ghc` for Haskell, `gfortran` for Fortran, `guild` for
-  Guile, `luajit` for Lua, `chez` for Scheme, and
-  `lisp`/`sbcl`/`commonlisp` for Common-Lisp).
+  Guile, `luajit` for Lua, `chez` for Scheme,
+  `lisp`/`sbcl`/`commonlisp` for Common-Lisp, and `node`/`js` for
+  JavaScript).
 - When `rustup` is available, Rust is benchmarked on both the `stable`
   and `nightly` channels. Note that this switches your `rustup`
   default toolchain while the benchmark runs.
