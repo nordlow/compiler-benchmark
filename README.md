@@ -177,6 +177,7 @@ Output](#understanding-metrics-and-table-output)).
 | [C3](https://c3-lang.org/) | [`c3c`](https://github.com/c3lang/c3c) | check, compile, build | ✓ | 2 |
 | [D](https://dlang.org/) | [`dmd`](https://dlang.org/download.html), [`ldmd2`](https://github.com/ldc-developers/ldc), [`gdc`](https://gcc.gnu.org/wiki/GDC) | check, compile, build | ✓ | 2 |
 | [Fortran](https://gcc.gnu.org/wiki/GFortran) | `gfortran` | check, compile, build | – | 2 |
+| [Forth]() | `gforth` | check, compile, build | – | 2 |
 | [Go](https://golang.org/) | `go`, `gccgo` | check, build | ✓ | 2 |
 | [Hare](https://harelang.org/) | `hare` | check, build | – | 2 |
 | [Hylo](https://www.hylo-lang.org/) | `hc` | check, build | ✓ | 2 |
