@@ -278,6 +278,11 @@ def benchmark_compiler_op(code_paths: dict,
 
         out_str = outs.decode('utf8', errors='ignore') if outs else ''
         err_str = errs.decode('utf8', errors='ignore') if errs else ''
+        if lang == 'Scala':
+            err_str = '\n'.join([
+                line for line in err_str.splitlines()
+                if 'sun.misc.Unsafe' not in line and 'scala.runtime.LazyVals$' not in line and 'Please consider reporting this' not in line
+            ]).strip()
         has_out = bool(out_str.strip())
         has_err = bool(err_str.strip())
         if has_err or has_out or returncode != 0:
