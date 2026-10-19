@@ -575,6 +575,23 @@ if should_install "clojure"; then
     pkg_install clojure
 fi
 
+# Scala
+if should_install "scala" || should_install "scalac" || should_install "scala3"; then
+    echo ">> Checking Scala..."
+    if [ "$OS" == "arch" ]; then
+        if command -v paru &> /dev/null; then
+            paru -S --needed scala3
+        elif command -v yay &> /dev/null; then
+            yay -S --needed scala3
+        else
+            echo "Error: paru (or yay) is required to install Scala 3 from the AUR on Arch." >&2
+            exit 1
+        fi
+    else
+        echo ">> Note: Scala 3 package via paru/yay is Arch-only. Please install manually on non-Arch."
+    fi
+fi
+
 # Forth (gforth, 4th, retroforth, kforth-64)
 if should_install "forth" || should_install "gforth"; then
     echo ">> Checking Forth compilers..."
