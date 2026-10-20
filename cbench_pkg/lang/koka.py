@@ -22,11 +22,11 @@ def bm_Koka(results: Results, code_paths, args: argparse.Namespace, op: str, tem
     version = get_compiler_version(cexe)
 
     if op == 'check':
-        cexe_flags = ['--check']
+        cexe_flags = ['--check', '-v0', '--ccopts=-w']
         out_flag_and_exe = []
         exec_cmd = False
     elif op == 'build':
-        cexe_flags = []
+        cexe_flags = ['-v0', '--ccopts=-w']
         out_flag_and_exe = ['-o', out_binary(lang)]
         exec_cmd = True
     else:
