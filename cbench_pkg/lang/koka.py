@@ -12,6 +12,19 @@ from ..types import (
 )
 from ..version import get_compiler_version, resolve_compiler_path
 
+KOKA_MAX_TOTAL_FUNCS = 2_000
+KOKA_CAPPED_DIM = 35
+
+
+def _koka_limits(args: argparse.Namespace) -> list[str]:
+    if args.function_count * args.function_depth > KOKA_MAX_TOTAL_FUNCS:
+        msg = (f"Warning: Capping Koka function count/depth from {args.function_count}x{args.function_depth} "
+               f"to {KOKA_CAPPED_DIM}x{KOKA_CAPPED_DIM} due to C backend compilation scaling limits")
+        args.function_count = KOKA_CAPPED_DIM
+        args.function_depth = KOKA_CAPPED_DIM
+        return [msg]
+    return []
+
 
 def bm_Koka(results: Results, code_paths, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Koka'
@@ -64,6 +77,7 @@ register_language(LangSupport(
     tier=3,
     native_output=_never_native,
     versions=[VersionSpec(('koka',), ['--version'], _koka_parse_version)],
+    limit_args=_koka_limits,
     source_filename=lambda program_name, _templated, _run_ix, ext: f"{program_name}.{ext}",
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, _t: f"fun {fname}(x : {typ}) : {typ} {{ {expr} }}\n"),
