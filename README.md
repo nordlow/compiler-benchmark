@@ -214,6 +214,7 @@ Output](#understanding-metrics-and-table-output)).
 | [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) | `node` | check, build | – | 3 |
 | [Java](https://www.oracle.com/java/) | `javac` | check, build | – | 3 |
 | [Julia](https://julialang.org/) | `julia` | check, build | ✓ | 3 |
+| [Koka](https://koka-lang.github.io/koka/) | `koka` | check, build | – | 3 |
 | [Kotlin](https://kotlinlang.org/) | `kotlinc`, `kotlin` | check, run | – | 3 |
 | [Lua](https://luajit.org/) | `luajit` | check, compile, build | – | 3 |
 | [Perl](https://www.perl.org/) | `perl` | check, build | – | 3 |
@@ -221,6 +222,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Python](https://www.python.org/) | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
 | [Scheme](https://cisco.github.io/ChezScheme/) | `chez`, `scheme` | check, compile, build | – | 3 |
 | [TypeScript](https://www.typescriptlang.org/) | `tsc` | check, compile, build | ✓ | 3 |
+| [Scala](https://www.scala-lang.org/) | `scalac3`, `scalac` | check, build | – | 3 |
 | [R](https://www.r-project.org/) | `R` | check, compile, build | ✓ | 3 |
 
 ### Compiler Discovery
