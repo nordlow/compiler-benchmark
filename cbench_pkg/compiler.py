@@ -283,12 +283,28 @@ def benchmark_compiler_op(code_paths: dict,
                 line for line in err_str.splitlines()
                 if 'sun.misc.Unsafe' not in line and 'scala.runtime.LazyVals$' not in line and 'Please consider reporting this' not in line
             ]).strip()
+        elif lang == 'Koka':
+            err_str = '\n'.join([
+                line for line in err_str.splitlines()
+                if 'vfs:' not in line
+                and '_POSIX_C_SOURCE' not in line
+                and 'kklib.h' not in line
+                and 'features.h' not in line
+                and 'redefined' not in line
+                and 'note:' not in line
+                and 'In file included from' not in line
+                and 'mimalloc.h' not in line
+                and 'static.c' not in line
+                and 'all.c' not in line
+                and not line.strip().startswith('^')
+                and not line.strip().endswith('^')
+                and '|' not in line
+            ]).strip()
         has_out = bool(out_str.strip())
         has_err = bool(err_str.strip())
         if has_err or has_out or returncode != 0:
             setattr(args, 'has_stderr', True)
             setattr(args, 'has_output', True)
-
         if returncode != 0:
             setattr(args, 'has_stderr', True)
             setattr(args, 'has_output', True)
