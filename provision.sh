@@ -592,6 +592,23 @@ if should_install "scala" || should_install "scalac" || should_install "scala3";
     fi
 fi
 
+# Koka
+if should_install "koka"; then
+    echo ">> Checking Koka..."
+    if [ "$OS" == "arch" ]; then
+        if command -v paru &> /dev/null; then
+            paru -S --needed koka-bin
+        elif command -v yay &> /dev/null; then
+            yay -S --needed koka-bin
+        else
+            echo "Error: paru (or yay) is required to install Koka from the AUR on Arch." >&2
+            exit 1
+        fi
+    else
+        echo ">> Note: Koka package via paru/yay is Arch-only. Please install manually on non-Arch."
+    fi
+fi
+
 # Forth (gforth, 4th, retroforth, kforth-64)
 if should_install "forth" || should_install "gforth"; then
     echo ">> Checking Forth compilers..."
