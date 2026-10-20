@@ -4,7 +4,6 @@ Self-contained block: runner(s) + register_language call. To add a new language,
 drop a new module here and it is picked up automatically by the engine.
 """
 import argparse
-import os
 import tempfile
 from shutil import which
 
@@ -31,12 +30,12 @@ def _scala_limits(args: argparse.Namespace) -> list[str]:
 
 def bm_Scala(results: Results, code_paths, args: argparse.Namespace, op: str, templated: bool):
     lang = 'Scala'
-    cexe = resolve_compiler_path(args, lang, 'scalac')
+    cexe = resolve_compiler_path(args, lang, 'scalac') or resolve_compiler_path(args, lang, 'scalac3')
     if not cexe:
         return
 
     version = get_compiler_version(cexe)
-    scala_exe = which('scala') or ('/usr/share/scala3/bin/scala' if os.path.exists('/usr/share/scala3/bin/scala') else 'scala')
+    scala_exe = which('scala') or which('scala3') or 'scala'
 
     if op == 'check':
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -67,7 +66,7 @@ def bm_Scala(results: Results, code_paths, args: argparse.Namespace, op: str, te
 
 register_language(LangSupport(
     name=Lang('Scala'),
-    exes=[Exec('scalac')],
+    exes=[Exec('scalac'), Exec('scalac3')],
     extension=FileExt('scala'),
     int_type=TypeName('Long'),
     runners=[bm_Scala],
@@ -75,7 +74,7 @@ register_language(LangSupport(
     aliases=('scala',),
     tier=3,
     native_output=_never_native,
-    versions=[VersionSpec(('scalac',), ['-version'])],
+    versions=[VersionSpec(('scalac', 'scalac3'), ['-version'])],
     limit_args=_scala_limits,
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, _t: f"  def {fname}(x: {typ}): {typ} = {expr}\n"),
