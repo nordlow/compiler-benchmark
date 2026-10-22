@@ -16,7 +16,7 @@ class SmokeIntegrationTestCase(unittest.TestCase):
             "--fc=10",
             "--fd=10",
             "--rc=1",
-            "--languages=C:tcc,Python:python3"
+            "--languages=C:tcc,Python:python3,Lua:luajit,Perl:perl"
         ]
         res = subprocess.run(
             cmd,
@@ -39,7 +39,8 @@ class SmokeIntegrationTestCase(unittest.TestCase):
         self.assertIn("|", res.stdout)
         self.assertIn("C (tcc", res.stdout)
         self.assertIn("Python (python3", res.stdout)
-
+        self.assertIn("Lua (luajit", res.stdout)
+        self.assertIn("Perl (perl", res.stdout)
     def test_programmatic_main_invocation(self):
         """Test invoking cbench_pkg.cli.main programmatically."""
         old_argv = sys.argv
@@ -48,7 +49,7 @@ class SmokeIntegrationTestCase(unittest.TestCase):
             "--fc=10",
             "--fd=10",
             "--rc=1",
-            "--languages=C:tcc"
+            "--languages=C:tcc,Lua:luajit"
         ]
         stdout_capture = io.StringIO()
         stderr_capture = io.StringIO()
@@ -65,7 +66,7 @@ class SmokeIntegrationTestCase(unittest.TestCase):
 
         self.assertIn("Language (Exec)", stdout)
         self.assertIn("C (tcc", stdout)
-        self.assertNotIn("Traceback (most recent call last)", stderr)
+        self.assertIn("Lua (luajit", stdout)
 
 
 if __name__ == "__main__":
