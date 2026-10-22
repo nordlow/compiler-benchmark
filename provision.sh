@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth"
+    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth, goose"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -248,6 +248,19 @@ if should_install "odin"; then
                 exit 1
             fi
         fi
+    fi
+fi
+# Goose
+if should_install "goose"; then
+    echo ">> Checking Goose..."
+    if ! command -v goose &>/dev/null && [ ! -f "$BIN_DIR/goose" ]; then
+        pkg_install cmake
+        GOOSE_TMP=$(mktemp -d)
+        git clone https://github.com/aardappel/goose.git "$GOOSE_TMP/goose"
+        cmake -S "$GOOSE_TMP/goose" -B "$GOOSE_TMP/goose/build" -DCMAKE_BUILD_TYPE=Release
+        cmake --build "$GOOSE_TMP/goose/build" -j$(nproc)
+        cp "$GOOSE_TMP/goose/build/goose" "$BIN_DIR/goose"
+        rm -rf "$GOOSE_TMP"
     fi
 fi
 
