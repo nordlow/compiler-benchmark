@@ -88,6 +88,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |         Ada (gnat 16.2.1)          |           957=957+0.41           |       32.3      |      N/A       |       19.8       |          51.7          |       263.0       |
 |     Fortran (gfortran 16.2.1)      |          1076=1076+0.20          |      566.3      |     1081.2     |       22.0       |          37.7          |       140.8       |
 |         Swift (swiftc 6.4)         | 1167=1167+0.82<br>2175=2175+0.82 | 621.9<br>1272.8 |      N/A       |   33.4<br>36.6   |      60.2<br>75.1      |   208.5<br>531.3  |
+|          Goose (goose)             | 1873=1822+51.2<br>1882=1831+51.4 | 163.5<br>150.3 |      N/A       |   15.2<br>15.5   |     1690.2<br>1678.4   |   2476.5<br>2476.5  |
 
 
 ### Single-Pass / Minimalist Compilers
