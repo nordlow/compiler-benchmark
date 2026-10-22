@@ -184,6 +184,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Fortran](https://gcc.gnu.org/wiki/GFortran) | `gfortran` | check, compile, build | – | 2 |
 | [Forth]() | `gforth` | check, compile, build | – | 2 |
 | [Go](https://golang.org/) | `go`, `gccgo` | check, build | ✓ | 2 |
+| [Goose](https://github.com/aardappel/goose) | `goose` | check, build | ✓ | 2 |
 | [Hare](https://harelang.org/) | `hare` | check, build | – | 2 |
 | [Hylo](https://www.hylo-lang.org/) | `hc` | check, build | ✓ | 2 |
 | [Nim](https://nim-lang.org/) | `nim` | check, build | ✓ | 2 |
