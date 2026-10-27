@@ -382,6 +382,8 @@ def benchmark_compiler_op(code_paths: dict,
 
 def _worker_init(cpu_list, idx_counter, lock, print_lock, active_tasks, status_len, root_path,
                  is_tree=False):
+    import signal
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     global _worker_active_tasks, _worker_status_len, ROOT_PATH, MAIN_PID
     _worker_active_tasks = active_tasks
     _worker_status_len = status_len

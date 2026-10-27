@@ -41,6 +41,37 @@ class SmokeIntegrationTestCase(unittest.TestCase):
         self.assertIn("Python (python3", res.stdout)
         self.assertIn("Lua (luajit", res.stdout)
         self.assertIn("Perl (perl", res.stdout)
+    def test_cli_interruption(self):
+        """Test cbench CLI execution interrupted by SIGINT."""
+        import time
+        import signal
+        cmd = [
+            sys.executable,
+            "cbench",
+            "--fc=50",
+            "--fd=50",
+            "--rc=5",
+            "--languages=C:tcc,Python:python3,Lua:luajit,Perl:perl"
+        ]
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        time.sleep(0.4)
+        proc.send_signal(signal.SIGINT)
+        try:
+            stdout, stderr = proc.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            stdout, stderr = proc.communicate()
+
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertNotIn("Traceback (most recent call last)", stderr)
+        self.assertNotIn("IndexError", stderr)
+        self.assertNotIn("Fatal Python error", stderr)
+
     def test_programmatic_main_invocation(self):
         """Test invoking cbench_pkg.cli.main programmatically."""
         old_argv = sys.argv
@@ -67,7 +98,6 @@ class SmokeIntegrationTestCase(unittest.TestCase):
         self.assertIn("Language (Exec)", stdout)
         self.assertIn("C (tcc", stdout)
         self.assertIn("Lua (luajit", stdout)
-
 
 if __name__ == "__main__":
     unittest.main()

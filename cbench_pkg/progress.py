@@ -67,16 +67,29 @@ def _parse_task_desc(desc):
 
 def _make_locked_print(orig_print, print_lock, status_len, is_tree=False):
     def _locked_print(*args, **kwargs):
-        with print_lock:
-            if status_len is not None and status_len.value > 0:
-                stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
-                if stream is not None:
-                    _clear_status(stream, status_len.value, is_tree)
-                status_len.value = 0
-            orig_print(*args, **kwargs)
-            dest = kwargs.get("file") or sys.stdout
-            if hasattr(dest, "flush"):
-                dest.flush()
+        try:
+            with print_lock:
+                if status_len is not None:
+                    try:
+                        if status_len.value > 0:
+                            stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+                            if stream is not None:
+                                _clear_status(stream, status_len.value, is_tree)
+                            status_len.value = 0
+                    except Exception:
+                        pass
+                orig_print(*args, **kwargs)
+                dest = kwargs.get("file") or sys.stdout
+                if hasattr(dest, "flush"):
+                    try:
+                        dest.flush()
+                    except Exception:
+                        pass
+        except BaseException:
+            try:
+                orig_print(*args, **kwargs)
+            except Exception:
+                pass
     return _locked_print
 
 
@@ -87,15 +100,12 @@ def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, 
         return
 
     while not stop_event.wait(PROGRESS_POLL_INTERVAL_SEC):
+        now = time.time()
         try:
             current_tasks = list(active_tasks.values())
+            done = completed_counter.value
         except Exception:
             continue
-
-        now = time.time()
-        current_tasks.sort(key=lambda item: item[1])
-
-        done = completed_counter.value
         term_size = shutil.get_terminal_size((80, 24))
         term_cols = term_size.columns
         term_lines = term_size.lines
@@ -126,11 +136,14 @@ def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, 
                         break
                 status_text = header + line
 
-            with print_lock:
-                pad = max(0, status_len.value - len(status_text))
-                stream.write("\r" + status_text + (" " * pad) + "\r" + status_text)
-                stream.flush()
-                status_len.value = len(status_text) + pad
+            try:
+                with print_lock:
+                    pad = max(0, status_len.value - len(status_text))
+                    stream.write("\r" + status_text + (" " * pad) + "\r" + status_text)
+                    stream.flush()
+                    status_len.value = len(status_text) + pad
+            except Exception:
+                pass
         else:
             if not current_tasks:
                 tree_lines = [f"[{done}/{total_tasks}] Waiting for tasks..."]
@@ -168,9 +181,12 @@ def _progress_monitor(active_tasks, completed_counter, total_tasks, stop_event, 
 
             tree_lines = [line[:term_cols] for line in tree_lines]
 
-            with print_lock:
-                _clear_status(stream, status_len.value, is_tree=True)
-                status_text = "\n".join(tree_lines)
-                stream.write(status_text)
-                stream.flush()
-                status_len.value = len(tree_lines)
+            try:
+                with print_lock:
+                    _clear_status(stream, status_len.value, is_tree=True)
+                    status_text = "\n".join(tree_lines)
+                    stream.write(status_text)
+                    stream.flush()
+                    status_len.value = len(tree_lines)
+            except Exception:
+                pass

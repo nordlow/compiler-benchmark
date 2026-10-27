@@ -287,88 +287,95 @@ def main():
     core_desc = "performance CPU core(s)" if is_hetero else "CPU core(s)"
     print(f"Running benchmarks in parallel across {cpu_use_count} {core_desc} (1 worker per core)...")
 
-    manager = mp.Manager()
-    idx_counter = manager.Value('i', 0)
-    lock = manager.Lock()
-    print_lock = manager.Lock()
-    active_tasks = manager.dict()
-    status_line_len = manager.Value('i', 0)
-    completed_counter = manager.Value('i', 0)
+    with mp.Manager() as manager:
+        idx_counter = manager.Value('i', 0)
+        lock = mp.Lock()
+        print_lock = mp.Lock()
+        active_tasks = manager.dict()
+        status_line_len = manager.Value('i', 0)
+        completed_counter = manager.Value('i', 0)
 
-    global ROOT_PATH
-    ROOT_PATH = tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX, dir=TEMP_DIR_BASE)
-    call_proc_dirs = {os.path.abspath(os.path.join(ROOT_PATH, f"proc_{MAIN_PID}"))}
+        global ROOT_PATH
+        ROOT_PATH = tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX, dir=TEMP_DIR_BASE)
+        call_proc_dirs = {os.path.abspath(os.path.join(ROOT_PATH, f"proc_{MAIN_PID}"))}
 
-    def cleanup_call_empty_dirs():
-        if os.getpid() != MAIN_PID:
-            return
-        for proc_dir in sorted(call_proc_dirs, key=len, reverse=True):
-            if os.path.isdir(proc_dir):
-                for dirpath, _, _ in os.walk(proc_dir, topdown=False):
+        def cleanup_call_empty_dirs():
+            if os.getpid() != MAIN_PID:
+                return
+            for proc_dir in sorted(call_proc_dirs, key=len, reverse=True):
+                if os.path.isdir(proc_dir):
+                    for dirpath, _, _ in os.walk(proc_dir, topdown=False):
+                        try:
+                            os.rmdir(dirpath)
+                        except OSError:
+                            pass
+            if ROOT_PATH and os.path.isdir(ROOT_PATH):
+                for dirpath, _, _ in os.walk(ROOT_PATH, topdown=False):
                     try:
                         os.rmdir(dirpath)
                     except OSError:
                         pass
-        if ROOT_PATH and os.path.isdir(ROOT_PATH):
-            for dirpath, _, _ in os.walk(ROOT_PATH, topdown=False):
                 try:
-                    os.rmdir(dirpath)
+                    os.rmdir(ROOT_PATH)
                 except OSError:
                     pass
+
+        atexit.register(cleanup_call_empty_dirs)
+
+        stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+        progress_mode = args.progress
+        if progress_mode == "auto":
+            if _supports_tree_progress(stream):
+                progress_mode = "tree"
+            elif stream is not None and stream.isatty():
+                progress_mode = "line"
+            else:
+                progress_mode = "none"
+        is_tree = (progress_mode == "tree")
+
+        builtins.print = _make_locked_print(builtins.print, print_lock, status_line_len, is_tree)
+
+        stop_monitor = threading.Event()
+        monitor_thread = threading.Thread(
+            target=_progress_monitor,
+            args=(active_tasks, completed_counter, len(tasks), stop_monitor, print_lock,
+                  status_line_len, progress_mode),
+            daemon=True,
+        )
+        monitor_thread.start()
+
+        try:
+            with mp.Pool(processes=cpu_use_count, initializer=_worker_init,
+                         initargs=(cpus, idx_counter, lock, print_lock, active_tasks,
+                                   status_line_len, ROOT_PATH, is_tree)) as pool:
+                for p in getattr(pool, '_pool', []):
+                    if getattr(p, 'pid', None):
+                        call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{p.pid}")))
+                try:
+                    for res, worker_pid in pool.imap_unordered(_run_task, tasks):
+                        completed_counter.value += 1
+                        call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{worker_pid}")))
+                        if res:
+                            _merge_results(results, res)
+                except (IndexError, RuntimeError, EOFError):
+                    pass
+        except KeyboardInterrupt:
+            stop_monitor.set()
+            print("\nBenchmark interrupted by user.", file=sys.stderr)
+            sys.exit(130)
+        finally:
+            stop_monitor.set()
+            monitor_thread.join(timeout=MONITOR_JOIN_TIMEOUT_SEC)
             try:
-                os.rmdir(ROOT_PATH)
-            except OSError:
+                with print_lock:
+                    if status_line_len.value > 0:
+                        stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
+                        if stream is not None:
+                            _clear_status(stream, status_line_len.value, is_tree)
+                        status_line_len.value = 0
+            except BaseException:
                 pass
-
-    atexit.register(cleanup_call_empty_dirs)
-
-    stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
-    progress_mode = args.progress
-    if progress_mode == "auto":
-        if _supports_tree_progress(stream):
-            progress_mode = "tree"
-        elif stream is not None and stream.isatty():
-            progress_mode = "line"
-        else:
-            progress_mode = "none"
-    is_tree = (progress_mode == "tree")
-
-    builtins.print = _make_locked_print(builtins.print, print_lock, status_line_len, is_tree)
-
-    stop_monitor = threading.Event()
-    monitor_thread = threading.Thread(
-        target=_progress_monitor,
-        args=(active_tasks, completed_counter, len(tasks), stop_monitor, print_lock,
-              status_line_len, progress_mode),
-        daemon=True,
-    )
-    monitor_thread.start()
-
-    try:
-        with mp.Pool(processes=cpu_use_count, initializer=_worker_init,
-                     initargs=(cpus, idx_counter, lock, print_lock, active_tasks,
-                               status_line_len, ROOT_PATH, is_tree)) as pool:
-            for p in getattr(pool, '_pool', []):
-                if getattr(p, 'pid', None):
-                    call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{p.pid}")))
-            for res, worker_pid in pool.imap_unordered(_run_task, tasks):
-                completed_counter.value += 1
-                call_proc_dirs.add(os.path.abspath(os.path.join(ROOT_PATH, f"proc_{worker_pid}")))
-                if res:
-                    _merge_results(results, res)
-    except KeyboardInterrupt:
-        print("\nBenchmark interrupted by user.", file=sys.stderr)
-        sys.exit(130)
-    finally:
-        stop_monitor.set()
-        monitor_thread.join(timeout=MONITOR_JOIN_TIMEOUT_SEC)
-        with print_lock:
-            if status_line_len.value > 0:
-                stream = sys.stderr if sys.stderr.isatty() else (sys.stdout if sys.stdout.isatty() else None)
-                if stream is not None:
-                    _clear_status(stream, status_line_len.value, is_tree)
-                status_line_len.value = 0
-        cleanup_call_empty_dirs()
+            cleanup_call_empty_dirs()
 
     print()
     print(markdown_table(table_titles(args.values, results), results, values_mode=args.values,
