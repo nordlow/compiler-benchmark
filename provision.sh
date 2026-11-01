@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth, goose"
+    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth, goose, moonbit"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -639,3 +639,10 @@ if should_install "forth" || should_install "gforth"; then
         pkg_install gforth
     fi
 fi
+
+# MoonBit (moonbit / moon)
+if should_install "moonbit" || should_install "moon"; then
+    echo ">> Installing MoonBit toolchain..."
+    curl -fsSL https://cli.moonbitlang.com/install/unix.sh | sh
+fi
+

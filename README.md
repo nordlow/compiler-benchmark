@@ -110,6 +110,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |        Language (Exec)        |     Total=Build+Run [µs/f]     |   Check [µs/f]   | Compile [µs/f] | Check RSS [kB/f] |    Build RSS [kB/f]    | Output Size [B/f] |
 | :---------------------------: | :----------------------------: | :--------------: | :------------: | :--------------: | :--------------------: | :---------------: |
 |  Lua (luajit 2.1.1788856981)  |            5=3+1.4             |       3.6        |      3.3       |       0.7        |          0.7           |        N/A        |
+| MoonBit (moon 0.1.20261028) |      0.4=0.4+0.0       |     0.4      |      N/A       |       0.3        |       0.3        |        N/A        |
 |    Python (python3 3.14.8)    |     32=29+2.9<br>48=43+5.4     |   28.0<br>39.9   |  26.5<br>39.3  |   11.2<br>14.3   |      11.3<br>14.3      |        N/A        |
 | Python (python3.15 3.15.0rc3) |     39=37+2.9<br>57=51+6.6     |   35.0<br>52.8   |  33.2<br>49.9  |   11.3<br>14.3   |      11.3<br>14.5      |        N/A        |
 |       C# (mcs 6.12.0.0)       |           50=35+15.4           |       33.8       |      N/A       |       5.0        |          5.2           |        N/A        |
@@ -221,8 +222,7 @@ Output](#understanding-metrics-and-table-output)).
 | [Koka](https://koka-lang.github.io/koka/) | `koka` | check, build | – | 3 |
 | [Kotlin](https://kotlinlang.org/) | `kotlinc`, `kotlin` | check, run | – | 3 |
 | [Lua](https://luajit.org/) | `luajit` | check, compile, build | – | 3 |
-| [Perl](https://www.perl.org/) | `perl` | check, build | – | 3 |
-| [OCaml](https://ocaml.org/) | `ocamlc`, `ocamlopt` | check, build | – | 3 |
+| [MoonBit](https://www.moonbitlang.com/) | `moon` | check, build | – | 3 |
 | [Python](https://www.python.org/) | `python3`, `pypy3` | check, compile, build | ✓ | 3 |
 | [Scheme](https://cisco.github.io/ChezScheme/) | `chez`, `scheme` | check, compile, build | – | 3 |
 | [TypeScript](https://www.typescriptlang.org/) | `tsc` | check, compile, build | ✓ | 3 |
