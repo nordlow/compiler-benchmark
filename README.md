@@ -128,6 +128,7 @@ The output on Arch Linux (as of 2026-09) for the sample call
 |    Julia (julia 1.14.0-DEV)   |   523=523+0.0<br>444=444+0.0   |   16.6<br>13.5   |      N/A       |    8.8<br>8.7    |      12.1<br>12.4      |        N/A        |
 |     OCaml (ocamlopt 5.5.0)    |          527=527+0.21          |      112.7       |      N/A       |       16.8       |          52.4          |       579.1       |
 |    Common-Lisp (sbcl 2.6.9)   |          536=536+0.41          |      462.2       |     481.0      |       4.3        |          5.6           |       1481.3      |
+|    Bend (bend 2.0.39)         | 664.4=664.4+0.03<br>760.0=760.0+0.03 | 163.3<br>151.9 |      N/A       |   17.2<br>17.1   |   62.4<br>62.1   |     0.8<br>0.8    |
 |     F# (dotnet 14.0.112.0)    |         1994=1994+0.0          |      1164.1      |      N/A       |       43.9       |          61.3          |        N/A        |
 |      Haskell (ghc 9.6.7)      | 3823=3821+1.6<br>4138=4136+1.6 | 2272.5<br>2277.9 |      N/A       |   62.6<br>63.9   | 81.5<br>sampling error |   657.3<br>616.3  |
 |  JavaScript (node 26.11.1)    |            6=5+0.41            |       2.1        |      N/A       |       2.2        |          2.8           |        N/A        |
@@ -202,6 +203,7 @@ Output](#understanding-metrics-and-table-output)).
 
 | Language | Compilers & Toolchains | Operations | Templated | Tier |
 | :--- | :--- | :--- | :---: | :---: |
+| [Bend](https://bend-lang.com/) | `bend` | check, build | ✓ | 3 |
 | [C#](https://learn.microsoft.com/dotnet/csharp/) | `mcs`, `csc` | check, build | – | 3 |
 | [Clojure](https://clojure.org/) | `clojure` | check, run | – | 3 |
 | [Common-Lisp](https://lisp-lang.org/) | `sbcl` | check, compile, build | – | 3 |
