@@ -99,5 +99,21 @@ class SmokeIntegrationTestCase(unittest.TestCase):
         self.assertIn("C (tcc", stdout)
         self.assertIn("Lua (luajit", stdout)
 
+    def test_all_languages_documented_in_readme(self):
+        """Ensure every registered language is documented in README.md."""
+        import re
+        import cbench_pkg.types
+        import cbench_pkg.cli  # noqa: F401
+        with open("README.md", "r") as f:
+            readme = f.read()
+        for lang_name in cbench_pkg.types.LANGUAGES:
+            pattern = rf'(?:\[{re.escape(lang_name)}\]|\b{re.escape(lang_name)}\s*\()'
+            found = bool(re.search(pattern, readme))
+            cell_pattern = rf'\|\s*{re.escape(lang_name)}\s*\|'
+            if not found:
+                found = bool(re.search(cell_pattern, readme))
+            self.assertTrue(found, f"Language '{lang_name}' is registered in code but missing from README.md tables")
+
+
 if __name__ == "__main__":
     unittest.main()
