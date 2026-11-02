@@ -20,7 +20,8 @@ from ..version import resolve_compiler_path, find_compiler_versions, get_compile
 from ..compiler import benchmark_compiler_op, build_compiler_cmd, out_directory, out_binary
 from ._shared import _ocaml_julia_limits
 
-JULIA_FLAGS = ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
+JULIA_COMMON_FLAGS = ['--startup-file=no', '--history-file=no', '--depwarn=no', '--threads=1']
+JULIA_FLAGS = JULIA_COMMON_FLAGS + ['--compile=min', '-O0']  # See: https://github.com/JuliaLang/julia/issues/41360#issuecomment-872075102
 
 
 def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templated: bool):
@@ -29,7 +30,7 @@ def bm_Julia(results: Results, code_paths, args: argparse.Namespace, op, templat
     if not cexe:
         return None
     if op == 'check':
-        cexe_flags = ['-e', 'ex = Meta.parse("begin\\n" * read(ARGS[1], String) * "\\nend"); if isa(ex, Expr) && ex.head === :error; error(string(ex.args[1])); end', '--']
+        cexe_flags = JULIA_COMMON_FLAGS + ['-e', 'ex = Meta.parse("begin\\n" * read(ARGS[1], String) * "\\nend"); if isa(ex, Expr) && ex.head === :error; error(string(ex.args[1])); end', '--']
     elif op == 'build':
         cexe_flags = JULIA_FLAGS
     else:
