@@ -15,7 +15,7 @@ from ..types import (
     Lang, Exec, FileExt, TypeName, LangSupport, register_language,
     make_func_emitter, plain_call, function_name, lisp_let_middle,
     _default_leaf, _default_chain, _no_limits, _no_text, _defs_then_header,
-    _always_native, _never_native, default_exes, VersionSpec, DEFAULT_PROGRAM_NAME, Op, DEFAULT_RUN_COUNT, lang_support, _default_source_filename,
+    _always_native, _never_native, default_exes, VersionSpec, DEFAULT_PROGRAM_NAME, Op, DEFAULT_RUN_COUNT, lang_support,
 )
 from ..version import resolve_compiler_path, find_compiler_versions, get_compiler_version
 from ..compiler import benchmark_compiler_op, build_compiler_cmd, out_directory, out_binary
@@ -128,12 +128,10 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                                     postfix=lambda types: "    return (int)" + types[0] + "_sum;\n}\n")
                 for run_ix in range(getattr(args, 'run_count', DEFAULT_RUN_COUNT)):
                     src_key = sourceIdOf(lang, templated, run_ix)
-                    if src_key in code_paths:
-                        continue
                     src_text = generate_test_program_source(znx_spec, args, templated, order_sections=znx_spec.order_sections)
                     src_dir = os.path.abspath(out_directory(lang))
                     os.makedirs(src_dir, exist_ok=True)
-                    src_path = os.path.join(src_dir, _default_source_filename(DEFAULT_PROGRAM_NAME, templated, run_ix, znx_spec.extension))
+                    src_path = os.path.join(src_dir, f"main_{cexe}_{run_ix}{znx_spec.extension}")
                     with open(src_path, 'w') as sink:
                         sink.write(src_text)
                     code_paths[src_key] = src_path
