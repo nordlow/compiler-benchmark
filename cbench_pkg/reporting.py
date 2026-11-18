@@ -89,8 +89,8 @@ def is_machine_code_binary(path: str, lang: str, cexe: str) -> bool:
         return False
 
 
-def sourceIdOf(lang: str, templated: bool, run_ix):
-    return f"{lang}-{'Templated' if templated else 'Untemplated'}-{run_ix}"
+def sourceIdOf(lang: str, templated: bool, run_ix, cexe: str = ''):
+    return f"{lang}-{'Templated' if templated else 'Untemplated'}-{run_ix}-{cexe}"
 
 
 def format_metric_columns(results: Results, col: RawCol, values_mode: str = "absolute",

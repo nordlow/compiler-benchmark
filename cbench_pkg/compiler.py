@@ -256,7 +256,7 @@ def benchmark_compiler_op(code_paths: dict,
         _worker_active_tasks[worker_pid] = (f"{lang}{tmpl_suffix} ({cname}) [{op}]", time.time())
 
     for run_ix in range(args.run_count):
-        src_key = sourceIdOf(lang, templated, run_ix)
+        src_key = sourceIdOf(lang, templated, run_ix, cexe)
         if src_key in code_paths:
             src_path = code_paths[src_key]
         else:

@@ -32,16 +32,16 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
         d_flags += ['-w', '-dip1008', '-dip1000']
 
     if op == 'check':
-        cexe_flags = ['-o-']
+        op_flags = ['-o-']
     elif op == 'compile':
-        cexe_flags = ['-c']
+        op_flags = ['-c']
     elif op == 'build':
         if which('ld.lld') is not None:
-            cexe_flags = ["-Xcc=-fuse-ld=lld"]
+            op_flags = ["-Xcc=-fuse-ld=lld"]
         elif which('ld.gold') is not None:
-            cexe_flags = ["-Xcc=-fuse-ld=gold"]
+            op_flags = ["-Xcc=-fuse-ld=gold"]
         else:
-            cexe_flags = []
+            op_flags = []
     else:
         return None
 
@@ -66,7 +66,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                                       out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                                       cexe=cexe,
                                       exec_cmd=True,
-                                      cexe_flags=d_flags + cexe_flags,
+                                      cexe_flags = d_flags + op_flags,
                                       args=args,
                                       op=op,
                                       compiler_version=version,
@@ -84,7 +84,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                                   out_flag_and_exe=['-of=' + out_binary(lang)] if op == 'build' else [],
                                   cexe=cexe,
                                   exec_cmd=True,
-                                  cexe_flags=d_flags + cexe_flags,
+                                  cexe_flags = d_flags + op_flags,
                                   args=args,
                                   op=op,
                                   compiler_version=version,
@@ -127,7 +127,7 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                                     main_header=lambda types, t: "int main() {\n",
                                     postfix=lambda types: "    return (int)" + types[0] + "_sum;\n}\n")
                 for run_ix in range(getattr(args, 'run_count', DEFAULT_RUN_COUNT)):
-                    src_key = sourceIdOf(lang, templated, run_ix)
+                    src_key = sourceIdOf(lang, templated, run_ix, cexe)
                     src_text = generate_test_program_source(znx_spec, args, templated, order_sections=znx_spec.order_sections)
                     src_dir = os.path.abspath(out_directory(lang))
                     os.makedirs(src_dir, exist_ok=True)

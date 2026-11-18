@@ -198,11 +198,23 @@ def main():
             continue
 
         candidate_exes = exes if exes else [str(e) for e in LANGUAGES[language].exes]
+        known_exes = args.language_exes.get(language) or []
+        previous_exes = args.language_exes.get(language)
+        if exes:
+            # Exes requested by this spec extend exes accepted by earlier specs for this language.
+            args.language_exes[language] = known_exes + [e for e in candidate_exes if e not in known_exes]
         found_exes = [
             exe for exe in candidate_exes
             if any(resolve_compiler_path(args, language, f"{exe}{v}") for v in VERSIONS)
         ]
+        if exes and found_exes:
+            args.language_exes[language] = known_exes + found_exes
         if not found_exes:
+            if exes:
+                if previous_exes is None:
+                    args.language_exes.pop(language, None)
+                else:
+                    args.language_exes[language] = previous_exes
             if user_specified_languages:
                 exe_str = candidate_exes[0] if len(candidate_exes) == 1 else f"any of {', '.join(candidate_exes)}"
                 print(f"Warning: Ignoring unsupported language {language} ({exe_str} binary not found in PATH)")
@@ -214,10 +226,11 @@ def main():
                 print(f"Warning: Compiler binary '{m}' for language {language} not found in PATH")
 
         actual_exes = found_exes if exes else []
-        if language in args.language_exes:
-            args.language_exes[language] += actual_exes
-        else:
-            args.language_exes[language] = actual_exes
+        if exes:
+            merged_exes = list(dict.fromkeys(known_exes + actual_exes))
+            args.language_exes[language] = merged_exes
+        elif language not in args.language_exes:
+            args.language_exes[language] = []
 
     if not args.language_exes and not user_specified_languages:
         args.language_exes = {name: list(spec.exes) for name, spec in LANGUAGES.items()}
