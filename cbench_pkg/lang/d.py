@@ -157,9 +157,9 @@ register_language(LangSupport(
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: (
             f"{'T' if t else typ} {fname}{'(T)' if t else ''}({'T' if t else typ} x)"
-            f" @safe pure nothrow @nogc {{ return {expr}; }}\n"),
+            f" {{ return {expr}; }}\n"),
     ),
-    main_header=lambda types, t: 'extern(C) int main() @safe {\n',
+    main_header=lambda types, t: 'extern(C) int main() {\n',
     var_decl=lambda typ, t: f"    {typ} {typ}_sum = 0;\n",
     postfix=lambda types: f"    return cast(int){types[0]}_sum;\n}}\n",
 ))
