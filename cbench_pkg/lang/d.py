@@ -8,16 +8,19 @@ import copy
 import os
 import shutil
 import tempfile
+from dataclasses import replace
 from shutil import which
 
 from ..types import (
     Lang, Exec, FileExt, TypeName, LangSupport, register_language,
     make_func_emitter, plain_call, function_name, lisp_let_middle,
     _default_leaf, _default_chain, _no_limits, _no_text, _defs_then_header,
-    _always_native, _never_native, default_exes, VersionSpec, DEFAULT_PROGRAM_NAME,
+    _always_native, _never_native, default_exes, VersionSpec, DEFAULT_PROGRAM_NAME, Op, DEFAULT_RUN_COUNT, lang_support, _default_source_filename,
 )
 from ..version import resolve_compiler_path, find_compiler_versions, get_compiler_version
 from ..compiler import benchmark_compiler_op, build_compiler_cmd, out_directory, out_binary
+from ..generation import generate_test_program_source
+from ..reporting import sourceIdOf
 
 def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: bool, use_dips: bool = False):
     lang = 'D'
@@ -102,10 +105,54 @@ def bm_D(results: Results, code_paths, args: argparse.Namespace, op, templated: 
                                   lang=lang,
                                   templated=templated,
                                   results=results)
+        elif cexe.startswith('znx'):
+            if templated:
+                return
+            version = get_compiler_version(cexe)
+            if op == 'check':
+                cexe_flags = ['-lang=d', '-c']
+                out_flag_and_exe = ['-o', '/dev/null']
+            elif op == 'compile':
+                cexe_flags = ['-lang=d', '-c']
+                out_flag_and_exe = []
+            elif op == 'build':
+                cexe_flags = ['-lang=d']
+                out_flag_and_exe = ['-o', out_binary(lang)]
+            else:
+                return None
+
+            if op in ('check', 'compile', 'build'):
+                znx_spec = replace(lang_support(lang), func_emitter=make_func_emitter(
+                                        define=lambda fname, typ, expr, t: f"{typ} {fname}({typ} x) {{ return {expr}; }}\n"),
+                                    main_header=lambda types, t: "int main() {\n",
+                                    postfix=lambda types: "    return (int)" + types[0] + "_sum;\n}\n")
+                for run_ix in range(getattr(args, 'run_count', DEFAULT_RUN_COUNT)):
+                    src_key = sourceIdOf(lang, templated, run_ix)
+                    if src_key in code_paths:
+                        continue
+                    src_text = generate_test_program_source(znx_spec, args, templated, order_sections=znx_spec.order_sections)
+                    src_dir = os.path.abspath(out_directory(lang))
+                    os.makedirs(src_dir, exist_ok=True)
+                    src_path = os.path.join(src_dir, _default_source_filename(DEFAULT_PROGRAM_NAME, templated, run_ix, znx_spec.extension))
+                    with open(src_path, 'w') as sink:
+                        sink.write(src_text)
+                    code_paths[src_key] = src_path
+
+            benchmark_compiler_op(code_paths=code_paths,
+                                  out_flag_and_exe=out_flag_and_exe,
+                                  cexe=cexe,
+                                  exec_cmd=(op == 'build'),
+                                  cexe_flags=cexe_flags,
+                                  args=args,
+                                  op=op,
+                                  compiler_version=version,
+                                  lang=lang,
+                                  templated=templated,
+                                  results=results)
 
 
 register_language(LangSupport(
-    name=Lang('D'), exes=[Exec('dmd'), Exec('ldmd2'), Exec('gdc')], extension=FileExt('d'), int_type=TypeName('long'),
+    name=Lang('D'), exes=[Exec('dmd'), Exec('ldmd2'), Exec('gdc'), Exec('znx')], extension=FileExt('d'), int_type=TypeName('long'),
     runners=[bm_D],
     ops=('check', 'compile', 'build'),
     templated_variants=(False, True),

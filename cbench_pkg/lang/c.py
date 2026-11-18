@@ -88,6 +88,38 @@ def bm_C_using_tcc(results: Results, code_paths: list, args: argparse.Namespace,
                           results=results)
 
 
+def bm_C_using_znx(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
+    lang = 'C'
+    cexe = resolve_compiler_path(args, lang, 'znx')
+    if not cexe:
+        return
+
+    if op == 'check':
+        cexe_flags = ['-c']
+        out_flag_and_exe = ['-o', '/dev/null']
+    elif op == 'compile':
+        cexe_flags = ['-c']
+        out_flag_and_exe = []
+    elif op == 'build':
+        cexe_flags = []
+        out_flag_and_exe = ['-o', out_binary(lang)]
+    else:
+        return None
+
+    version = get_compiler_version(cexe)
+    benchmark_compiler_op(code_paths,
+                          out_flag_and_exe=out_flag_and_exe,
+                          cexe=cexe,
+                          exec_cmd=(op == 'build'),
+                          cexe_flags=cexe_flags,
+                          args=args,
+                          op=op,
+                          compiler_version=version,
+                          lang=lang,
+                          templated=templated,
+                          results=results)
+
+
 def bm_C_using_cuik(results: Results, code_paths: list, args: argparse.Namespace, op: str, templated: bool):
     lang = 'C'
     cexe = resolve_compiler_path(args, lang, 'cuik')
@@ -132,21 +164,23 @@ def bm_C_using_cuik(results: Results, code_paths: list, args: argparse.Namespace
 
 
 register_language(LangSupport(
-    name=Lang('C'), exes=[Exec('tcc'), Exec('cuik'), Exec('cproc'), Exec('gcc'), Exec('clang')],
+    name=Lang('C'), exes=[Exec('tcc'), Exec('cuik'), Exec('cproc'), Exec('gcc'), Exec('clang'), Exec('znx')],
     extension=FileExt('c'), int_type=TypeName('long'),
     runners=[
         bm_C_using_tcc,
+        bm_C_using_znx,
         bm_C_using_cuik,
         bm_C_using_cproc,
         lambda r, cp, a, op, t: bm_C_and_Cxx_using_gcc(r, 'C', cp, a, op, t),
         lambda r, cp, a, op, t: bm_C_and_Cxx_using_clang(r, 'C', cp, a, op, t),
     ],
     ops=('check', 'compile', 'build'),
-    exe_tiers={'tcc': 1, 'cuik': 1, 'cproc': 1},
+    exe_tiers={'tcc': 1, 'cuik': 1, 'cproc': 1, 'znx': 1},
     versions=[
         VersionSpec(('cproc',), fixed='unknown'),
         VersionSpec(('cuik',), fixed='~master'),
         VersionSpec(('tcc',), ['-v']),
+        VersionSpec(('znx',), ['-v']),
     ],
     func_emitter=make_func_emitter(
         define=lambda fname, typ, expr, t: f"{typ} {fname}({typ} x) {{ return {expr}; }}\n"),

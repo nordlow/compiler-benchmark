@@ -14,7 +14,7 @@ show_help() {
     echo "  --help              Show this help message."
     echo ""
     echo "Available Language Keys:"
-    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth, goose, moonbit"
+    echo "  gcc, llvm, csharp, dmd, rust, nim, c3, vlang, zig, circle, swift, vox, cproc, cuik, pareas, crystal, fpc, ghc, fortran, hare, odin, scheme, pony, typescript, dart, sbcl, guile, roc, fsharp, kotlin, clojure, forth, goose, moonbit, znx"
     echo ""
     echo "Examples:"
     echo "  $0 --languages=all"
@@ -350,6 +350,21 @@ if should_install "cuik"; then
 		install -m 755 bin/cuik "$BIN_DIR/cuik"
         popd
         rm -rf "$CUIK_TMP"
+    fi
+fi
+
+# Zonix
+if should_install "znx"; then
+    echo ">> Checking Zonix..."
+    if [ ! -f "$BIN_DIR/znx" ]; then
+        ZNX_TMP=$(mktemp -d)
+        git clone --depth 1 https://codeberg.org/nordlow/zonix.git "$ZNX_TMP"
+        pushd "$ZNX_TMP"
+        ./configure --prefix="$INSTALL_DIR"
+        make -j$(nproc)
+        make install
+        popd
+        rm -rf "$ZNX_TMP"
     fi
 fi
 
