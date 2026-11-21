@@ -178,11 +178,11 @@ Output](#understanding-metrics-and-table-output)).
 | Language | Compilers & Toolchains | Operations | Templated | Tier |
 | :--- | :--- | :--- | :---: | :---: |
 | [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) | `gnat` | check, build | – | 2 |
-| [C](https://en.wikipedia.org/wiki/C_(programming_language)) | `tcc`, `cuik`, `cproc`, `znx` | check, compile, build | – | 1 |
+| [C](https://en.wikipedia.org/wiki/C_(programming_language)) | `tcc`, `cuik`, `cproc` | check, compile, build | – | 1 |
 | [C](https://en.wikipedia.org/wiki/C_(programming_language)) | [`gcc`](https://gcc.gnu.org/), [`clang`](https://clang.llvm.org/) | check, compile, build | – | 2 |
 | [C++](https://isocpp.org/) | [`g++`](https://gcc.gnu.org/), [`clang++`](https://clang.llvm.org/) | check, compile, build | ✓ | 2 |
 | [C3](https://c3-lang.org/) | [`c3c`](https://github.com/c3lang/c3c) | check, compile, build | ✓ | 2 |
-| [D](https://dlang.org/) | [`dmd`](https://dlang.org/download.html), [`ldmd2`](https://github.com/ldc-developers/ldc), [`gdc`](https://gcc.gnu.org/wiki/GDC), [`znx`](https://codeberg.org/nordlow/zonix/) | check, compile, build | ✓ | 2 |
+| [D](https://dlang.org/) | [`dmd`](https://dlang.org/download.html), [`ldmd2`](https://github.com/ldc-developers/ldc), [`gdc`](https://gcc.gnu.org/wiki/GDC) | check, compile, build | ✓ | 2 |
 | [Fortran](https://gcc.gnu.org/wiki/GFortran) | `gfortran` | check, compile, build | – | 2 |
 | [Forth]() | `gforth` | check, compile, build | – | 2 |
 | [Go](https://golang.org/) | `go`, `gccgo` | check, build | ✓ | 2 |
@@ -366,7 +366,7 @@ Results are printed as Markdown tables, split into three tiers according to comp
 
 | Tier | Contents |
 | :--- | :--- |
-| **Tier 1: Single-Pass / Minimalist Compilers** | `tcc`, `cuik`, `cproc`, `znx`: no SSA optimization, no borrow checking, trivial type systems, instant code emission. |
+| **Tier 1: Single-Pass / Minimalist Compilers** | `tcc`, `cuik`, `cproc`: no SSA optimization, no borrow checking, trivial type systems, instant code emission. |
 | **Tier 2: Modern Systems Languages (Ahead-of-Time)** | Full type inference, monomorphization/generics, semantic safety, module systems. |
 | **Tier 3: Managed & VM / JIT / Scripting** | Bytecode emission, runtime metadata, GC runtimes. |
 
