@@ -7,4 +7,14 @@ compiler-benchmark
 __pycache__/
 *~
 erl_crash.dump
+
+# Agents
 .agents/
+**/.agent-shell/
+
+# Serena MCP
+.serena/.gitignore
+.serena/project.yml
+znx_s
+# https://github.com/ferax564/codixing
+.codixing/
